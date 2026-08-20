@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Virtualenv
+venv/
+.venv/
+
+# Local state: the persistent ID store + record cache. Rebuildable via uplers_sync_index().
+data/
+*.sqlite3
+*.sqlite3-journal
+
+# Secrets (this server needs none, but never commit one by accident)
+.env
+.env.*
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
