@@ -107,8 +107,16 @@ class SyncScheduler:
     # -- lifecycle ---------------------------------------------------------
 
     def start(self) -> asyncio.Task:
+        """Create the polling task on the RUNNING loop. Idempotent.
+
+        get_running_loop rather than get_event_loop: the latter is deprecated
+        outside a coroutine and would create a second, orphaned loop if this
+        were ever called from synchronous code. There is no loop to attach to
+        before mcp.run() starts one, which is why the server calls this from
+        its first tool invocation rather than from main().
+        """
         if self._task is None or self._task.done():
-            self._task = asyncio.get_event_loop().create_task(self.run())
+            self._task = asyncio.get_running_loop().create_task(self.run())
         return self._task
 
     async def stop(self) -> None:

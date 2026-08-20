@@ -12,6 +12,7 @@ is to record that it was constructed.
 
 from __future__ import annotations
 
+import asyncio
 from datetime import datetime, timedelta
 
 import pytest
@@ -296,3 +297,67 @@ def test_the_module_level_scheduler_is_created_only_on_demand():
 
     assert first is second
     scheduler._SCHEDULER = None
+
+
+# --- lifecycle ------------------------------------------------------------
+
+
+async def test_start_is_idempotent_and_stop_ends_the_task(db, fake_sync):
+    task = make(db, poll_seconds=3600)
+
+    first = task.start()
+    second = task.start()
+
+    assert first is second
+    assert task.running is True
+
+    await task.stop()
+
+    assert task.running is False
+
+
+async def test_cancelling_releases_the_lease_on_the_way_out(db, monkeypatch):
+    """A process killed mid-sync must not lock the other MCP client out.
+
+    The block is an Event that is never set, not a sleep: conftest patches
+    asyncio.sleep to be instant, so a sleeping sync would finish immediately
+    and this would pass without ever testing a cancellation.
+    """
+    started = asyncio.Event()
+    never = asyncio.Event()
+
+    async def blocks_forever(*args, **kwargs):
+        started.set()
+        await never.wait()
+
+    monkeypatch.setattr(scheduler, "sync_index", blocks_forever)
+    task = make(db, poll_seconds=3600)
+    task.start()
+    await asyncio.wait_for(started.wait(), timeout=5)
+
+    store = Store(db)
+    try:
+        # The lease is genuinely held while the sync is in flight.
+        assert store.acquire_lease(scheduler.LEASE_NAME, "the-other-client", 60) is False
+    finally:
+        store.close()
+
+    await task.stop()
+
+    store = Store(db)
+    try:
+        assert store.acquire_lease(scheduler.LEASE_NAME, "the-other-client", 60) is True
+    finally:
+        store.close()
+
+
+async def test_stopping_something_never_started_is_harmless(db):
+    await make(db).stop()
+
+
+def test_start_outside_a_running_loop_refuses_to_create_one(db):
+    """get_event_loop() would build a second, orphaned loop and sync in it."""
+    task = make(db)
+
+    with pytest.raises(RuntimeError):
+        task.start()
