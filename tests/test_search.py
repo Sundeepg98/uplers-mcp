@@ -175,15 +175,134 @@ def test_min_pay_filters_on_the_top_of_the_band():
     assert search.matches(agentai, min_pay_usd_year=70000) is True
 
 
-def test_records_with_no_usd_figures_are_excluded_by_a_pay_floor(all_records):
+def test_records_with_no_usd_figures_are_ADMITTED_by_a_pay_floor(all_records):
+    """Unknown pay is not the same as pay below the floor.
+
+    This asserted the opposite until 2026-08-20, and it was wrong. 111 of the
+    235 native requisitions - 47% - are confidential-budget, and the profile
+    field's own contract reads "Roles below it are flagged, not hidden". A
+    floor that dropped the unknowns would silently remove a large slice of the
+    board while reporting a clean result.
+
+    A figure BELOW the floor is still excluded. A figure that is ABSENT is
+    admitted, and carries the "no USD band published, pay unverifiable" flag
+    from blockers_and_flags so it is never silently mixed in with verified
+    ones.
+    """
     databricks = opp(AGGREGATED)
     assert (databricks.pay.usd_year_min, databricks.pay.usd_year_max) == (None, None)
-    assert search.matches(databricks, min_pay_usd_year=1) is False
+    assert search.matches(databricks, min_pay_usd_year=1) is True
+    # However high the floor: still unknown, still not evidence of being below.
+    assert search.matches(databricks, min_pay_usd_year=10**9) is True
 
     results, matched, scanned = search.search_records(all_records, min_pay_usd_year=1)
     assert scanned == 6
-    assert matched == 5
-    assert AGGREGATED not in [o.hr_number for o in results]
+    assert matched == 6
+    assert AGGREGATED in [o.hr_number for o in results]
+
+
+def test_a_confidential_budget_is_still_compared_on_its_published_figure():
+    """"Confidential" hides the band from the CLIENT's listing, not from
+    Uplers' own normalisation - all 111 confidential native reqs carry one."""
+    precisely = opp(PRECISELY)
+    assert precisely.pay.confidential is True
+    assert (precisely.pay.usd_year_min, precisely.pay.usd_year_max) == (25731, 29974)
+
+    assert search.matches(precisely, min_pay_usd_year=29974) is True
+    assert search.matches(precisely, min_pay_usd_year=29975) is False
+
+
+# --- the pay floor is currency-blind because Uplers converted already -------
+
+
+def test_an_inr_band_is_compared_on_uplers_own_usd_normalisation():
+    """No exchange rate is applied by this server, and none should be.
+
+    Uplers publishes `cost_*_in_dollar_yearly` for every requisition whatever
+    the local currency - measured 2026-08-20: 179 INR, 53 USD, 2 AUD, 1 GBP,
+    and all 235 carry the USD figure. So an INR band and a USD band are
+    already commensurable and a single USD floor compares both correctly.
+
+    Applying an assumed rate on top would be the bug: at the ~Rs 88/USD rate
+    one might reach for, Rs 20,00,000 reads as $22,727, while Uplers' own
+    August-2026 normalisation of that exact band is $20,959 - so the assumed
+    rate would quietly turn a Rs 20 LPA floor into a Rs 21.7 LPA one.
+    """
+    confido = opp(CONFIDO)
+    assert confido.pay.currency == "INR"
+    assert confido.pay.text.strip() == "Upto INR 30,00,000 / year"
+    assert confido.pay.usd_year_max == 35081
+
+    # A Rs 30 LPA role clears a Rs 20 LPA floor under either reading of it.
+    assert search.matches(confido, min_pay_usd_year=20959) is True     # Uplers' rate
+    assert search.matches(confido, min_pay_usd_year=22700) is True     # ~Rs 88/USD
+
+    # A GBP band goes through the identical comparison and is excluded on its
+    # own merits, not on its currency.
+    goforma = opp(GOFORMA)
+    assert goforma.pay.currency == "GBP"
+    assert goforma.pay.usd_year_max == 8867
+    assert search.matches(goforma, min_pay_usd_year=20959) is False
+
+    # As does a USD-denominated one.
+    agentai = opp(AGENTAI)
+    assert agentai.pay.currency == "USD"
+    assert search.matches(agentai, min_pay_usd_year=20959) is True
+
+
+def test_uplers_normalises_at_the_rate_of_the_posting_date_not_todays():
+    """The one place a rupee floor expressed in dollars is inexact, stated
+    rather than hidden.
+
+    Uplers converts once, at the FX rate current when the requisition was
+    posted, and never re-normalises. Measured across the 100 INR reqs with a
+    parseable annual band (2026-08-20), the implied rate runs from 85.5 on
+    mid-2025 postings to 95.4 on August-2026 ones, with 59 of the 100 at
+    94.9-95.4.
+
+    So ANOMALY's Rs 18,00,000 ceiling, converted in November 2024 at ~82.9,
+    reads as $21,726 - ABOVE a $20,959 floor derived from an August-2026
+    Rs 20,00,000 band. The error is one-directional and it is the safe
+    direction: an old, slightly-underpaying role is admitted rather than a
+    qualifying one being hidden. Recent postings, which are the ones worth
+    applying to, convert exactly.
+    """
+    anomaly = opp(ANOMALY)
+    assert anomaly.pay.currency == "INR"
+    assert anomaly.pay.text == "INR 15,00,000-18,00,000 / year"
+    assert anomaly.pay.usd_year_max == 21726
+    implied_rate = 1_800_000 / 21_726
+    assert 82.0 < implied_rate < 83.5          # ~82.9, a 2024 rate
+
+    assert search.matches(anomaly, min_pay_usd_year=20959) is True
+
+
+def test_an_inr_role_at_25_lpa_survives_a_22700_floor():
+    """The specific case a naive rate would get wrong.
+
+    The USD figures are Uplers' own: requisition HR140826172010 in the live
+    index reads "INR 20,00,000-25,00,000 / year" and is normalised to
+    $20,959-$26,198. Both a Rs 20 LPA floor read as $20,959 and one read as
+    $22,700 admit it, because the comparison is against a real published
+    dollar figure rather than a rate this server invented.
+    """
+    twenty_five_lpa = to_opportunity(
+        _raw(
+            "HR140826172010",
+            Currency="INR",
+            cost_string="INR 20,00,000-25,00,000 / year",
+            cost_start_in_dollar_yearly="20959",
+            cost_end_in_dollar_yearly="26198",
+        )
+    )
+    assert twenty_five_lpa.pay.currency == "INR"
+    assert twenty_five_lpa.pay.usd_year_max == 26198
+
+    assert search.matches(twenty_five_lpa, min_pay_usd_year=22700) is True
+    assert search.matches(twenty_five_lpa, min_pay_usd_year=20959) is True
+    # And it is not admitted unconditionally - a floor above the band's top
+    # still excludes it.
+    assert search.matches(twenty_five_lpa, min_pay_usd_year=26199) is False
 
 
 # --- notice period --------------------------------------------------------

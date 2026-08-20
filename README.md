@@ -22,8 +22,8 @@ plus the public sitemap.
 |---|---|
 | Stack | Python 3.11+, FastMCP (`mcp`), `httpx`, stdlib `sqlite3`, [`jobcore`](../jobcore) |
 | Tools | **22** - 5 board readers, 17 profile-aware |
-| Size | 5,286 lines of server code, 4,754 lines of tests |
-| Tests | **431**, all offline |
+| Size | 5,353 lines of server code, 5,141 lines of tests |
+| Tests | **444**, all offline |
 | Network surface | 2 public GET endpoints, no auth |
 | Maintenance estimate | 1-3 hours/month |
 | Verified live | 2026-08-20 - 235 native requisitions indexed; every tool called over stdio |
@@ -120,17 +120,34 @@ Maintenance is an occasional cost. **Reading a result is a cost that recurs on e
 call, forever.** That asymmetry is why capability is pushed into the server rather than into a
 browser session, and why every result here is shaped rather than dumped.
 
-Measured live on 2026-08-20 against the real 235-requisition index, as the JSON an MCP client
-actually receives:
+Measured on 2026-08-20 against the real 235-requisition index, as the JSON an MCP client
+actually receives. **The exact call is given for each row, because these numbers are not
+properties of a tool - they are properties of a tool plus its arguments plus, for the brief, the
+window it covers.** An earlier version of this table quoted "1,425 chars" for `uplers_daily_brief`
+with no parameters at all; it was not reproducible and it was not right.
 
-| Tool | Result size |
+| Call | Result size |
 |---|---|
-| `uplers_daily_brief` (3 rows + alerts + pipeline) | **1,425 chars** |
-| `uplers_rank_opportunities(limit=5)` | 3,060 chars |
-| `uplers_assess_fit` (full reasoning for one role) | 1,219 chars |
-| `uplers_save_job` | 163 chars |
-| `uplers_scheduler_status` | 144 chars |
+| `uplers_daily_brief(limit=3, since="2026-08-13", peek=True)` | **1,615 chars** |
+| `uplers_daily_brief(limit=5, since="2026-08-13", peek=True)` | 2,325 chars |
+| `uplers_rank_opportunities(limit=5)` | 1,920 chars |
+| `uplers_rank_opportunities(limit=10)` | 3,414 chars |
+| `uplers_assess_fit` (full reasoning for one role) | 844 chars |
+| `uplers_scheduler_status()` | 210 chars |
+| the longest single ranked row | 343 chars |
 | one raw API record, for comparison | ~112 fields |
+
+**The brief's size tracks its window, by design.** `since` defaults to the last brief - seven days
+on a first run - so the figure moves with how many requisitions landed. On the same index on the
+same day, `limit=3` ranged from **509 chars** (a one-day window with nothing new) to **1,698**
+(the default seven-day window), and `limit=10` over a week reached **4,206**. A single number
+without its window is not a measurement of anything.
+
+Two of these are enforced rather than merely recorded. `tests/test_brief_size.py` pins an
+**absolute ceiling** on the brief against the fixture cohort, where the window can be held fixed
+and the number is reproducible in CI; the two older checks in `tests/test_tier2.py` assert only
+relative bounds (a row under 600 chars, ten rows cheaper than two raw records) and are kept for
+what they are.
 
 Three rules get it there, and they are enforced by tests:
 
@@ -168,6 +185,66 @@ ranked **first** against a Node profile, scoring 90, because its two good-to-hav
 Azure) matched while its single must-have (.NET) did not. Promoting zero must-have coverage to a
 blocker moved 73 such roles out of the ranking and put genuine backend matches at the top.
 
+### The stack preference: ranked lower, not hidden
+
+The operator would still take a Python backend role - he has years of it and it stays on his
+profile, earning him matches - but Node/TypeScript is the direction he is moving in. So a
+**Python-leaning** requisition (one that wants the Python stack and does *not* want the Node one)
+sorts below an otherwise-comparable Node role.
+
+The mechanism is one signed integer, `PREFERENCE_TILT = 4` in `uplers_server/fit.py`, applied in
+one place, and it is careful about three things:
+
+- **It is not a filter.** Python roles keep their place in `ranked` and `scanned` and still appear
+  with their real score. Nothing is removed.
+- **It is not a score change.** `overall_score` stays exactly jobcore's, so a 78 here still means
+  what a 78 means on the Naukri server. Comparability across boards is the reason jobcore exists
+  and a personal stack preference is not allowed to spend it. The adjustment is reported separately
+  as `rank_adjustment`, and the row carries a `python-leaning stack: ranked -4, score unchanged`
+  flag so a demotion is never silent.
+- **It cannot outweigh a real difference.** 4 is deliberately just under jobcore's smallest
+  structural bonus (+5 each for location, remote, salary fit, agent eligibility). A stack
+  preference should decide a near-tie; it should not overrule "this role is actually remote", and a
+  Python role that is genuinely five points the better match still ranks first.
+
+A role wanting **both** stacks is not demoted - that is the path he is already on - and a role
+wanting neither is left alone. To retune it, change `PREFERENCE_TILT` or the two frozensets;
+`tests/test_fit.py` pins the intended ordering, including the case where the tilt must lose.
+
+### The pay floor: currency-blind, because Uplers already converted
+
+`min_pay_usd_year` is set to **20,959**, which is ₹20,00,000/year.
+
+That figure is **not** this server applying an exchange rate - it is Uplers' own. Requisition
+`HR140826172010` in the live index reads `INR 20,00,000-25,00,000 / year` and Uplers publishes it
+as `$20,959-$26,198`. Uplers normalises **every** requisition to USD/year whatever the local
+currency (measured 2026-08-20: 179 INR, 53 USD, 2 AUD, 1 GBP - and all 235 carry the dollar
+figure), so an INR band and a USD band are already commensurable and one USD floor compares both
+correctly.
+
+Reaching for a plausible rate instead would be the bug. At ~₹88/USD, ₹20,00,000 reads as $22,727 -
+which would quietly turn a ₹20 LPA floor into a ₹21.7 LPA one and mark genuine ₹20 LPA roles as
+below it.
+
+Two honest caveats:
+
+- **Uplers converts once, at the rate current when the requisition was posted, and never
+  re-normalises.** Across the 100 INR reqs with a parseable annual band the implied rate runs from
+  85.5 on mid-2025 postings to 95.4 on August-2026 ones, 59 of them at 94.9-95.4. So an old,
+  slightly-underpaying role can clear a floor derived from a recent band. The error is
+  one-directional and it is the safe direction - a stale role is admitted rather than a qualifying
+  one hidden - and recent postings, the ones worth applying to, convert exactly.
+- **Unknown pay is not pay below the floor.** 111 of the 235 native requisitions (47%) are
+  confidential-budget. All of them still carry Uplers' dollar figure, so they are compared
+  normally; but a requisition with *no* published figure is **admitted and flagged**
+  (`no USD band published, pay unverifiable`), never dropped. `uplers_search_opportunities` treated
+  a missing figure as a failing one until 2026-08-20, which meant a pay floor could silently delete
+  a large slice of the board while reporting a clean result.
+
+A role whose band tops out below the floor is flagged, not hidden, when the floor comes from your
+profile; passing `min_pay_usd_year` explicitly to a search or ranking call is a filter and does
+exclude.
+
 ### Profile
 
 `data/profile.json` - deliberately a file, not a database row, so you can open it, see exactly
@@ -188,7 +265,7 @@ can be ruled out on notice, and every tool says so.
 |---|---|
 | `uplers_get_profile` / `uplers_set_profile` | What every score is computed against. Set-only-what-you-pass; `add_skills` / `remove_skills` are incremental. |
 | `uplers_assess_fit(hr_number)` | One role, full reasoning: matched and missing skills, must-have coverage, experience, bonuses, blockers, flags. |
-| `uplers_rank_opportunities(...)` | **The main tool.** Scores the cohort, drops what you are blocked from, returns the best few as compact rows. Ordered by score, with must-have coverage as the tiebreak. |
+| `uplers_rank_opportunities(...)` | **The main tool.** Scores the cohort, drops what you are blocked from, returns the best few as compact rows. Ordered by score adjusted for the stack preference, then raw score, then must-have coverage. |
 | `uplers_save_job` / `uplers_list_saved` / `uplers_unsave_job` | Local shortlist. Stores a title snapshot, so it keeps reading correctly after a requisition closes; `still_listed: false` marks those. `uplers_list_saved` re-scores against the *current* profile. |
 | `uplers_track` / `uplers_update_status` / `uplers_list_tracked` | Your pipeline: interested / applied_manually / responded / interviewing / rejected / closed. Every call appends to a history, including a repeat of the same status, because "still nothing on the 14th" is information. `uplers_update_status` refuses an id you never tracked, so a typo cannot invent progress. |
 | `uplers_set_alert` / `uplers_list_alerts` / `uplers_delete_alert` | Stored filters, evaluated locally - no Uplers alert API, no email, zero network for twenty alerts. Each alert reports a requisition **exactly once**; re-saving a name changes the criteria and clears that memory, so a widened alert reports what it now covers. |
@@ -250,7 +327,7 @@ cd D:\Sundeep\projects\job-hunting\mcp-servers\uplers
 python -m venv venv
 venv\Scripts\python.exe -m pip install -r requirements.txt
 venv\Scripts\python.exe -m pip install -e ../jobcore   # the shared scoring engine
-venv\Scripts\python.exe -m pytest        # 431 tests, no network
+venv\Scripts\python.exe -m pytest        # 444 tests, no network
 venv\Scripts\python.exe server.py        # stdio MCP server
 ```
 
@@ -331,7 +408,7 @@ successes and failures side by side and `FetchReport.ok` is False if anything fa
 
 ## Tests
 
-`venv\Scripts\python.exe -m pytest` - **431 tests**, all offline via `httpx.MockTransport`,
+`venv\Scripts\python.exe -m pytest` - **444 tests**, all offline via `httpx.MockTransport`,
 against 6 real captured API responses in `tests/fixtures/` (see `tests/fixtures/MANIFEST.md` for
 why each one is there). Coverage spans the native/aggregated split, the id date decoder, every
 filter, the sitemap union, the market-stats maths, the scoring adapter, migrations from a
@@ -346,12 +423,14 @@ Four invariants hold in every test, three of them autouse so they cannot be forg
 - **No background sync.** `UPLERS_AUTO_SYNC=0` for the whole suite, so a tool call cannot spawn
   the scheduler and reach the network behind the mock transport's back.
 
-Five of these tests were written because the behaviour they assert was **wrong when first
+Seven of these tests were written because the behaviour they assert was **wrong when first
 measured**, which is the only reason to trust the rest when they are green:
 
 | Test | The bug it caught |
 |---|---|
 | `test_zero_must_have_coverage_is_a_blocker_not_a_flag` | An Angular/.NET role ranked first against a Node profile, scoring 90 on good-to-haves alone. |
+| `test_records_with_no_usd_figures_are_ADMITTED_by_a_pay_floor` | A pay floor treated "pay unknown" as "pay too low" and dropped the role. 47% of this board hides its budget, so the filter could silently delete a large slice of it. This test asserted the **opposite** until 2026-08-20. |
+| `test_the_daily_brief_has_an_absolute_ceiling` | The README quoted 1,425 chars for the brief and nothing pinned it; the real figure was 1,698 on the default window and moved with the window. Only relative bounds were enforced. |
 | `test_peek_does_not_consume_alert_hits` | `peek=True` still wrote the alert seen-list, so peeking silently ate the news it was previewing. |
 | `test_a_broken_alert_does_not_kill_the_brief` | Criteria were validated on write but not on read; a stored bad key was silently dropped, leaving zero filters and matching the entire board. |
 | `test_a_persistently_failing_sync_is_not_retried_every_poll` | A failing sync left `last_sync` old, so the due check said yes on every 15-minute poll, forever. |

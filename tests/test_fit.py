@@ -344,3 +344,110 @@ def test_must_have_coverage_breaks_a_score_tie(node_profile):
 
 def test_ranking_an_empty_cohort_is_empty_not_an_error(node_profile):
     assert fit.rank([], node_profile) == ([], 0)
+
+
+# --- the stack preference -------------------------------------------------
+#
+# "Keep Python, but rank it lower." The tests below pin all three halves of
+# that: it moves the ORDER, it does not move the SCORE, and it does not
+# remove the role.
+
+
+def _same_shape_role(hr_number, must_have):
+    """Two roles identical in every scored dimension except their stack."""
+    return Opportunity(
+        hr_number=hr_number,
+        min_years_experience=3.0,
+        max_years_experience=8.0,
+        city="Bangalore",
+        mode_of_work="Remote",
+        skills=SkillSet(must_have=must_have),
+    )
+
+
+PYTHON_ROLE = _same_shape_role("HR010126120010", ["Python", "PostgreSQL", "AWS"])
+NODE_ROLE = _same_shape_role("HR010126120011", ["Node.js", "PostgreSQL", "AWS"])
+BOTH_ROLE = _same_shape_role("HR010126120012", ["Python", "Node.js", "PostgreSQL"])
+NEITHER_ROLE = _same_shape_role("HR010126120013", ["Go", "PostgreSQL", "AWS"])
+
+
+def test_at_a_comparable_fit_the_node_role_outranks_the_python_one(node_profile):
+    """The whole point. Both are scored identically by jobcore; the Node one
+    is read first."""
+    ranked, _ = fit.rank([PYTHON_ROLE, NODE_ROLE], node_profile)
+
+    python_score = dict((o.hr_number, a) for o, a in ranked)[PYTHON_ROLE.hr_number]
+    node_score = dict((o.hr_number, a) for o, a in ranked)[NODE_ROLE.hr_number]
+    assert python_score["overall_score"] == node_score["overall_score"], (
+        "the fixtures must be a genuine tie on score, or this proves nothing"
+    )
+
+    assert [o.hr_number for o in (pair[0] for pair in ranked)] == [
+        NODE_ROLE.hr_number,
+        PYTHON_ROLE.hr_number,
+    ]
+
+
+def test_the_python_role_keeps_its_real_score_and_stays_in_the_results(node_profile):
+    """Ranked lower is not hidden, and not zeroed."""
+    ranked, blocked = fit.rank([PYTHON_ROLE, NODE_ROLE], node_profile)
+
+    assert blocked == 0
+    assert len(ranked) == 2
+    _, python = [pair for pair in ranked if pair[0] is PYTHON_ROLE][0]
+    assert python["overall_score"] > 0
+    assert python["rank_adjustment"] == -fit.PREFERENCE_TILT
+    assert any("python-leaning" in flag for flag in python["flags"])
+
+
+def test_a_role_wanting_both_stacks_is_not_demoted(node_profile):
+    """Python ALONGSIDE Node is the path he is already on."""
+    assert "rank_adjustment" not in fit.assess(BOTH_ROLE, node_profile)
+    assert fit.preference_tilt({"python", "node.js"}) == 0
+
+
+def test_a_role_wanting_neither_stack_is_left_alone(node_profile):
+    assert "rank_adjustment" not in fit.assess(NEITHER_ROLE, node_profile)
+    assert fit.preference_tilt({"golang", "postgresql"}) == 0
+
+
+def test_the_tilt_cannot_outweigh_a_genuinely_better_match(node_profile):
+    """It breaks near-ties. It does not overturn a real difference.
+
+    Sized at 4, just under jobcore's smallest structural bonus (+5). A Python
+    role that is five points better on the actual fit still ranks first.
+    """
+    assert fit.PREFERENCE_TILT < 5
+
+    strong_python = _same_shape_role(
+        "HR010126120014", ["Python", "PostgreSQL", "AWS", "Docker", "Redis"]
+    )
+    weak_node = _same_shape_role("HR010126120015", ["Node.js", "Kotlin", "Swift"])
+
+    ranked, _ = fit.rank([weak_node, strong_python], node_profile)
+    scores = {o.hr_number: a["overall_score"] for o, a in ranked}
+    assert scores[strong_python.hr_number] - scores[weak_node.hr_number] > fit.PREFERENCE_TILT
+    assert ranked[0][0].hr_number == strong_python.hr_number
+
+
+def test_the_tilt_is_reported_separately_from_the_score(node_profile):
+    """`overall_score` stays exactly jobcore's, so a 78 here still means what
+    a 78 means on the Naukri server."""
+    from jobcore import compute_fit_score
+
+    assessment = fit.assess(PYTHON_ROLE, node_profile)
+    low, high = fit.experience_bounds(PYTHON_ROLE, node_profile.years_experience)
+    raw = compute_fit_score(
+        job_skills=fit.parse_skills(PYTHON_ROLE.skills.must_have),
+        profile_skills=fit.parse_skills(node_profile.skills),
+        job_exp_str=fit.experience_text(low, high) or "",
+        profile_exp=node_profile.years_experience,
+        job_location=PYTHON_ROLE.city,
+        profile_location=node_profile.location,
+        job_work_mode=PYTHON_ROLE.mode_of_work,
+        job_salary=None,
+        profile_expected_ctc=node_profile.min_pay_usd_year,
+        experience_min=low,
+        experience_max=high,
+    )
+    assert assessment["overall_score"] == raw["overall_score"]

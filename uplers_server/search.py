@@ -88,8 +88,17 @@ def matches(
     if currency and (opp.pay.currency or "").upper() != currency.upper():
         return False
     if min_pay_usd_year is not None:
+        # Compared against Uplers' OWN USD/year normalisation, which it
+        # publishes for every requisition whatever the local currency - so an
+        # INR band and a USD band are already commensurable here and no
+        # exchange rate is applied by this server. See README, "The pay floor".
         top = opp.pay.usd_year_max or opp.pay.usd_year_min
-        if top is None or top < min_pay_usd_year:
+        # UNKNOWN PAY IS NOT PAY BELOW THE FLOOR. A requisition with no
+        # published figure is admitted and flagged ("no USD band published,
+        # pay unverifiable" in blockers_and_flags), never dropped: 47% of this
+        # board hides its budget, and a floor that silently deleted them would
+        # remove half the index while reporting nothing.
+        if top is not None and top < min_pay_usd_year:
             return False
     if joining_period and not _contains(opp.joining_period, joining_period):
         return False

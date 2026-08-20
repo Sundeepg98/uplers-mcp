@@ -56,6 +56,48 @@ ENGINE = ScoringEngine(salary_cls=UsdYearSalary)
 MUST_HAVE_WARN_RATIO = 0.5
 
 
+# ── Stack preference ─────────────────────────────────────────────────────────
+# The operator would still take a Python backend role - he has five years of it
+# and it stays on his profile - but Node/TypeScript is the direction he is
+# moving in. So a Python-leaning role ranks BELOW an otherwise-comparable Node
+# one.
+#
+# Three things this deliberately is NOT:
+#
+# * not a filter. Python roles are ranked lower, never hidden. `ranked` and
+#   `scanned` are unchanged, and the role still appears with its real score.
+# * not a score change. `overall_score` stays exactly jobcore's, so a 78 here
+#   still means what a 78 means on the Naukri server. Comparability across
+#   boards is the reason jobcore exists and a personal stack preference is not
+#   allowed to spend it. The adjustment moves the ORDER and is reported
+#   separately as `rank_adjustment`.
+# * not a tier system. One signed integer, applied in one place, pinned by one
+#   test.
+#
+# Size: 4, deliberately just under jobcore's smallest structural bonus (+5 each
+# for location, remote, salary fit, agent eligibility). A stack preference
+# should be able to decide a near-tie; it should NOT be able to outweigh "this
+# role is actually remote".
+PYTHON_STACK = frozenset({"python", "django", "flask", "fastapi"})
+NODE_STACK = frozenset(
+    {"javascript", "typescript", "node.js", "express", "nestjs", "next.js"}
+)
+PREFERENCE_TILT = 4
+
+
+def preference_tilt(skills) -> int:
+    """Ranking adjustment for a role's language stack. Never a score change.
+
+    Negative only, and only for a role that asks for the Python stack and does
+    NOT ask for the Node one. A role wanting both is already on the path he is
+    moving along, so it is not demoted; a role wanting neither is not his
+    business either way and is left alone.
+    """
+    if skills & PYTHON_STACK and not skills & NODE_STACK:
+        return -PREFERENCE_TILT
+    return 0
+
+
 def parse_skills(raw) -> set:
     """Canonicalise skills through jobcore's shared taxonomy."""
     return ENGINE.parse_skills(raw)
@@ -228,6 +270,12 @@ def assess(opp: Opportunity, profile) -> dict:
         )
     if low is None:
         flags.append("role states no experience band; experience scored neutral (50)")
+
+    tilt = preference_tilt(must | good)
+    if tilt:
+        result["rank_adjustment"] = tilt
+        flags.append("python-leaning stack: ranked %+d, score unchanged" % tilt)
+
     result["blockers"] = blockers
     result["flags"] = flags
     return result
@@ -249,9 +297,10 @@ def rank(
 ) -> tuple[list[tuple[Opportunity, dict]], int]:
     """Score and order a cohort. Returns (ranked pairs, blocked_count).
 
-    Ordering is jobcore's score first, must-have coverage as the tiebreak.
-    The tiebreak never changes a score - it only decides which of two equal
-    scores a human should look at first.
+    Ordering is jobcore's score adjusted by the stack preference, then the raw
+    score, then must-have coverage, then the HR number so the order is total
+    and stable. None of these change a score - they decide which of two
+    comparable scores a human should look at first.
     """
     scored: list[tuple[Opportunity, dict]] = []
     blocked = 0
@@ -264,6 +313,7 @@ def rank(
         scored.append((opp, assessment))
     scored.sort(
         key=lambda pair: (
+            -(pair[1]["overall_score"] + pair[1].get("rank_adjustment", 0)),
             -pair[1]["overall_score"],
             -must_have_ratio(pair[1]),
             pair[0].hr_number,
