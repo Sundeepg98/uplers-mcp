@@ -23,7 +23,7 @@ plus the public sitemap.
 | Stack | Python 3.11+, FastMCP (`mcp`), `httpx`, stdlib `sqlite3`, [`jobcore`](../jobcore) |
 | Tools | **22** - 5 board readers, 17 profile-aware |
 | Size | 5,353 lines of server code, 5,141 lines of tests |
-| Tests | **444**, all offline |
+| Tests | **449**, all offline |
 | Network surface | 2 public GET endpoints, no auth |
 | Maintenance estimate | 1-3 hours/month |
 | Verified live | 2026-08-20 - 235 native requisitions indexed; every tool called over stdio |
@@ -327,13 +327,36 @@ cd D:\Sundeep\projects\job-hunting\mcp-servers\uplers
 python -m venv venv
 venv\Scripts\python.exe -m pip install -r requirements.txt
 venv\Scripts\python.exe -m pip install -e ../jobcore   # the shared scoring engine
-venv\Scripts\python.exe -m pytest        # 444 tests, no network
+venv\Scripts\python.exe -m pytest        # 449 tests, no network
 venv\Scripts\python.exe server.py        # stdio MCP server
 ```
 
 `ModuleNotFoundError: jobcore` means the second line was skipped. jobcore is a sibling package,
 not on PyPI, and it is shared with the Naukri server - **editing it changes what a live job
 server scores**, so run both suites after any change there.
+
+### Checking a CLEAN install
+
+```bash
+venv\Scripts\python.exe scripts\clean_install_check.py
+```
+
+Clones the committed tree into a throwaway workspace, builds a brand new venv, runs the recipe
+above from scratch, imports `server.py` and runs the suite - then deletes the workspace. Your
+working tree and your venv are never touched.
+
+Run it after touching `requirements.txt`, and before believing a green local suite. **A local venv
+is a cache of a resolve that happened in the past**, and it cannot show you what a resolve today
+would produce. On 2026-08-20 the sibling naukri server declared `mcp[cli]>=1.25.0` unbounded; `mcp
+2.0.0` moved `mcp/server/fastmcp` to `mcp/server/mcpserver`, a clean resolve picked it up, and all
+55 of naukri's test modules died at collection - *"5 deselected, 55 errors"*, zero tests run -
+while every local run stayed green on a venv holding mcp 1.26.0 from before 2.0.0 shipped.
+
+This server survives that move (`server.py` imports `MCPServer` with a fallback to the 1.x path,
+and a clean install on mcp 2.0.0 gives *"443 passed, 1 skipped"*), which is exactly why its cap is
+`<3` and not a copy of naukri's `<2`. `tests/test_requirements_pins.py` holds that reasoning in
+place, reading `requirements.txt` as text - an assertion about the *installed* version would pass
+happily in the very venv that hides the bug.
 
 Registered in `D:\Sundeep\projects\job-hunting\.mcp.json` as a stdio server named `uplers`.
 
@@ -408,11 +431,13 @@ successes and failures side by side and `FetchReport.ok` is False if anything fa
 
 ## Tests
 
-`venv\Scripts\python.exe -m pytest` - **444 tests**, all offline via `httpx.MockTransport`,
+`venv\Scripts\python.exe -m pytest` - **449 tests**, all offline via `httpx.MockTransport`,
 against 6 real captured API responses in `tests/fixtures/` (see `tests/fixtures/MANIFEST.md` for
 why each one is there). Coverage spans the native/aggregated split, the id date decoder, every
 filter, the sitemap union, the market-stats maths, the scoring adapter, migrations from a
-hand-built pre-migration database, the lease under two connections, and the error paths.
+hand-built pre-migration database, the lease under two connections, the error paths, and the
+dependency pins themselves (`tests/test_requirements_pins.py`, read as text - see "Checking a
+CLEAN install").
 
 Four invariants hold in every test, three of them autouse so they cannot be forgotten:
 
