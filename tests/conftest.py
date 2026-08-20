@@ -1,11 +1,18 @@
 """Shared fixtures for the Uplers reader suite.
 
-Two invariants hold in every test file here:
+Four invariants hold in every test file here:
 
   * NO NETWORK. Every HTTP interaction goes through httpx.MockTransport,
     handed to UplersClient(transport=...). Nothing ever leaves the box.
   * NO REAL DATA DIR. Every Store is built on pytest's tmp_path (or
     ":memory:"), never on config.DB_PATH.
+  * NO REAL PROFILE. `profile.json` is redirected to tmp_path and the resume
+    seed source is unset, so a test can neither read the operator's real
+    profile nor overwrite it. This is autouse and cannot be opted out of by
+    forgetting a fixture.
+  * NO BACKGROUND SYNC. UPLERS_AUTO_SYNC=0 for the whole suite, so a tool call
+    can never spawn the scheduler task and reach the network behind the
+    MockTransport's back. The scheduler is tested by driving it directly.
 """
 
 from __future__ import annotations
@@ -119,3 +126,79 @@ def all_records():
 def native_records():
     """The five records whose is_aggregator_job is False."""
     return [load_fixture(hr_number) for hr_number in NATIVE_IDS]
+
+
+# --- tier-2 isolation -----------------------------------------------------
+
+
+@pytest.fixture(autouse=True)
+def isolated_profile(monkeypatch, tmp_path):
+    """Redirect profile.json into tmp_path and unset the resume seed source.
+
+    Autouse on purpose. The profile is the one piece of state a test could
+    plausibly clobber for real - it lives beside the database rather than in
+    it - so isolation must not depend on remembering to ask for it.
+    """
+    from uplers_server import profile as profile_mod
+
+    path = tmp_path / "profile.json"
+    monkeypatch.setattr(profile_mod, "profile_path", lambda: path)
+    monkeypatch.setattr(profile_mod, "resume_path", lambda: None)
+    return path
+
+
+@pytest.fixture(autouse=True)
+def no_background_sync(monkeypatch):
+    """No tool call may start the background sync task during tests."""
+    monkeypatch.setenv("UPLERS_AUTO_SYNC", "0")
+
+
+@pytest.fixture
+def make_profile(isolated_profile):
+    """Write a profile to the isolated path and return it."""
+    from uplers_server import profile as profile_mod
+
+    def build(**overrides):
+        fields = {
+            "name": "Test Candidate",
+            "years_experience": 5.0,
+            "location": "Bangalore, India",
+            "skills": ["Node.js", "TypeScript", "AWS", "PostgreSQL", "Python", "React"],
+            "source": "test",
+        }
+        fields.update(overrides)
+        candidate = profile_mod.Profile(**fields)
+        profile_mod.save(candidate, path=isolated_profile)
+        return candidate
+
+    return build
+
+
+RESUME_MARKDOWN = """# JANE DOE
+
+**Backend Software Engineer** with 6 years of experience building things.
+
+## CONTACT DETAILS
+
+- +91-1000000000
+- jane@example.com
+- Bangalore, India
+
+## TECHNICAL SKILLS
+
+- **Programming Languages:** JavaScript, TypeScript
+- **Frameworks & Tools:** Node.js, Express.js
+- **Cloud & Infra:** AWS (S3, Lambda), Docker
+
+## WORK EXPERIENCE
+
+### Engineer | Somewhere
+"""
+
+
+@pytest.fixture
+def resume_file(tmp_path):
+    """A resume on disk with the structure the parser expects."""
+    path = tmp_path / "Resume.md"
+    path.write_text(RESUME_MARKDOWN, encoding="utf-8")
+    return path

@@ -1,6 +1,7 @@
 # uplers-mcp
 
-A read-only MCP server for the [Uplers](https://platform.uplers.com) talent board.
+A read-only MCP server for the [Uplers](https://platform.uplers.com) talent board, plus a local
+shortlist, application tracker and fit-scoring layer on top of it.
 
 It exists for one reason: **Uplers publishes the end client's name.** LinkedIn shows those same
 requisitions as "Uplers" and stops there. The Uplers API names the actual company, its industry
@@ -11,17 +12,21 @@ unresearchable staffing listing into something you can target.
 No login, no account, no browser, no scraping of a logged-in surface. One public JSON endpoint
 plus the public sitemap.
 
+**Nothing here ever applies to anything.** `uplers_track` records what you already did by hand.
+
 ---
 
 ## Status
 
 | | |
 |---|---|
-| Stack | Python 3.11+, FastMCP (`mcp`), `httpx`, stdlib `sqlite3` |
-| Size | 1,811 lines of server code (1,215 excluding docstrings), 2,125 lines of tests |
+| Stack | Python 3.11+, FastMCP (`mcp`), `httpx`, stdlib `sqlite3`, [`jobcore`](../jobcore) |
+| Tools | **22** - 5 board readers, 17 profile-aware |
+| Size | 5,286 lines of server code, 4,754 lines of tests |
+| Tests | **427**, all offline |
 | Network surface | 2 public GET endpoints, no auth |
 | Maintenance estimate | 1-3 hours/month |
-| Verified live | 2026-08-20 - 235 native requisitions indexed and cached |
+| Verified live | 2026-08-20 - 235 native requisitions indexed; every tool called over stdio |
 
 ---
 
@@ -52,7 +57,10 @@ answer, because **the record's own `is_aggregator_job` field is authoritative, n
 
 ---
 
-## The 5 tools
+## The 22 tools
+
+Five read the board. Seventeen answer "what is on it **for me**, and what have I done about it".
+Everything in the second group runs against the local index and costs **no network at all**.
 
 ### `uplers_sync_index(hydrate=True, fetch_budget=300, refresh_stale=True)`
 Builds and refreshes the local index. **Run this first.** Fetches `sitemap.xml`, unions every
@@ -102,6 +110,122 @@ role that has nothing to do with Uplers.
 
 ---
 
+---
+
+## The profile-aware half
+
+### The governing constraint: token cost
+
+Maintenance is an occasional cost. **Reading a result is a cost that recurs on every single
+call, forever.** That asymmetry is why capability is pushed into the server rather than into a
+browser session, and why every result here is shaped rather than dumped.
+
+Measured live on 2026-08-20 against the real 235-requisition index, as the JSON an MCP client
+actually receives:
+
+| Tool | Result size |
+|---|---|
+| `uplers_daily_brief` (3 rows + alerts + pipeline) | **1,425 chars** |
+| `uplers_rank_opportunities(limit=5)` | 3,060 chars |
+| `uplers_assess_fit` (full reasoning for one role) | 1,219 chars |
+| `uplers_save_job` | 163 chars |
+| `uplers_scheduler_status` | 144 chars |
+| one raw API record, for comparison | ~112 fields |
+
+Three rules get it there, and they are enforced by tests:
+
+1. **Empty fields never reach the wire.** Every compact model prunes `None`, `[]`, `{}` and `""`
+   on serialisation, so a row says only what it has to say. Every field therefore carries a
+   default, which also keeps it out of the schema's `required` list - otherwise the pruning would
+   produce output a client rejects.
+2. **Composites render as one short string.** A pay band is `"$60k-90k/yr"`, not eight fields.
+   A verdict is `"strong"`, not `"Strong match - apply confidently"` - derived from jobcore's own
+   wording rather than re-thresholded, so a change there is followed rather than contradicted.
+3. **Counts before rows, and no URLs.** "23 new, here are the 3 best" beats twenty-three rows.
+   `hr_number` is the key to `uplers_get_opportunity`, so repeating a 60-character URL on every
+   row of every ranking - the single largest avoidable cost in the server - simply does not happen.
+
+### Fit scoring
+
+Scoring is [`jobcore`](../jobcore)'s, the same engine the Naukri server uses, so **a 78 here means
+what a 78 means there.** This server only translates, and is honest about the three places where
+Uplers' data does not map cleanly:
+
+| Trap | What would go wrong | What is done |
+|---|---|---|
+| **Units** | jobcore's Salary is denominated in lakhs. Handing it `"INR 9,00,000-15,00,000 / year"` reads 900,000 as a US salary and scores every Indian role as a windfall. | A Salary type is bound to USD/year (`lakhs_multiplier=1.0`), and **only** Uplers' own USD normalisation is passed. A local-currency band with no USD figure scores no salary bonus at all, which is correct: there is no evidence either way. |
+| **Unbounded experience** | Uplers writes `max_yoe = 0` to mean "no upper bound". Taken literally, every experienced candidate is wildly over-qualified. | An unbounded ceiling is raised to the candidate's own years - which is what "no upper bound" means for them. |
+| **Must-have vs good-to-have** | jobcore scores one flat skill set; Uplers types its skills. | The split is reported *alongside* the score as `must_have` coverage, never folded into it. Two servers whose scores are computed differently could not be compared, and comparability is the point. |
+
+**Blockers are not score deductions.** A notice period the client will not accept, a company on
+your avoid list, an experience floor you are years under, or **zero coverage of the client's
+mandatory skills** make a role ineligible. A 92 you cannot take is more useful labelled than
+quietly turned into a 71, so those are listed in `blockers` and excluded from rankings by default
+(`exclude_blocked=False` shows them with their reasons).
+
+That last blocker was found on the live cohort during the build: an Angular/.NET requisition
+ranked **first** against a Node profile, scoring 90, because its two good-to-have skills (AWS,
+Azure) matched while its single must-have (.NET) did not. Promoting zero must-have coverage to a
+blocker moved 73 such roles out of the ranking and put genuine backend matches at the top.
+
+### Profile
+
+`data/profile.json` - deliberately a file, not a database row, so you can open it, see exactly
+what your scores are computed against, and fix a wrong line in a text editor.
+
+On first use it seeds itself from the résumé markdown in `job-hunting/resumes/` (override with
+`UPLERS_RESUME`) and says so. It never invents one: no résumé and nothing set means
+`uplers_get_profile` raises with an instruction, because an empty profile scores 235 requisitions
+identically and the numbers would look real.
+
+**`notice_period_days` is the field that matters most.** Of 235 native requisitions, 121 want 15
+days, 75 want 30, 35 want you immediately and only 4 accept more than 30. Until it is set, no role
+can be ruled out on notice, and every tool says so.
+
+### The 17 tools
+
+| Tool | What it is for |
+|---|---|
+| `uplers_get_profile` / `uplers_set_profile` | What every score is computed against. Set-only-what-you-pass; `add_skills` / `remove_skills` are incremental. |
+| `uplers_assess_fit(hr_number)` | One role, full reasoning: matched and missing skills, must-have coverage, experience, bonuses, blockers, flags. |
+| `uplers_rank_opportunities(...)` | **The main tool.** Scores the cohort, drops what you are blocked from, returns the best few as compact rows. Ordered by score, with must-have coverage as the tiebreak. |
+| `uplers_save_job` / `uplers_list_saved` / `uplers_unsave_job` | Local shortlist. Stores a title snapshot, so it keeps reading correctly after a requisition closes; `still_listed: false` marks those. `uplers_list_saved` re-scores against the *current* profile. |
+| `uplers_track` / `uplers_update_status` / `uplers_list_tracked` | Your pipeline: interested / applied_manually / responded / interviewing / rejected / closed. Every call appends to a history, including a repeat of the same status, because "still nothing on the 14th" is information. `uplers_update_status` refuses an id you never tracked, so a typo cannot invent progress. |
+| `uplers_set_alert` / `uplers_list_alerts` / `uplers_delete_alert` | Stored filters, evaluated locally - no Uplers alert API, no email, zero network for twenty alerts. Each alert reports a requisition **exactly once**; re-saving a name changes the criteria and clears that memory, so a widened alert reports what it now covers. |
+| `uplers_daily_brief()` | Start here. New requisitions ranked by fit, alerts that fired, shortlist entries you have not actioned, applications gone quiet, and index freshness - in ~1.4 KB. Calling it advances the window; `peek=True` looks without consuming. |
+| `uplers_skill_gap()` | Not a popularity chart. `sole_blocker` counts roles where a skill is the **only** must-have you lack - the ones learning it alone would unlock - with the pay delta against the cohort median attached. |
+| `uplers_company_intel(name)` | The end client: blurb, industry, website, plus every requisition they have open, their pay range, notice and mode habits, and how long they have been hiring. A fragment matching several clients returns the candidates rather than guessing. |
+| `uplers_scheduler_status()` | Is the index refreshing itself, and which process is doing it. |
+
+### Background freshness, with two MCP clients
+
+Claude Code and Claude Desktop both register `uplers`, so **two processes run against one sqlite
+file.** A naive interval task would run twice and double the traffic to a public endpoint we are a
+guest on. Three guards, each insufficient alone:
+
+- **A lease** (`leases` table, one conditional `UPDATE`) - exactly one process fetches. It
+  expires, so a process killed mid-sync does not lock the other out forever. `owner` naming
+  another process is the healthy case, not a fault.
+- **A due check** on `last_sync` - the lease says *who may*, this says *whether anyone should*.
+- **An attempt floor** - `last_sync` is stamped by the sync itself, so a sync that *fails* leaves
+  it old and the due check keeps saying yes. Without a separate floor, a broken endpoint would be
+  retried on every 15-minute poll forever. Stamped before the attempt, so it holds even if the
+  process dies mid-sync.
+
+The task starts on the first tool call, not at import, so nothing spawns a background task by
+merely importing the module. It catches everything and records it rather than raising into the
+event loop. Turn it off entirely with `UPLERS_AUTO_SYNC=0`.
+
+sqlite runs in **WAL** mode with a 10s busy timeout for the same reason: two processes, one file.
+
+### Migrations
+
+The store already holds data - an ~11 MB id set built over real sync runs - so the schema cannot
+just be redefined. Changes ship as numbered migrations in `migrations.py`, recorded in
+`meta.schema_version`, forward-only and idempotent. A database with no version row is version 0
+and is detected by that absence, not guessed. The test that matters builds a pre-migration
+database by hand and upgrades it, asserting nothing that was there before is touched.
+
 ## Deliberately out of scope
 
 No apply, no outreach, no resume tailoring, no resume health check, no referral agent. Those
@@ -110,7 +234,12 @@ endpoints (`talent/hr/intrested`, `talent/outreach/*`, `talent/tailor/*`,
 products and need the authenticated session this design avoids. Reimplementing them for free
 against a marketplace whose value is a human recruiter advocating for you is a bad trade.
 
-**This server never logs in, never mutates, and never applies to anything.**
+**This server never logs in, never mutates Uplers, and never applies to anything.**
+
+The tracking tools do not weaken that. `uplers_track(status="applied_manually")` is a note to
+yourself that you went to their site and applied; it sends nothing, and the only thing it mutates
+is the local sqlite file. The status is named `applied_manually` precisely so the record cannot be
+misread later as something this server did.
 
 ---
 
@@ -120,15 +249,27 @@ against a marketplace whose value is a human recruiter advocating for you is a b
 cd D:\Sundeep\projects\job-hunting\mcp-servers\uplers
 python -m venv venv
 venv\Scripts\python.exe -m pip install -r requirements.txt
-venv\Scripts\python.exe -m pytest        # 198 tests, no network
+venv\Scripts\python.exe -m pip install -e ../jobcore   # the shared scoring engine
+venv\Scripts\python.exe -m pytest        # 427 tests, no network
 venv\Scripts\python.exe server.py        # stdio MCP server
 ```
 
+`ModuleNotFoundError: jobcore` means the second line was skipped. jobcore is a sibling package,
+not on PyPI, and it is shared with the Naukri server - **editing it changes what a live job
+server scores**, so run both suites after any change there.
+
 Registered in `D:\Sundeep\projects\job-hunting\.mcp.json` as a stdio server named `uplers`.
 
-State lives in `uplers\data\uplers.sqlite3` (gitignored, ~11 MB with the full aggregated id set).
-Delete it to start clean; `uplers_sync_index()` rebuilds it. Override the location with the
-`UPLERS_DATA_DIR` environment variable.
+State lives in `uplers\data\` (gitignored): `uplers.sqlite3` (~11 MB with the full aggregated id
+set, plus your shortlist, pipeline and alerts) and `profile.json`. Delete the database to start
+clean; `uplers_sync_index()` rebuilds the index, but **your shortlist and application history are
+in there too** and are not recoverable from Uplers. Override the location with `UPLERS_DATA_DIR`.
+
+| Environment variable | Default | What it does |
+|---|---|---|
+| `UPLERS_DATA_DIR` | `uplers/data` | Where the database and profile live |
+| `UPLERS_RESUME` | `job-hunting/resumes/Sundeep_Resume.md` | Resume to seed the profile from |
+| `UPLERS_AUTO_SYNC` | `1` | `0` disables the background sync entirely |
 
 ---
 
@@ -157,8 +298,12 @@ why `last_seen` is recorded per id. Do not "optimise" this into a replace-on-syn
    surfaces as `None` in a typed field, not a crash. The fixtures under `tests/fixtures/` are
    the reference shape; re-capture them and re-run the suite to find what moved.
 4. *Id format change.* If native ids stop being 12 digits or stop encoding `DDMMYYHHMMSS`,
-   `uplers_list_new_since` degrades (ids decode to `None` and drop out of date queries) but
-   nothing else does. `ids.py` is the only file to touch.
+   `uplers_list_new_since` and the "new since" section of `uplers_daily_brief` degrade (ids decode
+   to `None` and drop out of date queries) but nothing else does. `ids.py` is the only file to
+   touch. This already happens for exactly one live id, and is tested.
+5. *jobcore changes underneath you.* Fit scores are not computed here. A change to the shared
+   taxonomy or the 60/40 weighting moves every score on this board **and** on Naukri; jobcore's
+   golden-parity suite is what catches it.
 
 **Quirks already handled, so do not "fix" them:**
 
@@ -173,6 +318,9 @@ why `last_seen` is recorded per id. Do not "optimise" this into a replace-on-syn
 - `is_partner_company` is a date *string* (`"Jun 2026"`) despite the name, occasionally `false`.
 - `JobDescription` and `company.about` are HTML, and some records contain U+FFFD where Uplers'
   own pipeline mangled a smart quote.
+- `IsConfidentialBudget` can be true on a record that *also* carries a USD normalisation. Both
+  are shown - `"confidential (est. $26-30k/yr)"` - because the estimate is what the salary bonus
+  is scored on, and a figure that drives a score has to be visible next to it.
 
 **Failure philosophy.** A failed fetch never becomes an empty list. `uplers_search_opportunities`
 raises if the index is empty rather than returning zero rows; when the index *is* populated and
@@ -183,8 +331,28 @@ successes and failures side by side and `FetchReport.ok` is False if anything fa
 
 ## Tests
 
-`venv\Scripts\python.exe -m pytest` - 198 tests, all offline via `httpx.MockTransport`, against
-6 real captured API responses in `tests/fixtures/` (see `tests/fixtures/MANIFEST.md` for why each
-one is there). Coverage spans the native/aggregated split, the id date decoder, every filter, the
-sitemap union, the market-stats maths, and the error paths. No test touches the network or the
-real `data/` directory.
+`venv\Scripts\python.exe -m pytest` - **427 tests**, all offline via `httpx.MockTransport`,
+against 6 real captured API responses in `tests/fixtures/` (see `tests/fixtures/MANIFEST.md` for
+why each one is there). Coverage spans the native/aggregated split, the id date decoder, every
+filter, the sitemap union, the market-stats maths, the scoring adapter, migrations from a
+hand-built pre-migration database, the lease under two connections, and the error paths.
+
+Four invariants hold in every test, three of them autouse so they cannot be forgotten:
+
+- **No network.** Every HTTP interaction goes through `httpx.MockTransport`.
+- **No real data dir.** Every `Store` is built on `tmp_path` or `:memory:`.
+- **No real profile.** `profile.json` is redirected to `tmp_path` and the resume seed source is
+  unset, so a test can neither read nor overwrite the operator's real profile.
+- **No background sync.** `UPLERS_AUTO_SYNC=0` for the whole suite, so a tool call cannot spawn
+  the scheduler and reach the network behind the mock transport's back.
+
+Five of these tests were written because the behaviour they assert was **wrong when first
+measured**, which is the only reason to trust the rest when they are green:
+
+| Test | The bug it caught |
+|---|---|
+| `test_zero_must_have_coverage_is_a_blocker_not_a_flag` | An Angular/.NET role ranked first against a Node profile, scoring 90 on good-to-haves alone. |
+| `test_peek_does_not_consume_alert_hits` | `peek=True` still wrote the alert seen-list, so peeking silently ate the news it was previewing. |
+| `test_a_broken_alert_does_not_kill_the_brief` | Criteria were validated on write but not on read; a stored bad key was silently dropped, leaving zero filters and matching the entire board. |
+| `test_a_persistently_failing_sync_is_not_retried_every_poll` | A failing sync left `last_sync` old, so the due check said yes on every 15-minute poll, forever. |
+| `test_unfetched_native_ids_are_surfaced` | The unhydrated count was a subtraction of two counts that could understate or go negative. |

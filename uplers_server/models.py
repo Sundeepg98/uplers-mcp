@@ -8,7 +8,9 @@ of these projections instead.
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_serializer
+
+from .profile import Profile
 
 
 class SkillSet(BaseModel):
@@ -169,4 +171,303 @@ class MarketStats(BaseModel):
     overall: StatsGroup | None = None
     filters_applied: dict = Field(default_factory=dict)
     index_synced_at: str | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
+# ==========================================================================
+# Tier 2: profile-aware shapes.
+#
+# Everything below is built for TOKEN ECONOMY. The operator's constraint on
+# this server is per-use cost: a tool result is read by a model on every
+# single call, forever, whereas the code that shapes it is written once. So
+# these models are small on purpose, they render composite values as one
+# short string instead of a nested object, and they omit any field that has
+# nothing to say.
+#
+# `Compact` is what does the omitting: a field that is None or an empty
+# list/dict/string never reaches the wire. Every field therefore carries a
+# default, which also keeps it out of the JSON schema's `required` list -
+# otherwise the pruning would produce output the MCP client rejects.
+# ==========================================================================
+
+
+class Compact(BaseModel):
+    """A model that does not spend tokens saying nothing."""
+
+    @model_serializer(mode="wrap")
+    def _prune_empty(self, handler):
+        data = handler(self)
+        if not isinstance(data, dict):  # pragma: no cover - defensive
+            return data
+        return {key: value for key, value in data.items() if value not in (None, [], {}, "")}
+
+
+class RankedRow(Compact):
+    """One scored requisition, as small as it can be and still be actionable.
+
+    No URL and no description: `hr_number` is the key to
+    uplers_get_opportunity, and repeating a 60-character URL on every row of
+    every ranking would be the single largest avoidable cost in this server.
+    """
+
+    hr_number: str | None = None
+    title: str | None = None
+    company: str | None = Field(None, description="The END CLIENT")
+    score: int | None = Field(None, description="jobcore fit score, 0-100")
+    verdict: str | None = None
+    mode: str | None = None
+    city: str | None = None
+    pay: str | None = Field(None, description="USD/year band, or 'confidential'")
+    notice: str | None = Field(None, description="Notice period the client accepts")
+    must_have: str | None = Field(None, description="Must-have skills covered, e.g. '4/5'")
+    gaps: list[str] = Field(default_factory=list, description="Top missing skills")
+    flags: list[str] = Field(default_factory=list, description="Soft caveats")
+    blockers: list[str] = Field(default_factory=list, description="Hard incompatibilities")
+    posted_at: str | None = None
+    saved: bool | None = None
+    status: str | None = Field(None, description="Your tracked status, if any")
+
+
+class ProfileSummary(Compact):
+    """One line of "who was this scored against", so a score is never orphaned."""
+
+    years_experience: float | None = None
+    location: str | None = None
+    skills: int | None = Field(None, description="Number of skills on the profile")
+    notice_period_days: int | None = None
+    min_pay_usd_year: int | None = None
+
+
+class ProfileResult(Compact):
+    profile: Profile | None = None
+    path: str | None = None
+    seeded_from_resume: bool = False
+    notes: list[str] = Field(default_factory=list)
+
+
+class FitAssessment(Compact):
+    """The full reasoning for one requisition. Bigger than a row, on purpose."""
+
+    hr_number: str | None = None
+    title: str | None = None
+    company: str | None = None
+    score: int | None = None
+    verdict: str | None = None
+    skills_matched: list[str] = Field(default_factory=list)
+    skills_missing: list[str] = Field(default_factory=list)
+    must_have_covered: int | None = None
+    must_have_required: int | None = None
+    must_have_missing: list[str] = Field(default_factory=list)
+    experience: dict = Field(default_factory=dict)
+    bonuses: dict = Field(default_factory=dict)
+    blockers: list[str] = Field(default_factory=list)
+    flags: list[str] = Field(default_factory=list)
+    reasons: list[str] = Field(default_factory=list)
+    pay: str | None = None
+    mode: str | None = None
+    notice: str | None = None
+    assessments: int | None = None
+    url: str | None = None
+    saved: bool | None = None
+    status: str | None = None
+    scored_against: ProfileSummary | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
+class RankResult(Compact):
+    rows: list[RankedRow] = Field(default_factory=list)
+    returned: int = 0
+    ranked: int = Field(0, description="Requisitions that survived filters and blockers")
+    blocked: int = Field(0, description="Excluded for a hard incompatibility")
+    scanned: int = Field(0, description="Cached records considered")
+    cohort: str = "native"
+    filters_applied: dict = Field(default_factory=dict)
+    scored_against: ProfileSummary | None = None
+    index_synced_at: str | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
+class SavedJob(Compact):
+    hr_number: str | None = None
+    title: str | None = None
+    company: str | None = None
+    saved_at: str | None = None
+    note: str | None = None
+    score: int | None = None
+    pay: str | None = None
+    notice: str | None = None
+    status: str | None = None
+    still_listed: bool | None = Field(
+        None, description="False means the record is no longer in the local index"
+    )
+
+
+class SavedList(Compact):
+    saved: list[SavedJob] = Field(default_factory=list)
+    count: int = 0
+    scored: bool = Field(False, description="Whether fit scores were computed this call")
+    notes: list[str] = Field(default_factory=list)
+
+
+class SaveResult(Compact):
+    hr_number: str | None = None
+    title: str | None = None
+    company: str | None = None
+    created: bool | None = Field(None, description="False means an existing entry was updated")
+    removed: bool | None = None
+    saved_total: int = 0
+    notes: list[str] = Field(default_factory=list)
+
+
+class TrackedJob(Compact):
+    hr_number: str | None = None
+    title: str | None = None
+    company: str | None = None
+    status: str | None = None
+    notes: str | None = None
+    created_at: str | None = None
+    updated_at: str | None = None
+    days_since_update: int | None = None
+    history: list[str] = Field(default_factory=list, description="'status@date' transitions")
+
+
+class TrackResult(Compact):
+    hr_number: str | None = None
+    title: str | None = None
+    company: str | None = None
+    status: str | None = None
+    previous_status: str | None = None
+    created: bool | None = None
+    counts: dict = Field(default_factory=dict, description="Your pipeline, by status")
+    notes: list[str] = Field(default_factory=list)
+
+
+class TrackedList(Compact):
+    tracked: list[TrackedJob] = Field(default_factory=list)
+    count: int = 0
+    counts: dict = Field(default_factory=dict)
+    needs_follow_up: list[str] = Field(
+        default_factory=list, description="hr_numbers sitting in an active status too long"
+    )
+    notes: list[str] = Field(default_factory=list)
+
+
+class AlertSpec(Compact):
+    id: int | None = None
+    name: str | None = None
+    criteria: dict = Field(default_factory=dict)
+    created_at: str | None = None
+    last_evaluated_at: str | None = None
+    matches: int | None = Field(None, description="Total current matches, when evaluated")
+    new_matches: int | None = Field(None, description="Matches not previously reported")
+    rows: list[RankedRow] = Field(default_factory=list)
+
+
+class AlertList(Compact):
+    alerts: list[AlertSpec] = Field(default_factory=list)
+    count: int = 0
+    evaluated: bool = False
+    notes: list[str] = Field(default_factory=list)
+
+
+class AlertResult(Compact):
+    id: int | None = None
+    name: str | None = None
+    criteria: dict = Field(default_factory=dict)
+    created: bool | None = None
+    deleted: bool | None = None
+    matches_now: int | None = None
+    alerts_total: int = 0
+    notes: list[str] = Field(default_factory=list)
+
+
+class BriefSection(Compact):
+    count: int = 0
+    rows: list[RankedRow] = Field(default_factory=list)
+    note: str | None = None
+
+
+class DailyBrief(Compact):
+    """The tool he will call most, so the one that must stay smallest."""
+
+    generated_at: str | None = None
+    since: str | None = Field(None, description="Start of the window this brief covers")
+    index: dict = Field(default_factory=dict, description="Freshness of the local index")
+    new_opportunities: BriefSection | None = None
+    alert_hits: list[AlertSpec] = Field(default_factory=list)
+    shortlist: dict = Field(default_factory=dict)
+    pipeline: dict = Field(default_factory=dict)
+    follow_up: list[RankedRow] = Field(default_factory=list)
+    scored_against: ProfileSummary | None = None
+    actions: list[str] = Field(default_factory=list, description="What to do next, if anything")
+    notes: list[str] = Field(default_factory=list)
+
+
+class SkillGapRow(Compact):
+    skill: str | None = None
+    roles: int | None = Field(None, description="Native requisitions naming this skill")
+    as_must_have: int | None = None
+    sole_blocker: int | None = Field(
+        None,
+        description="Roles where this is the ONLY must-have you lack - learning it alone unlocks them",
+    )
+    median_pay_usd: int | None = None
+    pay_delta_usd: int | None = Field(None, description="Median pay minus the cohort median")
+    example_companies: list[str] = Field(default_factory=list)
+
+
+class SkillGapResult(Compact):
+    population: int = 0
+    cohort_median_pay_usd: int | None = None
+    your_skills_in_demand: list[SkillGapRow] = Field(default_factory=list)
+    missing_skills: list[SkillGapRow] = Field(default_factory=list)
+    unused_skills: list[str] = Field(
+        default_factory=list, description="Profile skills no native requisition asks for"
+    )
+    coverage: str | None = Field(None, description="Share of demanded skills you already have")
+    scored_against: ProfileSummary | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
+class CompanyIntel(Compact):
+    company: str | None = None
+    industry: str | None = None
+    team_size: str | None = None
+    website: str | None = None
+    linkedin: str | None = None
+    about: str | None = None
+    open_requisitions: int = 0
+    roles: list[str] = Field(default_factory=list)
+    pay_usd_year: str | None = None
+    modes: dict = Field(default_factory=dict)
+    joining_periods: dict = Field(default_factory=dict)
+    top_skills: list[str] = Field(default_factory=list)
+    assessments_required: int | None = None
+    first_posted: str | None = None
+    latest_posted: str | None = None
+    median_min_yoe: float | None = None
+    best_fit: RankedRow | None = None
+    your_history: list[str] = Field(default_factory=list, description="Saved/tracked with this client")
+    rows: list[RankedRow] = Field(default_factory=list)
+    candidates: list[str] = Field(
+        default_factory=list, description="Other end clients matching the name, when ambiguous"
+    )
+    notes: list[str] = Field(default_factory=list)
+
+
+class SchedulerStatus(Compact):
+    enabled: bool = False
+    running: bool = False
+    interval_seconds: int | None = None
+    owner: str | None = Field(None, description="Which process currently holds the sync lease")
+    holds_lease: bool | None = None
+    lease_expires_at: str | None = None
+    last_sync: str | None = None
+    last_auto_sync_at: str | None = None
+    last_attempt_at: str | None = Field(
+        None, description="Last sync ATTEMPT, success or not - the retry brake reads this"
+    )
+    last_auto_sync_result: str | None = None
+    last_error: str | None = None
+    runs: int = 0
     notes: list[str] = Field(default_factory=list)

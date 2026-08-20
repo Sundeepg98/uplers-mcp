@@ -6,3 +6,10 @@ httpx>=0.27
 # Tests only
 pytest>=8.0
 pytest-asyncio>=0.23
+
+# The shared scoring engine (skill taxonomy, fit score, salary normalisation).
+# A sibling package, not on PyPI, and SHARED WITH THE NAUKRI SERVER - editing it
+# changes what a live job server scores. Install with:
+#     pip install -e ../jobcore
+# pytest also picks it up from there; `ModuleNotFoundError: jobcore` means this
+# line was skipped.

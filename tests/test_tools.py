@@ -1,4 +1,4 @@
-"""server.py - the five MCP tools.
+"""server.py - the MCP tool surface.
 
 @mcp.tool() returns the plain function, so each tool is awaited directly.
 
@@ -39,13 +39,38 @@ from conftest import (
     put_fixtures,
 )
 
-TOOL_NAMES = {
+# The five read-only board tools this file was written for. The tier-2
+# profile/tracking tools are exercised in test_tier2.py; both sets are counted
+# together by the wiring test below.
+BOARD_TOOL_NAMES = {
     "uplers_sync_index",
     "uplers_search_opportunities",
     "uplers_get_opportunity",
     "uplers_list_new_since",
     "uplers_get_market_stats",
 }
+
+TIER2_TOOL_NAMES = {
+    "uplers_get_profile",
+    "uplers_set_profile",
+    "uplers_assess_fit",
+    "uplers_rank_opportunities",
+    "uplers_save_job",
+    "uplers_list_saved",
+    "uplers_unsave_job",
+    "uplers_track",
+    "uplers_update_status",
+    "uplers_list_tracked",
+    "uplers_set_alert",
+    "uplers_list_alerts",
+    "uplers_delete_alert",
+    "uplers_daily_brief",
+    "uplers_skill_gap",
+    "uplers_company_intel",
+    "uplers_scheduler_status",
+}
+
+TOOL_NAMES = BOARD_TOOL_NAMES | TIER2_TOOL_NAMES
 
 S1 = "HR010126120000"   # 2026-01-01T12:00:00
 S2 = "HR020126120000"   # 2026-01-02T12:00:00
@@ -90,11 +115,13 @@ def wire_client(monkeypatch, handler):
 # --- wiring (group H) -----------------------------------------------------
 
 
-async def test_importing_server_registers_exactly_five_tools():
+async def test_importing_server_registers_exactly_the_expected_tools():
     tools_listed = await server.mcp.list_tools()
 
-    assert len(tools_listed) == 5
+    assert len(tools_listed) == 22
     assert {tool.name for tool in tools_listed} == TOOL_NAMES
+    # The five original board tools must survive every later addition.
+    assert BOARD_TOOL_NAMES <= {tool.name for tool in tools_listed}
 
 
 async def test_every_tool_description_carries_its_docstring():
