@@ -1,0 +1,329 @@
+{
+  "Availability": "Full Time",
+  "CompanyName": "Precisely",
+  "Currency": "INR",
+  "DurationType": null,
+  "HRTypeId": 1,
+  "HRTypeText": "Pay Per Hire",
+  "HR_Number": "HR290626125252",
+  "HR_Role": "Sr. Marketing Automation Specialist",
+  "HR_ShiftTime": "(GMT+05:30) Asia/Kolkata (IST)",
+  "HR_Status": "",
+  "HiringRequest_ID": 16140,
+  "HowSoon": "7 Days",
+  "IsBackendHR": 0,
+  "IsConfidentialBudget": 1,
+  "IsVettedProfile": 0,
+  "JobDescription": "<p><br></p><p class=\"ql-align-justify\"><strong>Job Title: Sr. Test Automation Analyst </strong></p><p class=\"ql-align-justify\"><strong>Department: R&D </strong></p><p class=\"ql-align-justify\"><strong>Reports To: Manager, Quality Management </strong></p><p class=\"ql-align-justify\"><strong>Location: Remote </strong></p><p><br></p><ol><li><span style=\"background-color: transparent\">We are a global leader in data integrity, providing accuracy and consistency in data for 12,000 customers in more than 100 countries, including 90 percent of the Fortune 100. Our data integration, data quality, location intelligence, and data enrichment products power better business decisions to create better outcomes. We are looking for talented individuals with the experience and motivation to join our innovative team.</span></li></ol><p><br></p><p class=\"ql-align-justify\"><strong>PURPOSE OF THE POSITION </strong></p><p><br></p><p class=\"ql-align-justify\">As <strong>Sr. Test Automation Analyst</strong>, you will develop, implement, and sustain test automation processes, practices, using <strong>Playwright with Typescript for UI</strong> and <strong>JAVA for API automation </strong>within the software delivery lifecycle. This role will follow our test automation strategy by building requirements and designing code to ensure implementation and execution of our automation test environment. They will also be responsible to creating high quality, maintainable, and performant code for automated test cases and the frameworks to execute and report on.</p><p class=\"ql-align-justify\"><br></p><p><strong>ESSENTIAL DUTIES AND RESPONSIBILITIES - </strong>Other duties may be assigned</p><p><br></p><ul><li><span style=\"background-color: transparent\">Writing, Fixing and Reviewing UI/API Automated Test Scripts for BVT, Acceptance and Regression Test Suites</span></li><li><span style=\"background-color: transparent\">Implementing new and enhancing existing Automation Test Framework</span></li><li><span style=\"background-color: transparent\">To ensure test scripts are always up to date and monitor their status during every run</span></li><li><span style=\"background-color: transparent\">Ensuring proper reporting of Automated Test Execution results and ability to provide detailed reports with failures analysis</span></li><li><span style=\"background-color: transparent\">Maintaining Jenkins Test Grid and nightly jobs, ensuring automated product deployments</span></li></ul><p><br></p><p><strong>ESSENTIAL EDUCATION, SKILLS AND KNOWLEDGE REQUIREMENTS:</strong><em> </em></p><p><br></p><ul><li><span style=\"background-color: transparent\">4-6 years of software industry experience and successful track record in UI automation.</span></li><li><span style=\"background-color: transparent\">BE/BTech/MCA/Equivalent degree in Computer Science or a related technical field from an accredited university or college.</span></li><li><span style=\"background-color: transparent\">Experience of web automation tools Playwright/Selenium (Preferred - Playwright)</span></li><li><span style=\"background-color: transparent\">Excellent programming skills in languages: TypeScript/JavaScript/Java (preferably Java and TypeScript) and strong OOPS concepts</span></li><li><span style=\"background-color: transparent\">Experience in using AI for coding and troubleshooting using tools such as copilot.</span></li><li><span style=\"background-color: transparent\">Experience in working with different file formats XML/Json etc</span></li><li><span style=\"background-color: transparent\">Basic knowledge on version control tools like GIT</span></li><li><span style=\"background-color: transparent\">Good knowledge of Design Patterns & Architectural Patterns</span></li><li><span style=\"background-color: transparent\">Working in Agile Methodologies</span></li><li><span style=\"background-color: transparent\">Excellent problem solving and logical thinking skills </span></li><li><span style=\"background-color: transparent\">Compose clear and concise technical written communication</span></li></ul><p><br></p><p><strong>PREFERRED REQUIREMENTS: </strong></p><p><br></p><ul><li><span style=\"background-color: transparent\">Receptive to change – is flexible. Seeks and adopts improved approaches and processes.</span></li><li><span style=\"background-color: transparent\">Initiates action – is results oriented, takes responsibility for actions and outcomes. Meets commitments and strives for high performance.</span></li><li><span style=\"background-color: transparent\">Manages the workload - prioritizes effectively, solves problems and takes remedial action where necessary.</span></li><li><span style=\"background-color: transparent\">Communicates effectively - listens to views of colleagues and takes in diverse perspectives. </span></li><li><span style=\"background-color: transparent\">Works collaboratively - shares information, fosters teamwork and contributes to positive work environment where people want to come to work. </span></li></ul><p><br></p><p><strong>WORK ENVIRONMENT AND PHYSICAL DEMANDS</strong></p><p class=\"ql-align-justify\"><br></p><ul><li class=\"ql-align-justify\"><span style=\"background-color: transparent\">The work environment and physical demands described here are representative of those that must be met by the employee to successfully perform the essential functions of the job. Reasonable accommodations may be made to enable individuals with disabilities to perform the essential functions.</span></li><li><span style=\"background-color: transparent\">Standard office environment. Some stress may occur with tight deadlines and long hours. </span></li></ul><p><em> </em></p><ul><li><span style=\"background-color: transparent\">Standard physical activity such as standing, walking, sitting, basic motor skills to access computer files for information, data entry or document creation.</span></li></ul>",
+  "ModeOfWork": "Remote",
+  "MonthDuration": "6.00",
+  "PayrollType": null,
+  "PayrollTypeId": 0,
+  "PricingId": 4,
+  "PricingName": "Hire a Contractor",
+  "Quantity": 1,
+  "RequestForTalent": "Sr. Test Automation Analyst",
+  "YearOfExp": "4.00",
+  "aggregator": null,
+  "aggregator_publish_date": null,
+  "ai_mandatory": 0,
+  "all_clear": false,
+  "all_pending": true,
+  "assessments": [
+    {
+      "assessment": {
+        "benchmark_interpretation": null,
+        "description": null,
+        "enc_id": "G7X0jfndlaq3PPp8MQTgcc2pOLFcZV91",
+        "name": "AiInterview"
+      },
+      "assessment_tool": "AiInterview",
+      "benchmark_interpretation": null,
+      "created_at": "2023-10-20T15:49:54.000000Z",
+      "created_by": 1,
+      "description": null,
+      "difficulty": null,
+      "duration": "0:30",
+      "duration_formatted": " 30 Mins",
+      "enc_id": "G7X0jfndlaq3PPp8MQTgcc2pOLFcZV91",
+      "group_id": 272,
+      "id": 272,
+      "image": "icon-ai_screening.svg",
+      "image_url": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/assessment/icon-ai_screening.svg",
+      "master_key": null,
+      "name": "AiInterview",
+      "short_created_at": "2023-10-20",
+      "status": 1,
+      "type": 1,
+      "updated_at": "2023-10-20T15:49:54.000000Z"
+    }
+  ],
+  "auto_share_enabled_at": null,
+  "city": null,
+  "city_data": null,
+  "city_id": 0,
+  "client_id": 5413,
+  "company": {
+    "about": "<p><span>We are the global leader in data integrity, providing accuracy, consistency, and context in data for 12,000 customers in more than 100 countries, including 99 of the Fortune 100. Company’s data integration, data quality, data governance, location intelligence, and data enrichment products power better business decisions to create better outcomes. Learn more at www.precisely.com.</span></p>",
+    "company_headquarter_alias": null,
+    "company_location": "1700 District Avenue",
+    "company_logo": "",
+    "company_name": "Global leader in data integrity",
+    "company_name_initials": "GL",
+    "geo": "US",
+    "industry": "SAAS",
+    "is_confidential": 1,
+    "linkedin_url": "https://www.linkedin.com/company/preciselydata/",
+    "team_size": "2801",
+    "website_url": "https://www.precisely.com/"
+  },
+  "company_logo": null,
+  "cost": "Confidential",
+  "cost_end_in_dollar": "2497",
+  "cost_end_in_dollar_yearly": "29974",
+  "cost_start_in_dollar": "2144",
+  "cost_start_in_dollar_yearly": "25731",
+  "cost_string": "Confidential",
+  "created_at": "2026-06-29T07:27:40.000000Z",
+  "credit_type": 0,
+  "current_talent_hr": {},
+  "detail": {
+    "Discription": null,
+    "JDFilename": null,
+    "JDURL": "https://docs.google.com/document/d/1wmNjQRUDlWAAPyfBJVd343GEs6qXbcjc/edit?usp=sharing&ouid=601566645733299356796&rtpof=true&sd=true",
+    "JobDescription": "<p><br></p><p class=\"ql-align-justify\"><strong>Job Title: Sr. Test Automation Analyst </strong></p><p class=\"ql-align-justify\"><strong>Department: R&D </strong></p><p class=\"ql-align-justify\"><strong>Reports To: Manager, Quality Management </strong></p><p class=\"ql-align-justify\"><strong>Location: Remote </strong></p><p><br></p><ol><li><span style=\"background-color: transparent\">We are a global leader in data integrity, providing accuracy and consistency in data for 12,000 customers in more than 100 countries, including 90 percent of the Fortune 100. Our data integration, data quality, location intelligence, and data enrichment products power better business decisions to create better outcomes. We are looking for talented individuals with the experience and motivation to join our innovative team.</span></li></ol><p><br></p><p class=\"ql-align-justify\"><strong>PURPOSE OF THE POSITION </strong></p><p><br></p><p class=\"ql-align-justify\">As <strong>Sr. Test Automation Analyst</strong>, you will develop, implement, and sustain test automation processes, practices, using <strong>Playwright with Typescript for UI</strong> and <strong>JAVA for API automation </strong>within the software delivery lifecycle. This role will follow our test automation strategy by building requirements and designing code to ensure implementation and execution of our automation test environment. They will also be responsible to creating high quality, maintainable, and performant code for automated test cases and the frameworks to execute and report on.</p><p class=\"ql-align-justify\"><br></p><p><strong>ESSENTIAL DUTIES AND RESPONSIBILITIES - </strong>Other duties may be assigned</p><p><br></p><ul><li><span style=\"background-color: transparent\">Writing, Fixing and Reviewing UI/API Automated Test Scripts for BVT, Acceptance and Regression Test Suites</span></li><li><span style=\"background-color: transparent\">Implementing new and enhancing existing Automation Test Framework</span></li><li><span style=\"background-color: transparent\">To ensure test scripts are always up to date and monitor their status during every run</span></li><li><span style=\"background-color: transparent\">Ensuring proper reporting of Automated Test Execution results and ability to provide detailed reports with failures analysis</span></li><li><span style=\"background-color: transparent\">Maintaining Jenkins Test Grid and nightly jobs, ensuring automated product deployments</span></li></ul><p><br></p><p><strong>ESSENTIAL EDUCATION, SKILLS AND KNOWLEDGE REQUIREMENTS:</strong><em> </em></p><p><br></p><ul><li><span style=\"background-color: transparent\">4-6 years of software industry experience and successful track record in UI automation.</span></li><li><span style=\"background-color: transparent\">BE/BTech/MCA/Equivalent degree in Computer Science or a related technical field from an accredited university or college.</span></li><li><span style=\"background-color: transparent\">Experience of web automation tools Playwright/Selenium (Preferred - Playwright)</span></li><li><span style=\"background-color: transparent\">Excellent programming skills in languages: TypeScript/JavaScript/Java (preferably Java and TypeScript) and strong OOPS concepts</span></li><li><span style=\"background-color: transparent\">Experience in using AI for coding and troubleshooting using tools such as copilot.</span></li><li><span style=\"background-color: transparent\">Experience in working with different file formats XML/Json etc</span></li><li><span style=\"background-color: transparent\">Basic knowledge on version control tools like GIT</span></li><li><span style=\"background-color: transparent\">Good knowledge of Design Patterns & Architectural Patterns</span></li><li><span style=\"background-color: transparent\">Working in Agile Methodologies</span></li><li><span style=\"background-color: transparent\">Excellent problem solving and logical thinking skills </span></li><li><span style=\"background-color: transparent\">Compose clear and concise technical written communication</span></li></ul><p><br></p><p><strong>PREFERRED REQUIREMENTS: </strong></p><p><br></p><ul><li><span style=\"background-color: transparent\">Receptive to change – is flexible. Seeks and adopts improved approaches and processes.</span></li><li><span style=\"background-color: transparent\">Initiates action – is results oriented, takes responsibility for actions and outcomes. Meets commitments and strives for high performance.</span></li><li><span style=\"background-color: transparent\">Manages the workload - prioritizes effectively, solves problems and takes remedial action where necessary.</span></li><li><span style=\"background-color: transparent\">Communicates effectively - listens to views of colleagues and takes in diverse perspectives. </span></li><li><span style=\"background-color: transparent\">Works collaboratively - shares information, fosters teamwork and contributes to positive work environment where people want to come to work. </span></li></ul><p><br></p><p><strong>WORK ENVIRONMENT AND PHYSICAL DEMANDS</strong></p><p class=\"ql-align-justify\"><br></p><ul><li class=\"ql-align-justify\"><span style=\"background-color: transparent\">The work environment and physical demands described here are representative of those that must be met by the employee to successfully perform the essential functions of the job. Reasonable accommodations may be made to enable individuals with disabilities to perform the essential functions.</span></li><li><span style=\"background-color: transparent\">Standard office environment. Some stress may occur with tight deadlines and long hours. </span></li></ul><p><em> </em></p><ul><li><span style=\"background-color: transparent\">Standard physical activity such as standing, walking, sitting, basic motor skills to access computer files for information, data entry or document creation.</span></li></ul>",
+    "aggregator": null,
+    "aggregator_application_link": null,
+    "aggregator_sheet_id": null,
+    "ai_question_count": 38,
+    "apply_url": null,
+    "call_screen_enabled": 1,
+    "client_poc_designation": null,
+    "client_poc_email": null,
+    "client_poc_linkedin": null,
+    "client_poc_name": null,
+    "closed_at": null,
+    "closed_by": null,
+    "closed_reason": null,
+    "company_type": null,
+    "coresignal_boolean": "[[\"Automation Testing\"],[\"TypeScript\"]]",
+    "created_at": "2026-06-29T07:27:41.000000Z",
+    "created_by": 9342822,
+    "cv_screen_enabled": 1,
+    "frequency_office_visit": null,
+    "has_people_management_exp": 0,
+    "hirebeen_job_id": 0,
+    "hr_id": 262747,
+    "id": 262747,
+    "institute": null,
+    "is_ai_externally_modified": 0,
+    "is_ai_matched_recommendation_complete": 1,
+    "is_ai_matched_talent_added": 1,
+    "is_apply_url_mail_to": 0,
+    "is_hirebeen_active": 0,
+    "is_open_to_work_near_by": null,
+    "is_recommended_rejected_strip_visible": 0,
+    "is_spotlight_hr": null,
+    "is_top_match_nurture_send": 0,
+    "jd_path": "https://docs.google.com/document/d/1wmNjQRUDlWAAPyfBJVd343GEs6qXbcjc/edit?usp=sharing&ouid=601566645733299356796&rtpof=true&sd=true",
+    "job_category_id": null,
+    "job_description_last_updated_at": null,
+    "job_sector": 1,
+    "last_shortlisted_rejected_at": null,
+    "last_step": 1,
+    "persona_company_type": 2,
+    "preferred_domain": null,
+    "published_by": 8425999,
+    "rejected_talent_count": 0,
+    "repost_reason": null,
+    "sales_poc_name": null,
+    "sales_user_type": "AM",
+    "standardized_title": null,
+    "updated_at": "2026-06-29T07:44:38.000000Z",
+    "updated_by": null,
+    "updated_hr_at": "2026-06-29 13:01:35"
+  },
+  "duplicate_hr_id": null,
+  "duplicate_percent": null,
+  "enc_id": "dW1wV3I1QjlBYXlTUHJ4VnlwenFIQT09",
+  "expiry_date": null,
+  "flag": 1,
+  "frequency_office_visit": null,
+  "hr_yoe": "4.00",
+  "id": 262747,
+  "impression": 0,
+  "is_aggregator_job": false,
+  "is_applied": false,
+  "is_custome_screening": false,
+  "is_direct_hr": 0,
+  "is_dp": "No",
+  "is_experience_flexible": 0,
+  "is_featured": 0,
+  "is_flexible_budget": 0,
+  "is_focused": 0,
+  "is_hr_updated": 0,
+  "is_new": false,
+  "is_partner_company": "Apr 2024",
+  "is_saved": 0,
+  "is_screening_visible_for_client": 1,
+  "is_status_update": 1,
+  "is_test_hr": 0,
+  "is_transparent": 0,
+  "is_unqualified": 0,
+  "jd_path": null,
+  "job_function_id": 7,
+  "job_location": [],
+  "job_nature": "Uplers On-Boarded",
+  "job_type_id": 1,
+  "joining_period": "Immediately",
+  "ld_json": {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    "applicantLocationRequirements": {
+      "@type": "Country",
+      "name": "India"
+    },
+    "applicationUrl": "https://platform.uplers.com/talent/all-opportunities/HR290626125252?source=nfLwqnvdIznnMBLbLJFqkE9EZIY7DS24",
+    "datePosted": "2026-06-29",
+    "description": "<b>Experience</b>: 4.00 + years <br>            <b>Salary</b>: Confidential (based on experience)<br><b>Expected Notice Period</b>: 7 Days <br><b>Shift</b>: (GMT+05:30) Asia/Kolkata (IST) <br>            <b>Opportunity Type</b>: Remote  <br>            <b>Placement Type</b>: Full Time Contract for 6 Months(40 hrs a week/160 hrs a month) <br><b>(*Note: This is a requirement for one of Uplers' client - Global leader in data integrity) <b><br><br>            What do you need for this opportunity?            <br><br>            <b>Must have skills required:</b>            <br>            CI/CD, Debugging, Design patterns, OOP Concepts, Selenium, XML/JSON, AI Tools, API Testing, Playwright, test frameworks, Ui automation, Java, TypeScript            <br><br>            <b>Global leader in data integrity is Looking for:</b>            <p><br></p><p class=\"ql-align-justify\"><strong>Job Title: Sr. Test Automation Analyst </strong></p><p class=\"ql-align-justify\"><strong>Department: R&D </strong></p><p class=\"ql-align-justify\"><strong>Reports To: Manager, Quality Management </strong></p><p class=\"ql-align-justify\"><strong>Location: Remote </strong></p><p><br></p><ol><li><span style=\"background-color: transparent\">We are a global leader in data integrity, providing accuracy and consistency in data for 12,000 customers in more than 100 countries, including 90 percent of the Fortune 100. Our data integration, data quality, location intelligence, and data enrichment products power better business decisions to create better outcomes. We are looking for talented individuals with the experience and motivation to join our innovative team.</span></li></ol><p><br></p><p class=\"ql-align-justify\"><strong>PURPOSE OF THE POSITION </strong></p><p><br></p><p class=\"ql-align-justify\">As <strong>Sr. Test Automation Analyst</strong>, you will develop, implement, and sustain test automation processes, practices, using <strong>Playwright with Typescript for UI</strong> and <strong>JAVA for API automation </strong>within the software delivery lifecycle. This role will follow our test automation strategy by building requirements and designing code to ensure implementation and execution of our automation test environment. They will also be responsible to creating high quality, maintainable, and performant code for automated test cases and the frameworks to execute and report on.</p><p class=\"ql-align-justify\"><br></p><p><strong>ESSENTIAL DUTIES AND RESPONSIBILITIES - </strong>Other duties may be assigned</p><p><br></p><ul><li><span style=\"background-color: transparent\">Writing, Fixing and Reviewing UI/API Automated Test Scripts for BVT, Acceptance and Regression Test Suites</span></li><li><span style=\"background-color: transparent\">Implementing new and enhancing existing Automation Test Framework</span></li><li><span style=\"background-color: transparent\">To ensure test scripts are always up to date and monitor their status during every run</span></li><li><span style=\"background-color: transparent\">Ensuring proper reporting of Automated Test Execution results and ability to provide detailed reports with failures analysis</span></li><li><span style=\"background-color: transparent\">Maintaining Jenkins Test Grid and nightly jobs, ensuring automated product deployments</span></li></ul><p><br></p><p><strong>ESSENTIAL EDUCATION, SKILLS AND KNOWLEDGE REQUIREMENTS:</strong><em> </em></p><p><br></p><ul><li><span style=\"background-color: transparent\">4-6 years of software industry experience and successful track record in UI automation.</span></li><li><span style=\"background-color: transparent\">BE/BTech/MCA/Equivalent degree in Computer Science or a related technical field from an accredited university or college.</span></li><li><span style=\"background-color: transparent\">Experience of web automation tools Playwright/Selenium (Preferred - Playwright)</span></li><li><span style=\"background-color: transparent\">Excellent programming skills in languages: TypeScript/JavaScript/Java (preferably Java and TypeScript) and strong OOPS concepts</span></li><li><span style=\"background-color: transparent\">Experience in using AI for coding and troubleshooting using tools such as copilot.</span></li><li><span style=\"background-color: transparent\">Experience in working with different file formats XML/Json etc</span></li><li><span style=\"background-color: transparent\">Basic knowledge on version control tools like GIT</span></li><li><span style=\"background-color: transparent\">Good knowledge of Design Patterns & Architectural Patterns</span></li><li><span style=\"background-color: transparent\">Working in Agile Methodologies</span></li><li><span style=\"background-color: transparent\">Excellent problem solving and logical thinking skills </span></li><li><span style=\"background-color: transparent\">Compose clear and concise technical written communication</span></li></ul><p><br></p><p><strong>PREFERRED REQUIREMENTS: </strong></p><p><br></p><ul><li><span style=\"background-color: transparent\">Receptive to change – is flexible. Seeks and adopts improved approaches and processes.</span></li><li><span style=\"background-color: transparent\">Initiates action – is results oriented, takes responsibility for actions and outcomes. Meets commitments and strives for high performance.</span></li><li><span style=\"background-color: transparent\">Manages the workload - prioritizes effectively, solves problems and takes remedial action where necessary.</span></li><li><span style=\"background-color: transparent\">Communicates effectively - listens to views of colleagues and takes in diverse perspectives. </span></li><li><span style=\"background-color: transparent\">Works collaboratively - shares information, fosters teamwork and contributes to positive work environment where people want to come to work. </span></li></ul><p><br></p><p><strong>WORK ENVIRONMENT AND PHYSICAL DEMANDS</strong></p><p class=\"ql-align-justify\"><br></p><ul><li class=\"ql-align-justify\"><span style=\"background-color: transparent\">The work environment and physical demands described here are representative of those that must be met by the employee to successfully perform the essential functions of the job. Reasonable accommodations may be made to enable individuals with disabilities to perform the essential functions.</span></li><li><span style=\"background-color: transparent\">Standard office environment. Some stress may occur with tight deadlines and long hours. </span></li></ul><p><em> </em></p><ul><li><span style=\"background-color: transparent\">Standard physical activity such as standing, walking, sitting, basic motor skills to access computer files for information, data entry or document creation.</span></li></ul>            <br>            <b>How to apply for this opportunity?</b>            <ul>            <li>Step 1: Click On Apply! And Register or Login on our portal.</li>            <li>Step 2: Complete the Screening Form & Upload updated Resume</li>            <li>Step 3: Increase your chances to get shortlisted & meet the client for the Interview!</li>            </ul>            <br><b>About Uplers:</b><br>            Our goal is to make hiring reliable, simple, and fast. Our role will be to help all our talents find and apply for relevant contractual onsite opportunities and progress in their career. We will support any grievances or challenges you may face during the engagement.            <br><br>            (Note: There are many more opportunities apart from this on the portal. Depending on the assessments you clear, you can apply for them as well).            <br>            So, if you are ready for a new challenge, a great work environment, and an opportunity to take your career to the next level, don't hesitate to apply today. We are waiting for you!",
+    "directApply": true,
+    "experienceRequirements": {
+      "@type": "OccupationalExperienceRequirements",
+      "monthsOfExperience": "4.00"
+    },
+    "hiringOrganization": {
+      "@type": "Organization",
+      "logo": "https://platform.uplers.com/images/uplers-logo.png",
+      "name": "Uplers",
+      "sameAs": "https://www.uplers.com"
+    },
+    "identifier": {
+      "@type": "PropertyValue",
+      "name": "job_id",
+      "value": "HR290626125252"
+    },
+    "jobLocationType": "TELECOMMUTE",
+    "skills": "AI Tools, API Testing, Playwright, test frameworks, Ui automation, Java, TypeScript",
+    "title": "Sr. Test Automation Analyst",
+    "url": "https://platform.uplers.com/talent/all-opportunities/HR290626125252?source=nfLwqnvdIznnMBLbLJFqkE9EZIY7DS24"
+  },
+  "location_type": 1,
+  "matched_hrs": [],
+  "matched_with_talent_details": [],
+  "matcherArray": {
+    "MatcherLead": {},
+    "TA": {},
+    "matcher": {}
+  },
+  "max_yoe": "6.00",
+  "non_vetted_credit": 1,
+  "partner_name": null,
+  "payment_mode": 2,
+  "prev_status": 0,
+  "pricingModel": "Full Time Contract for 6 Months",
+  "pricingModelIText": "40 hrs a week/160 hrs a month",
+  "publish_ats": 1,
+  "publish_datetime_ats": "2026-06-29 13:02:38",
+  "publish_datetime_uplers": null,
+  "publish_linkedin": 1,
+  "publish_uplers": 0,
+  "role": null,
+  "rootle_campaign_id": 0,
+  "shifts": [
+    {
+      "end_time": "7:00 PM",
+      "ist_shift_time": "10:00AM to 7:00PM",
+      "shift": "(GMT+05:30) Asia/Kolkata (IST)",
+      "start_time": "10:00 AM"
+    }
+  ],
+  "show_poc_detail": 1,
+  "skill_boolean": [],
+  "skills": [
+    {
+      "skill": {
+        "name": "CI/CD",
+        "type": "good_to_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "Debugging",
+        "type": "good_to_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "Design patterns",
+        "type": "good_to_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "OOP Concepts",
+        "type": "good_to_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "Selenium",
+        "type": "good_to_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "XML/JSON",
+        "type": "good_to_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "AI Tools",
+        "type": "must_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "API Testing",
+        "type": "must_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "Playwright",
+        "type": "must_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "test frameworks",
+        "type": "must_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "Ui automation",
+        "type": "must_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "Java",
+        "type": "must_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "TypeScript",
+        "type": "must_have"
+      }
+    }
+  ],
+  "status": 1,
+  "talents_count": 732,
+  "tech_cleared": 0,
+  "top_badge": "",
+  "unpublish_reason": null,
+  "vetted_credit": 5,
+  "video_counter": 0
+}

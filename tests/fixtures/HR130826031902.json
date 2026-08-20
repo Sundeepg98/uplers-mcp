@@ -1,0 +1,288 @@
+{
+  "Availability": "Full Time",
+  "CompanyName": "AgentAI",
+  "Currency": "USD",
+  "DurationType": null,
+  "HRTypeId": 1,
+  "HRTypeText": "Pay Per Hire",
+  "HR_Number": "HR130826031902",
+  "HR_Role": "Full Stack Engineer",
+  "HR_ShiftTime": "(GMT+05:30) Asia/Kolkata (IST)",
+  "HR_Status": "",
+  "HiringRequest_ID": 16347,
+  "HowSoon": "15 Days",
+  "IsBackendHR": 0,
+  "IsConfidentialBudget": 0,
+  "IsVettedProfile": 0,
+  "JobDescription": "<p>You will join a lean, high-output engineering team as an AI-native full-stack engineer. This is not a maintenance role — you will be architecting and building full systems on a production platform that processes medical billing for healthcare providers. The current lead developer (Raj, based in India, 3 years with AgentAI) is overwhelmed, and you will work alongside him, CTO Kranti Deshmukh, and CEO Zorik Gordon to scale the platform. The structure is completely flat — there are no layers, no hierarchy. You will be expected to think, problem-solve, and ship independently with minimal hand-holding.</p><p><br></p><p><strong>What You’ll Own</strong></p><ul><li>Architect and scale a modular, high-throughput data pipeline relying heavily on LLM orchestration, structured JSON data extraction, and complex logical evaluation gates</li><li>Build and enhance production features on the AI medical billing platform — not buttons and UI tweaks, but full systems (data extraction, evaluation logic, modifier systems)</li><li>Handle structured data pipelines, JSON schemas, OCR parsing, and API orchestration layers</li><li>Decouple systems cleanly — separate data extraction, evaluation, and modifier logic into regression-tested workflows</li><li>Ensure the platform meets healthcare compliance and security standards (HIPAA) from day one</li><li>Use AI coding tools (Claude Code, Cursor, Aider, Codex CLI) as your primary development method to ship production-ready code at 10x speed</li><li>Collaborate directly with the CTO, CEO, and lead developer in a flat, no-hierarchy environment</li></ul><p><br></p><p><strong>Tech Stack</strong></p><ul><li><strong>Frontend</strong>: React</li><li><strong>Backend</strong>: Python, Node.js</li><li><strong>Data</strong>: Structured JSON pipelines, OCR processing, API orchestration</li><li><strong>AI/LLM:</strong> LLM orchestration, programmatic prompt engineering, autonomous terminal agents</li><li><strong>AI Dev Tools: </strong>Claude Code, Cursor, Aider, Codex CLI — used as primary development method, not supplementary</li><li><strong>Compliance</strong>: HIPAA-compliant architecture, healthcare data security</li></ul><p><br></p><p><strong>Must-Haves</strong></p><ul><li>Up to 5 years of professional full-stack engineering experience</li><li>AI-native workflow — <strong>mastery of autonomous terminal agents (Claude Code), CLI-driven AI execution tools, and programmatic LLM prompt engineering</strong>. This is not optional — AI tools must be your primary coding method</li><li>Strong backend architecture skills (<strong>Python) </strong>paired with clean, lightweight frontend capabilities <strong>(React)</strong></li><li>Experience handling structured <strong>data pipelines, JSON schemas, parsing raw input (OCR), and managing API orchestration layer</strong>s</li><li>Architecture-first mindset — ability to decouple systems cleanly and build regression-tested workflows</li><li>Understanding of <strong>security and compliance standards </strong>(HIPAA preferred) — must be able to assess what the platform needs from a compliance perspective on day one</li><li>Ownership mindset — think, problem-solve, and ship independently. Not someone who waits for instructions.</li><li><strong>Comfortable working PST hours (Los Angeles time zone)</strong> — the entire team, including India-based members, works LA hours</li><li>High work ethic and speed — comfortable in a rapid, high-execution environment with minimal hand-holding</li></ul><p><br></p><p><strong>Nice-to-Have</strong></p><ul><li>Healthcare IT background — experience with medical billing, RCM, prior authorisation, FHIR integrations, or EHR/EMR systems</li><li>Experience at a healthcare startup or health tech company</li><li>Understanding of payer interactions and third-party healthcare data systems</li><li>Premier institute background (IIT, top NIT, or equivalent)</li><li>Startup or product company experience — NOT IT services background</li></ul><p><br></p><p><strong>Interview Process</strong></p><ul><li>Assessment Round</li><li>Team interview — Discussion with Kranti and the engineering team on your approach, thought process, and framework submission</li><li>Final round — Cultural fit and product alignment with Kranti and Zori</li></ul>",
+  "ModeOfWork": "Remote",
+  "MonthDuration": "0.00",
+  "PayrollType": "I will manage the payroll",
+  "PayrollTypeId": 2,
+  "PricingId": 3,
+  "PricingName": "Direct-hire",
+  "Quantity": 1,
+  "RequestForTalent": "AI Full Stack Engineer",
+  "YearOfExp": "3.00",
+  "aggregator": null,
+  "aggregator_publish_date": null,
+  "ai_mandatory": 0,
+  "all_clear": false,
+  "all_pending": true,
+  "assessments": [],
+  "auto_share_enabled_at": null,
+  "city": null,
+  "city_data": null,
+  "city_id": 0,
+  "client_id": 5483,
+  "company": {
+    "about": "<p><span>AgentAI is a well-funded (~$72M+ raised from Transformation Capital, EIR Partners, Slow Ventures, and Oceans Ventures), 3-year-old AI company building an end-to-end AI platform for medical billing and revenue cycle management (RCM). The platform automates the most time-consuming tasks in medical billing — data extraction, coding, claims processing, denials, and accounts receivable — delivering same-day processing for practices, hospitals, and RCM companies. AgentAI also acquires offline medical billing companies and converts them to AI-powered operations. The team is small, tight, and flat — even the CEO creates PRs and fixes bugs. Headquartered in Los Angeles with team members across India and Latin America.</span></p>",
+    "company_location": null,
+    "company_logo": "",
+    "company_name": "AgentAI",
+    "company_name_initials": "A",
+    "geo": "US",
+    "industry": "Healthcare Technology / AI / Revenue Cycle Management (RCM)",
+    "is_confidential": 0,
+    "linkedin_url": "https://www.linkedin.com/company/agentaiapp/",
+    "team_size": "19",
+    "website_url": "https://agentai.app/"
+  },
+  "company_logo": null,
+  "cost": "60,000-90,000",
+  "cost_end_in_dollar": "7500",
+  "cost_end_in_dollar_yearly": "90000",
+  "cost_start_in_dollar": "5000",
+  "cost_start_in_dollar_yearly": "60000",
+  "cost_string": "USD 60,000-90,000 / year",
+  "created_at": "2026-08-12T21:56:09.000000Z",
+  "credit_type": 0,
+  "current_talent_hr": {},
+  "detail": {
+    "Discription": null,
+    "JDFilename": null,
+    "JDURL": "https://docs.google.com/document/d/1a8UBwBFfoygS18j4LHDK0jEYDqbE9djaxw6ewXM3zRI/edit?usp=sharing",
+    "JobDescription": "<p>You will join a lean, high-output engineering team as an AI-native full-stack engineer. This is not a maintenance role — you will be architecting and building full systems on a production platform that processes medical billing for healthcare providers. The current lead developer (Raj, based in India, 3 years with AgentAI) is overwhelmed, and you will work alongside him, CTO Kranti Deshmukh, and CEO Zorik Gordon to scale the platform. The structure is completely flat — there are no layers, no hierarchy. You will be expected to think, problem-solve, and ship independently with minimal hand-holding.</p><p><br></p><p><strong>What You’ll Own</strong></p><ul><li>Architect and scale a modular, high-throughput data pipeline relying heavily on LLM orchestration, structured JSON data extraction, and complex logical evaluation gates</li><li>Build and enhance production features on the AI medical billing platform — not buttons and UI tweaks, but full systems (data extraction, evaluation logic, modifier systems)</li><li>Handle structured data pipelines, JSON schemas, OCR parsing, and API orchestration layers</li><li>Decouple systems cleanly — separate data extraction, evaluation, and modifier logic into regression-tested workflows</li><li>Ensure the platform meets healthcare compliance and security standards (HIPAA) from day one</li><li>Use AI coding tools (Claude Code, Cursor, Aider, Codex CLI) as your primary development method to ship production-ready code at 10x speed</li><li>Collaborate directly with the CTO, CEO, and lead developer in a flat, no-hierarchy environment</li></ul><p><br></p><p><strong>Tech Stack</strong></p><ul><li><strong>Frontend</strong>: React</li><li><strong>Backend</strong>: Python, Node.js</li><li><strong>Data</strong>: Structured JSON pipelines, OCR processing, API orchestration</li><li><strong>AI/LLM:</strong> LLM orchestration, programmatic prompt engineering, autonomous terminal agents</li><li><strong>AI Dev Tools: </strong>Claude Code, Cursor, Aider, Codex CLI — used as primary development method, not supplementary</li><li><strong>Compliance</strong>: HIPAA-compliant architecture, healthcare data security</li></ul><p><br></p><p><strong>Must-Haves</strong></p><ul><li>Up to 5 years of professional full-stack engineering experience</li><li>AI-native workflow — <strong>mastery of autonomous terminal agents (Claude Code), CLI-driven AI execution tools, and programmatic LLM prompt engineering</strong>. This is not optional — AI tools must be your primary coding method</li><li>Strong backend architecture skills (<strong>Python) </strong>paired with clean, lightweight frontend capabilities <strong>(React)</strong></li><li>Experience handling structured <strong>data pipelines, JSON schemas, parsing raw input (OCR), and managing API orchestration layer</strong>s</li><li>Architecture-first mindset — ability to decouple systems cleanly and build regression-tested workflows</li><li>Understanding of <strong>security and compliance standards </strong>(HIPAA preferred) — must be able to assess what the platform needs from a compliance perspective on day one</li><li>Ownership mindset — think, problem-solve, and ship independently. Not someone who waits for instructions.</li><li><strong>Comfortable working PST hours (Los Angeles time zone)</strong> — the entire team, including India-based members, works LA hours</li><li>High work ethic and speed — comfortable in a rapid, high-execution environment with minimal hand-holding</li></ul><p><br></p><p><strong>Nice-to-Have</strong></p><ul><li>Healthcare IT background — experience with medical billing, RCM, prior authorisation, FHIR integrations, or EHR/EMR systems</li><li>Experience at a healthcare startup or health tech company</li><li>Understanding of payer interactions and third-party healthcare data systems</li><li>Premier institute background (IIT, top NIT, or equivalent)</li><li>Startup or product company experience — NOT IT services background</li></ul><p><br></p><p><strong>Interview Process</strong></p><ul><li>Assessment Round</li><li>Team interview — Discussion with Kranti and the engineering team on your approach, thought process, and framework submission</li><li>Final round — Cultural fit and product alignment with Kranti and Zori</li></ul>",
+    "aggregator": null,
+    "aggregator_application_link": null,
+    "aggregator_sheet_id": null,
+    "ai_question_count": 0,
+    "apply_url": null,
+    "call_screen_enabled": 1,
+    "client_poc_designation": null,
+    "client_poc_email": null,
+    "client_poc_linkedin": null,
+    "client_poc_name": null,
+    "closed_at": null,
+    "closed_by": null,
+    "closed_reason": null,
+    "company_type": null,
+    "coresignal_boolean": "[[\"Python\"],[\"Claude\",\"cursor\"]]",
+    "created_at": "2026-08-12T21:56:11.000000Z",
+    "created_by": 697286,
+    "cv_screen_enabled": 1,
+    "frequency_office_visit": null,
+    "has_people_management_exp": 0,
+    "hirebeen_job_id": 0,
+    "hr_id": 321946,
+    "id": 321939,
+    "institute": null,
+    "is_ai_externally_modified": 0,
+    "is_ai_matched_recommendation_complete": 1,
+    "is_ai_matched_talent_added": 1,
+    "is_apply_url_mail_to": 0,
+    "is_hirebeen_active": 0,
+    "is_open_to_work_near_by": null,
+    "is_recommended_rejected_strip_visible": 0,
+    "is_spotlight_hr": null,
+    "is_top_match_nurture_send": 0,
+    "jd_path": "https://docs.google.com/document/d/1a8UBwBFfoygS18j4LHDK0jEYDqbE9djaxw6ewXM3zRI/edit?usp=sharing",
+    "job_category_id": null,
+    "job_description_last_updated_at": null,
+    "job_sector": 1,
+    "last_shortlisted_rejected_at": null,
+    "last_step": 1,
+    "persona_company_type": 1,
+    "preferred_domain": null,
+    "published_by": 1084569,
+    "rejected_talent_count": 0,
+    "repost_reason": null,
+    "sales_poc_name": null,
+    "sales_user_type": "NBD",
+    "standardized_title": null,
+    "updated_at": "2026-08-13T05:17:47.000000Z",
+    "updated_by": null,
+    "updated_hr_at": "2026-08-13 10:25:32"
+  },
+  "duplicate_hr_id": null,
+  "duplicate_percent": null,
+  "enc_id": "YWFNNWxHd0ZHZ0pyazV6NjF5YnBaZz09",
+  "expiry_date": null,
+  "flag": 1,
+  "frequency_office_visit": null,
+  "hr_yoe": "3.00",
+  "id": 321946,
+  "impression": 0,
+  "is_aggregator_job": false,
+  "is_applied": false,
+  "is_custome_screening": false,
+  "is_direct_hr": 0,
+  "is_dp": "Yes",
+  "is_experience_flexible": 0,
+  "is_featured": 0,
+  "is_flexible_budget": 0,
+  "is_focused": 0,
+  "is_hr_updated": 1,
+  "is_new": false,
+  "is_partner_company": "May 2026",
+  "is_saved": 0,
+  "is_screening_visible_for_client": 1,
+  "is_status_update": 1,
+  "is_test_hr": 0,
+  "is_transparent": 1,
+  "is_unqualified": 0,
+  "jd_path": null,
+  "job_function_id": 3,
+  "job_location": [],
+  "job_nature": "Uplers On-Boarded",
+  "job_type_id": 1,
+  "joining_period": "15 Days",
+  "ld_json": {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    "applicantLocationRequirements": {
+      "@type": "Country",
+      "name": "India"
+    },
+    "applicationUrl": "https://platform.uplers.com/talent/all-opportunities/HR130826031902?source=nfLwqnvdIznnMBLbLJFqkE9EZIY7DS24",
+    "datePosted": "2026-08-13",
+    "description": "<b>Experience</b>: 3.00 + years <br>            <b>Salary</b>: USD 60,000-90,000 / year (based on experience)<br><b>Expected Notice Period</b>: 15 Days <br><b>Shift</b>: (GMT+05:30) Asia/Kolkata (IST) <br>            <b>Opportunity Type</b>: Remote  <br>            <b>Placement Type</b>: Full Time Permanent position(Payroll and Compliance to be managed by: AgentAI) <br><b>(*Note: This is a requirement for one of Uplers' client - AgentAI) <b><br><br>            What do you need for this opportunity?            <br><br>            <b>Must have skills required:</b>            <br>            API orchestration, HIPAA, Ocr processing, AI-Assisted Development (Claude Code/Codex/GitHub Copilot), Intelligent Document Processing, react, Security & compliance, AWS, Django, JSON, Python            <br><br>            <b>AgentAI is Looking for:</b>            <p>You will join a lean, high-output engineering team as an AI-native full-stack engineer. This is not a maintenance role — you will be architecting and building full systems on a production platform that processes medical billing for healthcare providers. The current lead developer (Raj, based in India, 3 years with AgentAI) is overwhelmed, and you will work alongside him, CTO Kranti Deshmukh, and CEO Zorik Gordon to scale the platform. The structure is completely flat — there are no layers, no hierarchy. You will be expected to think, problem-solve, and ship independently with minimal hand-holding.</p><p><br></p><p><strong>What You’ll Own</strong></p><ul><li>Architect and scale a modular, high-throughput data pipeline relying heavily on LLM orchestration, structured JSON data extraction, and complex logical evaluation gates</li><li>Build and enhance production features on the AI medical billing platform — not buttons and UI tweaks, but full systems (data extraction, evaluation logic, modifier systems)</li><li>Handle structured data pipelines, JSON schemas, OCR parsing, and API orchestration layers</li><li>Decouple systems cleanly — separate data extraction, evaluation, and modifier logic into regression-tested workflows</li><li>Ensure the platform meets healthcare compliance and security standards (HIPAA) from day one</li><li>Use AI coding tools (Claude Code, Cursor, Aider, Codex CLI) as your primary development method to ship production-ready code at 10x speed</li><li>Collaborate directly with the CTO, CEO, and lead developer in a flat, no-hierarchy environment</li></ul><p><br></p><p><strong>Tech Stack</strong></p><ul><li><strong>Frontend</strong>: React</li><li><strong>Backend</strong>: Python, Node.js</li><li><strong>Data</strong>: Structured JSON pipelines, OCR processing, API orchestration</li><li><strong>AI/LLM:</strong> LLM orchestration, programmatic prompt engineering, autonomous terminal agents</li><li><strong>AI Dev Tools: </strong>Claude Code, Cursor, Aider, Codex CLI — used as primary development method, not supplementary</li><li><strong>Compliance</strong>: HIPAA-compliant architecture, healthcare data security</li></ul><p><br></p><p><strong>Must-Haves</strong></p><ul><li>Up to 5 years of professional full-stack engineering experience</li><li>AI-native workflow — <strong>mastery of autonomous terminal agents (Claude Code), CLI-driven AI execution tools, and programmatic LLM prompt engineering</strong>. This is not optional — AI tools must be your primary coding method</li><li>Strong backend architecture skills (<strong>Python) </strong>paired with clean, lightweight frontend capabilities <strong>(React)</strong></li><li>Experience handling structured <strong>data pipelines, JSON schemas, parsing raw input (OCR), and managing API orchestration layer</strong>s</li><li>Architecture-first mindset — ability to decouple systems cleanly and build regression-tested workflows</li><li>Understanding of <strong>security and compliance standards </strong>(HIPAA preferred) — must be able to assess what the platform needs from a compliance perspective on day one</li><li>Ownership mindset — think, problem-solve, and ship independently. Not someone who waits for instructions.</li><li><strong>Comfortable working PST hours (Los Angeles time zone)</strong> — the entire team, including India-based members, works LA hours</li><li>High work ethic and speed — comfortable in a rapid, high-execution environment with minimal hand-holding</li></ul><p><br></p><p><strong>Nice-to-Have</strong></p><ul><li>Healthcare IT background — experience with medical billing, RCM, prior authorisation, FHIR integrations, or EHR/EMR systems</li><li>Experience at a healthcare startup or health tech company</li><li>Understanding of payer interactions and third-party healthcare data systems</li><li>Premier institute background (IIT, top NIT, or equivalent)</li><li>Startup or product company experience — NOT IT services background</li></ul><p><br></p><p><strong>Interview Process</strong></p><ul><li>Assessment Round</li><li>Team interview — Discussion with Kranti and the engineering team on your approach, thought process, and framework submission</li><li>Final round — Cultural fit and product alignment with Kranti and Zori</li></ul>            <br>            <b>How to apply for this opportunity?</b>            <ul>            <li>Step 1: Click On Apply! And Register or Login on our portal.</li>            <li>Step 2: Complete the Screening Form & Upload updated Resume</li>            <li>Step 3: Increase your chances to get shortlisted & meet the client for the Interview!</li>            </ul>            <br><b>About Uplers:</b><br>            Our goal is to make hiring reliable, simple, and fast. Our role will be to help all our talents find and apply for relevant contractual onsite opportunities and progress in their career. We will support any grievances or challenges you may face during the engagement.            <br><br>            (Note: There are many more opportunities apart from this on the portal. Depending on the assessments you clear, you can apply for them as well).            <br>            So, if you are ready for a new challenge, a great work environment, and an opportunity to take your career to the next level, don't hesitate to apply today. We are waiting for you!",
+    "directApply": true,
+    "experienceRequirements": {
+      "@type": "OccupationalExperienceRequirements",
+      "monthsOfExperience": "3.00"
+    },
+    "hiringOrganization": {
+      "@type": "Organization",
+      "logo": "https://platform.uplers.com/images/uplers-logo.png",
+      "name": "Uplers",
+      "sameAs": "https://www.uplers.com"
+    },
+    "identifier": {
+      "@type": "PropertyValue",
+      "name": "job_id",
+      "value": "HR130826031902"
+    },
+    "jobLocationType": "TELECOMMUTE",
+    "skills": "AI-Assisted Development (Claude Code/Codex/GitHub Copilot), Intelligent Document Processing, react, Security & compliance, AWS, Python",
+    "title": "AI Full Stack Engineer",
+    "url": "https://platform.uplers.com/talent/all-opportunities/HR130826031902?source=nfLwqnvdIznnMBLbLJFqkE9EZIY7DS24"
+  },
+  "location_type": 1,
+  "matched_hrs": [],
+  "matched_with_talent_details": [],
+  "matcherArray": {
+    "MatcherLead": {},
+    "TA": {},
+    "matcher": {}
+  },
+  "max_yoe": "6.00",
+  "non_vetted_credit": 1,
+  "partner_name": null,
+  "payment_mode": 2,
+  "prev_status": 0,
+  "pricingModel": "Full Time Permanent position",
+  "pricingModelIText": "Payroll and Compliance to be managed by: AgentAI",
+  "publish_ats": 1,
+  "publish_datetime_ats": "2026-08-13 10:25:32",
+  "publish_datetime_uplers": null,
+  "publish_linkedin": 1,
+  "publish_uplers": 0,
+  "role": null,
+  "rootle_campaign_id": 0,
+  "shifts": [
+    {
+      "end_time": "6:30 AM",
+      "ist_shift_time": "9:30PM to 6:30AM",
+      "shift": "(GMT+05:30) Asia/Kolkata (IST)",
+      "start_time": "9:30 PM"
+    }
+  ],
+  "show_poc_detail": 1,
+  "skill_boolean": [],
+  "skills": [
+    {
+      "skill": {
+        "name": "API orchestration",
+        "type": "good_to_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "HIPAA",
+        "type": "good_to_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "Ocr processing",
+        "type": "good_to_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "AI-Assisted Development (Claude Code/Codex/GitHub Copilot)",
+        "type": "must_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "Intelligent Document Processing",
+        "type": "must_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "react",
+        "type": "must_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "Security & compliance",
+        "type": "must_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "AWS",
+        "type": "must_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "Django",
+        "type": "good_to_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "JSON",
+        "type": "good_to_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "Python",
+        "type": "must_have"
+      }
+    }
+  ],
+  "status": 1,
+  "talents_count": 97,
+  "tech_cleared": 0,
+  "top_badge": "<span>Within 1 week</span>",
+  "unpublish_reason": null,
+  "vetted_credit": 5,
+  "video_counter": 0
+}

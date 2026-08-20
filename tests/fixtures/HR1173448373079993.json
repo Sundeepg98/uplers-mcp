@@ -1,0 +1,265 @@
+{
+  "Availability": "Full Time",
+  "CompanyName": "Databricks",
+  "Currency": "INR",
+  "DurationType": null,
+  "HRTypeId": 4,
+  "HRTypeText": "Pay Per Credit",
+  "HR_Number": "HR1173448373079993",
+  "HR_Role": null,
+  "HR_ShiftTime": "(GMT+05:30) Asia/Kolkata (IST)",
+  "HR_Status": null,
+  "HiringRequest_ID": null,
+  "HowSoon": "30 Days",
+  "IsBackendHR": 0,
+  "IsConfidentialBudget": 1,
+  "IsVettedProfile": 0,
+  "JobDescription": "<p><strong><small>(P-1174)</small></strong></p>\n<p>We are hiring a <strong>Senior Staff Software Engineer</strong> for Databricks&#39; Engineering team reporting to an Engineering Leader. You will be part of the Databricks engineering organization, working with teams that develop Databricks products and features for thousands of enterprises worldwide.</p>\n<p><strong>Key Characteristics</strong></p>\n<p>As an executive engineering individual contributor at Databricks, you will have <strong>full ownership of the product or infrastructure direction</strong> in a major area, driving it from initial development to scalable solutions with clear business impact. You will serve as a force multiplier by elevating stability, reliability, and organizational processes, while bringing deep expertise in large-scale distributed systems. You will mentor senior engineers, contribute to recruiting, and lead high-impact company projects, often tackling complex problems beyond their comfort zone.&nbsp;</p>\n<p><strong>Job Description</strong></p>\n<p>At Databricks, we are obsessed with enabling data teams to solve the world&#39;s toughest problems, from security threat detection to cancer drug development. We do this by building and running the world&#39;s best data and AI infrastructure platform, so our customers can focus on the high value challenges that are central to their own missions.</p>\n<p>Our engineering teams build highly technical products that fulfill real, important needs in the world. We develop and operate one of the largest scale software platforms. The fleet consists of millions of virtual machines, generating terabytes of logs and processing exabytes of data per day. At our scale, we regularly observe cloud hardware, network, and operating system faults, and our software must gracefully shield our customers from any of the above.</p>\n<p><strong>The Impact you will have:</strong></p>\n<ul>\n<li>Solve real business needs at large scale by applying your software engineering.</li>\n<li>Deliver a highly scalable, available, and fault-tolerant engine processing hundreds of TB of data daily across thousands of customers</li>\n<li>Low level systems debugging, performance measurement &amp; optimization on large production clusters.</li>\n<li>Build architecture design, influence product roadmap, and take ownership and responsibility over new projects</li>\n<li>Use your deep experience to help prevent and investigate production issues.</li>\n<li>Plan and lead complicated technical projects that work with several teams within the company.</li>\n<li>A strong influencer or driver in the organization’s roadmap and direction.</li>\n<li>Lead a TLG or similar review committee, or initiate and sustain an org/eng-wide initiative driven by engineering needs.</li>\n<li>Break down complex problems quickly into potential solutions, knowns, and unknowns, and de-risk (through prototyping/validation).</li>\n<li>Contribute as a Technical Team Lead by mentoring others, lead sprint planning, delegating work and assignments to team members and participate in project planning.</li>\n</ul>\n<p><strong>What we look for:</strong></p>\n<ul>\n<li>15+ years industry experience building and <strong>supporting large-scale distributed systems</strong>.</li>\n<li>Comfortable working towards a multi-year vision with incremental deliverables.</li>\n<li>Motivated by delivering customer value and impact.</li>\n<li>Strong foundation in algorithms and data structures and their real-world use cases.</li>\n<li>Experience driving company initiatives towards customer satisfaction.</li>\n</ul><div class=\"content-conclusion\"><p><strong>About Databricks</strong></p>\n<p><span style=\"font-family: arial, sans-serif;\">Databricks is the Data and AI company. More than 20,000 organizations worldwide — including adidas, AT&amp;T, Bayer, Block, Mastercard, Rivian, Unilever, and 70% of the Fortune 500 — rely on the Databricks Data + AI Platform to build and scale data and AI apps, analytics and agents. Headquartered in San Francisco with 30+ offices around the globe, Databricks offers a unified platform that includes Genie, Lakebase, Agent Bricks, Lakeflow, Lakehouse, and Unity Catalog. To learn more, follow Databricks on <a href=\"https://www.linkedin.com/company/databricks\">LinkedIn</a>, <a href=\"https://x.com/databricks\">X</a>, <a href=\"https://www.youtube.com/@Databricks\">YouTube</a>, and <a href=\"https://www.instagram.com/databricksinc/?hl=en\">Instagram</a>.<br><br><strong>Benefits<br><br></strong></span>At Databricks, we strive to provide comprehensive benefits and perks that meet the needs of all of our employees. For specific details on the benefits offered in your region click <a href=\"https://docs.google.com/document/d/154un3e8Xav4BceOSlcYFZRGEuQI54xMxVydRwQn54eQ/edit?usp=sharing\">here</a>.<br><br></p>\n<p><strong>Our Commitment to Diversity and Inclusion</strong></p>\n<p>At Databricks, we are committed to fostering a diverse and inclusive culture where everyone can excel. We take great care to ensure that our hiring practices are inclusive and meet equal employment opportunity standards. Individuals looking for employment at Databricks are considered without regard to age, color, disability, ethnicity, family or marital status, gender identity or expression, language, national origin, physical and mental ability, political affiliation, race, religion, sexual orientation, socio-economic status, veteran status, and other protected characteristics.</p>\n<p><strong>Compliance</strong></p>\n<p><strong><span style=\"font-weight: 400;\">If access to export-controlled technology or source code is required for performance of job duties, it is within Employer&#39;s discretion whether to apply for a U.S. government license for such positions, and Employer may decline to proceed with an applicant on this basis alone.</span></strong></p>\n<p><a href=\"https://www.databricks.com/legal/applicant-privacy-notice\" target=\"_blank\"><strong><span style=\"font-weight: 400;\">Applicant Privacy Notice</span></strong></a></p></div>",
+  "ModeOfWork": "Office",
+  "MonthDuration": "0.00",
+  "PayrollType": null,
+  "PayrollTypeId": null,
+  "PricingId": null,
+  "PricingName": null,
+  "Quantity": 1,
+  "RequestForTalent": "Senior Staff Software Engineer (Backend)",
+  "YearOfExp": "15.00",
+  "aggregator": "2",
+  "aggregator_publish_date": "2025-02-03 21:40:52",
+  "ai_mandatory": 0,
+  "all_clear": false,
+  "all_pending": true,
+  "assessments": [],
+  "auto_share_enabled_at": null,
+  "city": "Bengaluru",
+  "city_data": {
+    "city": "Bengaluru",
+    "id": 277,
+    "state": "Karnataka"
+  },
+  "city_id": 277,
+  "client_id": 0,
+  "company": {
+    "about": "Databricks is the Data and AI company. More than 10,000 organizations worldwide — including Block, Comcast, Condé Nast, Rivian, Shell and over 60% of the Fortune 500 — rely on the Databricks Data Intelligence Platform to take control of their data and put it to work with AI. Databricks is headquartered in San Francisco, with offices around the globe, and was founded by the original creators of Lakehouse, Apache Spark™, Delta Lake and MLflow. \r\n\r\n---\r\nDatabricks applicants\r\n\r\nPlease apply through our official Careers page at databricks.com/company/careers. \r\n\r\nAll official communication from Databricks will come from email addresses ending with @databricks.com or @goodtime.io (our meeting tool).",
+    "company_location": null,
+    "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_Databricks_1733163125_xeA3HiBv5E.jpeg",
+    "company_name": "Databricks",
+    "company_name_initials": "D",
+    "geo": null,
+    "industry": "Software Development",
+    "is_confidential": 0,
+    "linkedin_url": "https://www.linkedin.com/company/databricks/",
+    "team_size": "5001-10000",
+    "website_url": "https://databricks.com"
+  },
+  "company_logo": null,
+  "cost": "Confidential",
+  "cost_end_in_dollar": null,
+  "cost_end_in_dollar_yearly": null,
+  "cost_start_in_dollar": null,
+  "cost_start_in_dollar_yearly": null,
+  "cost_string": "Confidential",
+  "created_at": "2024-12-18T01:02:10.000000Z",
+  "credit_type": 0,
+  "current_talent_hr": {},
+  "detail": {
+    "Discription": null,
+    "JDFilename": null,
+    "JDURL": null,
+    "JobDescription": "<p><strong><small>(P-1174)</small></strong></p>\n<p>We are hiring a <strong>Senior Staff Software Engineer</strong> for Databricks&#39; Engineering team reporting to an Engineering Leader. You will be part of the Databricks engineering organization, working with teams that develop Databricks products and features for thousands of enterprises worldwide.</p>\n<p><strong>Key Characteristics</strong></p>\n<p>As an executive engineering individual contributor at Databricks, you will have <strong>full ownership of the product or infrastructure direction</strong> in a major area, driving it from initial development to scalable solutions with clear business impact. You will serve as a force multiplier by elevating stability, reliability, and organizational processes, while bringing deep expertise in large-scale distributed systems. You will mentor senior engineers, contribute to recruiting, and lead high-impact company projects, often tackling complex problems beyond their comfort zone.&nbsp;</p>\n<p><strong>Job Description</strong></p>\n<p>At Databricks, we are obsessed with enabling data teams to solve the world&#39;s toughest problems, from security threat detection to cancer drug development. We do this by building and running the world&#39;s best data and AI infrastructure platform, so our customers can focus on the high value challenges that are central to their own missions.</p>\n<p>Our engineering teams build highly technical products that fulfill real, important needs in the world. We develop and operate one of the largest scale software platforms. The fleet consists of millions of virtual machines, generating terabytes of logs and processing exabytes of data per day. At our scale, we regularly observe cloud hardware, network, and operating system faults, and our software must gracefully shield our customers from any of the above.</p>\n<p><strong>The Impact you will have:</strong></p>\n<ul>\n<li>Solve real business needs at large scale by applying your software engineering.</li>\n<li>Deliver a highly scalable, available, and fault-tolerant engine processing hundreds of TB of data daily across thousands of customers</li>\n<li>Low level systems debugging, performance measurement &amp; optimization on large production clusters.</li>\n<li>Build architecture design, influence product roadmap, and take ownership and responsibility over new projects</li>\n<li>Use your deep experience to help prevent and investigate production issues.</li>\n<li>Plan and lead complicated technical projects that work with several teams within the company.</li>\n<li>A strong influencer or driver in the organization’s roadmap and direction.</li>\n<li>Lead a TLG or similar review committee, or initiate and sustain an org/eng-wide initiative driven by engineering needs.</li>\n<li>Break down complex problems quickly into potential solutions, knowns, and unknowns, and de-risk (through prototyping/validation).</li>\n<li>Contribute as a Technical Team Lead by mentoring others, lead sprint planning, delegating work and assignments to team members and participate in project planning.</li>\n</ul>\n<p><strong>What we look for:</strong></p>\n<ul>\n<li>15+ years industry experience building and <strong>supporting large-scale distributed systems</strong>.</li>\n<li>Comfortable working towards a multi-year vision with incremental deliverables.</li>\n<li>Motivated by delivering customer value and impact.</li>\n<li>Strong foundation in algorithms and data structures and their real-world use cases.</li>\n<li>Experience driving company initiatives towards customer satisfaction.</li>\n</ul><div class=\"content-conclusion\"><p><strong>About Databricks</strong></p>\n<p><span style=\"font-family: arial, sans-serif;\">Databricks is the Data and AI company. More than 20,000 organizations worldwide — including adidas, AT&amp;T, Bayer, Block, Mastercard, Rivian, Unilever, and 70% of the Fortune 500 — rely on the Databricks Data + AI Platform to build and scale data and AI apps, analytics and agents. Headquartered in San Francisco with 30+ offices around the globe, Databricks offers a unified platform that includes Genie, Lakebase, Agent Bricks, Lakeflow, Lakehouse, and Unity Catalog. To learn more, follow Databricks on <a href=\"https://www.linkedin.com/company/databricks\">LinkedIn</a>, <a href=\"https://x.com/databricks\">X</a>, <a href=\"https://www.youtube.com/@Databricks\">YouTube</a>, and <a href=\"https://www.instagram.com/databricksinc/?hl=en\">Instagram</a>.<br><br><strong>Benefits<br><br></strong></span>At Databricks, we strive to provide comprehensive benefits and perks that meet the needs of all of our employees. For specific details on the benefits offered in your region click <a href=\"https://docs.google.com/document/d/154un3e8Xav4BceOSlcYFZRGEuQI54xMxVydRwQn54eQ/edit?usp=sharing\">here</a>.<br><br></p>\n<p><strong>Our Commitment to Diversity and Inclusion</strong></p>\n<p>At Databricks, we are committed to fostering a diverse and inclusive culture where everyone can excel. We take great care to ensure that our hiring practices are inclusive and meet equal employment opportunity standards. Individuals looking for employment at Databricks are considered without regard to age, color, disability, ethnicity, family or marital status, gender identity or expression, language, national origin, physical and mental ability, political affiliation, race, religion, sexual orientation, socio-economic status, veteran status, and other protected characteristics.</p>\n<p><strong>Compliance</strong></p>\n<p><strong><span style=\"font-weight: 400;\">If access to export-controlled technology or source code is required for performance of job duties, it is within Employer&#39;s discretion whether to apply for a U.S. government license for such positions, and Employer may decline to proceed with an applicant on this basis alone.</span></strong></p>\n<p><a href=\"https://www.databricks.com/legal/applicant-privacy-notice\" target=\"_blank\"><strong><span style=\"font-weight: 400;\">Applicant Privacy Notice</span></strong></a></p></div>",
+    "aggregator": 2,
+    "aggregator_application_link": "https://databricks.com/company/careers/open-positions/job?gh_jid=7651326002",
+    "aggregator_sheet_id": null,
+    "ai_question_count": 0,
+    "apply_url": "https://databricks.com/company/careers/open-positions/job?gh_jid=7651326002",
+    "call_screen_enabled": 1,
+    "client_poc_designation": null,
+    "client_poc_email": null,
+    "client_poc_linkedin": null,
+    "client_poc_name": null,
+    "closed_at": null,
+    "closed_by": null,
+    "closed_reason": null,
+    "company_type": null,
+    "coresignal_boolean": null,
+    "created_at": "2024-12-18T01:02:10.000000Z",
+    "created_by": 0,
+    "cv_screen_enabled": 1,
+    "frequency_office_visit": null,
+    "has_people_management_exp": 0,
+    "hirebeen_job_id": 0,
+    "hr_id": 5809,
+    "id": 5806,
+    "institute": null,
+    "is_ai_externally_modified": 0,
+    "is_ai_matched_recommendation_complete": 1,
+    "is_ai_matched_talent_added": 1,
+    "is_apply_url_mail_to": 0,
+    "is_hirebeen_active": 0,
+    "is_open_to_work_near_by": null,
+    "is_recommended_rejected_strip_visible": 0,
+    "is_spotlight_hr": null,
+    "is_top_match_nurture_send": 0,
+    "jd_path": null,
+    "job_category_id": null,
+    "job_description_last_updated_at": null,
+    "job_sector": 1,
+    "last_shortlisted_rejected_at": null,
+    "last_step": 1,
+    "persona_company_type": null,
+    "preferred_domain": null,
+    "published_by": null,
+    "rejected_talent_count": 0,
+    "repost_reason": null,
+    "sales_poc_name": null,
+    "sales_user_type": null,
+    "standardized_title": null,
+    "updated_at": "2026-08-13T08:36:57.000000Z",
+    "updated_by": null,
+    "updated_hr_at": "2025-08-05 22:26:10"
+  },
+  "duplicate_hr_id": 1,
+  "duplicate_percent": null,
+  "enc_id": "RXl0Y0tuVVYwTmswUS9FNkc1MHdpdz09",
+  "expiry_date": "2026-08-27",
+  "flag": 1,
+  "frequency_office_visit": null,
+  "hr_yoe": "15.00",
+  "id": 5809,
+  "impression": 0,
+  "is_aggregator_job": true,
+  "is_applied": false,
+  "is_custome_screening": false,
+  "is_direct_hr": 0,
+  "is_dp": null,
+  "is_experience_flexible": 0,
+  "is_featured": 0,
+  "is_flexible_budget": 0,
+  "is_focused": 0,
+  "is_hr_updated": 0,
+  "is_new": false,
+  "is_partner_company": false,
+  "is_saved": 0,
+  "is_screening_visible_for_client": 1,
+  "is_status_update": 1,
+  "is_test_hr": 0,
+  "is_transparent": null,
+  "is_unqualified": 0,
+  "jd_path": null,
+  "job_function_id": 1,
+  "job_location": [
+    {
+      "city_id": 277,
+      "city_name": "Bengaluru",
+      "hr_id": 5809,
+      "state_name": "Karnataka"
+    }
+  ],
+  "job_nature": "Aggregated",
+  "job_type_id": 1,
+  "joining_period": "30 Days",
+  "ld_json": {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    "applicantLocationRequirements": {
+      "@type": "Country",
+      "name": "IN"
+    },
+    "applicationUrl": "https://platform.uplers.com/talent/all-opportunities/HR1173448373079993?source=nfLwqnvdIznnMBLbLJFqkE9EZIY7DS24",
+    "datePosted": "2025-08-05",
+    "description": "<b>Experience</b>: 15.00 + years <br>            <b>Salary</b>: Confidential (based on experience)<br><b>Shift</b>: (GMT+05:30) Asia/Kolkata (IST) <br>            <b>Opportunity Type</b>: Office (Bengaluru) <br>            <b>Placement Type</b>: Full time Permanent Position <br><b>(*Note: This is a requirement for one of Uplers' client - Databricks) <b><br><br>            What do you need for this opportunity?            <br><br>            <b>Must have skills required:</b>            <br>            Distributed Systems, performance measurement, systems debugging, scalable solutions, cloud hardware            <br><br>            <b>Databricks is Looking for:</b>            <p><strong><small>(P-1174)</small></strong></p><p>We are hiring a <strong>Senior Staff Software Engineer</strong> for Databricks&#39; Engineering team reporting to an Engineering Leader. You will be part of the Databricks engineering organization, working with teams that develop Databricks products and features for thousands of enterprises worldwide.</p><p><strong>Key Characteristics</strong></p><p>As an executive engineering individual contributor at Databricks, you will have <strong>full ownership of the product or infrastructure direction</strong> in a major area, driving it from initial development to scalable solutions with clear business impact. You will serve as a force multiplier by elevating stability, reliability, and organizational processes, while bringing deep expertise in large-scale distributed systems. You will mentor senior engineers, contribute to recruiting, and lead high-impact company projects, often tackling complex problems beyond their comfort zone.&nbsp;</p><p><strong>Job Description</strong></p><p>At Databricks, we are obsessed with enabling data teams to solve the world&#39;s toughest problems, from security threat detection to cancer drug development. We do this by building and running the world&#39;s best data and AI infrastructure platform, so our customers can focus on the high value challenges that are central to their own missions.</p><p>Our engineering teams build highly technical products that fulfill real, important needs in the world. We develop and operate one of the largest scale software platforms. The fleet consists of millions of virtual machines, generating terabytes of logs and processing exabytes of data per day. At our scale, we regularly observe cloud hardware, network, and operating system faults, and our software must gracefully shield our customers from any of the above.</p><p><strong>The Impact you will have:</strong></p><ul><li>Solve real business needs at large scale by applying your software engineering.</li><li>Deliver a highly scalable, available, and fault-tolerant engine processing hundreds of TB of data daily across thousands of customers</li><li>Low level systems debugging, performance measurement &amp; optimization on large production clusters.</li><li>Build architecture design, influence product roadmap, and take ownership and responsibility over new projects</li><li>Use your deep experience to help prevent and investigate production issues.</li><li>Plan and lead complicated technical projects that work with several teams within the company.</li><li>A strong influencer or driver in the organization’s roadmap and direction.</li><li>Lead a TLG or similar review committee, or initiate and sustain an org/eng-wide initiative driven by engineering needs.</li><li>Break down complex problems quickly into potential solutions, knowns, and unknowns, and de-risk (through prototyping/validation).</li><li>Contribute as a Technical Team Lead by mentoring others, lead sprint planning, delegating work and assignments to team members and participate in project planning.</li></ul><p><strong>What we look for:</strong></p><ul><li>15+ years industry experience building and <strong>supporting large-scale distributed systems</strong>.</li><li>Comfortable working towards a multi-year vision with incremental deliverables.</li><li>Motivated by delivering customer value and impact.</li><li>Strong foundation in algorithms and data structures and their real-world use cases.</li><li>Experience driving company initiatives towards customer satisfaction.</li></ul><div class=\"content-conclusion\"><p><strong>About Databricks</strong></p><p><span style=\"font-family: arial, sans-serif;\">Databricks is the Data and AI company. More than 20,000 organizations worldwide — including adidas, AT&amp;T, Bayer, Block, Mastercard, Rivian, Unilever, and 70% of the Fortune 500 — rely on the Databricks Data + AI Platform to build and scale data and AI apps, analytics and agents. Headquartered in San Francisco with 30+ offices around the globe, Databricks offers a unified platform that includes Genie, Lakebase, Agent Bricks, Lakeflow, Lakehouse, and Unity Catalog. To learn more, follow Databricks on <a href=\"https://www.linkedin.com/company/databricks\">LinkedIn</a>, <a href=\"https://x.com/databricks\">X</a>, <a href=\"https://www.youtube.com/@Databricks\">YouTube</a>, and <a href=\"https://www.instagram.com/databricksinc/?hl=en\">Instagram</a>.<br><br><strong>Benefits<br><br></strong></span>At Databricks, we strive to provide comprehensive benefits and perks that meet the needs of all of our employees. For specific details on the benefits offered in your region click <a href=\"https://docs.google.com/document/d/154un3e8Xav4BceOSlcYFZRGEuQI54xMxVydRwQn54eQ/edit?usp=sharing\">here</a>.<br><br></p><p><strong>Our Commitment to Diversity and Inclusion</strong></p><p>At Databricks, we are committed to fostering a diverse and inclusive culture where everyone can excel. We take great care to ensure that our hiring practices are inclusive and meet equal employment opportunity standards. Individuals looking for employment at Databricks are considered without regard to age, color, disability, ethnicity, family or marital status, gender identity or expression, language, national origin, physical and mental ability, political affiliation, race, religion, sexual orientation, socio-economic status, veteran status, and other protected characteristics.</p><p><strong>Compliance</strong></p><p><strong><span style=\"font-weight: 400;\">If access to export-controlled technology or source code is required for performance of job duties, it is within Employer&#39;s discretion whether to apply for a U.S. government license for such positions, and Employer may decline to proceed with an applicant on this basis alone.</span></strong></p><p><a href=\"https://www.databricks.com/legal/applicant-privacy-notice\" target=\"_blank\"><strong><span style=\"font-weight: 400;\">Applicant Privacy Notice</span></strong></a></p></div>            <br>            <b>How to apply for this opportunity?</b>            <ul>            <li>Step 1: Click On Apply! And Register or Login on our portal.</li>            <li>Step 2: Complete the Screening Form & Upload updated Resume</li>            <li>Step 3: Increase your chances to get shortlisted & meet the client for the Interview!</li>            </ul>            <br><b>About Uplers:</b><br>            Our goal is to make hiring reliable, simple, and fast. Our role will be to help all our talents find and apply for relevant contractual onsite opportunities and progress in their career. We will support any grievances or challenges you may face during the engagement.            <br><br>            (Note: There are many more opportunities apart from this on the portal. Depending on the assessments you clear, you can apply for them as well).            <br>            So, if you are ready for a new challenge, a great work environment, and an opportunity to take your career to the next level, don't hesitate to apply today. We are waiting for you!",
+    "directApply": false,
+    "experienceRequirements": {
+      "@type": "OccupationalExperienceRequirements",
+      "monthsOfExperience": "15.00"
+    },
+    "hiringOrganization": {
+      "@type": "Organization",
+      "logo": "https://platform.uplers.com/images/uplers-logo.png",
+      "name": "Uplers",
+      "sameAs": "https://www.uplers.com"
+    },
+    "identifier": {
+      "@type": "PropertyValue",
+      "name": "job_id",
+      "value": "HR1173448373079993"
+    },
+    "jobLocation": {
+      "@type": "Place"
+    },
+    "skills": "Distributed Systems, performance measurement, systems debugging, scalable solutions, cloud hardware",
+    "title": "Senior Staff Software Engineer (Backend)",
+    "url": "https://platform.uplers.com/talent/all-opportunities/HR1173448373079993?source=nfLwqnvdIznnMBLbLJFqkE9EZIY7DS24"
+  },
+  "location_type": 1,
+  "matched_hrs": [],
+  "matched_with_talent_details": [],
+  "matcherArray": {
+    "MatcherLead": {},
+    "TA": {},
+    "matcher": {}
+  },
+  "max_yoe": "0.00",
+  "non_vetted_credit": 0,
+  "partner_name": null,
+  "payment_mode": 2,
+  "prev_status": 100,
+  "pricingModel": "Full time Permanent Position",
+  "pricingModelIText": null,
+  "publish_ats": 1,
+  "publish_datetime_ats": "2024-12-18 06:32:10",
+  "publish_datetime_uplers": null,
+  "publish_linkedin": 0,
+  "publish_uplers": 0,
+  "role": null,
+  "rootle_campaign_id": 0,
+  "shifts": [
+    {
+      "end_time": "6:30 PM",
+      "ist_shift_time": "09:30 AM to 06:30 PM",
+      "shift": "(GMT+05:30) Asia/Kolkata (IST)",
+      "start_time": "9:30 AM"
+    }
+  ],
+  "show_poc_detail": 0,
+  "skill_boolean": [],
+  "skills": [
+    {
+      "skill": {
+        "name": "Distributed Systems",
+        "type": "must_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "performance measurement",
+        "type": "must_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "systems debugging",
+        "type": "must_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "scalable solutions",
+        "type": "must_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "cloud hardware",
+        "type": "must_have"
+      }
+    }
+  ],
+  "status": 1,
+  "talents_count": 114,
+  "tech_cleared": 0,
+  "top_badge": "",
+  "unpublish_reason": null,
+  "vetted_credit": 0,
+  "video_counter": 0
+}

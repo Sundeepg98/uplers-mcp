@@ -1,0 +1,304 @@
+{
+  "Availability": "Full Time",
+  "CompanyName": "Mavlers",
+  "Currency": "INR",
+  "DurationType": null,
+  "HRTypeId": 4,
+  "HRTypeText": "Pay Per Credit",
+  "HR_Number": "HR0191124125506",
+  "HR_Role": null,
+  "HR_ShiftTime": "(GMT+05:30) Asia/Kolkata (IST)",
+  "HR_Status": "Reposted",
+  "HiringRequest_ID": 13878,
+  "HowSoon": "30 Days",
+  "IsBackendHR": 0,
+  "IsConfidentialBudget": 0,
+  "IsVettedProfile": 0,
+  "JobDescription": "<p><strong class=\"ql-size-large\"><u>Job Description:</u></strong></p><p>We are seeking a dynamic and experienced Subject Matter Expert (SME) / CRM Strategist in CRM and Marketing Automation to join our team. This role is pivotal in leveraging platform-specific expertise to drive client success, operational excellence, and sustained revenue growth. As a Platform and Domain Champion (Should be expert / champion in one of the following Marketing Automation Platform - SFMC / Braze / Klaviyo / BloomReach / Iterable / HubSpot / Sailthru), you will lead strategic initiatives to optimize CRM and marketing automation efforts for individual clients, delivering Excellent ROI / Performance for Marketing Channels</p><p><br></p><p><strong><u>Platform/Domain Expertise:</u></strong></p><p>- Serve as the go-to authority for CRM and marketing automation platforms, continuously staying informed about the latest industry trends, platform updates, and best practices.</p><p>- Provide expert advice to internal teams (Campaign Managers / Executives) and clients, ensuring that the platform's potential is fully realized to meet business goals and KPIs.</p><p><br></p><p><strong><u>Channel-Specific Strategy Development:</u></strong></p><p>- Design and implement channel-specific CRM and marketing automation strategies that align with business goals, drive customer engagement, and boost ROI.</p><p>- Identify growth opportunities within CRM and marketing automation platforms to increase client engagement, lead generation, and revenue streams for the end client.</p><p>- Leverage data analytics to assess campaign performance and continuously refine strategies to maximize client outcomes.</p><p><br></p><p><strong><u>Revenue Retention &amp; Client Success:</u></strong></p><p>- Develop long-term strategies to ensure client satisfaction and foster loyalty, resulting in high retention rates and consistent revenue streams.</p><p>- Proactively engage with clients, addressing their challenges and offering customized solutions that meet evolving business requirements.</p><p>- Partner with client success teams to deliver value-driven outcomes that meet or exceed client expectations, promoting cross-functional collaboration</p><p><br></p><p><strong><u>Operational Efficiency &amp; Process Optimization:</u></strong></p><p>- Work Closely with Campaign Managers / Executives to deliver Multi channel campaign for clients within the SLAs with error-free execution.</p><p>- Work closely with other SMEs and Campaign Managers to collaborate on Digital Strategies to deliver Better ROI across multiple Channels.</p><p>- Ensure that initiatives are delivered on time and within scope, meeting both client and business objectives.</p><p><br></p><p><br></p><p><strong class=\"ql-size-large\"><u>Skills Required/Educational Qualifications:</u></strong></p><p>- 4+ Years of experience in CRM / Marketing Automation.</p><p>- Should possess MBA or similar Master's Degree in Marketing.</p><p>- Proven expertise in CRM and Marketing Automation platforms (e.g., Salesforce, HubSpot, Marketo, or similar).</p><p>- Strong strategic thinking skills with the ability to translate business objectives into actionable CRM and marketing automation strategies.</p><p>- Experience in data-driven decision-making, with proficiency in analytics tools to assess campaign performance and ROI</p><p>- Strong leadership skills with experience managing and developing high-performing teams.</p><p>- Exceptional communication and presentation skills, capable of influencing internal stakeholders and clients</p><p>- Exceptional communication and collaboration skills, able to align cross-functional teams around shared goals</p><p>- Ability to work in a fast-paced, dynamic environment with a focus on delivering results and driving continuous improvement</p><p><br></p><p><strong>Note:</strong>This opening is for Internal Hiring</p>",
+  "ModeOfWork": "Remote",
+  "MonthDuration": "0.00",
+  "PayrollType": null,
+  "PayrollTypeId": null,
+  "PricingId": null,
+  "PricingName": null,
+  "Quantity": 1,
+  "RequestForTalent": "CRM Strategist (US Shift)",
+  "YearOfExp": "4.00",
+  "aggregator": null,
+  "aggregator_publish_date": null,
+  "ai_mandatory": 0,
+  "all_clear": false,
+  "all_pending": true,
+  "assessments": [
+    {
+      "assessment": {
+        "benchmark_interpretation": null,
+        "description": null,
+        "enc_id": "G7X0jfndlaq3PPp8MQTgcc2pOLFcZV91",
+        "name": "AiInterview"
+      },
+      "assessment_tool": "AiInterview",
+      "benchmark_interpretation": null,
+      "created_at": "2023-10-20T15:49:54.000000Z",
+      "created_by": 1,
+      "description": null,
+      "difficulty": null,
+      "duration": "0:30",
+      "duration_formatted": " 30 Mins",
+      "enc_id": "G7X0jfndlaq3PPp8MQTgcc2pOLFcZV91",
+      "group_id": 272,
+      "id": 272,
+      "image": "icon-ai_screening.svg",
+      "image_url": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/assessment/icon-ai_screening.svg",
+      "master_key": null,
+      "name": "AiInterview",
+      "short_created_at": "2023-10-20",
+      "status": 1,
+      "type": 1,
+      "updated_at": "2023-10-20T15:49:54.000000Z"
+    }
+  ],
+  "auto_share_enabled_at": null,
+  "city": null,
+  "city_data": null,
+  "city_id": 0,
+  "client_id": 25,
+  "company": {
+    "about": "<p>At Mavlers, we don’t just deliver marketing we build what’s next.</p><p>From AI-driven and cutting-edge content strategies to scalable paid media and full-funnel analytics, our teams work at the intersection of strategy, innovation, and impact.</p><p><br></p><p>We’re a people-first company that believes in empowering talent to take ownership, experiment boldly, and grow with purpose. Whether you're a strategist, creative, analyst, or technologist this is where your ideas matter.</p><p><br></p><h1><strong>Global Projects. Remote Culture. Real Impact.</strong></h1><p><br></p>",
+    "company_location": null,
+    "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/82431731043792.jpg",
+    "company_name": "Mavlers",
+    "company_name_initials": "M",
+    "geo": "India",
+    "industry": "Internet Technologies and Services",
+    "is_confidential": 0,
+    "linkedin_url": "https://www.linkedin.com/company/mavlers/",
+    "team_size": "700",
+    "website_url": "https://www.mavlers.com"
+  },
+  "company_logo": null,
+  "cost": "15,00,000-18,00,000",
+  "cost_end_in_dollar": "1810",
+  "cost_end_in_dollar_yearly": "21726",
+  "cost_start_in_dollar": "1508",
+  "cost_start_in_dollar_yearly": "18105",
+  "cost_string": "INR 15,00,000-18,00,000 / year",
+  "created_at": "2024-11-19T07:25:06.000000Z",
+  "credit_type": 0,
+  "current_talent_hr": {},
+  "detail": {
+    "Discription": null,
+    "JDFilename": null,
+    "JDURL": null,
+    "JobDescription": "<p><strong class=\"ql-size-large\"><u>Job Description:</u></strong></p><p>We are seeking a dynamic and experienced Subject Matter Expert (SME) / CRM Strategist in CRM and Marketing Automation to join our team. This role is pivotal in leveraging platform-specific expertise to drive client success, operational excellence, and sustained revenue growth. As a Platform and Domain Champion (Should be expert / champion in one of the following Marketing Automation Platform - SFMC / Braze / Klaviyo / BloomReach / Iterable / HubSpot / Sailthru), you will lead strategic initiatives to optimize CRM and marketing automation efforts for individual clients, delivering Excellent ROI / Performance for Marketing Channels</p><p><br></p><p><strong><u>Platform/Domain Expertise:</u></strong></p><p>- Serve as the go-to authority for CRM and marketing automation platforms, continuously staying informed about the latest industry trends, platform updates, and best practices.</p><p>- Provide expert advice to internal teams (Campaign Managers / Executives) and clients, ensuring that the platform's potential is fully realized to meet business goals and KPIs.</p><p><br></p><p><strong><u>Channel-Specific Strategy Development:</u></strong></p><p>- Design and implement channel-specific CRM and marketing automation strategies that align with business goals, drive customer engagement, and boost ROI.</p><p>- Identify growth opportunities within CRM and marketing automation platforms to increase client engagement, lead generation, and revenue streams for the end client.</p><p>- Leverage data analytics to assess campaign performance and continuously refine strategies to maximize client outcomes.</p><p><br></p><p><strong><u>Revenue Retention &amp; Client Success:</u></strong></p><p>- Develop long-term strategies to ensure client satisfaction and foster loyalty, resulting in high retention rates and consistent revenue streams.</p><p>- Proactively engage with clients, addressing their challenges and offering customized solutions that meet evolving business requirements.</p><p>- Partner with client success teams to deliver value-driven outcomes that meet or exceed client expectations, promoting cross-functional collaboration</p><p><br></p><p><strong><u>Operational Efficiency &amp; Process Optimization:</u></strong></p><p>- Work Closely with Campaign Managers / Executives to deliver Multi channel campaign for clients within the SLAs with error-free execution.</p><p>- Work closely with other SMEs and Campaign Managers to collaborate on Digital Strategies to deliver Better ROI across multiple Channels.</p><p>- Ensure that initiatives are delivered on time and within scope, meeting both client and business objectives.</p><p><br></p><p><br></p><p><strong class=\"ql-size-large\"><u>Skills Required/Educational Qualifications:</u></strong></p><p>- 4+ Years of experience in CRM / Marketing Automation.</p><p>- Should possess MBA or similar Master's Degree in Marketing.</p><p>- Proven expertise in CRM and Marketing Automation platforms (e.g., Salesforce, HubSpot, Marketo, or similar).</p><p>- Strong strategic thinking skills with the ability to translate business objectives into actionable CRM and marketing automation strategies.</p><p>- Experience in data-driven decision-making, with proficiency in analytics tools to assess campaign performance and ROI</p><p>- Strong leadership skills with experience managing and developing high-performing teams.</p><p>- Exceptional communication and presentation skills, capable of influencing internal stakeholders and clients</p><p>- Exceptional communication and collaboration skills, able to align cross-functional teams around shared goals</p><p>- Ability to work in a fast-paced, dynamic environment with a focus on delivering results and driving continuous improvement</p><p><br></p><p><strong>Note:</strong>This opening is for Internal Hiring</p>",
+    "aggregator": null,
+    "aggregator_application_link": null,
+    "aggregator_sheet_id": null,
+    "ai_question_count": 31,
+    "apply_url": null,
+    "call_screen_enabled": 0,
+    "client_poc_designation": null,
+    "client_poc_email": null,
+    "client_poc_linkedin": null,
+    "client_poc_name": null,
+    "closed_at": "2026-07-22 17:36:25",
+    "closed_by": 251710,
+    "closed_reason": null,
+    "company_type": null,
+    "coresignal_boolean": null,
+    "created_at": "2024-11-19T07:25:09.000000Z",
+    "created_by": 589746,
+    "cv_screen_enabled": 1,
+    "frequency_office_visit": null,
+    "has_people_management_exp": 0,
+    "hirebeen_job_id": 0,
+    "hr_id": 3646,
+    "id": 3643,
+    "institute": null,
+    "is_ai_externally_modified": 0,
+    "is_ai_matched_recommendation_complete": 1,
+    "is_ai_matched_talent_added": 1,
+    "is_apply_url_mail_to": 0,
+    "is_hirebeen_active": 0,
+    "is_open_to_work_near_by": 0,
+    "is_recommended_rejected_strip_visible": 0,
+    "is_spotlight_hr": null,
+    "is_top_match_nurture_send": 0,
+    "jd_path": null,
+    "job_category_id": null,
+    "job_description_last_updated_at": null,
+    "job_sector": 0,
+    "last_shortlisted_rejected_at": null,
+    "last_step": 5,
+    "persona_company_type": null,
+    "preferred_domain": null,
+    "published_by": 355540,
+    "rejected_talent_count": 0,
+    "repost_reason": "position reopen",
+    "sales_poc_name": null,
+    "sales_user_type": null,
+    "standardized_title": null,
+    "updated_at": "2026-07-29T09:37:03.000000Z",
+    "updated_by": null,
+    "updated_hr_at": "2026-07-29 14:56:29"
+  },
+  "duplicate_hr_id": null,
+  "duplicate_percent": null,
+  "enc_id": "K0tPbVJXdHU2bUhMTjcydkExekJXZz09",
+  "expiry_date": "2026-08-08",
+  "flag": 1,
+  "frequency_office_visit": null,
+  "hr_yoe": "4.00",
+  "id": 3646,
+  "impression": 0,
+  "is_aggregator_job": false,
+  "is_applied": false,
+  "is_custome_screening": false,
+  "is_direct_hr": 0,
+  "is_dp": null,
+  "is_experience_flexible": 0,
+  "is_featured": 0,
+  "is_flexible_budget": 0,
+  "is_focused": 0,
+  "is_hr_updated": 0,
+  "is_new": false,
+  "is_partner_company": "Jan 2024",
+  "is_saved": 0,
+  "is_screening_visible_for_client": 1,
+  "is_status_update": 1,
+  "is_test_hr": 0,
+  "is_transparent": null,
+  "is_unqualified": 0,
+  "jd_path": null,
+  "job_function_id": 36,
+  "job_location": [],
+  "job_nature": "Mavlers Inhouse",
+  "job_type_id": 1,
+  "joining_period": "30 Days",
+  "ld_json": {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    "applicantLocationRequirements": {
+      "@type": "Country",
+      "name": "India"
+    },
+    "applicationUrl": "https://platform.uplers.com/talent/all-opportunities/HR0191124125506?source=nfLwqnvdIznnMBLbLJFqkE9EZIY7DS24",
+    "datePosted": "2026-07-29",
+    "description": "<b>Experience</b>: 4.00 + years <br>            <b>Salary</b>: INR 15,00,000-18,00,000 / year (based on experience)<br><b>Shift</b>: (GMT+05:30) Asia/Kolkata (IST) <br>            <b>Opportunity Type</b>: Remote  <br>            <b>Placement Type</b>: Full time Permanent Position <br><b>(*Note: This is a requirement for Uplers) <b><br><br>            What do you need for this opportunity?            <br><br>            <b>Must have skills required:</b>            <br>            CRM, Marketing Automation, Data Analytics, Campaign Management, Campaign Strategist, Salesforce, Hubspot, Marketo, EmailMarketing            <br><br>            <b>Uplers is Looking for:</b>            <p><strong class=\"ql-size-large\"><u>Job Description:</u></strong></p><p>We are seeking a dynamic and experienced Subject Matter Expert (SME) / CRM Strategist in CRM and Marketing Automation to join our team. This role is pivotal in leveraging platform-specific expertise to drive client success, operational excellence, and sustained revenue growth. As a Platform and Domain Champion (Should be expert / champion in one of the following Marketing Automation Platform - SFMC / Braze / Klaviyo / BloomReach / Iterable / HubSpot / Sailthru), you will lead strategic initiatives to optimize CRM and marketing automation efforts for individual clients, delivering Excellent ROI / Performance for Marketing Channels</p><p><br></p><p><strong><u>Platform/Domain Expertise:</u></strong></p><p>- Serve as the go-to authority for CRM and marketing automation platforms, continuously staying informed about the latest industry trends, platform updates, and best practices.</p><p>- Provide expert advice to internal teams (Campaign Managers / Executives) and clients, ensuring that the platform's potential is fully realized to meet business goals and KPIs.</p><p><br></p><p><strong><u>Channel-Specific Strategy Development:</u></strong></p><p>- Design and implement channel-specific CRM and marketing automation strategies that align with business goals, drive customer engagement, and boost ROI.</p><p>- Identify growth opportunities within CRM and marketing automation platforms to increase client engagement, lead generation, and revenue streams for the end client.</p><p>- Leverage data analytics to assess campaign performance and continuously refine strategies to maximize client outcomes.</p><p><br></p><p><strong><u>Revenue Retention &amp; Client Success:</u></strong></p><p>- Develop long-term strategies to ensure client satisfaction and foster loyalty, resulting in high retention rates and consistent revenue streams.</p><p>- Proactively engage with clients, addressing their challenges and offering customized solutions that meet evolving business requirements.</p><p>- Partner with client success teams to deliver value-driven outcomes that meet or exceed client expectations, promoting cross-functional collaboration</p><p><br></p><p><strong><u>Operational Efficiency &amp; Process Optimization:</u></strong></p><p>- Work Closely with Campaign Managers / Executives to deliver Multi channel campaign for clients within the SLAs with error-free execution.</p><p>- Work closely with other SMEs and Campaign Managers to collaborate on Digital Strategies to deliver Better ROI across multiple Channels.</p><p>- Ensure that initiatives are delivered on time and within scope, meeting both client and business objectives.</p><p><br></p><p><br></p><p><strong class=\"ql-size-large\"><u>Skills Required/Educational Qualifications:</u></strong></p><p>- 4+ Years of experience in CRM / Marketing Automation.</p><p>- Should possess MBA or similar Master's Degree in Marketing.</p><p>- Proven expertise in CRM and Marketing Automation platforms (e.g., Salesforce, HubSpot, Marketo, or similar).</p><p>- Strong strategic thinking skills with the ability to translate business objectives into actionable CRM and marketing automation strategies.</p><p>- Experience in data-driven decision-making, with proficiency in analytics tools to assess campaign performance and ROI</p><p>- Strong leadership skills with experience managing and developing high-performing teams.</p><p>- Exceptional communication and presentation skills, capable of influencing internal stakeholders and clients</p><p>- Exceptional communication and collaboration skills, able to align cross-functional teams around shared goals</p><p>- Ability to work in a fast-paced, dynamic environment with a focus on delivering results and driving continuous improvement</p><p><br></p><p><strong>Note:</strong>This opening is for Internal Hiring</p>            <br>            <b>How to apply for this opportunity?</b>            <ul>            <li>Step 1: Click On Apply! And Register or Login on our portal.</li>            <li>Step 2: Complete the Screening Form & Upload updated Resume</li>            <li>Step 3: Increase your chances to get shortlisted & meet the client for the Interview!</li>            </ul>            <br><b>About Uplers:</b><br>            Our goal is to make hiring reliable, simple, and fast. Our role will be to help all our talents find and apply for relevant contractual onsite opportunities and progress in their career. We will support any grievances or challenges you may face during the engagement.            <br><br>            (Note: There are many more opportunities apart from this on the portal. Depending on the assessments you clear, you can apply for them as well).            <br>            So, if you are ready for a new challenge, a great work environment, and an opportunity to take your career to the next level, don't hesitate to apply today. We are waiting for you!",
+    "directApply": true,
+    "experienceRequirements": {
+      "@type": "OccupationalExperienceRequirements",
+      "monthsOfExperience": "4.00"
+    },
+    "hiringOrganization": {
+      "@type": "Organization",
+      "logo": "https://platform.uplers.com/images/uplers-logo.png",
+      "name": "Uplers",
+      "sameAs": "https://www.uplers.com"
+    },
+    "identifier": {
+      "@type": "PropertyValue",
+      "name": "job_id",
+      "value": "HR0191124125506"
+    },
+    "jobLocationType": "TELECOMMUTE",
+    "skills": "CRM, Marketing Automation, Data Analytics, Campaign Management, Campaign Strategist, EmailMarketing",
+    "title": "CRM Strategist (US Shift)",
+    "url": "https://platform.uplers.com/talent/all-opportunities/HR0191124125506?source=nfLwqnvdIznnMBLbLJFqkE9EZIY7DS24"
+  },
+  "location_type": 1,
+  "matched_hrs": [],
+  "matched_with_talent_details": [],
+  "matcherArray": {
+    "MatcherLead": {},
+    "TA": {},
+    "matcher": {}
+  },
+  "max_yoe": "0.00",
+  "non_vetted_credit": 0,
+  "partner_name": null,
+  "payment_mode": 2,
+  "prev_status": 0,
+  "pricingModel": "Full time Permanent Position",
+  "pricingModelIText": null,
+  "publish_ats": 1,
+  "publish_datetime_ats": "2026-07-29 14:56:29",
+  "publish_datetime_uplers": "2026-07-29 14:56:29",
+  "publish_linkedin": 1,
+  "publish_uplers": 1,
+  "role": null,
+  "rootle_campaign_id": 3646,
+  "shifts": [
+    {
+      "end_time": "1:00 AM",
+      "ist_shift_time": "04:00 PM to 01:00 AM",
+      "shift": "(GMT+05:30) Asia/Kolkata (IST)",
+      "start_time": "4:00 PM"
+    }
+  ],
+  "show_poc_detail": 0,
+  "skill_boolean": [],
+  "skills": [
+    {
+      "skill": {
+        "name": "CRM",
+        "type": "must_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "Marketing Automation",
+        "type": "must_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "Data Analytics",
+        "type": "must_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "Campaign Management",
+        "type": "must_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "Campaign Strategist",
+        "type": "must_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "Salesforce",
+        "type": "good_to_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "Hubspot",
+        "type": "good_to_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "Marketo",
+        "type": "good_to_have"
+      }
+    },
+    {
+      "skill": {
+        "name": "EmailMarketing",
+        "type": "must_have"
+      }
+    }
+  ],
+  "status": 1,
+  "talents_count": 9969,
+  "tech_cleared": 0,
+  "top_badge": "",
+  "unpublish_reason": null,
+  "vetted_credit": 0,
+  "video_counter": 0
+}

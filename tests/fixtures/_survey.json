@@ -1,0 +1,136 @@
+{
+  "assessment_shape": {
+    "assessment": {
+      "benchmark_interpretation": null,
+      "description": null,
+      "enc_id": "G7X0jfndlaq3PPp8MQTgcc2pOLFcZV91",
+      "name": "AiInterview"
+    },
+    "assessment_tool": "AiInterview",
+    "benchmark_interpretation": null,
+    "created_at": "2023-10-20T15:49:54.000000Z",
+    "created_by": 1,
+    "description": null,
+    "difficulty": null,
+    "duration": "0:30",
+    "duration_formatted": " 30 Mins",
+    "enc_id": "G7X0jfndlaq3PPp8MQTgcc2pOLFcZV91",
+    "group_id": 272,
+    "id": 272,
+    "image": "icon-ai_screening.svg",
+    "image_url": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/assessment/icon-ai_screening.svg",
+    "master_key": null,
+    "name": "AiInterview",
+    "short_created_at": "2023-10-20",
+    "status": 1,
+    "type": 1,
+    "updated_at": "2023-10-20T15:49:54.000000Z"
+  },
+  "distinct_values": {
+    "Availability": [
+      "Full Time",
+      "Part Time"
+    ],
+    "Currency": [
+      "GBP",
+      "INR",
+      "USD"
+    ],
+    "DurationType": [
+      null,
+      "Long Term",
+      "Short Term"
+    ],
+    "HR_Status": [
+      null,
+      "",
+      "Reposted"
+    ],
+    "HowSoon": [
+      "15 Days",
+      "30 Days",
+      "7 Days"
+    ],
+    "ModeOfWork": [
+      "Hybrid",
+      "Office",
+      "Remote"
+    ],
+    "PricingName": [
+      null,
+      "Direct-hire",
+      "Hire a Contractor"
+    ],
+    "frequency_office_visit": [
+      null,
+      "2-3 times a week"
+    ],
+    "is_aggregator_job": [
+      false,
+      true
+    ],
+    "job_nature": [
+      "Aggregated",
+      "Mavlers Inhouse",
+      "Uplers On-Boarded"
+    ],
+    "joining_period": [
+      "15 Days",
+      "30 Days",
+      "Immediately"
+    ],
+    "location_type": [
+      1
+    ],
+    "status": [
+      1
+    ]
+  },
+  "ids_fetched": [
+    "HR0191124125506",
+    "HR1173448373079993",
+    "HR280325125112",
+    "HR100725001919",
+    "HR310725131019",
+    "HR031225141221",
+    "HR200126185051",
+    "HR160326114143",
+    "HR210426131604",
+    "HR010526135341",
+    "HR150526130141",
+    "HR090626153506",
+    "HR190626101209",
+    "HR240626133150",
+    "HR290626125252",
+    "HR070726145303",
+    "HR090726162435",
+    "HR150726173357",
+    "HR200726143131",
+    "HR210726165205",
+    "HR240726113619",
+    "HR270726180930",
+    "HR290726212810",
+    "HR030826103614",
+    "HR050826011115",
+    "HR070826110249",
+    "HR100826171541",
+    "HR110826195355",
+    "HR130826031902",
+    "HR140826142025",
+    "HR170826151045",
+    "HR190826153220"
+  ],
+  "n_fetched": 32,
+  "null_rate": {
+    "HR_Role": 2,
+    "city": 30,
+    "city_data": 30,
+    "cost_end_in_dollar_yearly": 1,
+    "cost_start_in_dollar_yearly": 1,
+    "role": 32
+  },
+  "skill_types": [
+    "good_to_have",
+    "must_have"
+  ]
+}
