@@ -23,7 +23,7 @@ plus the public sitemap.
 | Stack | Python 3.11+, FastMCP (`mcp`), `httpx`, stdlib `sqlite3`, [`jobcore`](../jobcore) |
 | Tools | **22** - 5 board readers, 17 profile-aware |
 | Size | 5,286 lines of server code, 4,754 lines of tests |
-| Tests | **427**, all offline |
+| Tests | **431**, all offline |
 | Network surface | 2 public GET endpoints, no auth |
 | Maintenance estimate | 1-3 hours/month |
 | Verified live | 2026-08-20 - 235 native requisitions indexed; every tool called over stdio |
@@ -250,7 +250,7 @@ cd D:\Sundeep\projects\job-hunting\mcp-servers\uplers
 python -m venv venv
 venv\Scripts\python.exe -m pip install -r requirements.txt
 venv\Scripts\python.exe -m pip install -e ../jobcore   # the shared scoring engine
-venv\Scripts\python.exe -m pytest        # 427 tests, no network
+venv\Scripts\python.exe -m pytest        # 431 tests, no network
 venv\Scripts\python.exe server.py        # stdio MCP server
 ```
 
@@ -331,7 +331,7 @@ successes and failures side by side and `FetchReport.ok` is False if anything fa
 
 ## Tests
 
-`venv\Scripts\python.exe -m pytest` - **427 tests**, all offline via `httpx.MockTransport`,
+`venv\Scripts\python.exe -m pytest` - **431 tests**, all offline via `httpx.MockTransport`,
 against 6 real captured API responses in `tests/fixtures/` (see `tests/fixtures/MANIFEST.md` for
 why each one is there). Coverage spans the native/aggregated split, the id date decoder, every
 filter, the sitemap union, the market-stats maths, the scoring adapter, migrations from a
