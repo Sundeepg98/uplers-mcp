@@ -1,0 +1,1861 @@
+{
+  "ai_generated_summary": false,
+  "masters": {
+    "joiningMaster": [
+      {
+        "label": "Immediately",
+        "value": "Immediately"
+      },
+      {
+        "label": "15 Days",
+        "value": "15 Days"
+      },
+      {
+        "label": "30 Days",
+        "value": "30 Days"
+      },
+      {
+        "label": "45 Days",
+        "value": "45 Days"
+      },
+      {
+        "label": "60 Days",
+        "value": "60 Days"
+      },
+      {
+        "label": "More than 60 Days",
+        "value": "More than 60 Days"
+      }
+    ],
+    "preferredMethodMaster": [
+      {
+        "label": "Remote Only",
+        "value": 1
+      },
+      {
+        "label": "Remote or Office",
+        "value": 2
+      }
+    ],
+    "preferredModes": [
+      {
+        "label": "Full time",
+        "value": 1
+      },
+      {
+        "label": "Part time",
+        "value": 2
+      },
+      {
+        "label": "Contract",
+        "value": 3
+      },
+      {
+        "label": "Freelance",
+        "value": 4
+      }
+    ],
+    "skills": [
+      {
+        "label": "MySQL",
+        "value": 10
+      },
+      {
+        "label": "JavaScript",
+        "value": 11
+      },
+      {
+        "label": "Python",
+        "value": 166
+      },
+      {
+        "label": "Datastructures",
+        "value": 175
+      },
+      {
+        "label": "Azure",
+        "value": 285
+      },
+      {
+        "label": "DynamoDB",
+        "value": 301
+      },
+      {
+        "label": "Redis",
+        "value": 302
+      },
+      {
+        "label": "Lambda",
+        "value": 4567
+      },
+      {
+        "label": "Docker",
+        "value": 106557
+      },
+      {
+        "label": "CloudWatch",
+        "value": 158944
+      },
+      {
+        "label": "New Relic",
+        "value": 207489
+      },
+      {
+        "label": "Jest",
+        "value": 256659
+      },
+      {
+        "label": "Postman",
+        "value": 256679
+      },
+      {
+        "label": "Mocha",
+        "value": 257574
+      },
+      {
+        "label": "Kafka",
+        "value": 291793
+      },
+      {
+        "label": "SNS",
+        "value": 345234
+      },
+      {
+        "label": "cosmos Db",
+        "value": 350690
+      },
+      {
+        "label": "Sendgrid",
+        "value": 457484
+      },
+      {
+        "label": "ClickHouse",
+        "value": 469639
+      },
+      {
+        "label": "Serverless",
+        "value": 504621
+      },
+      {
+        "label": "IAM",
+        "value": 512359
+      },
+      {
+        "label": "S3",
+        "value": 512365
+      },
+      {
+        "label": "SQS",
+        "value": 512366
+      },
+      {
+        "label": "Playwright",
+        "value": 586588
+      },
+      {
+        "label": "GitHub Actions",
+        "value": 877833
+      },
+      {
+        "label": "pulumi",
+        "value": 1188105
+      },
+      {
+        "label": "Twilio",
+        "value": 2784529
+      },
+      {
+        "label": "Functions",
+        "value": 3438123
+      },
+      {
+        "label": "EventBridge",
+        "value": 3438587
+      },
+      {
+        "label": "event-driven architecture",
+        "value": 3495698
+      },
+      {
+        "label": "Debezium",
+        "value": 3640789
+      },
+      {
+        "label": "CDC",
+        "value": 3710666
+      },
+      {
+        "label": "JFrog Artifactory",
+        "value": 3710702
+      },
+      {
+        "label": "harness",
+        "value": 3723066
+      },
+      {
+        "label": "Msk",
+        "value": 3765505
+      },
+      {
+        "label": "SES",
+        "value": 3784695
+      },
+      {
+        "label": "ECS Fargate",
+        "value": 3789757
+      },
+      {
+        "label": "decision maker",
+        "value": 3870737
+      },
+      {
+        "label": "REST",
+        "value": 3885848
+      },
+      {
+        "label": "AWS",
+        "value": 3890028
+      },
+      {
+        "label": "react",
+        "value": 3890198
+      },
+      {
+        "label": "Git",
+        "value": 3890204
+      },
+      {
+        "label": "HTML",
+        "value": 3891634
+      },
+      {
+        "label": "Node.js",
+        "value": 3898076
+      },
+      {
+        "label": "CSS",
+        "value": 3898724
+      },
+      {
+        "label": "Linux",
+        "value": 3898876
+      },
+      {
+        "label": "Microservices",
+        "value": 3898922
+      },
+      {
+        "label": "Kubernetes",
+        "value": 3899027
+      },
+      {
+        "label": "MongoDB",
+        "value": 3900084
+      },
+      {
+        "label": "PostgreSQL",
+        "value": 3901096
+      },
+      {
+        "label": "TypeScript",
+        "value": 3901097
+      },
+      {
+        "label": "Next.js",
+        "value": 3902461
+      },
+      {
+        "label": "Express.js",
+        "value": 3909135
+      },
+      {
+        "label": "problem solver",
+        "value": 4283180
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "label": "Communication & stakeholder engagement",
+        "value": 3428227
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "label": "Performance optimization & cost reduction",
+        "value": 3917541
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "label": "BullMQ",
+        "value": 248356
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "label": "Appconfig",
+        "value": 3524955
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "label": "Pino",
+        "value": 2706508
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "label": "Container apps",
+        "value": 3571730
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "label": "Open-telemetry",
+        "value": 3028113
+      },
+      {
+        "label": "Wordpress",
+        "value": 1
+      },
+      {
+        "label": "WooCommerce",
+        "value": 2
+      },
+      {
+        "label": "HTML / CSS",
+        "value": 3
+      },
+      {
+        "label": "Bootstrap",
+        "value": 4
+      },
+      {
+        "label": "Foundation",
+        "value": 5
+      },
+      {
+        "label": "jQuery",
+        "value": 6
+      },
+      {
+        "label": "Gulp / NPM",
+        "value": 7
+      },
+      {
+        "label": "GIT / SVN",
+        "value": 8
+      },
+      {
+        "label": "PHP",
+        "value": 9
+      },
+      {
+        "label": "Angular",
+        "value": 12
+      },
+      {
+        "label": "React Js",
+        "value": 13
+      },
+      {
+        "label": "Vue JS",
+        "value": 14
+      },
+      {
+        "label": "Laravel",
+        "value": 15
+      },
+      {
+        "label": "Symphony",
+        "value": 16
+      },
+      {
+        "label": "CI / Codeigniter",
+        "value": 17
+      },
+      {
+        "label": "Shopify",
+        "value": 18
+      },
+      {
+        "label": "Magento",
+        "value": 19
+      },
+      {
+        "label": "Drupal",
+        "value": 20
+      },
+      {
+        "label": "Big Commerce",
+        "value": 21
+      },
+      {
+        "label": "WIX",
+        "value": 22
+      },
+      {
+        "label": "Cloud Server (Google / AWS)",
+        "value": 23
+      },
+      {
+        "label": "Project Management",
+        "value": 24
+      },
+      {
+        "label": "SEO Knowhow",
+        "value": 25
+      },
+      {
+        "label": "SOAP",
+        "value": 26
+      },
+      {
+        "label": "XML",
+        "value": 27
+      },
+      {
+        "label": "AJAX",
+        "value": 28
+      },
+      {
+        "label": "cURL",
+        "value": 30
+      },
+      {
+        "label": "Sass",
+        "value": 31
+      },
+      {
+        "label": "Theme Development",
+        "value": 32
+      },
+      {
+        "label": "SCSS",
+        "value": 33
+      },
+      {
+        "label": "Less",
+        "value": 34
+      },
+      {
+        "label": "Java",
+        "value": 35
+      },
+      {
+        "label": "Plugin Development",
+        "value": 36
+      },
+      {
+        "label": "Custom PHP (WordPress plugins)",
+        "value": 38
+      },
+      {
+        "label": "Web APIs",
+        "value": 39
+      },
+      {
+        "label": "Google AdWords API",
+        "value": 40
+      },
+      {
+        "label": "HTML5",
+        "value": 42
+      },
+      {
+        "label": "CSS3",
+        "value": 43
+      },
+      {
+        "label": "CMS",
+        "value": 44
+      },
+      {
+        "label": "Drupal 7",
+        "value": 45
+      }
+    ],
+    "tools": [
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "image": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/MySQL logo.png",
+        "label": "MySQL",
+        "short_created_at": "1970-01-01",
+        "value": 9
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "image": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/Git.png",
+        "label": "Git",
+        "short_created_at": "1970-01-01",
+        "value": 12
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "image": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/NodeJS.svg",
+        "label": "Node.js",
+        "short_created_at": "1970-01-01",
+        "value": 21
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "image": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/MongoDB logo.png",
+        "label": "MongoDB",
+        "short_created_at": "1970-01-01",
+        "value": 24
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "image": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/download (32).png",
+        "label": "Docker",
+        "short_created_at": "1970-01-01",
+        "value": 12220
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "image": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/Express.js logo.png",
+        "label": "Express.js",
+        "short_created_at": "1970-01-01",
+        "value": 12483
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "image": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/Serverlessdd.jpg",
+        "label": "Serverless",
+        "short_created_at": "1970-01-01",
+        "value": 14046
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "image": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/Kubernetes.png",
+        "label": "Kubernetes",
+        "short_created_at": "1970-01-01",
+        "value": 15114
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "image": "https://platform.uplers.com/images/placeholders/pmstool.png",
+        "label": "Linux",
+        "short_created_at": "1970-01-01",
+        "value": 31730
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "image": "https://platform.uplers.com/images/placeholders/pmstool.png",
+        "label": "CosmosDB",
+        "short_created_at": "1970-01-01",
+        "value": 6236
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "image": "https://platform.uplers.com/images/placeholders/pmstool.png",
+        "label": "DynamoDB",
+        "short_created_at": "1970-01-01",
+        "value": 18541
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "image": "https://platform.uplers.com/images/placeholders/pmstool.png",
+        "label": "Clickhouse",
+        "short_created_at": "1970-01-01",
+        "value": 28285
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "image": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/Wordpress.png",
+        "label": "WordPress",
+        "short_created_at": "1970-01-01",
+        "value": 2
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "image": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/Magento.png",
+        "label": "Magento",
+        "short_created_at": "1970-01-01",
+        "value": 3
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "image": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/Opencart.png",
+        "label": "Opencart",
+        "short_created_at": "1970-01-01",
+        "value": 4
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "image": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/PHP.png",
+        "label": "PHP",
+        "short_created_at": "1970-01-01",
+        "value": 5
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "image": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/XAMPP.svg",
+        "label": "XAMPP",
+        "short_created_at": "1970-01-01",
+        "value": 6
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "image": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/Oracle.png",
+        "label": "Oracle",
+        "short_created_at": "1970-01-01",
+        "value": 7
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "image": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/cPanelL.png",
+        "label": "cPanel",
+        "short_created_at": "1970-01-01",
+        "value": 8
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "image": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/FTP server.png",
+        "label": "FTP server",
+        "short_created_at": "1970-01-01",
+        "value": 10
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "image": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/jQuery.png",
+        "label": "jQuery",
+        "short_created_at": "1970-01-01",
+        "value": 11
+      },
+      {
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "image": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/CSS3.png",
+        "label": "CSS3 & CSS5",
+        "short_created_at": "1970-01-01",
+        "value": 13
+      }
+    ]
+  },
+  "recommandations": [],
+  "talent_details": {
+    "achievements": [
+      {
+        "company_name": null,
+        "date": null,
+        "description": null,
+        "enc_id": "YVA4JDtUdD6pPEZeIwgVH749S9BTdi93",
+        "id": 619638,
+        "talent_id": 9440850,
+        "title": "Slashed storage costs by 700% by redesigning database storage for the bulk email scheduler. Leveraged technological expertise to drive innovative solutions and enhance system performance.",
+        "uuid": 874
+      },
+      {
+        "company_name": null,
+        "date": null,
+        "description": null,
+        "enc_id": "XpMdNMQ6MDE2sBkdNwQMbSgKICM1LS61",
+        "id": 619637,
+        "talent_id": 9440850,
+        "title": "Enhanced platform adaptability by 20% and customer base growth by 12% through strategic third-party integrations.",
+        "uuid": 167
+      },
+      {
+        "company_name": null,
+        "date": null,
+        "description": null,
+        "enc_id": "R3ZBb894KXqPAhe0Uy8haEr3d9uTBS27",
+        "id": 619636,
+        "talent_id": 9440850,
+        "title": "Successfully optimized email dispatches, boosting journey engagement by 15%. Reduced ClickhouseDB queries by 60% and server response time through Docker containers and GitHub actions.",
+        "uuid": 107
+      },
+      {
+        "company_name": null,
+        "date": null,
+        "description": null,
+        "enc_id": "sZH1sDoMddiYB08iYLglLiycCHVkQK41",
+        "id": 619635,
+        "talent_id": 9440850,
+        "title": "Accomplished significant milestone by increasing the customer base by 12% through strategic third-party integrations and 20% increase in platform adaptability Expertise in improving system performance and elevating patient experience, utilizing Node.JS, AWS, MongoDB, DynamoDB, and Serverless to drive advancements.",
+        "uuid": 807
+      },
+      {
+        "company_name": null,
+        "date": null,
+        "description": null,
+        "enc_id": "GMtBMHoSDwY0M6xvctMQRSn9IET9ts81",
+        "id": 619577,
+        "talent_id": 9440850,
+        "title": "Increased customer base by 12% and platform adaptability by 20% through strategic third-party integrations.",
+        "uuid": 77
+      },
+      {
+        "company_name": null,
+        "date": null,
+        "description": null,
+        "enc_id": "L1pkVdufF7OQf3k2cR7bYRswSZ2Gze64",
+        "id": 619576,
+        "talent_id": 9440850,
+        "title": "Completed several courses on Coursera.",
+        "uuid": 446
+      },
+      {
+        "company_name": null,
+        "date": null,
+        "description": null,
+        "enc_id": "u3uMK2UHL88qJXSuCLL6D3HtKkWvSb14",
+        "id": 619575,
+        "talent_id": 9440850,
+        "title": "Restructured bulk email scheduler resulting in 700% reduction in storage costs.",
+        "uuid": 843
+      },
+      {
+        "company_name": null,
+        "date": null,
+        "description": null,
+        "enc_id": "PwxAFSX2lDNPsDJrj3Gum6FDENVnRE02",
+        "id": 619574,
+        "talent_id": 9440850,
+        "title": "Enhanced email dispatches and increased journey engagement by 15%.",
+        "uuid": 480
+      }
+    ],
+    "assessedskills": [],
+    "assessedskillsArray": [],
+    "availability": null,
+    "certifications": [],
+    "clearedassessments": [],
+    "clienteles": [],
+    "current_employment_status": null,
+    "designation": "Software Engineer",
+    "educations": [
+      {
+        "degree": "B.Tech, Computer Science and Engineering",
+        "degree_type": null,
+        "enc_id": "S1A6Dmp3YPqTl3ScId0uMIktDSfkBI36",
+        "end_date": "2021-01-01",
+        "id": 7641146,
+        "is_current": 0,
+        "start_date": "2017-01-01",
+        "talent_id": 9440850,
+        "university": "IIIT Sri City",
+        "uuid": 491
+      }
+    ],
+    "enc_id": "E0I1SUhJKoGHtWxvDqqqLy2cAYTeOM77",
+    "enc_id_nda": "HNQTPs2UnoSyK8kwTaCRMpnlZIYfcf55",
+    "enc_id_org": "BxrRJCPfZvLIHQjLGZlOv7ygCu7dBw53",
+    "experiences": [
+      {
+        "company_name": "Wissen Technology",
+        "enc_id": "iTvvPKWrBssHUYqisWs1kWA9XaSJUU25",
+        "end_date": "2026-06-01",
+        "engagement_id": null,
+        "id": 10239153,
+        "is_current": 2,
+        "job_description": "Invenco Cloud Services (ICS) - multi-tenant payments platform serving 30,000+ terminals (client: Invenco by GVR)\n- Shipped timezone-aware config and firmware rollouts to 30,000+ FlexPay terminals via EventBridge-scheduled Node.js Lambda services in off-peak windows, cutting update-related disruptions 60%.\n- Designed device tenant app feature-flag and settings resolution in Node.js on PostgreSQL, with a JSON-Schema-validated registry and audited upserts, powering per-terminal behavior fleet-wide.\n- Implemented dual-approval and HSM content-signing APIs (MFA-gated state machine, 3-level key validation) securing firmware releases for G6/G7 terminal families.\n- Replaced a 4-table authorization join with a single PostgreSQL materialized-view lookup (refresh-on-mutation) across 10,000 users, 500 groups, and 50,000 entities.\n- Built the Debezium Kafka (MSK) CDC pipeline standardizing device data into 9 downstream systems - idempotent upserts, Kinesis S3 Parquet tiering - plus media distribution to terminals.\n- Cut ambiguous production errors from 100% to under 5% with a machine-readable error taxonomy across 4 services, taking config-issue resolution from days to hours.\n- Root-caused 15+ production incidents - an N+1 hot path cut from 8-12s to under 800ms, a silent NULL bug dropping 118,933 devices, 1M-row exports at ~1 MB constant memory via pg-query-stream.",
+        "start_date": "2024-04-01",
+        "talent_id": 9440850,
+        "title": "Software Engineer",
+        "uuid": 494
+      },
+      {
+        "company_name": "Mailmodo",
+        "enc_id": "P2nrnLtgXHqDnAGAxNZgRL0ZexX1NI39",
+        "end_date": "2024-03-01",
+        "engagement_id": null,
+        "id": 10213944,
+        "is_current": 0,
+        "job_description": "- Lifted journey engagement 15% and cut sending costs ~20% at 98%+ delivery with a BullMQ rate-controlled dispatch layer in Node.js - multi-provider routing across per-ESP limits (AWS SES, SMTP, SendGrid).\n- Decomposed the monolith into Dockerized Node.js microservices on Kubernetes-based Azure Container Apps and Azure Functions (Container App Jobs, ClickHouse, Cosmos DB), removing cross-team deploy dependencies.\n- Cut analytics storage 7 and query load 60% by re-partitioning the event-tracking schema and tuning ClickHouse queries across open/click/bounce pipelines.\n- Built integration services for MoEngage, CleverTap, WebEngage, Shopify, and Zapier - webhook/event delivery and transactional triggers.",
+        "start_date": "2023-02-01",
+        "talent_id": 9440850,
+        "title": "Software Engineer, Backend",
+        "uuid": 830
+      },
+      {
+        "company_name": "Pristyn Care",
+        "enc_id": "fXoIQgnuVvT7GFSLnvAxJB8LoYAprs29",
+        "end_date": "2023-02-01",
+        "engagement_id": null,
+        "id": 8128092,
+        "is_current": 0,
+        "job_description": "- Drove 25% more booking conversions by rebuilding appointment scheduling and search across the stack - the React booking UI flows patients used plus the Node.js ranking and search APIs behind them.\n- Built the backend for the Hospital and Finance dashboards and the Doctor app - REST APIs at 500K+ requests/day on MongoDB (aggregation pipelines, $lookup joins), search/filtering, automated CI/CD (Node.js, AWS, DynamoDB).\n- Added Redis cache-aside for hot reads (doctor profiles, hospital data), cutting API latency 40%.\n- Built patient-communication IVR and chatbots on Twilio and Knowlarity, including a CoWIN vaccination-info bot at peak COVID demand.",
+        "start_date": "2021-05-01",
+        "talent_id": 9440850,
+        "title": "Associate Software Engineer",
+        "uuid": 782
+      }
+    ],
+    "id": 9440850,
+    "interests": [],
+    "job_title": "Software Engineer",
+    "joining_period": "Immediately",
+    "name": "G Sundeep",
+    "name_extration": {
+      "first_name": "G",
+      "last_name": "Sundeep"
+    },
+    "objective": "Result-oriented professional in search of challenging opportunities in back-end software engineering, with expertise in developing innovative solutions and enhancing system performance.",
+    "objective_data": {
+      "id": 544269,
+      "objective": "Result-oriented professional in search of challenging opportunities in back-end software engineering, with expertise in developing innovative solutions and enhancing system performance.",
+      "talent_id": 9440850
+    },
+    "preferred_cities": [
+      {
+        "label": "Bengaluru, Karnataka",
+        "value": 277
+      }
+    ],
+    "preferred_method": [
+      {
+        "preferred_method": "2"
+      }
+    ],
+    "preferred_modes": [
+      {
+        "label": "Full time",
+        "value": 1
+      },
+      {
+        "label": "Contract",
+        "value": 3
+      }
+    ],
+    "primaryskills": [
+      {
+        "enc_id": "Dy4vYse3vGTWONGmPVxjSNgCZ6mBXO86",
+        "id": 36114505,
+        "order": 0,
+        "skill_id": 3898076,
+        "talent_id": 9440850,
+        "years_of_experience": "4"
+      },
+      {
+        "enc_id": "XGfOIeQxuaCetxA9PXoNK4F3p3piRk05",
+        "id": 36114703,
+        "order": 0,
+        "skill_id": 3890028,
+        "talent_id": 9440850,
+        "years_of_experience": "3"
+      },
+      {
+        "enc_id": "P9GirPn7H7WkCTkLWPp4zItZWvfXdm54",
+        "id": 36114507,
+        "order": 0,
+        "skill_id": 166,
+        "talent_id": 9440850,
+        "years_of_experience": "2"
+      },
+      {
+        "enc_id": "lGgNG0QvrRSfLkunuyOtLwQIzcApBL98",
+        "id": 60394787,
+        "order": 0,
+        "skill_id": 10,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "a54GrSAOXHttZgBJHGq4cCJumFNVPZ03",
+        "id": 60543375,
+        "order": 0,
+        "skill_id": 3710666,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "YZvAR2n7D96WfPF8WSiFTYo3sOnTaw17",
+        "id": 60394797,
+        "order": 0,
+        "skill_id": 2784529,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "WOj9tY7kAw6DZw5hE5o8XOrAXvPMNe55",
+        "id": 60394796,
+        "order": 0,
+        "skill_id": 345234,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "U1LQF5m6TUa3A01YsHHEJRyLNlK0Wg70",
+        "id": 60394795,
+        "order": 0,
+        "skill_id": 3784695,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "gJV0zip1TkwmUQTLfYb6LG7sRTUTVG88",
+        "id": 60394794,
+        "order": 0,
+        "skill_id": 504621,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "Ip7zGu6BIiM9cHytPZzdNlM9F4cRSF31",
+        "id": 60394793,
+        "order": 0,
+        "skill_id": 457484,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "nB99E43tmDZpPmwQYJNmLDKOLGHnSL84",
+        "id": 60394791,
+        "order": 0,
+        "skill_id": 1188105,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "Kvj9FxfGTalVjjfhuJA0n5wWP2X7Oa91",
+        "id": 60394790,
+        "order": 0,
+        "skill_id": 2706508,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "JDfzUhBjtTBrH1cldAWhppUhOWxtFD11",
+        "id": 60543377,
+        "order": 0,
+        "skill_id": 350690,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "o1l3I1EdN4Kwz4ged7UlWueSsOzTEZ03",
+        "id": 60394786,
+        "order": 0,
+        "skill_id": 3765505,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "xszrSQFMsSNzSOcJL0ZYBZw6XjGhtv09",
+        "id": 60394785,
+        "order": 0,
+        "skill_id": 3898876,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "M2CaW7UgaCsyTH3cGftzR12nFEhzEE06",
+        "id": 60394784,
+        "order": 0,
+        "skill_id": 3899027,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "PYJ2XLXtAQ3qMEjfk2UuHaN3AqSdKA27",
+        "id": 60394783,
+        "order": 0,
+        "skill_id": 291793,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "V0M0pEENKtZoDBsoV9hHb9YQEfVUAU40",
+        "id": 60543376,
+        "order": 0,
+        "skill_id": 3571730,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "rkCZC8v9E0K9MXSstoTiwj0lTbS7YZ83",
+        "id": 60394780,
+        "order": 0,
+        "skill_id": 3723066,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "ood2oLe2DcomHnd0iocCQ4tErCO2Yy51",
+        "id": 60543378,
+        "order": 0,
+        "skill_id": 3898724,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "ybUwwzGHlKGhS4loUndeOAzJLFQjvt03",
+        "id": 60543379,
+        "order": 0,
+        "skill_id": 3789757,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "AKBhO3r1iT5eTGRwC5M0Zy8oF6yrJM33",
+        "id": 60543381,
+        "order": 0,
+        "skill_id": 3495698,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "ZUeDg6RMvHMAsgFtNQlFHJV4CzIiFI77",
+        "id": 60543382,
+        "order": 0,
+        "skill_id": 877833,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "BMS2iGgDWgzVNl6OYKNObOeGcAOhns10",
+        "id": 60543383,
+        "order": 0,
+        "skill_id": 3891634,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "LqTuVMvez2XcRQYwA6UFKY3KvzzeAM84",
+        "id": 60543384,
+        "order": 0,
+        "skill_id": 3710702,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "hnceJuO0AbB8C41HxdQPAFdceHhdfh44",
+        "id": 60543385,
+        "order": 0,
+        "skill_id": 207489,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "Qhl4sOBTg4lqU8EBCghgcGA7K26kRx16",
+        "id": 60543386,
+        "order": 0,
+        "skill_id": 3902461,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "OBL8SWCLNLvUUdAnqK5YGLhmMFXlRK67",
+        "id": 60543387,
+        "order": 0,
+        "skill_id": 3890198,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "PNOCS2GkAsjgMS5birMODgJwBaFWVd01",
+        "id": 60544304,
+        "order": 0,
+        "skill_id": 586588,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "BbgdDwLhDWSdT8FeM3jBBEH3KWf2jn98",
+        "id": 60562271,
+        "order": 0,
+        "skill_id": 3028113,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "XK8KM97BPXwmE69AP0OoCWKWJWZhZH94",
+        "id": 59310079,
+        "order": 0,
+        "skill_id": 257574,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "G8gTMDYHgeV5UhBoUlZ6TPLrZ5lwIU37",
+        "id": 36114498,
+        "order": 0,
+        "skill_id": 3909135,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "C1DyX9XbSRWVi30JROMdPhhgVUFyhc74",
+        "id": 36114500,
+        "order": 0,
+        "skill_id": 11,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "RG29QwdHMYWQTNNFCT3tXU3rEkB1ZV94",
+        "id": 36114503,
+        "order": 0,
+        "skill_id": 3900084,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "A5FDjpMxfMVHT1sTNwSwWWb9GjPlMI34",
+        "id": 36114509,
+        "order": 0,
+        "skill_id": 3901097,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "C8dsfZmXGHoPRjF2tL9Na5xPbhM8JG11",
+        "id": 36114713,
+        "order": 0,
+        "skill_id": 3901096,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "hJkfGIyozRmwrOUyLVMJIWtSwcD2SD55",
+        "id": 52681854,
+        "order": 0,
+        "skill_id": 285,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "fxAvEDHlARhnM8Y4F7KVCSNqBzixFZ13",
+        "id": 52681858,
+        "order": 0,
+        "skill_id": 4567,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "U3ZfGsQCm68RVSANT9eiKLa9Un7jlr55",
+        "id": 59310069,
+        "order": 0,
+        "skill_id": 248356,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "FqpRyNA8Eg1fkRVduNGVU9R2LHT6TD58",
+        "id": 59310070,
+        "order": 0,
+        "skill_id": 469639,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "pRf3AVI7kLk9n7NnYLMhTZulW3kakt48",
+        "id": 59310071,
+        "order": 0,
+        "skill_id": 158944,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "DGKwhzlqZZwfmEuwBSrYddbijdPWXa01",
+        "id": 59310074,
+        "order": 0,
+        "skill_id": 106557,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "q5zKVENiTkdGjYiVpLVrw4BvGsovAN78",
+        "id": 59310077,
+        "order": 0,
+        "skill_id": 256659,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "xPjCEEPOKPMrL40yQ3F6YylNYOceRM83",
+        "id": 60394781,
+        "order": 0,
+        "skill_id": 512359,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "NphNIbRQV3K1G08wcndxNJ04iPFwxg56",
+        "id": 59310081,
+        "order": 0,
+        "skill_id": 256679,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "L1uKEVE8QqqnHp8jEXi0PNm1IGQ5Xf58",
+        "id": 59310083,
+        "order": 0,
+        "skill_id": 302,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "FzL9UX3vSUn1tmT6O1Sofy3JPObuFh29",
+        "id": 59310084,
+        "order": 0,
+        "skill_id": 3885848,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "LWHyv3MvVgoiQfW0R3rUUVXHE3WNED76",
+        "id": 59310085,
+        "order": 0,
+        "skill_id": 512365,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "MCA2NuKuZvDBr2vpUPQcFOEvOyfHXd74",
+        "id": 59310634,
+        "order": 0,
+        "skill_id": 3898922,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "EUJaQHTcTvVATiakFTQ0Aju4OD3BBJ11",
+        "id": 59310714,
+        "order": 0,
+        "skill_id": 512366,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "i2NdH1Bmhxycru53RF2sUve1A4Vmvj71",
+        "id": 60394769,
+        "order": 0,
+        "skill_id": 3524955,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "aMSaNDpOZCqDUonaGjE3E1ppEEfvlc40",
+        "id": 60394773,
+        "order": 0,
+        "skill_id": 3640789,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "GvxZCJDsvBKMRqPzScIcpiCkQbpSCy82",
+        "id": 60394775,
+        "order": 0,
+        "skill_id": 3438587,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "hBqGWAVWStJQLIq6GjIiu1E8oUIhRe54",
+        "id": 60394777,
+        "order": 0,
+        "skill_id": 3438123,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "BSRssw8bI7WbDZsvwvKFLMMWTZuuaz65",
+        "id": 60394778,
+        "order": 0,
+        "skill_id": 3890204,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "WGbrjMXahQUQWyRSXDP1DGBpbqGElr70",
+        "id": 36114497,
+        "order": 0,
+        "skill_id": 301,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      }
+    ],
+    "projects": [
+      {
+        "company_name": null,
+        "description": "Hosted MCP server (closed-source SaaS) giving AI agents Google Workspace automation: tools plus one-call Apps Script deployment (bound scripts, triggers, web apps); per-user OAuth.",
+        "enc_id": "WzTYJS1pm3SjU0DPhSM6cpzwDBawZQ77",
+        "end_date": null,
+        "id": 6243711,
+        "is_current": 0,
+        "start_date": null,
+        "talent_id": 9440850,
+        "title": "appscriptly",
+        "uuid": 608
+      },
+      {
+        "company_name": null,
+        "description": "Open-source Python servers for AI computer control and automation, including PR #343 merged on doobidoo/mcp-memory-service (1,400+ stars).",
+        "enc_id": "YTmNRUKNGSDlBGVPX661X9VMcZuBWE61",
+        "end_date": null,
+        "id": 6243712,
+        "is_current": 0,
+        "start_date": null,
+        "talent_id": 9440850,
+        "title": "MCP servers: computer-use-mcp and mcp-server-unipile",
+        "uuid": 208
+      }
+    ],
+    "short_created_at": "1970-01-01",
+    "skills": [
+      {
+        "enc_id": "Dy4vYse3vGTWONGmPVxjSNgCZ6mBXO86",
+        "id": 36114505,
+        "order": 0,
+        "skill_id": 3898076,
+        "talent_id": 9440850,
+        "years_of_experience": "4"
+      },
+      {
+        "enc_id": "XGfOIeQxuaCetxA9PXoNK4F3p3piRk05",
+        "id": 36114703,
+        "order": 0,
+        "skill_id": 3890028,
+        "talent_id": 9440850,
+        "years_of_experience": "3"
+      },
+      {
+        "enc_id": "P9GirPn7H7WkCTkLWPp4zItZWvfXdm54",
+        "id": 36114507,
+        "order": 0,
+        "skill_id": 166,
+        "talent_id": 9440850,
+        "years_of_experience": "2"
+      },
+      {
+        "enc_id": "lGgNG0QvrRSfLkunuyOtLwQIzcApBL98",
+        "id": 60394787,
+        "order": 0,
+        "skill_id": 10,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "YZvAR2n7D96WfPF8WSiFTYo3sOnTaw17",
+        "id": 60394797,
+        "order": 0,
+        "skill_id": 2784529,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "WOj9tY7kAw6DZw5hE5o8XOrAXvPMNe55",
+        "id": 60394796,
+        "order": 0,
+        "skill_id": 345234,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "U1LQF5m6TUa3A01YsHHEJRyLNlK0Wg70",
+        "id": 60394795,
+        "order": 0,
+        "skill_id": 3784695,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "gJV0zip1TkwmUQTLfYb6LG7sRTUTVG88",
+        "id": 60394794,
+        "order": 0,
+        "skill_id": 504621,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "Ip7zGu6BIiM9cHytPZzdNlM9F4cRSF31",
+        "id": 60394793,
+        "order": 0,
+        "skill_id": 457484,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "nB99E43tmDZpPmwQYJNmLDKOLGHnSL84",
+        "id": 60394791,
+        "order": 0,
+        "skill_id": 1188105,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "Kvj9FxfGTalVjjfhuJA0n5wWP2X7Oa91",
+        "id": 60394790,
+        "order": 0,
+        "skill_id": 2706508,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "V0M0pEENKtZoDBsoV9hHb9YQEfVUAU40",
+        "id": 60543376,
+        "order": 0,
+        "skill_id": 3571730,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "o1l3I1EdN4Kwz4ged7UlWueSsOzTEZ03",
+        "id": 60394786,
+        "order": 0,
+        "skill_id": 3765505,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "xszrSQFMsSNzSOcJL0ZYBZw6XjGhtv09",
+        "id": 60394785,
+        "order": 0,
+        "skill_id": 3898876,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "M2CaW7UgaCsyTH3cGftzR12nFEhzEE06",
+        "id": 60394784,
+        "order": 0,
+        "skill_id": 3899027,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "PYJ2XLXtAQ3qMEjfk2UuHaN3AqSdKA27",
+        "id": 60394783,
+        "order": 0,
+        "skill_id": 291793,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "xPjCEEPOKPMrL40yQ3F6YylNYOceRM83",
+        "id": 60394781,
+        "order": 0,
+        "skill_id": 512359,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "rkCZC8v9E0K9MXSstoTiwj0lTbS7YZ83",
+        "id": 60394780,
+        "order": 0,
+        "skill_id": 3723066,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "a54GrSAOXHttZgBJHGq4cCJumFNVPZ03",
+        "id": 60543375,
+        "order": 0,
+        "skill_id": 3710666,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "GvxZCJDsvBKMRqPzScIcpiCkQbpSCy82",
+        "id": 60394775,
+        "order": 0,
+        "skill_id": 3438587,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "JDfzUhBjtTBrH1cldAWhppUhOWxtFD11",
+        "id": 60543377,
+        "order": 0,
+        "skill_id": 350690,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "ood2oLe2DcomHnd0iocCQ4tErCO2Yy51",
+        "id": 60543378,
+        "order": 0,
+        "skill_id": 3898724,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "ybUwwzGHlKGhS4loUndeOAzJLFQjvt03",
+        "id": 60543379,
+        "order": 0,
+        "skill_id": 3789757,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "AKBhO3r1iT5eTGRwC5M0Zy8oF6yrJM33",
+        "id": 60543381,
+        "order": 0,
+        "skill_id": 3495698,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "ZUeDg6RMvHMAsgFtNQlFHJV4CzIiFI77",
+        "id": 60543382,
+        "order": 0,
+        "skill_id": 877833,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "BMS2iGgDWgzVNl6OYKNObOeGcAOhns10",
+        "id": 60543383,
+        "order": 0,
+        "skill_id": 3891634,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "LqTuVMvez2XcRQYwA6UFKY3KvzzeAM84",
+        "id": 60543384,
+        "order": 0,
+        "skill_id": 3710702,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "hnceJuO0AbB8C41HxdQPAFdceHhdfh44",
+        "id": 60543385,
+        "order": 0,
+        "skill_id": 207489,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "Qhl4sOBTg4lqU8EBCghgcGA7K26kRx16",
+        "id": 60543386,
+        "order": 0,
+        "skill_id": 3902461,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "OBL8SWCLNLvUUdAnqK5YGLhmMFXlRK67",
+        "id": 60543387,
+        "order": 0,
+        "skill_id": 3890198,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "PNOCS2GkAsjgMS5birMODgJwBaFWVd01",
+        "id": 60544304,
+        "order": 0,
+        "skill_id": 586588,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "BbgdDwLhDWSdT8FeM3jBBEH3KWf2jn98",
+        "id": 60562271,
+        "order": 0,
+        "skill_id": 3028113,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "pRf3AVI7kLk9n7NnYLMhTZulW3kakt48",
+        "id": 59310071,
+        "order": 0,
+        "skill_id": 158944,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "F5biVClUWic5d7O8R7RkDH8UcVk0Nl41",
+        "id": 12809787,
+        "order": 0,
+        "skill_id": 4283180,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "OwWTeJ5nWf0BO5xVNLXNxTeNnL79Pe32",
+        "id": 32260995,
+        "order": 0,
+        "skill_id": 3870737,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "WGbrjMXahQUQWyRSXDP1DGBpbqGElr70",
+        "id": 36114497,
+        "order": 0,
+        "skill_id": 301,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "G8gTMDYHgeV5UhBoUlZ6TPLrZ5lwIU37",
+        "id": 36114498,
+        "order": 0,
+        "skill_id": 3909135,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "C1DyX9XbSRWVi30JROMdPhhgVUFyhc74",
+        "id": 36114500,
+        "order": 0,
+        "skill_id": 11,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "RG29QwdHMYWQTNNFCT3tXU3rEkB1ZV94",
+        "id": 36114503,
+        "order": 0,
+        "skill_id": 3900084,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "A5FDjpMxfMVHT1sTNwSwWWb9GjPlMI34",
+        "id": 36114509,
+        "order": 0,
+        "skill_id": 3901097,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "UTdfLSq7PuHnIyWZZTbsBRIlFtIUJM65",
+        "id": 36114708,
+        "order": 0,
+        "skill_id": 3428227,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "C8dsfZmXGHoPRjF2tL9Na5xPbhM8JG11",
+        "id": 36114713,
+        "order": 0,
+        "skill_id": 3901096,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "G1q4JMePBFPmZ7ZODIM4kP61L5bIXa66",
+        "id": 36114722,
+        "order": 0,
+        "skill_id": 3917541,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "hJkfGIyozRmwrOUyLVMJIWtSwcD2SD55",
+        "id": 52681854,
+        "order": 0,
+        "skill_id": 285,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "fxAvEDHlARhnM8Y4F7KVCSNqBzixFZ13",
+        "id": 52681858,
+        "order": 0,
+        "skill_id": 4567,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "U3ZfGsQCm68RVSANT9eiKLa9Un7jlr55",
+        "id": 59310069,
+        "order": 0,
+        "skill_id": 248356,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "FqpRyNA8Eg1fkRVduNGVU9R2LHT6TD58",
+        "id": 59310070,
+        "order": 0,
+        "skill_id": 469639,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "BSRssw8bI7WbDZsvwvKFLMMWTZuuaz65",
+        "id": 60394778,
+        "order": 0,
+        "skill_id": 3890204,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "DGKwhzlqZZwfmEuwBSrYddbijdPWXa01",
+        "id": 59310074,
+        "order": 0,
+        "skill_id": 106557,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "q5zKVENiTkdGjYiVpLVrw4BvGsovAN78",
+        "id": 59310077,
+        "order": 0,
+        "skill_id": 256659,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "XK8KM97BPXwmE69AP0OoCWKWJWZhZH94",
+        "id": 59310079,
+        "order": 0,
+        "skill_id": 257574,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "NphNIbRQV3K1G08wcndxNJ04iPFwxg56",
+        "id": 59310081,
+        "order": 0,
+        "skill_id": 256679,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "L1uKEVE8QqqnHp8jEXi0PNm1IGQ5Xf58",
+        "id": 59310083,
+        "order": 0,
+        "skill_id": 302,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "FzL9UX3vSUn1tmT6O1Sofy3JPObuFh29",
+        "id": 59310084,
+        "order": 0,
+        "skill_id": 3885848,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "LWHyv3MvVgoiQfW0R3rUUVXHE3WNED76",
+        "id": 59310085,
+        "order": 0,
+        "skill_id": 512365,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "MCA2NuKuZvDBr2vpUPQcFOEvOyfHXd74",
+        "id": 59310634,
+        "order": 0,
+        "skill_id": 3898922,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "EUJaQHTcTvVATiakFTQ0Aju4OD3BBJ11",
+        "id": 59310714,
+        "order": 0,
+        "skill_id": 512366,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "i2NdH1Bmhxycru53RF2sUve1A4Vmvj71",
+        "id": 60394769,
+        "order": 0,
+        "skill_id": 3524955,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "aMSaNDpOZCqDUonaGjE3E1ppEEfvlc40",
+        "id": 60394773,
+        "order": 0,
+        "skill_id": 3640789,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "FRO1WFIBCfCgXBkLHOVsGaIJIJpTDC66",
+        "id": 12809456,
+        "order": 0,
+        "skill_id": 175,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      },
+      {
+        "enc_id": "hBqGWAVWStJQLIq6GjIiu1E8oUIhRe54",
+        "id": 60394777,
+        "order": 0,
+        "skill_id": 3438123,
+        "talent_id": 9440850,
+        "years_of_experience": "0"
+      }
+    ],
+    "status": 1,
+    "status_text": "In Network",
+    "testimonials": [],
+    "tools": [
+      {
+        "enc_id": "dOFhesv4TGVsPZMce6BtxtqYHXv0ZS81",
+        "id": 927660,
+        "talent_id": 9440850,
+        "tool_id": 31730
+      },
+      {
+        "enc_id": "iaU5MZTpPRL5LLcwLItbKGpBSnDQJZ66",
+        "id": 927661,
+        "talent_id": 9440850,
+        "tool_id": 12
+      },
+      {
+        "enc_id": "imX3U7XSFroUWGA7HeaZguc9N5TnWl91",
+        "id": 927662,
+        "talent_id": 9440850,
+        "tool_id": 12483
+      },
+      {
+        "enc_id": "uhnwGYi0ZXIWHF99Ml98BFQNexmzhm15",
+        "id": 927663,
+        "talent_id": 9440850,
+        "tool_id": 14046
+      },
+      {
+        "enc_id": "eCV0aXLrSGzoKpS8VybLNtKPbte5ha80",
+        "id": 927664,
+        "talent_id": 9440850,
+        "tool_id": 12220
+      },
+      {
+        "enc_id": "D6y0MLVzD6o9FXb0HXm0Pe4QSfuFYC57",
+        "id": 927665,
+        "talent_id": 9440850,
+        "tool_id": 15114
+      },
+      {
+        "enc_id": "CPiIR385TQTwCWGhAOB7TkSSNVtDGc54",
+        "id": 927666,
+        "talent_id": 9440850,
+        "tool_id": 21
+      },
+      {
+        "enc_id": "QDeNh1S1DvANzEZ2lQThM0MINTzgSo16",
+        "id": 927667,
+        "talent_id": 9440850,
+        "tool_id": 6236
+      },
+      {
+        "enc_id": "HEQoxNSLBSh2gPWdB5q0kD0SsKfMCs95",
+        "id": 927668,
+        "talent_id": 9440850,
+        "tool_id": 9
+      },
+      {
+        "enc_id": "aUuALSVsBDZ1KaTJogGBTgSEVbAFTX93",
+        "id": 927669,
+        "talent_id": 9440850,
+        "tool_id": 24
+      },
+      {
+        "enc_id": "EYqCcDfmvcoGAaGvClKDBPaDgMShip27",
+        "id": 927670,
+        "talent_id": 9440850,
+        "tool_id": 18541
+      },
+      {
+        "enc_id": "Y7YrLhlaGtKSDE6MGL2dtZuKvZRpDs76",
+        "id": 927671,
+        "talent_id": 9440850,
+        "tool_id": 28285
+      }
+    ],
+    "total_experience": "5.2",
+    "user_id": 6318906
+  }
+}

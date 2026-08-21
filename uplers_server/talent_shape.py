@@ -27,11 +27,15 @@ from typing import Any, Iterable
 
 from . import fit, shaping
 from .models import Opportunity
+from .search import notice_days
 from .talent import TalentError
 from .talent_models import (
+    EducationEntry,
+    ExperienceEntry,
     FieldDiff,
     FieldReport,
     Interview,
+    ProjectEntry,
     TalentProfileResult,
     TalentRow,
 )
@@ -222,6 +226,207 @@ def tally(rows: Iterable[TalentRow], attribute: str) -> dict:
 #: Where the profile object hides. VERIFIED: `res.data.talent_details`.
 PROFILE_KEY = "talent_details"
 
+#: Where the human-readable names hide. THE bug this module was fixed for.
+#:
+#: `talent_details.skills` does NOT carry skill names. It carries rows of
+#: ``{id, skill_id, talent_id, years_of_experience, order, enc_id}`` - a join
+#: table. The names live in a separate top-level `masters` lookup, 176,329
+#: rows of ``{"value": <skill_id>, "label": "<name>"}``, shipped in the same
+#: response.
+#:
+#: Reading the rows without the join finds no name-shaped key on any of them
+#: and returns an empty list, which reads exactly like an empty profile. That
+#: is what happened: the server reported "0 skills there vs 32 here" on the day
+#: the operator finished filling his profile in, and recommended he go and add
+#: to it. He had 61.
+MASTERS_KEY = "masters"
+
+#: Which section joins to which master, and on which foreign key. All three
+#: are VERIFIED against the live record; none of them carries an inline name.
+SKILL_SECTIONS = (
+    ("skills", "skills", "skill_id"),
+    ("primaryskills", "skills", "skill_id"),
+    ("tools", "tools", "tool_id"),
+)
+
+#: Never read, never modelled, never printed. These arrive in every profile
+#: payload and every one of them is his private business: pay, contact route,
+#: identity document, home address, and the URLs of personal files. A shaped
+#: profile ends up in transcripts, logs and reports, so the exclusion is
+#: enforced here at the boundary rather than trusted to each caller.
+#:
+#: The names are filtered out of `sections_present` too. A section NAME is
+#: normally harmless diagnostic - but "expected_ctc is populated" is itself a
+#: disclosure, and the list is no less useful without them.
+PRIVATE_KEYS = frozenset(
+    {
+        "current_ctc",
+        "expected_ctc",
+        "monthly_salary",
+        "salary",
+        "dob",
+        "contact_number",
+        "contact_number_country_code",
+        "whatsapp_optin",
+        "address",
+        "email",
+        "profile_pic",
+        "profile_pic_url",
+        "ra_profile_pic_url",
+        "resume",
+        "resume_url",
+        "ra_resume_url",
+        "gender",
+    }
+)
+
+
+def masters_index(payload: Any) -> dict[str, dict[str, str]]:
+    """`{master_name: {id_as_str: label}}` from the payload's `masters` block.
+
+    Keyed by string throughout because the two sides disagree about type: the
+    master writes `value` as an int, and the profile row writes `skill_id` as
+    an int but `years_of_experience` as a string, so nothing about the payload
+    justifies trusting either. One `str()` on both sides costs nothing and
+    removes the whole class.
+    """
+    masters = payload.get(MASTERS_KEY) if isinstance(payload, dict) else None
+    if not isinstance(masters, dict):
+        return {}
+    index: dict[str, dict[str, str]] = {}
+    for name, rows in masters.items():
+        if not isinstance(rows, list):
+            continue
+        lookup: dict[str, str] = {}
+        for row in rows:
+            if isinstance(row, dict) and row.get("value") is not None:
+                label = row.get("label")
+                if label not in (None, ""):
+                    lookup[str(row["value"])] = str(label)
+        if lookup:
+            index[name] = lookup
+    return index
+
+
+def resolve_skill_rows(
+    rows: Any, lookup: dict[str, str], id_key: str
+) -> tuple[list[str], dict[str, float], list[str]]:
+    """`(names, years_by_name, unresolved_ids)` for one joined section.
+
+    Order is preserved: Uplers' own list is priority-ordered and re-sorting it
+    would throw that away.
+
+    An id with no row in the master is REPORTED, not dropped. That is the whole
+    lesson of this module - a silently discarded skill is invisible, and
+    invisibility is why the original bug survived 667 tests.
+    """
+    names: list[str] = []
+    years: dict[str, float] = {}
+    unresolved: list[str] = []
+    if not isinstance(rows, (list, tuple)):
+        return (names, years, unresolved)
+
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        identifier = row.get(id_key)
+        if identifier is None:
+            continue
+        name = lookup.get(str(identifier))
+        if not name:
+            unresolved.append(str(identifier))
+            continue
+        if name not in names:
+            names.append(name)
+        # Uplers writes 0 for "not recorded", which is not the same claim as
+        # "zero years", so only a positive figure is carried.
+        recorded = shaping.to_float(row.get("years_of_experience"))
+        if recorded:
+            years[name] = recorded
+    return (names, years, unresolved)
+
+
+def _labels(rows: Any) -> list[str]:
+    """Label strings out of a `[{"label": ..., "value": ...}]` list."""
+    out: list[str] = []
+    if not isinstance(rows, (list, tuple)):
+        return out
+    for row in rows:
+        label = row.get("label") if isinstance(row, dict) else row
+        if label not in (None, "") and str(label) not in out:
+            out.append(str(label))
+    return out
+
+
+def _work_mode_preference(details: dict, index: dict) -> str | None:
+    """Resolve `preferred_method` through its master.
+
+    A trap worth naming. Uplers' `preferred_modes` reads like the local
+    profile's field of the same name but means ENGAGEMENT type - "Full time",
+    "Contract". The Remote/Office answer is `preferred_method`, an integer
+    resolving through `preferredMethodMaster` to "Remote Only" or "Remote or
+    Office". Mapping one onto the other would write "Full time" into a
+    work-mode field and corrupt every mode filter downstream, silently.
+    """
+    raw = details.get("preferred_method")
+    if isinstance(raw, list) and raw:
+        raw = raw[0]
+    if isinstance(raw, dict):
+        raw = _first(raw, "preferred_method", "value", "id")
+    if raw in (None, ""):
+        return None
+    return (index.get("preferredMethodMaster") or {}).get(str(raw))
+
+
+def _experiences(rows: Any) -> list[ExperienceEntry]:
+    out: list[ExperienceEntry] = []
+    for row in rows if isinstance(rows, list) else []:
+        if not isinstance(row, dict):
+            continue
+        out.append(
+            ExperienceEntry(
+                title=_stringify(_first(row, "title", "designation", "job_title")),
+                company=_stringify(_first(row, "company_name", "company", "organisation")),
+                start_date=_stringify(row.get("start_date")),
+                end_date=_stringify(row.get("end_date")),
+                # `is_current` is 0/1/2 on the live record, so it is read as
+                # truthy rather than compared to 1.
+                is_current=truthy(row.get("is_current")),
+            )
+        )
+    return out
+
+
+def _educations(rows: Any) -> list[EducationEntry]:
+    out: list[EducationEntry] = []
+    for row in rows if isinstance(rows, list) else []:
+        if not isinstance(row, dict):
+            continue
+        out.append(
+            EducationEntry(
+                degree=_stringify(_first(row, "degree", "qualification")),
+                university=_stringify(_first(row, "university", "institute", "college")),
+                end_date=_stringify(row.get("end_date")),
+            )
+        )
+    return out
+
+
+def _projects(rows: Any) -> list[ProjectEntry]:
+    """Title and description only - `project_url` is a personal link."""
+    out: list[ProjectEntry] = []
+    for row in rows if isinstance(rows, list) else []:
+        if not isinstance(row, dict):
+            continue
+        description = _stringify(row.get("description"))
+        out.append(
+            ProjectEntry(
+                title=_stringify(_first(row, "title", "name")),
+                description=(description or "")[:300] or None,
+            )
+        )
+    return out
+
 
 def to_talent_profile(payload: Any) -> TalentProfileResult:
     """His real Uplers profile. Raises when the envelope is not a profile.
@@ -230,6 +435,11 @@ def to_talent_profile(payload: Any) -> TalentProfileResult:
     empty Uplers profile and an unreadable one lead to opposite actions: the
     first says "go and fill your profile in", the second says "this client is
     broken".
+
+    Skills come out of the `masters` join described at MASTERS_KEY. When a
+    payload carries no `masters` - a caller that fetched only the profile
+    object, or a test - the reader falls back to inline names, so both shapes
+    read.
     """
     if not isinstance(payload, dict):
         raise TalentError(
@@ -244,8 +454,27 @@ def to_talent_profile(payload: Any) -> TalentProfileResult:
             % (PROFILE_KEY, sorted(payload)[:12] or "none")
         )
 
-    skills = _skill_names(_first(details, "skills", "talent_skills", "skill") or [])
+    index = masters_index(payload)
+    resolved: dict[str, list[str]] = {}
+    skill_years: dict[str, float] = {}
+    unresolved: list[str] = []
+    for section, master, id_key in SKILL_SECTIONS:
+        rows = details.get(section)
+        names, years, missing = resolve_skill_rows(rows, index.get(master) or {}, id_key)
+        if not names and rows:
+            # No join available (or none of it matched): the section may still
+            # name its skills inline, which is what every hand-built payload
+            # does and what an older API shape did.
+            names = _skill_names(rows)
+            if names:
+                missing = []
+        resolved[section] = names
+        skill_years.update(years)
+        unresolved.extend(missing)
+
+    skills = resolved["skills"] or _skill_names(_first(details, "talent_skills", "skill") or [])
     titles = _skill_names(_first(details, "roles", "job_roles", "preferred_roles") or [])
+
     # `first_name` is deliberately NOT in this chain: listing it here made the
     # concat below unreachable, so a profile carrying first_name + last_name
     # silently lost the surname.
@@ -255,22 +484,61 @@ def to_talent_profile(payload: Any) -> TalentProfileResult:
         last = details.get("last_name") or ""
         name = ("%s %s" % (first, last)).strip() or None
 
+    objective = _stringify(_first(details, "objective", "summary", "about"))
+    if not objective and isinstance(details.get("objective_data"), dict):
+        objective = _stringify(details["objective_data"].get("objective"))
+
+    notes: list[str] = []
+    if unresolved:
+        notes.append(
+            "%d skill id(s) had no entry in Uplers' own lookup and are reported "
+            "rather than dropped: %s. This is a gap in their masters table, not "
+            "in your profile." % (len(unresolved), ", ".join(sorted(set(unresolved))[:10]))
+        )
+
     return TalentProfileResult(
         name=name,
-        headline=_first(details, "headline", "title", "designation", "current_designation"),
+        headline=_first(details, "headline", "title", "designation", "job_title", "current_designation"),
         years_experience=shaping.to_float(
             _first(details, "total_experience", "experience", "yoe", "year_of_exp")
         ),
-        location=_first(details, "city", "location", "current_location"),
+        location=_first(details, "city", "location", "current_location")
+        or (_labels(details.get("preferred_cities")) or [None])[0],
         skills=skills,
+        primary_skills=resolved["primaryskills"],
+        tools=resolved["tools"],
+        skill_years=skill_years,
+        unresolved_skill_ids=sorted(set(unresolved)),
         titles=titles,
+        objective=objective,
         notice_period=_stringify(
             _first(details, "notice_period", "joining_period", "availability_to_join")
         ),
         availability=_stringify(_first(details, "availability", "engagement_type")),
+        engagement_types=_labels(details.get("preferred_modes")),
+        work_mode_preference=_work_mode_preference(details, index),
+        preferred_cities=_labels(details.get("preferred_cities")),
+        account_status=_stringify(details.get("status_text")),
+        experiences=_experiences(details.get("experiences")),
+        educations=_educations(details.get("educations")),
+        projects=_projects(details.get("projects")),
+        achievements=[
+            title
+            for title in (
+                _stringify(_first(row, "title", "name"))
+                for row in (details.get("achievements") or [])
+                if isinstance(row, dict)
+            )
+            if title
+        ],
         completion_percentage=shaping.to_float(payload.get("profile_completion_percentage")),
         remaining_percentage=shaping.to_float(payload.get("profile_remaining_percentage")),
-        sections_present=sorted(key for key in details if details.get(key) not in (None, "", [], {})),
+        sections_present=sorted(
+            key
+            for key in details
+            if key not in PRIVATE_KEYS and details.get(key) not in (None, "", [], {})
+        ),
+        notes=notes,
     )
 
 
@@ -385,15 +653,38 @@ def _norm_skills(names: Iterable[str]) -> dict[str, str]:
     return out
 
 
-def compare_profiles(local, remote: TalentProfileResult) -> tuple[list[str], list[FieldDiff], list[str], list[str]]:
-    """`(agree, differ, only_local_skills, only_uplers_skills)`.
+#: Fields where a disagreement is a JUDGEMENT, not a defect.
+#:
+#: "Software Engineer" vs "Backend Software Engineer" is a positioning choice.
+#: 5.2 vs 5.0 years is a rounding convention. Uplers is the source of truth for
+#: everything else, but taking its side automatically on these two would be the
+#: server overruling him on a question it has no basis to answer. They are
+#: reported as a pair and left alone.
+CONTESTED_FIELDS = ("headline", "years_experience")
+
+
+def compare_profiles(
+    local, remote: TalentProfileResult
+) -> tuple[list[str], list[FieldDiff], list[str], list[str], list[FieldDiff]]:
+    """`(agree, differ, only_local_skills, only_uplers_skills, contested)`.
+
+    **Uplers is the source of truth.** The local profile is a scoring input, so
+    a gap between the two is a defect in the LOCAL copy and every note here
+    reads in that direction. This used to run the other way and recommended he
+    edit the authoritative record to match its own cache.
 
     Compares only fields both sides actually have. A field the Uplers profile
     does not report is not a disagreement - it is a silence, and reporting a
     silence as a conflict would bury the real ones.
+
+    Skills are compared against the UNION of Uplers' three skill sections. A
+    skill listed only under `tools` is still a skill he has, and holding it
+    against him because it landed in a different section of their schema would
+    manufacture a gap out of their data model.
     """
     agree: list[str] = []
     differ: list[FieldDiff] = []
+    contested: list[FieldDiff] = []
 
     def compare(field: str, local_value, remote_value, note: str | None = None) -> None:
         if remote_value in (None, "", [], {}):
@@ -404,43 +695,70 @@ def compare_profiles(local, remote: TalentProfileResult) -> tuple[list[str], lis
                     field=field,
                     local="(not set)",
                     uplers=str(remote_value),
-                    note="Only Uplers has this.",
+                    note="Only Uplers has this - copy it into the local profile.",
                 )
             )
             return
         if str(local_value).strip().lower() == str(remote_value).strip().lower():
             agree.append(field)
-        else:
-            differ.append(
-                FieldDiff(
-                    field=field,
-                    local=str(local_value),
-                    uplers=str(remote_value),
-                    note=note,
-                )
-            )
+            return
+        diff = FieldDiff(
+            field=field, local=str(local_value), uplers=str(remote_value), note=note
+        )
+        differ.append(diff)
+        if field in CONTESTED_FIELDS:
+            contested.append(diff)
 
     compare("name", getattr(local, "name", None), remote.name)
-    compare("headline", getattr(local, "headline", None), remote.headline)
+    compare(
+        "headline",
+        getattr(local, "headline", None),
+        remote.headline,
+        "Neither is wrong - a headline is positioning. Your call.",
+    )
     compare(
         "years_experience",
         getattr(local, "years_experience", None),
         remote.years_experience,
-        "Fit scores use the local value.",
+        "Fit scores use the local value. Your call which figure is right.",
     )
     compare("location", getattr(local, "location", None), remote.location)
-    compare(
-        "notice_period",
-        getattr(local, "notice_period_days", None),
-        remote.notice_period,
-        "THE decisive field on this board - most Uplers clients accept only 15-30 days.",
-    )
+
+    # Notice period is compared in DAYS, not as text. Locally it is the integer
+    # 0; on Uplers it is the string "Immediately". Those are the same answer,
+    # and a string comparison called them a conflict - on the single most
+    # decisive field on this board, which is the worst possible place to
+    # manufacture a false alarm.
+    local_notice = getattr(local, "notice_period_days", None)
+    remote_notice_days = notice_days(remote.notice_period)
+    if remote.notice_period:
+        note = "THE decisive field on this board - most Uplers clients accept only 15-30 days."
+        if local_notice is None:
+            differ.append(
+                FieldDiff(
+                    field="notice_period",
+                    local="(not set)",
+                    uplers=remote.notice_period,
+                    note=note,
+                )
+            )
+        elif remote_notice_days is not None and int(local_notice) == remote_notice_days:
+            agree.append("notice_period")
+        else:
+            differ.append(
+                FieldDiff(
+                    field="notice_period",
+                    local="%s days" % local_notice,
+                    uplers=remote.notice_period,
+                    note=note,
+                )
+            )
 
     local_skills = _norm_skills(getattr(local, "skills", []) or [])
-    remote_skills = _norm_skills(remote.skills or [])
+    remote_skills = _norm_skills(remote.all_skill_names())
     only_local = sorted(local_skills[key] for key in local_skills.keys() - remote_skills.keys())
     only_remote = sorted(remote_skills[key] for key in remote_skills.keys() - local_skills.keys())
     if local_skills and remote_skills and not (only_local or only_remote):
         agree.append("skills")
 
-    return (agree, differ, only_local, only_remote)
+    return (agree, differ, only_local, only_remote, contested)

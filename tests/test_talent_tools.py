@@ -836,12 +836,16 @@ async def test_a_complete_uplers_profile_gets_no_scolding_note(monkeypatch):
 async def test_compare_profiles_reports_both_directions_and_writes_to_neither(
     monkeypatch, make_profile, isolated_profile
 ):
-    """Two profiles, two jobs, and this tool arbitrates neither.
+    """Two profiles, two jobs, and this tool writes to neither.
 
-    The local profile is what every fit score in this server is computed
-    against; the Uplers profile is what gets him shown to clients. Which one is
-    wrong is a judgement only he can make, so a byte-identical local file after
-    the call is part of the contract, not an implementation detail.
+    Both lists are still reported, but they no longer mean the same thing.
+    Uplers is the source of truth: `only_uplers` is a gap in the LOCAL copy
+    that understates every fit score, while `only_local` is a set of skills
+    Uplers has not been told about - kept locally, never deleted, and never
+    the subject of an instruction to go and edit the authoritative record.
+
+    A byte-identical local file after the call is part of the contract, not an
+    implementation detail: the sync is a separate, confirm-gated tool.
     """
     make_profile(
         name="Test Candidate",
@@ -866,31 +870,51 @@ async def test_compare_profiles_reports_both_directions_and_writes_to_neither(
     result = await server.uplers_compare_profiles()
 
     assert isinstance(result, ProfileComparison)
-    # Only-local: on his local profile, doing nothing for him on Uplers.
+    assert result.source_of_truth == "uplers"
+    # Only-local: Uplers has not been told about these. Kept, not deleted.
     assert result.only_local == ["AWS", "PostgreSQL", "Python", "React"]
     # Only-Uplers: known to Uplers, absent from every fit score computed here.
     assert result.only_uplers == ["Go"]
-    assert "Uplers profile is thinner" in result.recommendation
+
+    # The fix flows local <- Uplers, and the wording must say so.
+    assert "uplers_sync_profile_from_uplers" in result.recommendation
+    assert "platform.uplers.com" not in result.recommendation
 
     notes = " ".join(result.notes)
-    assert "NOT on Uplers" in notes
-    assert "on Uplers but not local" in notes
+    assert "MISSING from the local profile" in notes
+    assert "local-only" in notes
 
     # It changed nothing. Byte-for-byte, not "looks the same".
     assert isolated_profile.read_bytes() == before
 
 
-async def test_compare_profiles_with_no_local_profile_asks_for_one(monkeypatch):
+async def test_compare_profiles_with_no_local_profile_offers_to_build_one_from_uplers(
+    monkeypatch,
+):
+    """With nothing local, the answer is not "go and type your CV in".
+
+    His Uplers profile already holds the whole thing, so the recommendation is
+    to copy it down rather than to author a second one by hand.
+    """
     wire_talent(
         monkeypatch,
-        serve({"talent_details": {"full_name": "Sundeep G", "city": "Bangalore"}}),
+        serve(
+            {
+                "talent_details": {
+                    "full_name": "Sundeep G",
+                    "city": "Bangalore",
+                    "skills": [{"name": "Node.js"}, {"name": "Go"}],
+                }
+            }
+        ),
     )
 
     result = await server.uplers_compare_profiles()
 
     assert result.local is None
-    assert "uplers_set_profile()" in result.recommendation
+    assert "uplers_sync_profile_from_uplers()" in result.recommendation
     assert result.uplers is not None
+    assert result.uplers_skill_sections["distinct"] == 2
 
 
 async def test_my_interviews_asks_uplers_for_the_detailed_record(monkeypatch):

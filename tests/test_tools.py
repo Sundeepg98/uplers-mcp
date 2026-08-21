@@ -93,7 +93,25 @@ WRITE_TOOL_NAMES = {
     "uplers_dismiss",
 }
 
-TOOL_NAMES = BOARD_TOOL_NAMES | TIER2_TOOL_NAMES | AUTH_TOOL_NAMES | WRITE_TOOL_NAMES
+#: Mutates LOCAL state only, and kept apart from WRITE_TOOL_NAMES on purpose.
+#: That set means "can change something on Uplers", and the count assertion
+#: below is the tripwire for a third such tool appearing. Filing a local-only
+#: writer there would blunt the one invariant that matters.
+#:
+#: The sync tool is the direction of truth made executable: his Uplers profile
+#: is authoritative, so it flows local <- Uplers and there is no counterpart
+#: going the other way.
+LOCAL_WRITE_TOOL_NAMES = {
+    "uplers_sync_profile_from_uplers",
+}
+
+TOOL_NAMES = (
+    BOARD_TOOL_NAMES
+    | TIER2_TOOL_NAMES
+    | AUTH_TOOL_NAMES
+    | WRITE_TOOL_NAMES
+    | LOCAL_WRITE_TOOL_NAMES
+)
 
 S1 = "HR010126120000"   # 2026-01-01T12:00:00
 S2 = "HR020126120000"   # 2026-01-02T12:00:00
@@ -141,12 +159,13 @@ def wire_client(monkeypatch, handler):
 async def test_importing_server_registers_exactly_the_expected_tools():
     tools_listed = await server.mcp.list_tools()
 
-    assert len(tools_listed) == 35
+    assert len(tools_listed) == 36
     assert {tool.name for tool in tools_listed} == TOOL_NAMES
     # The five original board tools must survive every later addition.
     assert BOARD_TOOL_NAMES <= {tool.name for tool in tools_listed}
-    # And the write surface stays exactly this size. A third mutating tool
-    # appearing without this line being edited is the thing to catch.
+    # And the UPLERS write surface stays exactly this size. A third tool that
+    # can change something on his account appearing without this line being
+    # edited is the thing to catch. Local-only writers are counted separately.
     assert len(WRITE_TOOL_NAMES) == 2
 
 

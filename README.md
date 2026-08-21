@@ -15,12 +15,12 @@ There are two tiers, and the line between them is the first thing to read.
 endpoint plus the public sitemap. It never applies to anything and never mutates Uplers:
 `uplers_track` records what you already did by hand.
 
-**The authenticated tier** - 13 tools, added 2026-08-21 - reads *his account*, and the difference
+**The authenticated tier** - 14 tools, added 2026-08-21 - reads *his account*, and the difference
 is the whole reason it exists: the public board shows what Uplers is hiring for, his account shows
 what Uplers is doing about **him** - which requisitions he has been matched to, what their
 recruiters have moved to interview, and what his profile looks like to the people making that
-call. Three of the thirteen manage the session, eight read, and two write - and the two writes are
-not the same kind of act: `uplers_apply` **cannot be undone**, `uplers_dismiss` can. See "Applying
+call. Three of the fourteen manage the session, eight read, one syncs his Uplers profile down into
+the local one, and two write to Uplers - and the two writes are not the same kind of act: `uplers_apply` **cannot be undone**, `uplers_dismiss` can. See "Applying
 cannot be undone" before using either.
 
 ---
@@ -30,9 +30,9 @@ cannot be undone" before using either.
 | | |
 |---|---|
 | Stack | Python 3.11+, FastMCP (`mcp`), `httpx`, stdlib `sqlite3`, [`jobcore`](../jobcore) |
-| Tools | **35** - 22 public (5 board readers, 17 profile-aware) + 13 authenticated |
+| Tools | **36** - 22 public (5 board readers, 17 profile-aware) + 14 authenticated |
 | Size | 8,120 lines of server code, 8,577 lines of tests |
-| Tests | **667**, all offline |
+| Tests | **695**, all offline |
 | Network surface | 2 public GET endpoints needing no auth; 12 `talent/*` routes behind a bearer token |
 | Browser | Playwright, in exactly one module, for login only. The public tier needs none. |
 | Maintenance estimate | 1-3 hours/month |
@@ -71,7 +71,7 @@ answer, because **the record's own `is_aggregator_job` field is authoritative, n
 
 Five read the board. Seventeen answer "what is on it **for me**, and what have I done about it".
 Everything in the second group runs against the local index and costs **no network at all**.
-None of the twenty-two needs an account; the thirteen that do are documented under "The
+None of the twenty-two needs an account; the fourteen that do are documented under "The
 authenticated tier" below.
 
 ### `uplers_sync_index(hydrate=True, fetch_budget=300, refresh_stale=True)`
@@ -492,7 +492,7 @@ into a query that then returns the whole board. Uplers also reports the row coun
 call (`is_count=1`), so the total is fetched only when the paginator did not already carry it, and
 a failure to get it is a note rather than a missing feed.
 
-### Two profiles, and they do different jobs
+### Two profiles, and one of them is the record
 
 This is the distinction most likely to be misread, because both tools are called "profile":
 
@@ -501,17 +501,64 @@ This is the distinction most likely to be misread, because both tools are called
 | `uplers_get_profile` | the **local** one, `data/profile.json` | what every fit score in this server is computed against |
 | `uplers_my_profile` | his **real Uplers** profile | what recruiters see, and what Uplers' own matching runs against |
 
-They drift apart, and the consequence is asymmetric: **a thin Uplers profile directly limits which
-requisitions Uplers shows him, no matter how complete the local one is.** A skill that is on the
-local profile but not on Uplers is earning fit scores here while doing nothing for him there.
+**His Uplers profile is authoritative.** He maintains it; the local file exists only so fit scores
+have a candidate to score against. It is a cache of him, not a record of him. So a gap between the
+two is a defect in the **local** copy, and the fix flows one way -
+`uplers_sync_profile_from_uplers()`. **No tool in this server writes to his Uplers profile**, and
+two tests in `test_profile_direction.py` grep the source to keep it that way.
 
-`uplers_compare_profiles` reports where they disagree - fields that match, fields that differ,
-skills on one side only - and **writes to neither**. Which side is wrong is a judgement only he can
-make, so the tool reports and recommends and refuses to choose. `uplers_my_profile` additionally
-surfaces Uplers' own completion percentage, because their matching runs against that record and
-the gap is costing visibility.
+This used to be backwards, and it cost him a real answer. `uplers_compare_profiles` reported
+*"Your Uplers profile is thinner than your local one (0 skills there vs 32 here)"* and told him to
+go and add the missing skills on platform.uplers.com - on the day he had just finished filling it
+in. Both halves were wrong: the direction, and the zero. See "The masters join" below.
 
-### The 13 tools
+Skills are **unioned** on sync, never replaced, and that is a measured decision rather than
+caution. Scoring the 243 cached requisitions against his real Uplers skill set moved 73 of them
+and 71 moved *up* - but two email-infrastructure roles moved *down*, because the local profile
+carries seven email skills (SMTP, deliverability, bulk email, RabbitMQ) that Uplers does not list.
+A replace would delete real capability and quietly demote every email role.
+
+His headline and his years are **not** synced by default. "Software Engineer" vs "Backend Software
+Engineer" is positioning; 5.2 vs 5.0 is a rounding convention. Neither side is obviously right, so
+they go to `needs_your_decision` and stay there unless he names them in `also=`.
+
+### The masters join, and how 61 skills read as 0
+
+`talent_details.skills` does **not** carry skill names. It carries a join table -
+`{id, skill_id, talent_id, years_of_experience, order, enc_id}` - and the names live in a separate
+top-level `masters` lookup of 176,329 rows shaped `{"value": <skill_id>, "label": "<name>"}`,
+shipped in the same response. Read the rows without the join and no name-shaped key is found on
+any of them, so the reader returned `[]` - which is indistinguishable from an empty profile.
+
+Three sections join this way and they are reported separately, because they do not mean the same
+thing to Uplers' matching:
+
+| section | live count | joins to | meaning |
+|---|---|---|---|
+| `skills` | 61 | `masters.skills` on `skill_id` | everything on the profile |
+| `primaryskills` | 56 | `masters.skills` on `skill_id` | a strict subset of `skills` - the technical half, and what their matching weighs |
+| `tools` | 12 | `masters.tools` on `tool_id` | a separate master; on the live record it adds no new capability, only different spellings |
+
+**667 tests passed over this bug** because every profile test in the suite built its own payload
+and every one of them wrote a skill as `[{"name": "Node.js"}]` - a shape the live API has never
+returned. The fix is `tests/fixtures/talent_profile.json`, captured from the live account by
+`scripts/capture_profile_fixture.py`, so these tests now fail when the API changes rather than
+when somebody's imagination does.
+
+One trap the fixture also pins: Uplers' `preferred_modes` reads exactly like the local profile's
+field of the same name but means **engagement type** ("Full time", "Contract"). The Remote/Office
+answer is `preferred_method`, an integer resolving through `masters.preferredMethodMaster`.
+Mapping one onto the other would write "Full time" into a work-mode field and silently corrupt
+every mode filter downstream.
+
+**Nothing private is modelled.** `current_ctc`, `expected_ctc`, `monthly_salary`, `dob`,
+`contact_number`, `whatsapp_optin`, `address`, `email`, `profile_pic_url` and `resume_url` all
+arrive in the same payload and none has a field on `TalentProfileResult`. They are stripped at
+capture time and their absence is asserted, in both the committed fixture and the shaped output,
+because a shaped profile ends up in transcripts, logs and reports. The private key names are
+filtered out of `sections_present` too - "expected_ctc is populated" is itself a disclosure.
+
+### The 14 tools
 
 | Tool | What it is for |
 |---|---|
@@ -522,8 +569,9 @@ the gap is costing visibility.
 | `uplers_my_pipeline(...)` | His **actual** pipeline - the applications Uplers' recruiters are working, with their own `uplers_status` and `uplers_badge` ("Interviewed", "Slots Given", "Interview Scheduled"). Where this and `uplers_list_tracked` disagree, **this one is right**: the local tracker only holds what he told this server he did. |
 | `uplers_get_opportunity_live(hr_number, compare_public=False)` | One requisition as his account sees it. `compare_public=True` returns a field-level diff against the public record - the honest way to answer "is holding a session actually worth it", including when the answer is *no extra field for this one*. |
 | `uplers_tailored_jobs(hr_number=None)` | Uplers' own server-side "jobs like this" suggestions, optionally anchored to one requisition. Distinct from `uplers_my_feed`. |
-| `uplers_my_profile()` | His real Uplers profile, plus their completion percentage. See "Two profiles". |
-| `uplers_compare_profiles()` | Where the local and Uplers profiles disagree. Writes to neither. |
+| `uplers_my_profile()` | His real Uplers profile: all three skill sections resolved through the masters join, per-skill years, objective, experience/education/projects, preferred cities and work-mode preference. Carries nothing private. See "Two profiles". **Note:** the live payload has never carried `profile_completion_percentage`, so that field and the note it drives are always absent - the model keeps them because an older shape had them. |
+| `uplers_compare_profiles()` | Where the LOCAL profile has fallen behind the Uplers one. Writes to neither. |
+| `uplers_sync_profile_from_uplers(confirm=False, also=None)` | Copies his Uplers profile into the local one, so fit scores run against the real him. Previews by default; snapshots the local file before writing; unions skills rather than replacing them; leaves the contested headline/years alone unless named in `also`. **Never writes to Uplers.** |
 | `uplers_my_interviews(detailed=True)` | Interviews Uplers has arranged for him. Read-only. See the namespace note below. |
 | `uplers_filter_options(kind, search=None)` | Turns "React" or "Bangalore" into the internal ids `uplers_my_feed` needs. `kind` is `role` / `skill` / `location` / `company`. |
 | `uplers_apply(hr_number, confirm=False)` | **Applies. Cannot be undone.** Previews by default; sends nothing without `confirm=True`; refuses to apply twice. Read "Applying cannot be undone" first. |
@@ -599,7 +647,7 @@ cd D:\Sundeep\projects\job-hunting\mcp-servers\uplers
 python -m venv venv
 venv\Scripts\python.exe -m pip install -r requirements.txt
 venv\Scripts\python.exe -m pip install -e ../jobcore   # the shared scoring engine
-venv\Scripts\python.exe -m pytest        # 667 tests, no network
+venv\Scripts\python.exe -m pytest        # 695 tests, no network
 venv\Scripts\python.exe server.py        # stdio MCP server
 ```
 
@@ -616,7 +664,7 @@ venv\Scripts\python.exe -m playwright install chromium
 
 **Only `uplers_login` needs this.** Playwright is an optional dependency, deliberately not in
 `requirements.txt`, and it is not needed to run the suite - which is entirely offline and never
-launches a real browser. All 22 public tools work without it, and so do the other twelve
+launches a real browser. All 22 public tools work without it, and so do the other thirteen
 authenticated tools once a token exists: Playwright opens the sign-in window and does nothing
 else. Without it, `uplers_login` returns `error: "browser_unavailable"` carrying that install
 line, rather than failing obscurely.
@@ -756,7 +804,7 @@ successes and failures side by side and `FetchReport.ok` is False if anything fa
 
 ## Tests
 
-`venv\Scripts\python.exe -m pytest` - **667 tests**, all offline via `httpx.MockTransport`,
+`venv\Scripts\python.exe -m pytest` - **695 tests**, all offline via `httpx.MockTransport`,
 against 6 real captured API responses in `tests/fixtures/` (see `tests/fixtures/MANIFEST.md` for
 why each one is there). Coverage spans the native/aggregated split, the id date decoder, every
 filter, the sitemap union, the market-stats maths, the scoring adapter, migrations from a

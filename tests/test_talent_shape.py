@@ -592,14 +592,14 @@ def test_agreement_and_disagreement_are_reported_apart(make_profile):
         notice_period="30",
     )
 
-    agree, differ, _, _ = talent_shape.compare_profiles(local, remote)
+    agree, differ, _, _, _ = talent_shape.compare_profiles(local, remote)
     assert "name" in agree
     assert "location" in agree
 
     by_field = {diff.field: diff for diff in differ}
     assert by_field["years_experience"].local == "5.0"
     assert by_field["years_experience"].uplers == "6.0"
-    assert by_field["notice_period"].local == "60"
+    assert by_field["notice_period"].local == "60 days"
     assert by_field["notice_period"].uplers == "30"
 
 
@@ -614,7 +614,7 @@ def test_a_field_uplers_does_not_report_is_a_silence_not_a_disagreement(make_pro
     local = make_profile(headline="Backend Engineer", notice_period_days=30)
     remote = TalentProfileResult(name=local.name)
 
-    agree, differ, _, _ = talent_shape.compare_profiles(local, remote)
+    agree, differ, _, _, _ = talent_shape.compare_profiles(local, remote)
 
     assert "headline" not in agree
     assert "headline" not in [diff.field for diff in differ]
@@ -628,12 +628,12 @@ def test_a_field_only_uplers_has_is_a_diff_that_says_local_is_not_set(make_profi
     local = make_profile(headline=None)
     remote = TalentProfileResult(headline="Senior Node.js Engineer")
 
-    _, differ, _, _ = talent_shape.compare_profiles(local, remote)
+    _, differ, _, _, _ = talent_shape.compare_profiles(local, remote)
     diff = next(item for item in differ if item.field == "headline")
 
     assert diff.local == "(not set)"
     assert diff.uplers == "Senior Node.js Engineer"
-    assert diff.note == "Only Uplers has this."
+    assert diff.note == "Only Uplers has this - copy it into the local profile."
 
 
 def test_skill_case_is_not_a_disagreement(make_profile):
@@ -646,7 +646,7 @@ def test_skill_case_is_not_a_disagreement(make_profile):
     local = make_profile(skills=["React", "Node.js", "AWS"])
     remote = TalentProfileResult(skills=["react", "NODE.JS", "aws"])
 
-    agree, _, only_local, only_uplers = talent_shape.compare_profiles(local, remote)
+    agree, _, only_local, only_uplers, _ = talent_shape.compare_profiles(local, remote)
     assert only_local == []
     assert only_uplers == []
     assert "skills" in agree
@@ -661,7 +661,7 @@ def test_the_only_lists_are_sorted_and_keep_the_original_spelling(make_profile):
     local = make_profile(skills=["React", "Kubernetes", "AWS"])
     remote = TalentProfileResult(skills=["react", "Terraform", "Docker"])
 
-    agree, _, only_local, only_uplers = talent_shape.compare_profiles(local, remote)
+    agree, _, only_local, only_uplers, _ = talent_shape.compare_profiles(local, remote)
     assert only_local == ["AWS", "Kubernetes"]
     assert only_uplers == ["Docker", "Terraform"]
     assert "skills" not in agree

@@ -82,17 +82,21 @@ from uplers_server import (
     session as session_mod,
     talent_shape,
 )
+from uplers_server.search import notice_days
 from uplers_server.session import SessionStore
 from uplers_server.shaping import to_detail, to_opportunity
 from uplers_server.store import Store
 from uplers_server.talent import AuthRequired, TalentClient, TalentError
 from uplers_server.talent_models import (
     AuthStatus,
+    FieldChange,
+    FieldDiff,
     FieldReport,
     InterviewList,
     LoginResult,
     PipelineResult,
     ProfileComparison,
+    ProfileSyncResult,
     TalentFeed,
     TalentProfileResult,
     WritePreview,
@@ -2193,15 +2197,32 @@ async def uplers_my_profile() -> TalentProfileResult:
     return result
 
 
+def _uplers_summary(remote) -> ProfileSummary:
+    """Uplers' side of a comparison, counted across all three skill sections."""
+    return ProfileSummary(
+        years_experience=remote.years_experience,
+        location=remote.location,
+        skills=len(remote.all_skill_names()) or None,
+        notice_period_days=notice_days(remote.notice_period),
+    )
+
+
 @mcp.tool()
 async def uplers_compare_profiles() -> ProfileComparison:
-    """Where your LOCAL profile and your UPLERS profile disagree. Changes nothing.
+    """Where your LOCAL profile has fallen behind your UPLERS profile. Writes nothing.
 
-    Two profiles exist and they do different jobs. The local one
-    (data/profile.json) is what every fit score in this server is computed
-    against. The Uplers one is what gets you shown to clients. They can drift
-    apart, and which one is wrong is a judgement only you can make - so this
-    reports and recommends, and never writes to either.
+    Two profiles exist and they do different jobs. Your Uplers profile is the
+    one you maintain, the one recruiters read, and the one Uplers' matching
+    runs against - it is the SOURCE OF TRUTH. The local data/profile.json
+    exists for one reason: fit scores need a candidate to score against.
+
+    So a gap between them is a defect in the LOCAL copy, and the fix flows one
+    way: uplers_sync_profile_from_uplers(). Nothing in this server ever writes
+    to your Uplers profile.
+
+    The exception is a genuine two-sided disagreement - your headline, your
+    years - where neither side is obviously right. Those land in
+    `needs_your_decision` and stay there.
 
     Pay attention to notice period: it is the single most decisive field on
     this board, because most Uplers clients accept only 15-30 days.
@@ -2211,63 +2232,242 @@ async def uplers_compare_profiles() -> ProfileComparison:
         payload = await client.get_json(endpoints.EP_PROFILE)
     remote = talent_shape.to_talent_profile(payload)
 
+    sections = {
+        "skills": len(remote.skills),
+        "primary_skills": len(remote.primary_skills),
+        "tools": len(remote.tools),
+        "distinct": len(remote.all_skill_names()),
+    }
+
     if local is None:
         return ProfileComparison(
-            uplers=ProfileSummary(
-                years_experience=remote.years_experience,
-                location=remote.location,
-                skills=len(remote.skills) or None,
-            ),
+            uplers=_uplers_summary(remote),
+            uplers_skill_sections=sections,
             recommendation=(
-                "There is no local profile to compare against. Seed one with "
-                "uplers_set_profile() - until then nothing in this server is scored."
+                "There is no local profile to score against. Build one from your "
+                "Uplers profile with uplers_sync_profile_from_uplers() - it already "
+                "carries %d distinct skills." % sections["distinct"]
             ),
         )
 
-    agree, differ, only_local, only_uplers = talent_shape.compare_profiles(local, remote)
+    agree, differ, only_local, only_uplers, contested = talent_shape.compare_profiles(
+        local, remote
+    )
 
-    notes: list[str] = []
-    if only_local:
-        notes.append(
-            "%d skill(s) are on your local profile but NOT on Uplers: %s. Uplers "
-            "matches on their copy, so these are not working for you there."
-            % (len(only_local), ", ".join(only_local[:12]))
-        )
+    notes: list[str] = [
+        "Uplers holds %d distinct skills across three sections: %d in `skills`, "
+        "%d in `primaryskills` (the subset their matching weighs), %d in `tools`."
+        % (sections["distinct"], sections["skills"], sections["primary_skills"], sections["tools"])
+    ]
     if only_uplers:
         notes.append(
-            "%d skill(s) are on Uplers but not local: %s. Your fit scores here are "
-            "computed without them." % (len(only_uplers), ", ".join(only_uplers[:12]))
+            "%d skill(s) are on Uplers and MISSING from the local profile: %s. Every "
+            "fit score this server has produced was computed without them, so they "
+            "are all understated." % (len(only_uplers), ", ".join(only_uplers[:12]))
+        )
+    if only_local:
+        notes.append(
+            "%d skill(s) are local-only: %s. Uplers does not list them, so they are "
+            "not working for you in their matching - but they stay in the local "
+            "profile, because a fit score should know about a skill you have."
+            % (len(only_local), ", ".join(only_local[:12]))
         )
 
-    if only_local and len(only_local) > len(only_uplers):
+    if only_uplers:
         recommendation = (
-            "Your Uplers profile is thinner than your local one (%d skills there vs "
-            "%d here). That directly limits which requisitions Uplers shows you. "
-            "Adding the missing skills on platform.uplers.com is the highest-value "
-            "action in this comparison." % (len(remote.skills), len(local.skills or []))
+            "Your local profile is behind your Uplers one by %d skill(s). Uplers is "
+            "the record; run uplers_sync_profile_from_uplers() to bring the local "
+            "copy up to it, then re-score." % len(only_uplers)
+        )
+    elif contested:
+        recommendation = (
+            "Skills are in sync. %d field(s) genuinely disagree and neither side is "
+            "obviously right - see needs_your_decision. Pass a field to "
+            "uplers_sync_profile_from_uplers(also=[...]) to take Uplers' value."
+            % len(contested)
         )
     elif differ:
         recommendation = (
-            "%d field(s) disagree. Decide which side is right and fix that side; "
-            "this server will not choose for you." % len(differ)
+            "%d field(s) differ. Uplers is the record, so "
+            "uplers_sync_profile_from_uplers() is the fix." % len(differ)
         )
     else:
-        recommendation = "The two profiles agree on everything comparable."
+        recommendation = "The local profile matches your Uplers one on everything comparable."
 
     return ProfileComparison(
         agree=agree,
         differ=differ,
+        needs_your_decision=contested,
         only_local=only_local,
         only_uplers=only_uplers,
+        uplers_skill_sections=sections,
         local=_profile_summary(local),
-        uplers=ProfileSummary(
-            years_experience=remote.years_experience,
-            location=remote.location,
-            skills=len(remote.skills) or None,
-        ),
+        uplers=_uplers_summary(remote),
         recommendation=recommendation,
         notes=notes,
     )
+
+
+@mcp.tool()
+async def uplers_sync_profile_from_uplers(
+    confirm: bool = False,
+    also: list[str] | None = None,
+    replace_skills: bool = False,
+) -> ProfileSyncResult:
+    """Bring the LOCAL profile up to your Uplers one. One direction, always.
+
+    Your Uplers profile is authoritative. This copies it into
+    data/profile.json so fit scores are computed against the real you. It
+    NEVER writes to Uplers - no tool in this server does.
+
+    Skills are UNIONED, not replaced. That is a measured decision, not
+    caution: scoring the 243 cached requisitions against your real Uplers
+    skill set moved 73 of them and 71 moved UP, but two email-infrastructure
+    roles moved DOWN, because your local profile carries seven email skills
+    (SMTP, deliverability, bulk email, RabbitMQ) that Uplers does not list. A
+    replace would delete real capability and quietly demote every email role.
+
+    Your headline and your years are NOT synced by default - neither side is
+    obviously right and that is your call. Name them in `also` to take Uplers'.
+
+    Args:
+        confirm: False returns a preview and writes nothing.
+        also: contested fields to take from Uplers: "headline", "years_experience".
+        replace_skills: discard local-only skills instead of keeping them. Rarely right.
+    """
+    requested = {str(name).strip().lower() for name in (also or [])}
+    unknown = requested - set(talent_shape.CONTESTED_FIELDS)
+    if unknown:
+        raise UplersError(
+            "`also` accepts only %s; got %s. Everything else is synced anyway."
+            % (", ".join(talent_shape.CONTESTED_FIELDS), ", ".join(sorted(unknown)))
+        )
+
+    async with _talent_client() as client:
+        payload = await client.get_json(endpoints.EP_PROFILE)
+    remote = talent_shape.to_talent_profile(payload)
+
+    local = _profile_or_none()
+    if local is None:
+        local = prof.Profile(source="uplers")
+
+    uplers_skills = remote.all_skill_names()
+    if not uplers_skills:
+        raise UplersError(
+            "Your Uplers profile resolved to zero skills, so there is nothing to "
+            "sync. That is far more likely to be a broken read than an empty "
+            "profile - check uplers_my_profile() before trusting it."
+        )
+
+    current = list(local.skills or [])
+    current_keys = {name.strip().lower() for name in current}
+    uplers_keys = {name.strip().lower() for name in uplers_skills}
+
+    added = [name for name in uplers_skills if name.strip().lower() not in current_keys]
+    local_only = [name for name in current if name.strip().lower() not in uplers_keys]
+    if replace_skills:
+        merged, removed, kept = list(uplers_skills), local_only, []
+    else:
+        merged, removed, kept = current + added, [], local_only
+
+    changes: list[FieldChange] = []
+    updates: dict = {"skills": merged}
+
+    def take(field: str, new_value, render=str) -> None:
+        old_value = getattr(local, field, None)
+        if new_value in (None, "", [], {}) or old_value == new_value:
+            return
+        updates[field] = new_value
+        changes.append(
+            FieldChange(
+                field=field,
+                before=render(old_value) if old_value is not None else "(not set)",
+                after=render(new_value),
+            )
+        )
+
+    take("name", remote.name)
+    take("location", (remote.preferred_cities or [None])[0] or remote.location)
+    take("notice_period_days", notice_days(remote.notice_period))
+    # `titles` is synced ONLY from Uplers' own roles list, never derived from
+    # the headline. Falling back to the headline would import a contested
+    # value through a side door: `titles` biases ranking, so "leave the
+    # headline to him" would have been true of one field and false in effect.
+    if remote.titles:
+        take("titles", remote.titles, render=lambda v: ", ".join(v))
+    if "headline" in requested:
+        take("headline", remote.headline)
+        # A headline he has just accepted is also what he is targeting.
+        take("titles", [remote.headline], render=lambda v: ", ".join(v))
+    if "years_experience" in requested:
+        take("years_experience", remote.years_experience)
+
+    left_for_you = [
+        FieldDiff(
+            field=field,
+            local=str(getattr(local, field, None) or "(not set)"),
+            uplers=str(getattr(remote, field, None)),
+            note="Not synced. Pass also=['%s'] to take Uplers' value." % field,
+        )
+        for field in talent_shape.CONTESTED_FIELDS
+        if field not in requested
+        and getattr(remote, field, None) not in (None, "", [], {})
+        and str(getattr(local, field, None) or "").strip().lower()
+        != str(getattr(remote, field, None)).strip().lower()
+    ]
+
+    notes: list[str] = []
+    if kept:
+        notes.append(
+            "%d local-only skill(s) kept, not deleted: %s. Uplers does not list them, "
+            "so consider adding them there - that is the side that gets you shown."
+            % (len(kept), ", ".join(kept[:12]))
+        )
+    if removed:
+        notes.append(
+            "replace_skills=True DISCARDED %d local-only skill(s): %s. The backup has them."
+            % (len(removed), ", ".join(removed[:12]))
+        )
+
+    result = ProfileSyncResult(
+        applied=False,
+        skills_before=len(current),
+        skills_after=len(merged),
+        skills_added=added,
+        skills_removed=removed,
+        local_only_kept=kept,
+        fields_changed=changes,
+        left_for_you=left_for_you,
+        notes=notes,
+    )
+
+    if not confirm:
+        result.notes.insert(
+            0,
+            "PREVIEW - nothing was written. Re-run with confirm=True to apply. Only "
+            "the local data/profile.json changes; your Uplers profile is never touched.",
+        )
+        return result
+
+    # Snapshot BEFORE the write, so the operator can always get back.
+    target = prof.profile_path()
+    backup = None
+    if target.is_file():
+        backup = target.with_name(
+            "profile.backup-%s.json" % ids.utcnow_iso().replace(":", "").replace("-", "")[:15]
+        )
+        backup.write_bytes(target.read_bytes())
+
+    prof.save(local.model_copy(update=updates), path=target)
+
+    result.applied = True
+    result.backup_path = str(backup) if backup else None
+    result.notes.append(
+        "Local profile updated. Fit scores computed before now were against the old "
+        "%d-skill set; re-run uplers_rank_opportunities() to see the corrected ones."
+        % len(current)
+    )
+    return result
 
 
 @mcp.tool()
