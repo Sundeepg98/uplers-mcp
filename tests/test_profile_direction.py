@@ -31,7 +31,7 @@ from pathlib import Path
 import pytest
 
 from test_talent_tools import serve, wire_talent, writes  # noqa: F401
-from uplers_server import endpoints, profile as profile_mod
+from uplers_server import endpoints, profile as profile_mod, talent_shape
 from uplers_server.talent_models import ProfileComparison
 
 import server
@@ -369,3 +369,80 @@ def test_the_two_profile_routes_are_never_confused_for_each_other():
     # need for the anchored regex above.
     assert _EP_PROFILE_RE.search("EP_PROFILE_UPSERT") is None
     assert _EP_PROFILE_RE.search("endpoints.EP_PROFILE)") is not None
+
+
+# --- the counts the tool actually prints -----------------------------------
+
+
+async def test_the_comparison_reports_the_real_uplers_counts_not_zero(
+    monkeypatch, make_profile, real_payload
+):
+    """THE harmful sentence, pinned as numbers rather than as wording.
+
+    The test above forbids the WORDS ("thinner", "platform.uplers.com"). This
+    one forbids the STATE that produced them: a comparison that reads his
+    Uplers profile as smaller than the local cache. Wording can be rewritten
+    while the arithmetic underneath stays broken - that is exactly how "0
+    skills there vs 32 here" was generated, from a shaper returning nothing
+    and a comparator faithfully reporting it.
+
+    Counts are asserted as exact integers from the captured record, and the
+    ordering assertion (`uplers > local`) is the one that cannot be satisfied
+    by a broken read.
+    """
+    make_profile(skills=["Node.js", "TypeScript", "AWS"])
+    wire_talent(monkeypatch, serve(real_payload))
+
+    result = await server.uplers_compare_profiles()
+
+    assert result.uplers_skill_sections == {
+        "skills": 61,
+        "primary_skills": 56,
+        "tools": 12,
+        "distinct": 62,
+    }
+    assert result.uplers.skills == 62
+    assert result.local.skills == 3
+    assert result.uplers.skills > result.local.skills
+
+    # The note he reads must carry the real number, not a floor or a hedge.
+    assert "62 distinct skills" in " ".join(result.notes)
+
+
+async def test_the_comparator_can_report_uplers_as_the_richer_side(
+    monkeypatch, make_profile, real_payload
+):
+    """A comparator that can only recommend in one direction is a check that
+    cannot fail.
+
+    Both directions are exercised against the same captured record: a thin
+    local profile must produce a large `only_uplers` and a local-side
+    recommendation; a local profile that already carries every Uplers skill
+    plus extras must produce an EMPTY `only_uplers` and must NOT recommend
+    syncing. If the second case still recommended a sync, the tool would be
+    emitting advice unconditionally rather than on evidence.
+    """
+    thin = talent_shape.to_talent_profile(real_payload)
+
+    make_profile(skills=["Node.js"])
+    wire_talent(monkeypatch, serve(real_payload))
+    behind = await server.uplers_compare_profiles()
+
+    assert len(behind.only_uplers) > 50
+    assert "uplers_sync_profile_from_uplers" in (behind.recommendation or "")
+
+    make_profile(skills=list(thin.all_skill_names()) + ["SMTP", "RabbitMQ"])
+    wire_talent(monkeypatch, serve(real_payload))
+    ahead = await server.uplers_compare_profiles()
+
+    assert ahead.only_uplers == []
+    assert sorted(ahead.only_local) == ["RabbitMQ", "SMTP"]
+    assert ahead.uplers.skills == 62
+
+    # It still points at `also=[...]` for the two contested fields, which is
+    # correct and unrelated to skills. What it must NOT do is claim the local
+    # copy is behind - that is the assertion with teeth, so it is made against
+    # the skills claim specifically rather than against the whole string.
+    assert "Skills are in sync" in (ahead.recommendation or "")
+    assert "behind" not in (ahead.recommendation or "")
+    assert not [note for note in ahead.notes if "MISSING from the local" in note]

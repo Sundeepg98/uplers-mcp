@@ -292,3 +292,76 @@ def test_sections_present_names_sections_without_quoting_their_values(real_paylo
 
     assert all(isinstance(entry, str) for entry in result.sections_present)
     assert "2600000" not in json.dumps(result.sections_present)
+
+
+# --- the count, not merely the presence ------------------------------------
+#
+# The tests above assert a FLOOR (">= 50") and per-section non-emptiness. Both
+# would have passed while the number the operator actually reads was wrong,
+# which is the failure mode that let this bug reach him twice. The number he
+# reads is the DISTINCT UNION across the three sections - it is what
+# `uplers_compare_profiles` prints and what `ProfileSummary.skills` carries -
+# and until now nothing pinned it at all.
+#
+# These assert exact integers against the COMMITTED fixture. That is stable by
+# construction: the fixture only moves when somebody re-captures it, and when
+# they do, a failure here is the correct signal that the numbers moved rather
+# than noise.
+
+#: MEASURED on tests/fixtures/talent_profile.json, and on the live record it
+#: was captured from (re-verified live 2026-08-21): 61 rows in `skills`, 56 in
+#: `primaryskills`, 12 in `tools`, resolving to 62 distinct names.
+FIXTURE_COUNTS = {"skills": 61, "primaryskills": 56, "tools": 12, "distinct": 62}
+
+
+def test_each_section_resolves_its_exact_row_count(real_payload, real_profile):
+    """Rows in, names out, per section - not just for `skills`.
+
+    `tools` and `primaryskills` join through the same masters lookup on
+    different foreign keys (`tool_id`, `skill_id`). A join that silently
+    stopped matching on ONE of them would leave the other two populated, so
+    every non-empty assertion in this file would still pass.
+    """
+    details = real_payload["talent_details"]
+    for section, resolved in (
+        ("skills", real_profile.skills),
+        ("primaryskills", real_profile.primary_skills),
+        ("tools", real_profile.tools),
+    ):
+        assert len(resolved) == len(details[section]) == FIXTURE_COUNTS[section], (
+            "`%s` resolved %d name(s) from %d row(s); expected %d."
+            % (section, len(resolved), len(details[section]), FIXTURE_COUNTS[section])
+        )
+
+
+def test_the_distinct_union_is_a_real_union_of_all_three_sections(real_profile):
+    """THE number he reads, pinned to an integer.
+
+    "0 skills there vs 32 here" was this number. Asserting it is non-zero, or
+    above a floor, does not catch the case that matters: a union that quietly
+    degrades to `len(skills)` and drops whatever `tools` alone contributes.
+    So this pins the exact count AND asserts it strictly exceeds the largest
+    single section, which is the property a collapsed union cannot satisfy.
+    """
+    distinct = real_profile.all_skill_names()
+
+    assert len(distinct) == FIXTURE_COUNTS["distinct"]
+    assert len(distinct) > len(real_profile.skills), (
+        "The union (%d) is not larger than `skills` alone (%d), so `tools` is "
+        "contributing nothing and the union has collapsed to one section."
+        % (len(distinct), len(real_profile.skills))
+    )
+    assert len(set(name.lower() for name in distinct)) == len(distinct)
+    # `CosmosDB` is the one name that lives ONLY under `tools` on this record
+    # and it is the entire difference between 61 and 62 - so it is the single
+    # skill whose disappearance proves the union stopped unioning.
+    #
+    # It survives the fold only because `skills` spells its near-twin "cosmos
+    # Db", one space apart, so the two do not collide on a lowercased key.
+    # `ClickHouse`/`Clickhouse` DOES collide and is correctly folded to one.
+    # That pair is the reason this test names a specific skill rather than
+    # trusting the arithmetic: the +1 is not whichever tool you would guess.
+    assert "CosmosDB" in distinct
+    assert "CosmosDB" not in real_profile.skills
+    assert [name for name in real_profile.tools if name.lower() not in
+            {skill.lower() for skill in real_profile.skills}] == ["CosmosDB"]
