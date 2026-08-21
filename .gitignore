@@ -13,9 +13,14 @@ data/
 *.sqlite3
 *.sqlite3-journal
 
-# Secrets (this server needs none, but never commit one by accident)
+# Secrets. The authenticated tier stores a live bearer token, so these are
+# named explicitly as well as being covered by `data/` above: the data dir is
+# relocatable via UPLERS_DATA_DIR, and a credential should not depend on one
+# line staying put.
 .env
 .env.*
+session.json
+browser_profile/
 
 # Editor / OS
 .vscode/

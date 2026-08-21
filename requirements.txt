@@ -1,5 +1,7 @@
 # Uplers MCP server - deliberately thin.
-# No browser, no driver, no database server. Storage is stdlib sqlite3.
+# No database server; storage is stdlib sqlite3. A browser is needed for exactly
+# one thing, signing in - see the playwright note at the bottom. It is never in
+# the data path: every read, public or authenticated, is plain httpx.
 
 # The upper bound is load-bearing, and its VALUE is a separate decision from its
 # existence. Both were measured, not assumed.
@@ -27,6 +29,20 @@
 # tests/test_requirements_pins.py fails if this cap disappears OR narrows to <2.
 mcp[cli]>=1.26,<3
 httpx>=0.27
+
+# Sign-in only, and only for the authenticated tier.
+#
+# Uplers mints its bearer token inside its own sign-in flow, so the only honest
+# way to get one is to open the real login page and let the operator type. That
+# is the ONLY thing this dependency does: `uplers_server/auth.py` is the single
+# module allowed to import it, and once a token exists every request - public or
+# authenticated - goes over httpx.
+#
+# The whole public tier works without it. Missing Playwright degrades exactly
+# one tool (uplers_login), which says so and names the fix, rather than failing
+# somewhere confusing. It also needs its browser binary:
+#     pip install playwright && playwright install chromium
+playwright>=1.40
 
 # Tests only
 pytest>=8.0

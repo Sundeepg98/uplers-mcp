@@ -70,7 +70,30 @@ TIER2_TOOL_NAMES = {
     "uplers_scheduler_status",
 }
 
-TOOL_NAMES = BOARD_TOOL_NAMES | TIER2_TOOL_NAMES
+#: The authenticated tier. Separated from the public tiers above because the
+#: distinction is a safety property, not bookkeeping: every name in this set
+#: needs a live session, and the last two are the only tools in the server that
+#: can change anything on Uplers.
+AUTH_TOOL_NAMES = {
+    "uplers_login",
+    "uplers_auth_status",
+    "uplers_logout",
+    "uplers_my_feed",
+    "uplers_my_pipeline",
+    "uplers_get_opportunity_live",
+    "uplers_tailored_jobs",
+    "uplers_my_profile",
+    "uplers_compare_profiles",
+    "uplers_my_interviews",
+    "uplers_filter_options",
+}
+
+WRITE_TOOL_NAMES = {
+    "uplers_apply",
+    "uplers_dismiss",
+}
+
+TOOL_NAMES = BOARD_TOOL_NAMES | TIER2_TOOL_NAMES | AUTH_TOOL_NAMES | WRITE_TOOL_NAMES
 
 S1 = "HR010126120000"   # 2026-01-01T12:00:00
 S2 = "HR020126120000"   # 2026-01-02T12:00:00
@@ -118,10 +141,13 @@ def wire_client(monkeypatch, handler):
 async def test_importing_server_registers_exactly_the_expected_tools():
     tools_listed = await server.mcp.list_tools()
 
-    assert len(tools_listed) == 22
+    assert len(tools_listed) == 35
     assert {tool.name for tool in tools_listed} == TOOL_NAMES
     # The five original board tools must survive every later addition.
     assert BOARD_TOOL_NAMES <= {tool.name for tool in tools_listed}
+    # And the write surface stays exactly this size. A third mutating tool
+    # appearing without this line being edited is the thing to catch.
+    assert len(WRITE_TOOL_NAMES) == 2
 
 
 async def test_every_tool_description_carries_its_docstring():
