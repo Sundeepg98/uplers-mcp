@@ -129,6 +129,7 @@ def to_talent_row(
     *,
     profile=None,
     opportunity: Opportunity | None = None,
+    bound=None,
 ) -> TalentRow:
     """One authenticated row: the public projection plus his own state.
 
@@ -141,7 +142,7 @@ def to_talent_row(
     gaps: list[str] = []
     blockers: list[str] = []
     if profile is not None:
-        assessment = fit.assess(opp, profile)
+        assessment = fit.assess(opp, profile, bound)
         score = assessment.get("overall_score")
         verdict = fit.compact_verdict(assessment)
         must = assessment.get("must_have") or {}
@@ -192,6 +193,7 @@ def rows_from(
     route: str,
     profile=None,
     drop_test_records: bool = True,
+    bound=None,
 ) -> tuple[list[TalentRow], dict, list[str]]:
     """`(rows, page_meta, notes)`. Raises rather than returning nothing quietly."""
     raw_rows, meta = unwrap_paginator(payload, route=route)
@@ -208,7 +210,11 @@ def rows_from(
             "%d internal test requisition(s) hidden (is_test_hr), matching what "
             "Uplers' own UI does with them." % dropped
         )
-    return ([to_talent_row(raw, profile=profile) for raw in kept], meta, notes)
+    return (
+        [to_talent_row(raw, profile=profile, bound=bound) for raw in kept],
+        meta,
+        notes,
+    )
 
 
 def tally(rows: Iterable[TalentRow], attribute: str) -> dict:

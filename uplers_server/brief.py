@@ -20,6 +20,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 
 from . import alerts as alerts_mod, config, fit, ids
+from . import policy as policy_mod
 from .models import Opportunity
 from .profile import ACTIVE_STATUSES
 
@@ -41,8 +42,15 @@ def window_start(store, *, since: str | None = None) -> tuple[str, str]:
     return (fallback.isoformat(), "first_brief_%dd" % DEFAULT_LOOKBACK_DAYS)
 
 
-def index_health(store) -> tuple[dict, list[str]]:
-    """Freshness of the local index, and any warning it deserves."""
+def index_health(store, bound=None) -> tuple[dict, list[str]]:
+    """Freshness of the local index, and any warning it deserves.
+
+    The staleness threshold is ``servers.uplers.index_stale_hours``; its
+    default is ``config.INDEX_STALE_HOURS``, the literal this used to read
+    directly.
+    """
+    stale_hours = policy_mod.resolve(bound).setting(
+        "index_stale_hours", default=config.INDEX_STALE_HOURS)
     counts = store.count_records()
     id_counts = store.count_ids()
     last_sync = store.last_sync
@@ -52,7 +60,7 @@ def index_health(store) -> tuple[dict, list[str]]:
         try:
             delta = datetime.fromisoformat(ids.utcnow_iso()) - datetime.fromisoformat(last_sync)
             age_hours = round(delta.total_seconds() / 3600.0, 1)
-            stale = age_hours > config.INDEX_STALE_HOURS
+            stale = age_hours > stale_hours
         except ValueError:  # pragma: no cover - we wrote the timestamp
             pass
     unhydrated = store.unhydrated_native_count()
@@ -68,7 +76,7 @@ def index_health(store) -> tuple[dict, list[str]]:
         notes.append(
             "The local index was last synced %s and is older than %dh. Run "
             "uplers_sync_index() - everything below is computed from cached records."
-            % (last_sync or "never", config.INDEX_STALE_HOURS)
+            % (last_sync or "never", stale_hours)
         )
     return (health, notes)
 
@@ -94,8 +102,15 @@ def new_since(opportunities: list[Opportunity], start: str) -> list[Opportunity]
     return fresh
 
 
-def follow_up_due(store, *, stale_days: int = config.FOLLOW_UP_STALE_DAYS) -> list[dict]:
-    """Tracked applications sitting in an active status for too long."""
+def follow_up_due(store, *, stale_days: int | None = None, bound=None) -> list[dict]:
+    """Tracked applications sitting in an active status for too long.
+
+    ``stale_days=None`` takes ``servers.uplers.follow_up_stale_days``, whose
+    default is ``config.FOLLOW_UP_STALE_DAYS``.
+    """
+    if stale_days is None:
+        stale_days = policy_mod.resolve(bound).setting(
+            "follow_up_stale_days", default=config.FOLLOW_UP_STALE_DAYS)
     due = []
     for row in store.list_tracked():
         if row["status"] not in ACTIVE_STATUSES:
@@ -118,17 +133,24 @@ def build(
     since: str | None = None,
     peek: bool = False,
     alert_rows: int = 3,
+    bound=None,
 ) -> dict:
     """Assemble the brief. Returns a plain dict the tool wraps in a model."""
+    bound = policy_mod.resolve(bound)
     start, how = window_start(store, since=since)
-    health, notes = index_health(store)
+    health, notes = index_health(store, bound)
+    notes.extend(bound.notes())
     saved_ids = store.saved_ids()
     tracked = store.tracked_ids()
     actions: list[str] = []
 
     # -- what is new -------------------------------------------------------
     fresh = new_since(opportunities, start)
-    ranked, blocked = fit.rank(fresh, profile, exclude_blocked=True)
+    ranked, blocked = fit.rank(
+        fresh, profile,
+        exclude_blocked=bound.setting("exclude_blocked", "brief", default=True),
+        bound=bound,
+    )
     new_rows = [
         fit.to_row(
             opp,
@@ -164,7 +186,8 @@ def build(
     alert_reports = []
     for alert in store.list_alerts():
         try:
-            matches = alerts_mod.evaluate(opportunities, alert["criteria"], profile)
+            matches = alerts_mod.evaluate(
+                opportunities, alert["criteria"], profile, bound=bound)
         except Exception as exc:  # noqa: BLE001 - one bad alert must not kill the brief
             notes.append("alert %r could not be evaluated: %s" % (alert["name"], exc))
             continue
@@ -224,7 +247,7 @@ def build(
 
     pipeline = store.count_tracked_by_status()
 
-    due = follow_up_due(store)
+    due = follow_up_due(store, bound=bound)
     follow_rows = []
     for row in due[:limit]:
         follow_rows.append(

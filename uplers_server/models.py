@@ -236,12 +236,75 @@ class ProfileSummary(Compact):
     skills: int | None = Field(None, description="Number of skills on the profile")
     notice_period_days: int | None = None
     min_pay_usd_year: int | None = None
+    expected_pay_usd_year: int | None = Field(
+        None,
+        description="The USD/year figure the +5 salary bonus was scored against",
+    )
+    policy: str | None = Field(
+        None,
+        description=(
+            "First 12 chars of the scoring-policy fingerprint. Two scores carrying "
+            "the same one are directly comparable; two carrying different ones are "
+            "not, and this is how you can tell."
+        ),
+    )
 
 
 class ProfileResult(Compact):
     profile: Profile | None = None
     path: str | None = None
     seeded_from_resume: bool = False
+    config_source: str | None = Field(
+        None,
+        description="The shared jobhunt.json this scoring ran under, or None for built-in defaults",
+    )
+    field_source: dict = Field(
+        default_factory=dict,
+        description=(
+            "Per field: 'config' when the shared candidate block supplied it, 'local' "
+            "when data/profile.json did. Provenance, not emptiness, decides - "
+            "notice_period_days defaults to 0 and 0 is also a real answer."
+        ),
+    )
+    notes: list[str] = Field(default_factory=list)
+
+
+class ConfigReport(Compact):
+    """Where this server's numbers come from, and what was refused."""
+
+    source: str | None = Field(
+        None, description="The jobhunt.json in use, or None for built-in defaults"
+    )
+    status: str | None = Field(None, description="Loaded from X, or every path tried")
+    revision: int | None = Field(None, description="The file's compare-and-swap token")
+    policy_rev: int | None = Field(
+        None, description="Counter the loader advances on every NEW fingerprint it sees"
+    )
+    policy_hash: str | None = Field(
+        None, description="Fingerprint of exactly the inputs that can move a number"
+    )
+    candidate: dict = Field(default_factory=dict)
+    scoring: dict = Field(default_factory=dict)
+    server: dict = Field(default_factory=dict, description="The servers.uplers block")
+    field_source: dict = Field(
+        default_factory=dict, description="Per profile field: 'config' or 'local'"
+    )
+    provenance: dict = Field(
+        default_factory=dict, description="Per config key: 'file' or 'default'"
+    )
+    refused: list[str] = Field(
+        default_factory=list,
+        description="Tier C keys the file tried to set. Refused loudly, never ignored.",
+    )
+    unknown_keys: list[str] = Field(
+        default_factory=list, description="Keys in the file that nothing reads"
+    )
+    searched: list[str] = Field(
+        default_factory=list, description="Every path tried, when no file was found"
+    )
+    write: dict = Field(
+        default_factory=dict, description="Result of a write_candidate=True call"
+    )
     notes: list[str] = Field(default_factory=list)
 
 

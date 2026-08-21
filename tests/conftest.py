@@ -1,6 +1,6 @@
 """Shared fixtures for the Uplers reader suite.
 
-Four invariants hold in every test file here:
+Five invariants hold in every test file here:
 
   * NO NETWORK. Every HTTP interaction goes through httpx.MockTransport,
     handed to UplersClient(transport=...). Nothing ever leaves the box.
@@ -13,6 +13,9 @@ Four invariants hold in every test file here:
   * NO BACKGROUND SYNC. UPLERS_AUTO_SYNC=0 for the whole suite, so a tool call
     can never spawn the scheduler task and reach the network behind the
     MockTransport's back. The scheduler is tested by driving it directly.
+  * NO AMBIENT CONFIG. JOBHUNT_CONFIG=:none: for the whole suite, so a shared
+    jobhunt.json anywhere up the tree cannot change what a test asserts. Also
+    autouse, for the same reason.
 """
 
 from __future__ import annotations
@@ -151,6 +154,30 @@ def isolated_profile(monkeypatch, tmp_path):
 def no_background_sync(monkeypatch):
     """No tool call may start the background sync task during tests."""
     monkeypatch.setenv("UPLERS_AUTO_SYNC", "0")
+
+
+@pytest.fixture(autouse=True)
+def no_ambient_config(monkeypatch):
+    """NO AMBIENT CONFIG. The suite never reads the operator's real jobhunt.json.
+
+    The fifth invariant, and the same reason as the fourth: a shared config
+    file sitting anywhere up the tree from this checkout would silently change
+    what these tests assert, and the failure would look like a scoring bug on
+    whichever machine happened to have one. `:none:` is jobcore's explicit
+    disable token - an EMPTY value deliberately means "unset, keep searching",
+    so setting the variable to "" would not isolate anything.
+
+    A test that wants a config writes one and passes its path; see
+    tests/test_policy_wiring.py.
+    """
+    monkeypatch.setenv("JOBHUNT_CONFIG", ":none:")
+    monkeypatch.delenv("JOBHUNT_HOME", raising=False)
+    monkeypatch.delenv("JOBHUNT_DISABLE", raising=False)
+    from uplers_server import policy as policy_mod
+
+    policy_mod.invalidate()
+    yield
+    policy_mod.invalidate()
 
 
 @pytest.fixture

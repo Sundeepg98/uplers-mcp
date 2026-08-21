@@ -15,7 +15,7 @@ stayed silent about the matches it now covers would be a bug.
 
 from __future__ import annotations
 
-from . import fit, search
+from . import fit, policy as policy_mod, search
 from .models import Opportunity
 
 # The filter vocabulary an alert may use. Deliberately the same names as
@@ -79,7 +79,7 @@ def split_criteria(criteria: dict) -> tuple[dict, dict]:
 
 
 def evaluate(
-    opportunities: list[Opportunity], criteria: dict, profile=None
+    opportunities: list[Opportunity], criteria: dict, profile=None, *, bound=None
 ) -> list[tuple[Opportunity, dict | None]]:
     """Which requisitions match. Returns (opportunity, assessment-or-None) pairs.
 
@@ -109,11 +109,17 @@ def evaluate(
             )
         return [(opp, None) for opp in hits]
 
+    bound = policy_mod.resolve(bound)
     min_score = scoring.get("min_score")
-    exclude_blocked = scoring.get("exclude_blocked", False)
+    # An alert that does not state a preference takes
+    # servers.uplers.exclude_blocked.alerts, whose default is today's False.
+    exclude_blocked = scoring.get(
+        "exclude_blocked",
+        bound.setting("exclude_blocked", "alerts", default=False),
+    )
     scored: list[tuple[Opportunity, dict | None]] = []
     for opp in hits:
-        assessment = fit.assess(opp, profile)
+        assessment = fit.assess(opp, profile, bound)
         if exclude_blocked and assessment["blockers"]:
             continue
         if min_score is not None and assessment["overall_score"] < min_score:

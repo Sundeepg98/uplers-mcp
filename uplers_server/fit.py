@@ -1,10 +1,20 @@
 """Fit scoring: the adapter between an Uplers requisition and jobcore.
 
-**No scoring maths lives here.** The 88-skill taxonomy, the 60/40 skill/
-experience split, the sqrt over-qualification curve and the bonus table are
-all `jobcore`'s, shared with the Naukri server so a score means the same thing
-on both boards. This module's whole job is translation, and it is honest about
-the three places where Uplers' data does not map cleanly:
+**No scoring maths lives here, and no configuration is read here.** The
+88-skill taxonomy, the skill/experience split, the over-qualification curve
+and the bonus table are all `jobcore`'s, shared with the Naukri server so a
+fit score means the same thing on both boards. The numbers that drive them
+come from the shared `jobhunt.json` via :mod:`uplers_server.policy`, which is
+bound ONCE at tool entry and handed down as a `bound` argument. This module
+does no I/O at all: the same requisition must score the same on two machines,
+or a score stops meaning anything.
+
+`bound=None` means "the shipped defaults", which are exactly the literals
+this module used to carry. A clone with no config file anywhere scores
+byte-for-byte as it did before any of this existed.
+
+This module's whole job is translation, and it is honest about the three
+places where Uplers' data does not map cleanly:
 
 1. **Units.** jobcore's Salary is denominated in "lakhs" only because that is
    what its first consumer used; the unit is injected. Uplers publishes a
@@ -12,7 +22,9 @@ the three places where Uplers' data does not map cleanly:
    ``lakhs_multiplier=1.0`` and the numbers ARE dollars per year. The local
    currency string is deliberately NOT passed - handing
    "INR 9,00,000-15,00,000 / year" to a dollar-denominated parser would read
-   900,000 as a US salary and score every Indian role as a windfall.
+   900,000 as a US salary and score every Indian role as a windfall. For the
+   same reason his pay expectations are read from
+   ``candidate.pay.usd_per_year`` and never from the lakhs band beside it.
 
 2. **Unbounded experience.** Uplers writes ``max_yoe = 0`` to mean "no upper
    bound". Passing 0 would score every experienced candidate as wildly
@@ -32,28 +44,37 @@ take is more useful labelled than quietly turned into a 71.
 
 from __future__ import annotations
 
-from jobcore import ScoringEngine, Salary, SalaryConfig
-
+from . import policy as policy_mod
 from .models import Opportunity
+from .policy import USD_YEAR_CONFIG, UsdYearSalary  # re-exported: the units trap
 from .search import notice_days
 
-# USD/year, used as-is. raw_amount_threshold is the ceiling above which jobcore
-# treats a figure as raw currency needing division; no real annual salary
-# approaches 10 million, so no division ever fires and the numbers stay dollars.
-USD_YEAR_CONFIG = SalaryConfig(lakhs_multiplier=1.0, raw_amount_threshold=10_000_000.0)
+__all__ = [
+    "USD_YEAR_CONFIG",
+    "UsdYearSalary",
+    "assess",
+    "blockers_and_flags",
+    "compact_verdict",
+    "experience_bounds",
+    "experience_text",
+    "must_have_ratio",
+    "parse_skills",
+    "preference_tilt",
+    "rank",
+    "render_pay",
+    "to_row",
+    "usd_salary_string",
+]
 
 
-class UsdYearSalary(Salary):
-    """jobcore Salary bound to USD/year instead of lakhs/annum."""
+def parse_skills(raw, bound=None) -> set:
+    """Canonicalise skills through jobcore's shared taxonomy.
 
-    CONFIG = USD_YEAR_CONFIG
-
-
-ENGINE = ScoringEngine(salary_cls=UsdYearSalary)
-
-# Below this share of the client's must-have skills, the flat score flatters
-# the match and the row is flagged.
-MUST_HAVE_WARN_RATIO = 0.5
+    Uses the bound engine's taxonomy, so vocabulary he added under
+    ``scoring.skills.extra_skills`` resolves here too rather than only inside
+    jobcore.
+    """
+    return policy_mod.resolve(bound).engine.parse_skills(raw)
 
 
 # ── Stack preference ─────────────────────────────────────────────────────────
@@ -62,7 +83,11 @@ MUST_HAVE_WARN_RATIO = 0.5
 # moving in. So a Python-leaning role ranks BELOW an otherwise-comparable Node
 # one.
 #
-# Three things this deliberately is NOT:
+# This used to be `PREFERENCE_TILT = 4` plus two hardcoded frozensets, right
+# here - his own stated preference, compiled into a server he does not edit.
+# It is now `scoring.rank_adjustments` in the shared document, and the shipped
+# default is exactly what the constant did, so nothing moved when it was
+# deleted. What it is NOT, still:
 #
 # * not a filter. Python roles are ranked lower, never hidden. `ranked` and
 #   `scanned` are unchanged, and the role still appears with its real score.
@@ -71,36 +96,28 @@ MUST_HAVE_WARN_RATIO = 0.5
 #   boards is the reason jobcore exists and a personal stack preference is not
 #   allowed to spend it. The adjustment moves the ORDER and is reported
 #   separately as `rank_adjustment`.
-# * not a tier system. One signed integer, applied in one place, pinned by one
-#   test.
+# * not `scoring.skills.weights`. Weighted coverage is
+#   sum(w[matched]) / sum(w[job]), which cancels whenever the matched set
+#   equals the job set - the pure-Python role this exists to demote is exactly
+#   that case - and RAISES the score of a job asking for a down-weighted skill
+#   he lacks. Measured: {node.js, django} scores 50 flat and 58.8 with django
+#   at 0.7. A demotion expressed that way runs backwards on the modal case.
 #
-# Size: 4, deliberately just under jobcore's smallest structural bonus (+5 each
-# for location, remote, salary fit, agent eligibility). A stack preference
-# should be able to decide a near-tie; it should NOT be able to outweigh "this
-# role is actually remote".
-PYTHON_STACK = frozenset({"python", "django", "flask", "fastapi"})
-NODE_STACK = frozenset(
-    {"javascript", "typescript", "node.js", "express", "nestjs", "next.js"}
-)
-PREFERENCE_TILT = 4
+# Size: still 4 by default, and CLAMPED to 4 in jobcore's Python, deliberately
+# just under jobcore's smallest structural bonus (+5 each for location,
+# remote, salary fit, agent eligibility). A stack preference should be able to
+# decide a near-tie; it should NOT be able to outweigh "this role is actually
+# remote". The clamp is applied to the sum, so extra rules cannot stack past
+# it either.
 
 
-def preference_tilt(skills) -> int:
-    """Ranking adjustment for a role's language stack. Never a score change.
+def preference_tilt(skills, bound=None) -> tuple:
+    """``(delta, labels)`` — the ranking adjustment for a role's stack.
 
-    Negative only, and only for a role that asks for the Python stack and does
-    NOT ask for the Node one. A role wanting both is already on the path he is
-    moving along, so it is not demoted; a role wanting neither is not his
-    business either way and is left alone.
+    Never a score change. Returns ``(0, ())`` for a role no rule matches,
+    which with the shipped rule is every role that does not lean Python.
     """
-    if skills & PYTHON_STACK and not skills & NODE_STACK:
-        return -PREFERENCE_TILT
-    return 0
-
-
-def parse_skills(raw) -> set:
-    """Canonicalise skills through jobcore's shared taxonomy."""
-    return ENGINE.parse_skills(raw)
+    return policy_mod.resolve(bound).scoring.rank_adjustment(skills)
 
 
 def experience_bounds(
@@ -170,21 +187,32 @@ def render_pay(opp: Opportunity) -> str | None:
     return band or pay.text
 
 
-def blockers_and_flags(opp: Opportunity, profile) -> tuple[list[str], list[str]]:
+def blockers_and_flags(opp: Opportunity, profile, bound=None) -> tuple[list[str], list[str]]:
     """Hard incompatibilities and soft caveats, kept out of the score.
 
     A blocker means "you cannot or will not take this". A flag means "take a
-    look before you spend an evening on it".
+    look before you spend an evening on it". Which of the two a notice
+    shortfall is, and how much slack either check allows, are
+    ``servers.uplers.*`` settings whose defaults are the literals this
+    function used to carry.
     """
+    bound = policy_mod.resolve(bound)
     blockers: list[str] = []
     flags: list[str] = []
 
     accepted = notice_days(opp.joining_period)
     needed = profile.notice_period_days
-    if needed is not None and accepted is not None and accepted < needed:
-        blockers.append(
-            "notice: client accepts %s, you need %d days" % (opp.joining_period, needed)
+    tolerance = bound.setting("notice", "tolerance_days", default=0) or 0
+    if needed is not None and accepted is not None and accepted < needed - tolerance:
+        line = "notice: client accepts %s, you need %d days" % (
+            opp.joining_period, needed,
         )
+        if tolerance:
+            line += " (%g day slack allowed)" % tolerance
+        if bound.setting("notice", "shortfall_blocks", default=True):
+            blockers.append(line)
+        else:
+            flags.append(line)
     elif needed is None:
         flags.append("notice unknown: set notice_period_days on your profile")
 
@@ -193,10 +221,11 @@ def blockers_and_flags(opp: Opportunity, profile) -> tuple[list[str], list[str]]
             blockers.append("company on your avoid list (%s)" % opp.company)
             break
 
+    slack = bound.setting("experience_slack_years", default=1) or 0
     if (
         profile.years_experience is not None
         and opp.min_years_experience is not None
-        and profile.years_experience < opp.min_years_experience - 1
+        and profile.years_experience < opp.min_years_experience - slack
     ):
         blockers.append(
             "experience: needs %g+ yrs, you have %g"
@@ -221,18 +250,21 @@ def blockers_and_flags(opp: Opportunity, profile) -> tuple[list[str], list[str]]
     return (blockers, flags)
 
 
-def assess(opp: Opportunity, profile) -> dict:
+def assess(opp: Opportunity, profile, bound=None) -> dict:
     """Score one requisition against the profile.
 
     Returns the jobcore result dict plus the Uplers-specific fields:
     ``must_have`` coverage, ``blockers`` and ``flags``.
     """
-    must = parse_skills(opp.skills.must_have)
-    good = parse_skills(opp.skills.good_to_have)
-    mine = parse_skills(profile.skills)
+    bound = policy_mod.resolve(bound)
+    engine = bound.engine
+
+    must = engine.parse_skills(opp.skills.must_have)
+    good = engine.parse_skills(opp.skills.good_to_have)
+    mine = engine.parse_skills(profile.skills)
 
     low, high = experience_bounds(opp, profile.years_experience)
-    result = ENGINE.compute_fit_score(
+    result = engine.compute_fit_score(
         job_skills=must | good,
         profile_skills=mine,
         job_exp_str=experience_text(low, high) or "",
@@ -241,7 +273,11 @@ def assess(opp: Opportunity, profile) -> dict:
         profile_location=profile.location,
         job_work_mode=opp.mode_of_work,
         job_salary=usd_salary_string(opp),
-        profile_expected_ctc=profile.min_pay_usd_year,
+        # USD/year, always. The lakhs band beside it in the shared document is
+        # naukri's and is never read here - one shared scalar would score every
+        # job on this board +5 and every job on that one 0, and both look
+        # exactly like "no salary data".
+        profile_expected_ctc=policy_mod.expected_pay(profile),
         experience_min=low,
         experience_max=high,
     )
@@ -252,7 +288,8 @@ def assess(opp: Opportunity, profile) -> dict:
         "covered": len(covered),
         "missing": sorted(must - mine),
     }
-    blockers, flags = blockers_and_flags(opp, profile)
+    blockers, flags = blockers_and_flags(opp, profile, bound)
+    warn_ratio = bound.setting("must_have", "warn_ratio", default=0.5)
     if must and not covered:
         # Measured on the live cohort: a role listing three skills of which the
         # single MUST-HAVE was ".NET" scored 90 against a Node profile, purely
@@ -260,21 +297,25 @@ def assess(opp: Opportunity, profile) -> dict:
         # a mandatory requirement and it is entirely unmet - that is an
         # eligibility fact of the same kind as an impossible notice period, so
         # it belongs in blockers rather than being smoothed into the score.
-        blockers.append(
-            "must-have: none of the %d required skill(s) matched (%s)"
-            % (len(must), ", ".join(sorted(must)[:3]))
+        line = "must-have: none of the %d required skill(s) matched (%s)" % (
+            len(must), ", ".join(sorted(must)[:3]),
         )
-    elif must and len(covered) / len(must) < MUST_HAVE_WARN_RATIO:
+        if bound.setting("must_have", "zero_coverage_blocks", default=True):
+            blockers.append(line)
+        else:
+            flags.append(line)
+    elif must and len(covered) / len(must) < warn_ratio:
         flags.append(
             "covers only %d of %d must-have skills" % (len(covered), len(must))
         )
     if low is None:
         flags.append("role states no experience band; experience scored neutral (50)")
 
-    tilt = preference_tilt(must | good)
+    tilt, labels = preference_tilt(must | good, bound)
     if tilt:
         result["rank_adjustment"] = tilt
-        flags.append("python-leaning stack: ranked %+d, score unchanged" % tilt)
+        for label in labels:
+            flags.append("%s: ranked %+d, score unchanged" % (label, tilt))
 
     result["blockers"] = blockers
     result["flags"] = flags
@@ -293,7 +334,8 @@ def rank(
     opportunities: list[Opportunity],
     profile,
     *,
-    exclude_blocked: bool = True,
+    exclude_blocked: bool | None = None,
+    bound=None,
 ) -> tuple[list[tuple[Opportunity, dict]], int]:
     """Score and order a cohort. Returns (ranked pairs, blocked_count).
 
@@ -301,11 +343,17 @@ def rank(
     score, then must-have coverage, then the HR number so the order is total
     and stable. None of these change a score - they decide which of two
     comparable scores a human should look at first.
+
+    ``exclude_blocked=None`` takes ``servers.uplers.exclude_blocked.rank``,
+    whose default is today's ``True``.
     """
+    bound = policy_mod.resolve(bound)
+    if exclude_blocked is None:
+        exclude_blocked = bound.setting("exclude_blocked", "rank", default=True)
     scored: list[tuple[Opportunity, dict]] = []
     blocked = 0
     for opp in opportunities:
-        assessment = assess(opp, profile)
+        assessment = assess(opp, profile, bound)
         if assessment["blockers"]:
             blocked += 1
             if exclude_blocked:

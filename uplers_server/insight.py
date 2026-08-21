@@ -19,7 +19,7 @@ from __future__ import annotations
 
 from statistics import median
 
-from . import fit
+from . import fit, policy as policy_mod
 from .models import Opportunity
 from .shaping import build_company
 
@@ -29,7 +29,7 @@ def _pay(opp: Opportunity) -> int | None:
     return opp.pay.usd_year_max or opp.pay.usd_year_min
 
 
-def skill_demand(opportunities: list[Opportunity], profile_skills: set) -> dict[str, dict]:
+def skill_demand(opportunities: list[Opportunity], profile_skills: set, bound=None) -> dict[str, dict]:
     """Per canonical skill: how many roles want it, how many demand it, what it pays.
 
     `sole_blocker` counts roles whose unmet must-have set is exactly this one
@@ -44,8 +44,8 @@ def skill_demand(opportunities: list[Opportunity], profile_skills: set) -> dict[
         )
 
     for opp in opportunities:
-        must = fit.parse_skills(opp.skills.must_have)
-        good = fit.parse_skills(opp.skills.good_to_have)
+        must = fit.parse_skills(opp.skills.must_have, bound)
+        good = fit.parse_skills(opp.skills.good_to_have, bound)
         pay = _pay(opp)
         for name in must | good:
             entry = bucket(name)
@@ -69,10 +69,12 @@ def skill_gap(
     *,
     top: int = 12,
     min_roles: int = 2,
+    bound=None,
 ) -> dict:
     """Your skills against the board's demand, and what is worth learning."""
-    mine = fit.parse_skills(profile.skills)
-    demand = skill_demand(opportunities, mine)
+    bound = policy_mod.resolve(bound)
+    mine = fit.parse_skills(profile.skills, bound)
+    demand = skill_demand(opportunities, mine, bound)
     all_pays = [pay for pay in (_pay(opp) for opp in opportunities) if pay]
     cohort_median = int(median(all_pays)) if all_pays else None
 
@@ -162,7 +164,8 @@ def find_company(pairs: list[tuple[dict, Opportunity]], name: str):
     return ([(raw, opp) for raw, opp in hits if opp.company == chosen], distinct)
 
 
-def company_intel(pairs: list[tuple[dict, Opportunity]], name: str, profile=None) -> dict:
+def company_intel(pairs: list[tuple[dict, Opportunity]], name: str, profile=None,
+                  *, bound=None) -> dict:
     """Everything cached about one end client, plus its aggregate posture."""
     hits, candidates = find_company(pairs, name)
     if not hits:
@@ -203,6 +206,9 @@ def company_intel(pairs: list[tuple[dict, Opportunity]], name: str, profile=None
         "candidates": [c for c in candidates if c != opps[0].company][:10],
     }
     if profile is not None:
-        ranked, _ = fit.rank(opps, profile, exclude_blocked=False)
+        # Deliberately NOT servers.uplers.exclude_blocked.*: this is an
+        # aggregate posture over everything the client has open, not a
+        # shortlist he is meant to act on.
+        ranked, _ = fit.rank(opps, profile, exclude_blocked=False, bound=bound)
         intel["_ranked"] = ranked
     return intel

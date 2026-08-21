@@ -118,6 +118,16 @@ PROFILE_WRITE_TOOL_NAMES = {
     "uplers_restore_profile",
 }
 
+#: The shared-config surface, kept apart from every other set because its
+#: blast radius is different in kind: this is the only tool in the server that
+#: can write a file OTHER servers read. It writes the `candidate` section and
+#: nothing else - never `scoring`, never a sibling server's block, never his
+#: Uplers profile - and jobcore's apply_patch enforces that independently of
+#: anything asserted here.
+CONFIG_TOOL_NAMES = {
+    "uplers_config",
+}
+
 TOOL_NAMES = (
     BOARD_TOOL_NAMES
     | TIER2_TOOL_NAMES
@@ -125,6 +135,7 @@ TOOL_NAMES = (
     | WRITE_TOOL_NAMES
     | LOCAL_WRITE_TOOL_NAMES
     | PROFILE_WRITE_TOOL_NAMES
+    | CONFIG_TOOL_NAMES
 )
 
 S1 = "HR010126120000"   # 2026-01-01T12:00:00
@@ -173,7 +184,7 @@ def wire_client(monkeypatch, handler):
 async def test_importing_server_registers_exactly_the_expected_tools():
     tools_listed = await server.mcp.list_tools()
 
-    assert len(tools_listed) == 39
+    assert len(tools_listed) == 40
     assert {tool.name for tool in tools_listed} == TOOL_NAMES
     # The five original board tools must survive every later addition.
     assert BOARD_TOOL_NAMES <= {tool.name for tool in tools_listed}
@@ -181,6 +192,8 @@ async def test_importing_server_registers_exactly_the_expected_tools():
     # can act on his account appearing without this line being edited is the
     # thing to catch.
     assert len(WRITE_TOOL_NAMES) == 2
+    # And exactly one tool may write the SHARED config other servers read.
+    assert len(CONFIG_TOOL_NAMES) == 1
     # And the surface that can change HIM stays exactly two: the write and its
     # undo. Nothing else may ever POST to his profile.
     assert len(PROFILE_WRITE_TOOL_NAMES) == 2

@@ -50,14 +50,24 @@ def owner_id() -> str:
     return "%s:%d" % (socket.gethostname(), os.getpid())
 
 
-def enabled() -> bool:
-    """Off with UPLERS_AUTO_SYNC=0. On by default."""
-    return str(os.environ.get("UPLERS_AUTO_SYNC", "1")).strip().lower() not in (
+def enabled(bound=None) -> bool:
+    """Off with UPLERS_AUTO_SYNC=0, or servers.uplers.auto_sync.enabled=false.
+
+    The environment variable stays the kill switch and wins outright: it is
+    what an MCP host can set without editing a shared file, and turning a
+    background network task OFF must never depend on a file being readable.
+    The config key can only turn it off as well, never back on.
+    """
+    from . import policy as policy_mod
+
+    if str(os.environ.get("UPLERS_AUTO_SYNC", "1")).strip().lower() in (
         "0",
         "false",
         "no",
         "off",
-    )
+    ):
+        return False
+    return bool(policy_mod.resolve(bound).setting("auto_sync", "enabled", default=True))
 
 
 def is_due(last_sync: str | None, interval_seconds: int, *, now: datetime | None = None) -> bool:
@@ -250,8 +260,25 @@ class SyncScheduler:
 _SCHEDULER: SyncScheduler | None = None
 
 
-def get_scheduler() -> SyncScheduler:
+def get_scheduler(bound=None) -> SyncScheduler:
+    """The process-wide scheduler, built once from the configured cadence.
+
+    Built once on purpose: a second call must not silently start a second
+    task. A cadence edit is picked up on the next process start, which is the
+    same contract the lease already has.
+    """
     global _SCHEDULER
     if _SCHEDULER is None:
-        _SCHEDULER = SyncScheduler()
+        from . import policy as policy_mod
+
+        settings = policy_mod.resolve(bound)
+        hours = settings.setting("auto_sync", "interval_hours", default=None)
+        _SCHEDULER = SyncScheduler(
+            interval_seconds=(
+                int(float(hours) * 3600) if hours is not None
+                else config.AUTO_SYNC_INTERVAL_SECONDS
+            ),
+            fetch_budget=settings.setting(
+                "auto_sync", "budget", default=config.AUTO_SYNC_FETCH_BUDGET),
+        )
     return _SCHEDULER

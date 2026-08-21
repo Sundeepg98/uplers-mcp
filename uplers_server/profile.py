@@ -67,6 +67,17 @@ class Profile(BaseModel):
     min_pay_usd_year: int | None = Field(
         None, description="Floor on Uplers' USD/year normalisation. Roles below it are flagged, not hidden."
     )
+    expected_pay_usd_year: int | None = Field(
+        None,
+        description=(
+            "Bonus target in Uplers' USD/year normalisation - the figure the +5 salary "
+            "bonus is scored against. A SEPARATE decision from the floor, which is "
+            "walk-away. Unset means 'use the floor', which is what this server did when "
+            "one number was doing both jobs. Never denominated in lakhs: that band "
+            "belongs to the Naukri server and reading it here would score every role as "
+            "a windfall."
+        ),
+    )
     notice_period_days: int | None = Field(
         None,
         description="Days you need before joining. THE decisive field on this board - most Uplers clients accept only 15-30 days.",

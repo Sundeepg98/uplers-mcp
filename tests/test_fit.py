@@ -351,6 +351,13 @@ def test_ranking_an_empty_cohort_is_empty_not_an_error(node_profile):
 # "Keep Python, but rank it lower." The tests below pin all three halves of
 # that: it moves the ORDER, it does not move the SCORE, and it does not
 # remove the role.
+#
+# It used to be `PREFERENCE_TILT = 4` plus two frozensets in fit.py - his own
+# preference, compiled into a server he does not edit. It is now
+# `scoring.rank_adjustments` in the shared document. These tests are unchanged
+# in what they assert about BEHAVIOUR; only the name of the number moved, and
+# tests/test_policy_wiring.py shows the same tilt reproduced from a config
+# file with the shipped rule deleted.
 
 
 def _same_shape_role(hr_number, must_have):
@@ -396,28 +403,40 @@ def test_the_python_role_keeps_its_real_score_and_stays_in_the_results(node_prof
     assert len(ranked) == 2
     _, python = [pair for pair in ranked if pair[0] is PYTHON_ROLE][0]
     assert python["overall_score"] > 0
-    assert python["rank_adjustment"] == -fit.PREFERENCE_TILT
+    assert python["rank_adjustment"] == -4
     assert any("python-leaning" in flag for flag in python["flags"])
+
+
+def test_the_flag_text_is_unchanged_by_the_move_to_config(node_profile):
+    """The row a human reads must not have shifted a character."""
+    _, python = [
+        pair for pair in fit.rank([PYTHON_ROLE], node_profile, exclude_blocked=False)[0]
+    ][0]
+    assert "python-leaning stack: ranked -4, score unchanged" in python["flags"]
 
 
 def test_a_role_wanting_both_stacks_is_not_demoted(node_profile):
     """Python ALONGSIDE Node is the path he is already on."""
     assert "rank_adjustment" not in fit.assess(BOTH_ROLE, node_profile)
-    assert fit.preference_tilt({"python", "node.js"}) == 0
+    assert fit.preference_tilt({"python", "node.js"}) == (0, ())
 
 
 def test_a_role_wanting_neither_stack_is_left_alone(node_profile):
     assert "rank_adjustment" not in fit.assess(NEITHER_ROLE, node_profile)
-    assert fit.preference_tilt({"golang", "postgresql"}) == 0
+    assert fit.preference_tilt({"golang", "postgresql"}) == (0, ())
 
 
 def test_the_tilt_cannot_outweigh_a_genuinely_better_match(node_profile):
     """It breaks near-ties. It does not overturn a real difference.
 
     Sized at 4, just under jobcore's smallest structural bonus (+5). A Python
-    role that is five points better on the actual fit still ranks first.
+    role that is five points better on the actual fit still ranks first. The
+    bound is now enforced in jobcore's Python rather than by this constant
+    being small - see jobcore/tests/test_rank_adjustments.py, which shows the
+    clamp holding ten stacked rules at 4 and shows the escalation landing once
+    the clamp is relaxed.
     """
-    assert fit.PREFERENCE_TILT < 5
+    assert abs(fit.preference_tilt({"python"})[0]) < 5
 
     strong_python = _same_shape_role(
         "HR010126120014", ["Python", "PostgreSQL", "AWS", "Docker", "Redis"]
@@ -426,7 +445,9 @@ def test_the_tilt_cannot_outweigh_a_genuinely_better_match(node_profile):
 
     ranked, _ = fit.rank([weak_node, strong_python], node_profile)
     scores = {o.hr_number: a["overall_score"] for o, a in ranked}
-    assert scores[strong_python.hr_number] - scores[weak_node.hr_number] > fit.PREFERENCE_TILT
+    assert scores[strong_python.hr_number] - scores[weak_node.hr_number] > abs(
+        fit.preference_tilt({"python"})[0]
+    )
     assert ranked[0][0].hr_number == strong_python.hr_number
 
 

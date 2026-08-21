@@ -44,12 +44,15 @@ from uplers_server import (
     fit,
     ids,
     insight,
+    policy as policy_mod,
     profile as prof,
     profile_write,
     scheduler as sched_mod,
     search as search_mod,
     sync as sync_mod,
 )
+from jobcore import config as jobcore_config
+
 from uplers_server.client import UplersClient, UplersError
 from uplers_server.models import (
     AlertList,
@@ -57,6 +60,7 @@ from uplers_server.models import (
     AlertSpec,
     BriefSection,
     CompanyIntel,
+    ConfigReport,
     DailyBrief,
     FitAssessment,
     MarketStats,
@@ -207,7 +211,7 @@ async def uplers_search_opportunities(
     min_pay_usd_year: int | None = None,
     joining_period: str | None = None,
     min_notice_days: int | None = None,
-    include_aggregated: bool = False,
+    include_aggregated: bool | None = None,
     sort: str = "newest",
     limit: int = 20,
 ) -> SearchResult:
@@ -238,11 +242,13 @@ async def uplers_search_opportunities(
         min_notice_days: keep only roles accepting at least this many days of
             notice. Most of the board wants 15-30 days, so this filter is the
             fastest way to find out whether the board is usable at all.
-        include_aggregated: opt in to the ~39k scraped postings. Off by default
-            because they duplicate JobSpy/Naukri coverage and drown the signal.
+        include_aggregated: opt in to the ~39k scraped postings. Unset takes
+            servers.uplers.include_aggregated, whose default is off, because
+            they duplicate JobSpy/Naukri coverage and drown the signal.
         sort: newest | oldest | pay_desc | pay_asc | least_competition.
         limit: max rows returned; `matched` reports the true total.
     """
+    include_aggregated = _aggregated(include_aggregated)
     filters = {
         "skill": skill,
         "title": title,
@@ -459,7 +465,7 @@ async def uplers_get_market_stats(
     yoe_admits: float | None = None,
     min_group_size: int = 2,
     top_groups: int = 20,
-    include_aggregated: bool = False,
+    include_aggregated: bool | None = None,
 ) -> MarketStats:
     """Pay bands, experience levels and skill demand across the native cohort.
 
@@ -483,9 +489,11 @@ async def uplers_get_market_stats(
             max_yoe / yoe_admits: narrow the population before aggregating.
         min_group_size: drop groups smaller than this (noise control).
         top_groups: cap on groups returned, largest first.
-        include_aggregated: fold in the ~39k scraped postings. Off by default;
-            most of them carry no pay data, which skews every figure.
+        include_aggregated: fold in the ~39k scraped postings. Unset takes
+            servers.uplers.include_aggregated, whose default is off; most of
+            them carry no pay data, which skews every figure.
     """
+    include_aggregated = _aggregated(include_aggregated)
     filters = {
         "skill": skill,
         "title": title,
@@ -539,8 +547,13 @@ async def uplers_get_market_stats(
 # ==========================================================================
 
 
-def _load_pairs(store: Store, *, include_aggregated: bool = False):
-    """(raw, Opportunity) for every cached record. Raises on an empty index."""
+def _load_pairs(store: Store, *, include_aggregated: bool | None = None, bound=None):
+    """(raw, Opportunity) for every cached record. Raises on an empty index.
+
+    ``include_aggregated=None`` takes ``servers.uplers.include_aggregated``,
+    whose default is today's ``False``.
+    """
+    include_aggregated = _aggregated(include_aggregated, bound)
     counts = store.count_records()
     if counts["total"] == 0:
         raise _no_cache_error(store)
@@ -556,19 +569,81 @@ def _load_pairs(store: Store, *, include_aggregated: bool = False):
     return pairs
 
 
-def _load_opportunities(store: Store, *, include_aggregated: bool = False):
-    return [opp for _, opp in _load_pairs(store, include_aggregated=include_aggregated)]
+def _load_opportunities(store: Store, *, include_aggregated: bool | None = None, bound=None):
+    return [
+        opp for _, opp in _load_pairs(
+            store, include_aggregated=include_aggregated, bound=bound)
+    ]
 
 
-def _profile_summary(profile) -> ProfileSummary:
+def _aggregated(value: bool | None, bound=None) -> bool:
+    """Resolve an ``include_aggregated`` argument against the config default."""
+    if value is not None:
+        return bool(value)
+    return bool(policy_mod.resolve(bound).setting("include_aggregated", default=False))
+
+
+def _bind():
+    """Read the shared policy ONCE for this tool call.
+
+    Every scoring tool starts here. A config change that lands mid-call must
+    not be seen by that call: half a ranking scored under old weights and half
+    under new is worse than either.
+    """
+    return policy_mod.bind()
+
+
+def _candidate_patch(local) -> dict:
+    """The shared ``candidate`` block this local profile implies.
+
+    Only fields that actually hold a value are included: ``None`` at a leaf
+    means "revert to the shipped default" in the config document, which is not
+    what "my profile does not say" means.
+
+    Pay is written in USD/year and ONLY in USD/year. The lakhs band beside it
+    belongs to the Naukri server, and one shared scalar would score every job
+    on this board +5 and every job on that one 0 - both looking exactly like
+    "no salary data". Nothing is converted: an exchange rate is not a fact
+    about him, and a score must not depend on the day.
+    """
+    out: dict = {}
+    for key, attr in policy_mod.FIELD_MAP:
+        value = getattr(local, attr, None)
+        if value in (None, [], ()):
+            continue
+        out[key.split(".", 1)[1]] = (
+            list(value) if isinstance(value, (list, tuple)) else value
+        )
+    if local.location:
+        out["locations"] = [local.location]
+    band: dict = {}
+    if local.min_pay_usd_year is not None:
+        band["floor"] = local.min_pay_usd_year
+    expected = policy_mod.expected_pay(local)
+    if expected is not None:
+        band["expected"] = expected
+    if band:
+        out["pay"] = {policy_mod.PAY_UNIT: band}
+    return out
+
+
+def _profile_summary(profile, bound=None) -> ProfileSummary:
     """Attached to every scored result, so a score is never orphaned from
-    the profile it was computed against."""
+    the profile it was computed against - nor from the policy that scored it.
+
+    `policy` is the fingerprint of exactly the inputs that can move a number.
+    Two results carrying the same one are directly comparable; two carrying
+    different ones are not, and now the reader can tell.
+    """
+    bound = policy_mod.resolve(bound)
     return ProfileSummary(
         years_experience=profile.years_experience,
         location=profile.location,
         skills=len(profile.skills),
         notice_period_days=profile.notice_period_days,
         min_pay_usd_year=profile.min_pay_usd_year,
+        expected_pay_usd_year=policy_mod.expected_pay(profile),
+        policy=bound.policy_hash[:12],
     )
 
 
@@ -585,27 +660,48 @@ def _profile_notes(profile, *, seeded: bool) -> list[str]:
             "board - 121 of 235 native requisitions want 15 days and only 4 accept more "
             "than 30 - so until it is set, no role can be ruled out on notice."
         )
-    if profile.min_pay_usd_year is None:
-        notes.append("min_pay_usd_year is not set, so the +5 salary bonus never applies.")
+    if policy_mod.expected_pay(profile) is None:
+        notes.append(
+            "Neither expected_pay_usd_year nor min_pay_usd_year is set, so there is "
+            "nothing to score a pay band against and the +5 salary bonus never applies."
+        )
     return notes
 
 
-def _require_profile():
-    """(profile, notes). Seeds from the resume on first use, loudly."""
+def _require_profile(bound=None):
+    """(profile, notes). Seeds from the resume on first use, loudly.
+
+    The profile returned is the LOCAL `data/profile.json` with every field the
+    shared `candidate` block actually configures applied on top. Precedence is
+    stated rather than discovered: a field present in the config file wins,
+    everything else stays local. With no config file nothing is configured, so
+    this is the local profile unchanged, field for field.
+    """
+    bound = policy_mod.resolve(bound)
     try:
-        profile, seeded = prof.load_or_seed()
+        local, seeded = prof.load_or_seed()
     except prof.ProfileError as exc:
         raise UplersError(str(exc)) from exc
+    profile, where = policy_mod.effective_profile(local, bound)
     if not profile.is_usable():
         raise UplersError(
             "The stored profile has no skills and no years_experience, so every fit score "
             "would be meaningless. Set it with uplers_set_profile(skills=[...], "
             "years_experience=...)."
         )
-    return (profile, _profile_notes(profile, seeded=seeded))
+    notes = _profile_notes(profile, seeded=seeded)
+    shared = sorted(field for field, source in where.items() if source == "config")
+    if shared:
+        notes.append(
+            "%d profile field(s) come from the shared config, not from "
+            "data/profile.json: %s. uplers_config() shows the file and its "
+            "provenance." % (len(shared), ", ".join(shared))
+        )
+    notes.extend(bound.notes())
+    return (profile, notes)
 
 
-def _ensure_scheduler() -> None:
+def _ensure_scheduler(bound=None) -> None:
     """Start background freshness on first use, inside the running event loop.
 
     Lazy rather than at import for two reasons: importing this module in a
@@ -613,10 +709,15 @@ def _ensure_scheduler() -> None:
     sync. Both MCP clients that register `uplers` run their own copy, so the
     task itself is lease-guarded - see scheduler.py.
     """
-    if not sched_mod.enabled():
+    # Bind for ourselves when nobody handed one down: a tool that neither
+    # scores nor reads a setting must still honour auto_sync.enabled, and the
+    # alternative is seven call sites that each remember to.
+    if bound is None:
+        bound = _bind()
+    if not sched_mod.enabled(bound):
         return
     try:
-        scheduler = sched_mod.get_scheduler()
+        scheduler = sched_mod.get_scheduler(bound)
         if not scheduler.running:
             scheduler.start()
     except RuntimeError:  # pragma: no cover - no running loop (direct import)
@@ -666,16 +767,30 @@ async def uplers_get_profile() -> ProfileResult:
     Use it: before trusting any score, and whenever a ranking looks wrong -
     the usual cause is a stale skill list or an unset notice period.
     """
-    _ensure_scheduler()
+    bound = _bind()
+    _ensure_scheduler(bound)
     try:
-        profile, seeded = prof.load_or_seed()
+        local, seeded = prof.load_or_seed()
     except prof.ProfileError as exc:
         raise UplersError(str(exc)) from exc
+    effective, where = policy_mod.effective_profile(local, bound)
+    notes = _profile_notes(effective, seeded=seeded)
+    shared = sorted(field for field, source in where.items() if source == "config")
+    if shared:
+        notes.append(
+            "Scoring uses the SHARED config for: %s. The rest comes from %s. "
+            "The profile shown is what actually scores." % (
+                ", ".join(shared), prof.profile_path(),
+            )
+        )
+    notes.extend(bound.notes())
     return ProfileResult(
-        profile=profile,
+        profile=effective,
         path=str(prof.profile_path()),
         seeded_from_resume=seeded,
-        notes=_profile_notes(profile, seeded=seeded),
+        config_source=bound.loaded.source,
+        field_source=where,
+        notes=notes,
     )
 
 
@@ -692,6 +807,7 @@ async def uplers_set_profile(
     titles: list[str] | None = None,
     preferred_modes: list[str] | None = None,
     min_pay_usd_year: int | None = None,
+    expected_pay_usd_year: int | None = None,
     notice_period_days: int | None = None,
     avoid_companies: list[str] | None = None,
     headline: str | None = None,
@@ -717,8 +833,13 @@ async def uplers_set_profile(
         titles: roles you are targeting.
         preferred_modes: any of Remote / Hybrid / Office. A role outside them
             is flagged, never hidden.
-        min_pay_usd_year: floor in Uplers' USD/year normalisation. Roles below
-            it are flagged; roles at or above it earn the +5 salary bonus.
+        min_pay_usd_year: WALK-AWAY floor in Uplers' USD/year normalisation.
+            Roles below it are flagged, never hidden.
+        expected_pay_usd_year: the figure the +5 salary bonus is scored
+            against - a separate decision from the floor. Unset means "use the
+            floor", which is what this server did when one number was doing
+            both jobs. Always USD/year: a lakhs figure here would read as
+            dollars and score every role as a windfall.
         notice_period_days: days you need before joining. Roles that accept
             fewer become BLOCKED rather than badly scored.
         avoid_companies: end clients to exclude from ranking entirely.
@@ -765,6 +886,8 @@ async def uplers_set_profile(
         profile.preferred_modes = list(preferred_modes)
     if min_pay_usd_year is not None:
         profile.min_pay_usd_year = min_pay_usd_year
+    if expected_pay_usd_year is not None:
+        profile.expected_pay_usd_year = expected_pay_usd_year
     if notice_period_days is not None:
         profile.notice_period_days = notice_period_days
     if avoid_companies is not None:
@@ -811,9 +934,10 @@ async def uplers_assess_fit(hr_number: str, refresh: bool = False) -> FitAssessm
         hr_number: the requisition id, e.g. "HR030826155648".
         refresh: re-fetch the record from Uplers before scoring.
     """
-    _ensure_scheduler()
+    bound = _bind()
+    _ensure_scheduler(bound)
     normalised = _validate_hr(hr_number)
-    profile, notes = _require_profile()
+    profile, notes = _require_profile(bound)
     with _open_store() as store:
         if refresh:
             async with UplersClient() as client:
@@ -828,7 +952,7 @@ async def uplers_assess_fit(hr_number: str, refresh: bool = False) -> FitAssessm
                 "requisition. It carries no end-client detail and no typed skill split, "
                 "so the score rests on thinner data than a native record."
             )
-        assessment = fit.assess(opp, profile)
+        assessment = fit.assess(opp, profile, bound)
         must = assessment["must_have"]
         return FitAssessment(
             hr_number=opp.hr_number,
@@ -853,7 +977,7 @@ async def uplers_assess_fit(hr_number: str, refresh: bool = False) -> FitAssessm
             url=opp.url,
             saved=store.is_saved(normalised) or None,
             status=(store.get_tracked(normalised) or {}).get("status"),
-            scored_against=_profile_summary(profile),
+            scored_against=_profile_summary(profile, bound),
             notes=notes,
         )
 
@@ -865,7 +989,7 @@ async def uplers_assess_fit(hr_number: str, refresh: bool = False) -> FitAssessm
 async def uplers_rank_opportunities(
     limit: int = 10,
     min_score: int | None = None,
-    exclude_blocked: bool = True,
+    exclude_blocked: bool | None = None,
     skill: str | None = None,
     title: str | None = None,
     company: str | None = None,
@@ -876,7 +1000,7 @@ async def uplers_rank_opportunities(
     joining_period: str | None = None,
     min_notice_days: int | None = None,
     max_yoe: float | None = None,
-    include_aggregated: bool = False,
+    include_aggregated: bool | None = None,
     saved_only: bool = False,
 ) -> RankResult:
     """Rank the native cohort against your profile. The main tool of this server.
@@ -899,15 +1023,18 @@ async def uplers_rank_opportunities(
         exclude_blocked: keep out roles with a hard incompatibility (a notice
             period you cannot meet, none of the must-have skills, a company on
             your avoid list). Set False to see them WITH their blockers listed.
+            Unset takes servers.uplers.exclude_blocked.rank, default True.
         skill / title / company / mode_of_work / remote_only / currency /
             min_pay_usd_year / joining_period / min_notice_days / max_yoe:
             narrow the population before scoring, same meanings as
             uplers_search_opportunities.
-        include_aggregated: fold in the ~39k scraped postings. Off by default.
+        include_aggregated: fold in the ~39k scraped postings. Unset takes
+            servers.uplers.include_aggregated, default off.
         saved_only: rank just your shortlist.
     """
-    _ensure_scheduler()
-    profile, notes = _require_profile()
+    bound = _bind()
+    _ensure_scheduler(bound)
+    profile, notes = _require_profile(bound)
     filters = {
         "skill": skill,
         "title": title,
@@ -921,7 +1048,13 @@ async def uplers_rank_opportunities(
         "max_yoe": max_yoe,
     }
     with _open_store() as store:
-        population = _load_opportunities(store, include_aggregated=include_aggregated)
+        include_aggregated = _aggregated(include_aggregated, bound)
+        exclude_blocked = (
+            bound.setting("exclude_blocked", "rank", default=True)
+            if exclude_blocked is None else exclude_blocked
+        )
+        population = _load_opportunities(
+            store, include_aggregated=include_aggregated, bound=bound)
         scanned = len(population)
         saved_ids = store.saved_ids()
         tracked = store.tracked_ids()
@@ -933,7 +1066,8 @@ async def uplers_rank_opportunities(
                     "local index. Add roles with uplers_save_job()."
                 )
         population = [opp for opp in population if search_mod.matches(opp, **filters)]
-        ranked, blocked = fit.rank(population, profile, exclude_blocked=exclude_blocked)
+        ranked, blocked = fit.rank(
+            population, profile, exclude_blocked=exclude_blocked, bound=bound)
         if min_score is not None:
             ranked = [pair for pair in ranked if pair[1]["overall_score"] >= min_score]
         rows = [
@@ -970,7 +1104,7 @@ async def uplers_rank_opportunities(
                 for key, value in dict(filters, min_score=min_score, saved_only=saved_only).items()
                 if value not in (None, False)
             },
-            scored_against=_profile_summary(profile),
+            scored_against=_profile_summary(profile, bound),
             index_synced_at=store.last_sync,
             notes=notes,
         )
@@ -1037,14 +1171,15 @@ async def uplers_list_saved(score: bool = True, limit: int = 25) -> SavedList:
             local CPU; set False if you only want the list.
         limit: maximum entries returned, newest save first.
     """
-    _ensure_scheduler()
+    bound = _bind()
+    _ensure_scheduler(bound)
     with _open_store() as store:
         rows = store.list_saved()
         notes = []
         profile = None
         if score and rows:
             try:
-                profile, notes = _require_profile()
+                profile, notes = _require_profile(bound)
             except UplersError as exc:
                 notes = ["Fit scores omitted: %s" % exc]
         tracked = store.tracked_ids()
@@ -1065,7 +1200,7 @@ async def uplers_list_saved(score: bool = True, limit: int = 25) -> SavedList:
                 entry.pay = fit.render_pay(opp)
                 entry.notice = opp.joining_period
                 if profile is not None:
-                    entry.score = fit.assess(opp, profile)["overall_score"]
+                    entry.score = fit.assess(opp, profile, bound)["overall_score"]
             out.append(entry)
         if not rows:
             notes.append(
@@ -1269,7 +1404,7 @@ async def uplers_list_tracked(
             )
         if len(rows) > len(out):
             notes.append("Showing %d of %d." % (len(out), len(rows)))
-        due = brief_mod.follow_up_due(store)
+        due = brief_mod.follow_up_due(store, bound=_bind())
         return TrackedList(
             tracked=out,
             count=len(rows),
@@ -1324,7 +1459,8 @@ async def uplers_set_alert(
         min_score: only fire above this fit score. Needs a profile.
         exclude_blocked: skip roles you are hard-blocked from.
     """
-    _ensure_scheduler()
+    bound = _bind()
+    _ensure_scheduler(bound)
     label = (name or "").strip()
     if not label:
         raise UplersError("An alert needs a name so you can find and delete it later.")
@@ -1355,12 +1491,12 @@ async def uplers_set_alert(
         notes = []
         matches = None
         try:
-            population = _load_opportunities(store)
+            population = _load_opportunities(store, bound=bound)
             profile = None
             if min_score is not None or exclude_blocked:
-                profile, profile_notes = _require_profile()
+                profile, profile_notes = _require_profile(bound)
                 notes.extend(profile_notes)
-            matches = len(alerts_mod.evaluate(population, criteria, profile))
+            matches = len(alerts_mod.evaluate(population, criteria, profile, bound=bound))
             if matches == 0:
                 notes.append(
                     "This alert matches nothing right now. Saved anyway - it will fire "
@@ -1401,7 +1537,8 @@ async def uplers_list_alerts(evaluate: bool = False, rows: int = 3) -> AlertList
             Local only, no network.
         rows: sample rows per alert when evaluating.
     """
-    _ensure_scheduler()
+    bound = _bind()
+    _ensure_scheduler(bound)
     with _open_store() as store:
         stored = store.list_alerts()
         notes = []
@@ -1409,7 +1546,7 @@ async def uplers_list_alerts(evaluate: bool = False, rows: int = 3) -> AlertList
         population = []
         if evaluate and stored:
             try:
-                population = _load_opportunities(store)
+                population = _load_opportunities(store, bound=bound)
             except UplersError as exc:
                 notes.append("Could not evaluate: %s" % exc)
                 evaluate = False
@@ -1418,7 +1555,7 @@ async def uplers_list_alerts(evaluate: bool = False, rows: int = 3) -> AlertList
                 for alert in stored
             ):
                 try:
-                    profile, profile_notes = _require_profile()
+                    profile, profile_notes = _require_profile(bound)
                     notes.extend(profile_notes)
                 except UplersError as exc:
                     notes.append("Score-gated alerts skipped: %s" % exc)
@@ -1436,7 +1573,8 @@ async def uplers_list_alerts(evaluate: bool = False, rows: int = 3) -> AlertList
             )
             if evaluate:
                 try:
-                    matches = alerts_mod.evaluate(population, alert["criteria"], profile)
+                    matches = alerts_mod.evaluate(
+                        population, alert["criteria"], profile, bound=bound)
                 except Exception as exc:  # noqa: BLE001
                     notes.append("alert %r failed: %s" % (alert["name"], exc))
                     out.append(spec)
@@ -1522,12 +1660,14 @@ async def uplers_daily_brief(
             last brief, or seven days on the first run.
         peek: do not advance the window or mark alert hits as reported.
     """
-    _ensure_scheduler()
-    profile, notes = _require_profile()
+    bound = _bind()
+    _ensure_scheduler(bound)
+    profile, notes = _require_profile(bound)
     with _open_store() as store:
-        population = _load_opportunities(store)
+        population = _load_opportunities(store, bound=bound)
         data = brief_mod.build(
-            store, profile, population, limit=limit, since=since, peek=peek
+            store, profile, population, limit=limit, since=since, peek=peek,
+            bound=bound,
         )
         data["notes"] = notes + data["notes"]
         if data.pop("_window_source", None) == "first_brief_7d":
@@ -1542,7 +1682,7 @@ async def uplers_daily_brief(
             new_opportunities=BriefSection(**section),
             alert_hits=alert_hits,
             follow_up=follow_up,
-            scored_against=_profile_summary(profile),
+            scored_against=_profile_summary(profile, bound),
         )
 
 
@@ -1572,11 +1712,13 @@ async def uplers_skill_gap(top: int = 10, min_roles: int = 2) -> SkillGapResult:
         top: rows per section.
         min_roles: ignore skills named by fewer requisitions than this.
     """
-    _ensure_scheduler()
-    profile, notes = _require_profile()
+    bound = _bind()
+    _ensure_scheduler(bound)
+    profile, notes = _require_profile(bound)
     with _open_store() as store:
-        population = _load_opportunities(store)
-        data = insight.skill_gap(population, profile, top=top, min_roles=min_roles)
+        population = _load_opportunities(store, bound=bound)
+        data = insight.skill_gap(
+            population, profile, top=top, min_roles=min_roles, bound=bound)
         unlocks = [row for row in data["missing_skills"] if row.get("sole_blocker")]
         if not unlocks:
             notes.append(
@@ -1591,7 +1733,7 @@ async def uplers_skill_gap(top: int = 10, min_roles: int = 2) -> SkillGapResult:
             missing_skills=[SkillGapRow(**row) for row in data["missing_skills"]],
             unused_skills=data["unused_skills"],
             coverage=data["coverage"],
-            scored_against=_profile_summary(profile),
+            scored_against=_profile_summary(profile, bound),
             notes=notes,
         )
 
@@ -1620,16 +1762,17 @@ async def uplers_company_intel(name: str, limit: int = 5) -> CompanyIntel:
         name: end-client name or a fragment, e.g. "Northladder".
         limit: requisition rows returned.
     """
-    _ensure_scheduler()
+    bound = _bind()
+    _ensure_scheduler(bound)
     profile = None
     notes: list[str] = []
     try:
-        profile, notes = _require_profile()
+        profile, notes = _require_profile(bound)
     except UplersError as exc:
         notes = ["Fit scores omitted: %s" % exc]
     with _open_store() as store:
-        pairs = _load_pairs(store)
-        data = insight.company_intel(pairs, name, profile)
+        pairs = _load_pairs(store, bound=bound)
+        data = insight.company_intel(pairs, name, profile, bound=bound)
         ranked = data.pop("_ranked", [])
         saved_ids = store.saved_ids()
         tracked = store.tracked_ids()
@@ -1699,8 +1842,9 @@ async def uplers_scheduler_status() -> SchedulerStatus:
     Use it: when data looks stale, or to confirm the automatic sync is alive.
     Disable it entirely with UPLERS_AUTO_SYNC=0 in the server's environment.
     """
-    _ensure_scheduler()
-    scheduler = sched_mod.get_scheduler()
+    bound = _bind()
+    _ensure_scheduler(bound)
+    scheduler = sched_mod.get_scheduler(bound)
     status = scheduler.status()
     notes = []
     if not status["enabled"]:
@@ -1716,6 +1860,117 @@ async def uplers_scheduler_status() -> SchedulerStatus:
             "Claude Code and Claude Desktop are both open." % status["owner"]
         )
     return SchedulerStatus(**status, notes=notes)
+
+
+# ------------------------------------------------------------ tool 16 ---
+
+
+@mcp.tool()
+async def uplers_config(write_candidate: bool = False,
+                        allow_score_raising: bool = False) -> ConfigReport:
+    """Show the shared jobhunt.json this server scores under - and what it refused.
+
+    Every number that decides a score, a blocker or an order lives in that one
+    file: the skill/experience split, the bonus table, the verdict bands, the
+    stack preference that ranks Python-leaning roles below Node ones, and this
+    server's own `servers.uplers` settings. Nothing here is a constant in the
+    code any more, and this tool is how you see what is actually in force.
+
+    Read `policy_hash` as the answer to "are these two scores comparable".
+    Two results carrying the same one are; two carrying different ones are not.
+
+    `refused` is the important field. Some keys are NOT loadable from the file
+    at any tier - the autonomous-apply switches on the Naukri server, chiefly.
+    A file that sets one is refused loudly and the Python value is used; it is
+    never silently ignored. If something you edited is not taking effect, it
+    is in `refused` or `unknown_keys`.
+
+    Use it: when a score looks wrong, before and after editing the file, and
+    to find out where the file even is - `searched` lists every path tried
+    when none was found.
+
+    Args:
+        write_candidate: copy your LOCAL data/profile.json into the shared
+            `candidate` block, so every server scores against one description
+            of you instead of four. Goes through jobcore's audited write path,
+            which means it takes the lock, records the change, and REFUSES
+            anything the tier rules do not allow - the refusals come back
+            verbatim rather than being worked around. It writes `candidate`
+            and nothing else: not `scoring`, not another server's settings,
+            and never your real Uplers profile, which lives on Uplers and is
+            reached only by uplers_sync_profile_from_uplers().
+        allow_score_raising: adding skills or raising years_experience raises
+            every score, so those writes need this flag as well. Removing and
+            lowering never do.
+    """
+    bound = _bind()
+    _ensure_scheduler(bound)
+    ld = bound.loaded
+    notes = list(bound.notes())
+    write: dict = {}
+
+    if write_candidate:
+        try:
+            local, _ = prof.load_or_seed()
+        except prof.ProfileError as exc:
+            raise UplersError(str(exc)) from exc
+        patch = {"candidate": _candidate_patch(local)}
+        write = jobcore_config.apply_patch(
+            patch,
+            start=Path(prof.__file__),
+            base_revision=ld.revision if ld.source else None,
+            actor="uplers_config",
+            allowed_sections=("candidate",),
+            confirm_widen=allow_score_raising,
+        )
+        if write.get("status") == "ok":
+            policy_mod.invalidate()
+            bound = _bind()
+            ld = bound.loaded
+            notes.append(
+                "candidate written to %s (revision %s). Every server that reads this "
+                "file now scores against it; data/profile.json stays as the local "
+                "fallback for anything the file does not set."
+                % (ld.source, write.get("revision"))
+            )
+        elif write.get("status") == "no_config_file":
+            notes.append(
+                "Nothing was written: there is no jobhunt.json yet. Create one at any "
+                "of the searched paths (a `config/jobhunt.json` beside a `.jobhunt-root` "
+                "marker file is the intended home), or set JOBHUNT_CONFIG in the MCP "
+                "host's env block - a stdio child inherits nothing else."
+            )
+        else:
+            notes.append(
+                "Nothing was written: %s. The refusals are exact and are not worked "
+                "around here." % write.get("status")
+            )
+
+    try:
+        local_profile, _ = prof.load_or_seed()
+        field_source = policy_mod.effective_profile(local_profile, bound)[1]
+    except prof.ProfileError:
+        field_source = {}
+
+    return ConfigReport(
+        source=ld.source,
+        status=ld.config_status,
+        revision=ld.revision,
+        policy_rev=ld.policy_rev,
+        policy_hash=ld.policy_hash,
+        candidate=ld.policy.candidate.to_dict(),
+        scoring=ld.policy.scoring.to_dict(),
+        server=bound.settings,
+        field_source=field_source,
+        provenance={
+            key: source for key, source in ld.provenance.items() if source == "file"
+        },
+        refused=list(ld.tier_c_refusals),
+        unknown_keys=list(ld.unknown_keys),
+        searched=list(ld.searched) if ld.source is None else [],
+        write=write,
+        notes=notes,
+    )
 
 
 # ==========================================================================
@@ -1811,14 +2066,14 @@ def _validate_modes(modes: list[str] | None) -> list[str] | None:
     return out
 
 
-def _profile_or_none():
-    """The local profile for scoring, or None when none is usable.
+def _profile_or_none(bound=None):
+    """The effective profile for scoring, or None when none is usable.
 
     A missing profile must not take a read down: the rows are still worth
     having unscored, and the note says why the scores are absent.
     """
     try:
-        return prof.require()
+        return policy_mod.effective_profile(prof.require(), bound)[0]
     except prof.ProfileError:
         return None
 
@@ -1830,6 +2085,7 @@ async def _paged_read(
     params: dict,
     pages: int,
     profile,
+    bound=None,
 ) -> tuple[list, dict, list[str]]:
     """Fetch `pages` pages of a paginator, stopping at the last real page."""
     rows: list = []
@@ -1840,7 +2096,7 @@ async def _paged_read(
         page_params["page"] = params.get("page", 1) + offset
         payload = await client.get_json(route, page_params)
         page_rows, page_meta, page_notes = talent_shape.rows_from(
-            payload, route=route, profile=profile
+            payload, route=route, profile=profile, bound=bound
         )
         rows.extend(page_rows)
         notes.extend(note for note in page_notes if note not in notes)
@@ -1990,7 +2246,8 @@ async def uplers_my_feed(
     """
     sort = _validate_sort(sort)
     modes = _validate_modes(modes)
-    profile = _profile_or_none() if score else None
+    bound = _bind()
+    profile = _profile_or_none(bound) if score else None
     params = _feed_params(
         page=page,
         page_size=page_size,
@@ -2003,7 +2260,8 @@ async def uplers_my_feed(
 
     async with _talent_client() as client:
         rows, meta, notes = await _paged_read(
-            client, endpoints.EP_OPPORTUNITIES, params=params, pages=pages, profile=profile
+            client, endpoints.EP_OPPORTUNITIES, params=params, pages=pages,
+            profile=profile, bound=bound,
         )
         total = meta.get("total")
         if total is None:
@@ -2051,7 +2309,7 @@ async def uplers_my_feed(
             }.items()
             if value
         },
-        scored_against=_profile_summary(profile) if profile else None,
+        scored_against=_profile_summary(profile, bound) if profile else None,
         notes=notes,
     )
 
@@ -2073,7 +2331,8 @@ async def uplers_my_pipeline(page: int = 1, pages: int = 3, score: bool = False)
         score: also compute fit scores. Off by default - you already applied,
             so the score is rarely the question here.
     """
-    profile = _profile_or_none() if score else None
+    bound = _bind()
+    profile = _profile_or_none(bound) if score else None
     async with _talent_client() as client:
         rows, meta, notes = await _paged_read(
             client,
@@ -2081,6 +2340,7 @@ async def uplers_my_pipeline(page: int = 1, pages: int = 3, score: bool = False)
             params={"pagination": 10, "page": page},
             pages=pages,
             profile=profile,
+            bound=bound,
         )
     return PipelineResult(
         rows=rows,
@@ -2150,7 +2410,8 @@ async def uplers_tailored_jobs(hr_number: str | None = None, score: bool = True)
         score: compute fit scores against your local profile.
     """
     body = {"HR_Number": _validate_hr(hr_number)} if hr_number else {}
-    profile = _profile_or_none() if score else None
+    bound = _bind()
+    profile = _profile_or_none(bound) if score else None
     async with _talent_client() as client:
         payload = await client.post_json(endpoints.EP_TAILOR_JOBS, body)
 
@@ -2166,7 +2427,7 @@ async def uplers_tailored_jobs(hr_number: str | None = None, score: bool = True)
             % (endpoints.EP_TAILOR_JOBS, sorted(payload)[:12] or "none")
         )
     rows = [
-        talent_shape.to_talent_row(row, profile=profile)
+        talent_shape.to_talent_row(row, profile=profile, bound=bound)
         for row in raw_rows
         if isinstance(row, dict) and not talent_shape.is_test_record(row)
     ]
@@ -2175,7 +2436,7 @@ async def uplers_tailored_jobs(hr_number: str | None = None, score: bool = True)
         returned=len(rows),
         source=endpoints.EP_TAILOR_JOBS,
         filters_applied={"anchor": hr_number} if hr_number else {},
-        scored_against=_profile_summary(profile) if profile else None,
+        scored_against=_profile_summary(profile, bound) if profile else None,
     )
 
 
@@ -2237,7 +2498,7 @@ async def uplers_compare_profiles() -> ProfileComparison:
     Pay attention to notice period: it is the single most decisive field on
     this board, because most Uplers clients accept only 15-30 days.
     """
-    local = _profile_or_none()
+    local = _profile_or_none(_bind())
     async with _talent_client() as client:
         payload = await client.get_json(endpoints.EP_PROFILE)
     remote = talent_shape.to_talent_profile(payload)
@@ -2357,7 +2618,7 @@ async def uplers_sync_profile_from_uplers(
         payload = await client.get_json(endpoints.EP_PROFILE)
     remote = talent_shape.to_talent_profile(payload)
 
-    local = _profile_or_none()
+    local = _profile_or_none(_bind())
     if local is None:
         local = prof.Profile(source="uplers")
 
