@@ -27,3 +27,58 @@ contact data present to redact. Everything else (company names, salaries, JDs, s
 - `frequency_office_visit` is non-null only when `ModeOfWork` is `Hybrid` in this sample.
 - `role` and `company_pitch` were null in all 32 fetched records; `city` / `city_data` were non-null
   in only 2 of them (the aggregated record and HR100725001919).
+
+---
+
+## `talent_profile.json` - the AUTHENTICATED profile fixture
+
+Different provenance from the six above, and the difference is the point.
+
+Captured from `GET /api/talent/profile` on **2026-08-21** against his live signed-in session, by
+`scripts/capture_profile_fixture.py`. Re-run that script to refresh it; do not hand-edit it.
+
+**Why it exists.** Every profile test in this suite used to build its own payload, and every one
+wrote a skill as `[{"name": "Node.js"}]` - a shape the live API has never returned. It sends a
+JOIN: `talent_details.skills` carries rows of `{skill_id, years_of_experience, order}` and the
+names live in a separate `masters.skills` lookup. **667 tests passed while the extractor read zero
+skills off the real thing**, and the server told the operator his profile was empty on the day he
+had finished filling it in. A hand-built payload can only test the shape its author imagined.
+
+| | |
+|---|---|
+| `talent_details.skills` | 61 rows, `skill_id` -> `masters.skills` |
+| `talent_details.primaryskills` | 56 rows, same master, a strict subset of `skills` |
+| `talent_details.tools` | 12 rows, `tool_id` -> `masters.tools` |
+| `masters.skills` | trimmed 176,329 -> 101: every cited id, plus 40 uncited DECOYS |
+| `masters.tools` | trimmed 1,162 -> 22: every cited id, plus 10 decoys |
+| also kept | `preferredMethodMaster`, `preferredModes`, `joiningMaster` (small, and all three are joined against) |
+
+The decoys are load-bearing: without them a resolver that zipped the two lists positionally would
+pass every count assertion and return 61 wrong names.
+
+**Sanitisation is by DELETION, not masking**, so a test can assert absence and a future recapture
+cannot quietly reintroduce a field. Removed: `current_ctc`, `expected_ctc`, `monthly_salary`,
+`dob`, `contact_number`, `contact_number_country_code`, `whatsapp_optin`, `address`, `email`,
+`profile_pic`, `profile_pic_url`, `ra_profile_pic_url`, `resume`, `resume_url`, `ra_resume_url`,
+`repository_url`, `ra_repository_url`, `linkedin_id`, `project_url`, `gender`. The capture script
+re-reads what it wrote and **deletes the file rather than leave a leak on disk**;
+`test_talent_profile_real.py` asserts the same thing at commit time, by key and by value shape.
+
+Note on the value-shape check: it looks for an email ADDRESS, not the word "email". His
+achievements say "the bulk email scheduler" four times because bulk email is his professional
+domain, and a substring scan flags his own CV as a leak.
+
+**Anomalies worth knowing**, all present in this capture:
+
+- `profile_completion_percentage` is **absent from the live payload entirely**. The top-level keys
+  are only `talent_details`, `masters`, `recommandations`, `ai_generated_summary`. The model keeps
+  the field because an older shape carried it, but it is always `None` and the note it drives never
+  fires.
+- `preferred_modes` means ENGAGEMENT TYPE (`Full time`, `Contract`), not work mode. The
+  Remote/Office answer is `preferred_method`, an int resolved via `preferredMethodMaster`.
+  These two are the easiest wrong join in the payload.
+- `recommandations` is spelled that way by Uplers, and was `[]` at capture.
+- `is_current` on an experience row is `0`/`1`/`2`, not a boolean.
+- `years_of_experience` is a decimal STRING and is `"0"` on 58 of the 61 skill rows - Uplers means
+  "not recorded", not "zero years", so only positive figures are carried through.
+- `short_created_at` is `"1970-01-01"` on both profile and master rows: an unset epoch date.

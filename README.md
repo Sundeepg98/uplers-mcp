@@ -32,7 +32,7 @@ cannot be undone" before using either.
 | Stack | Python 3.11+, FastMCP (`mcp`), `httpx`, stdlib `sqlite3`, [`jobcore`](../jobcore) |
 | Tools | **36** - 22 public (5 board readers, 17 profile-aware) + 14 authenticated |
 | Size | 8,120 lines of server code, 8,577 lines of tests |
-| Tests | **695**, all offline |
+| Tests | **697**, all offline |
 | Network surface | 2 public GET endpoints needing no auth; 12 `talent/*` routes behind a bearer token |
 | Browser | Playwright, in exactly one module, for login only. The public tier needs none. |
 | Maintenance estimate | 1-3 hours/month |
@@ -647,7 +647,7 @@ cd D:\Sundeep\projects\job-hunting\mcp-servers\uplers
 python -m venv venv
 venv\Scripts\python.exe -m pip install -r requirements.txt
 venv\Scripts\python.exe -m pip install -e ../jobcore   # the shared scoring engine
-venv\Scripts\python.exe -m pytest        # 695 tests, no network
+venv\Scripts\python.exe -m pytest        # 697 tests, no network
 venv\Scripts\python.exe server.py        # stdio MCP server
 ```
 
@@ -804,9 +804,10 @@ successes and failures side by side and `FetchReport.ok` is False if anything fa
 
 ## Tests
 
-`venv\Scripts\python.exe -m pytest` - **695 tests**, all offline via `httpx.MockTransport`,
-against 6 real captured API responses in `tests/fixtures/` (see `tests/fixtures/MANIFEST.md` for
-why each one is there). Coverage spans the native/aggregated split, the id date decoder, every
+`venv\Scripts\python.exe -m pytest` - **697 tests**, all offline via `httpx.MockTransport`,
+against 7 real captured API responses in `tests/fixtures/` (see `tests/fixtures/MANIFEST.md` for
+why each one is there) - six job records plus `talent_profile.json`, his own profile with the
+private half removed by `scripts/capture_profile_fixture.py`. Coverage spans the native/aggregated split, the id date decoder, every
 filter, the sitemap union, the market-stats maths, the scoring adapter, migrations from a
 hand-built pre-migration database, the lease under two connections, the error paths, and the
 dependency pins themselves (`tests/test_requirements_pins.py`, read as text - see "Checking a
@@ -819,6 +820,14 @@ never counts as a session, that an HTTP 200 without `talent_details` is reported
 rather than as authenticated, that a 401 becomes "run `uplers_login()`" and never an empty list,
 that `uplers_apply` sends nothing without `confirm=True` and refuses a second application, and
 that no code path puts the token in a return value or an error message.
+
+Two later modules exist because a shape nobody had seen beat 667 passing tests.
+`test_talent_profile_real.py` runs the shaper against the CAPTURED payload rather than an invented
+one - every earlier profile test wrote a skill as `[{"name": "Node.js"}]`, which the live API has
+never sent, so the masters join could return zero skills unnoticed. `test_profile_direction.py`
+pins which profile is authoritative, and its last two tests grep the source to prove no path
+writes to his Uplers profile; both were shown failing against an injected write before being
+trusted, because a check that has never failed certifies nothing.
 
 Four invariants hold in every test, three of them autouse so they cannot be forgotten:
 

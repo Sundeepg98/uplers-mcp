@@ -254,6 +254,45 @@ async def test_sync_can_take_a_contested_field_when_he_names_it(
     }
 
 
+async def test_a_misspelled_contested_field_is_refused_rather_than_ignored(
+    monkeypatch, make_profile, real_payload
+):
+    """Silently dropping `also=["headlin"]` leaves him believing he synced it.
+
+    The whole point of `also` is that he made a decision about a contested
+    field. Swallowing the typo discards the decision and reports success.
+    """
+    make_profile()
+    wire_talent(monkeypatch, serve(real_payload))
+
+    with pytest.raises(Exception) as excinfo:
+        await server.uplers_sync_profile_from_uplers(confirm=True, also=["headlin"])
+
+    assert "headlin" in str(excinfo.value)
+    assert "headline" in str(excinfo.value)
+
+
+async def test_a_zero_skill_read_is_refused_rather_than_synced(
+    monkeypatch, make_profile, isolated_profile
+):
+    """The original bug, turned into a guard on the tool it would damage most.
+
+    A profile that resolves to zero skills is far more likely to be a broken
+    read than an empty account - that is precisely what happened here. Syncing
+    it would propagate the breakage into the local file and wipe his real
+    skills on a `replace_skills` run.
+    """
+    make_profile(skills=["Node.js", "TypeScript"])
+    before = isolated_profile.read_bytes()
+    wire_talent(monkeypatch, serve({"talent_details": {"full_name": "Sundeep G"}}))
+
+    with pytest.raises(Exception) as excinfo:
+        await server.uplers_sync_profile_from_uplers(confirm=True)
+
+    assert "zero skills" in str(excinfo.value)
+    assert isolated_profile.read_bytes() == before
+
+
 async def test_sync_makes_no_request_other_than_reading_the_profile(
     monkeypatch, make_profile, real_payload
 ):
