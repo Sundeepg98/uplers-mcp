@@ -39,8 +39,11 @@ API_BASE = config.BASE_URL + "/api/"
 # in a Location header means "not logged in", never "moved".
 LOGIN_REDIRECT = config.BASE_URL + "/console/login"
 
-# The page a human signs in on.
-LOGIN_URL = LOGIN_REDIRECT
+# The page a human signs in on. NOT the same as LOGIN_REDIRECT: the API
+# redirects unauthenticated browser-shaped requests to /console/login, but the
+# talent-facing sign-in page is /login, and it is the one carrying Google SSO.
+# Conflating the two opened the wrong page and the operator could not sign in.
+LOGIN_URL = config.BASE_URL + "/login"
 
 # --- Reads ----------------------------------------------------------------
 
