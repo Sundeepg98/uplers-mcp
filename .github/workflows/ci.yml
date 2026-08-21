@@ -1,0 +1,63 @@
+name: tests
+
+# This server's scores are now driven by a shared config file and a sibling
+# package. Two things therefore need a gate that a local venv cannot give:
+#
+#   1. A CLEAN CLONE still works. The local venv has jobcore installed
+#      editable and has had it for weeks; a fresh checkout is the only place
+#      "pip install -e ../jobcore" being missing from the README would show up.
+#   2. The suite reads NO ambient config. A runner has none, so the variable
+#      below is belt and braces rather than the guard: the real guard is the
+#      autouse fixture in tests/conftest.py, which is what protects the box
+#      that DOES have a config file. Setting it here only makes the intent
+#      unambiguous when someone later adds a config to the repo.
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Windows is the operator's box. Linux keeps the path handling honest
+        # and is where a clean resolve of the mcp dependency actually differs.
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      # jobcore is a sibling package, not on PyPI, and editing it changes what
+      # a live job server scores. Pinning to master is deliberate: this gate
+      # exists partly to catch a jobcore change breaking a consumer, which a
+      # pinned SHA would hide until someone bumped it.
+      - name: Check out jobcore beside this repo
+        uses: actions/checkout@v4
+        with:
+          repository: Sundeepg98/jobcore
+          path: .jobcore
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install -e ./.jobcore
+
+      - name: The server imports at all
+        # A syntax error or a missing import in server.py registers zero tools
+        # and the suite would still collect, so this is checked separately.
+        env:
+          JOBHUNT_CONFIG: ":none:"
+        run: python -c "import server; print(server.__name__)"
+
+      - name: Run the suite
+        env:
+          JOBHUNT_CONFIG: ":none:"
+        run: python -m pytest -q
