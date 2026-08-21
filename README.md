@@ -11,7 +11,7 @@ unresearchable staffing listing into something you can target.
 
 There are two tiers, and the line between them is the first thing to read.
 
-**The public tier** - 22 tools - needs no login, no account and no browser. One public JSON
+**The public tier** - 23 tools - needs no login, no account and no browser. One public JSON
 endpoint plus the public sitemap. It never applies to anything and never mutates Uplers:
 `uplers_track` records what you already did by hand.
 
@@ -68,7 +68,7 @@ answer, because **the record's own `is_aggregator_job` field is authoritative, n
 
 ---
 
-## The public tier: 22 tools
+## The public tier: 23 tools
 
 Five read the board. Seventeen answer "what is on it **for me**, and what have I done about it".
 Everything in the second group runs against the local index and costs **no network at all**.
@@ -198,6 +198,42 @@ ranked **first** against a Node profile, scoring 90, because its two good-to-hav
 Azure) matched while its single must-have (.NET) did not. Promoting zero must-have coverage to a
 blocker moved 73 such roles out of the ranking and put genuine backend matches at the top.
 
+### Configuration: one shared file, and what it may not reach
+
+Every number that decides a score, a blocker or an order used to be a literal in a source file:
+the skill/experience split, the bonus table, the verdict bands, the must-have warning ratio, the
+one-year experience slack, the stack preference below. They are values now, in a shared
+`jobhunt.json` that this server, Naukri and Instahyre all read. `uplers_config()` shows the file in
+force, and the loader reports **every path it tried** when it finds none - because "I edited it and
+nothing happened" is usually "you edited a different one".
+
+Three properties hold it together, and each is a test rather than an intention:
+
+- **Defaults are the old literals, exactly.** A clone with no config file anywhere scores
+  byte-for-byte as this server did before any of it existed. Nothing moves until he edits.
+- **The scoring path never reads a file.** `uplers_server/policy.py` does the I/O, once, at tool
+  entry; `fit.py` takes the resulting binding and does none. A snapshot is immutable for the whole
+  call, so a change landing mid-call cannot score half a ranking under old weights and half under
+  new. An AST scan over every production module fails the build if a scoring call site is reached
+  without a binding, because "use the shipped defaults" is exactly how a call site would silently
+  ignore his file and still return a plausible number.
+- **Some keys are not loadable at any tier.** The autonomous-apply switches on the Naukri server,
+  chiefly. A file that sets one is refused **loudly** - the refusal is data in
+  `uplers_config().refused` - and the Python value is used. It is never quietly dropped. This
+  server has no apply-authority switch of its own to refuse; what it enforces is that nothing it
+  writes can create one elsewhere: `uplers_config(write_candidate=True)` passes
+  `allowed_sections=("candidate",)`, so `scoring`, a sibling server's block and even
+  `servers.uplers` are all refused by name.
+
+`candidate` is layered over `data/profile.json` field by field, and **provenance decides, not
+emptiness**: `candidate.notice_period_days` defaults to `0` and `0` is also a real answer, so a
+value-based rule would silently overwrite a local `30` with the shared default. A field that is
+actually present in the file wins; everything else stays local, and `uplers_get_profile()` reports
+which is which.
+
+The shared `candidate` block is **not** his Uplers profile. That one lives on Uplers, he owns it,
+and `uplers_sync_profile_from_uplers` is the only bridge - confirm-gated, and one-directional.
+
 ### The stack preference: ranked lower, not hidden
 
 The operator would still take a Python backend role - he has years of it and it stays on his
@@ -205,8 +241,24 @@ profile, earning him matches - but Node/TypeScript is the direction he is moving
 **Python-leaning** requisition (one that wants the Python stack and does *not* want the Node one)
 sorts below an otherwise-comparable Node role.
 
-The mechanism is one signed integer, `PREFERENCE_TILT = 4` in `uplers_server/fit.py`, applied in
-one place, and it is careful about three things:
+The mechanism is a **rule in the shared config file**, `scoring.rank_adjustments`, whose shipped
+default is exactly what a hardcoded `PREFERENCE_TILT = 4` and two frozensets in
+`uplers_server/fit.py` used to do:
+
+```jsonc
+"scoring": {
+  "rank_adjustments": [
+    { "when_skills_include": ["python", "django", "flask", "fastapi"],
+      "and_not": ["javascript", "typescript", "node.js", "express", "nestjs", "next.js"],
+      "delta": -4,
+      "label": "python-leaning stack" }
+  ]
+}
+```
+
+It moved because the preference is *his*, and it was compiled into a server he does not edit.
+An explicit `[]` turns it off; omitting the key keeps the shipped rule. It is careful about three
+things:
 
 - **It is not a filter.** Python roles keep their place in `ranked` and `scanned` and still appear
   with their real score. Nothing is removed.
@@ -218,11 +270,28 @@ one place, and it is careful about three things:
 - **It cannot outweigh a real difference.** 4 is deliberately just under jobcore's smallest
   structural bonus (+5 each for location, remote, salary fit, agent eligibility). A stack
   preference should decide a near-tie; it should not overrule "this role is actually remote", and a
-  Python role that is genuinely five points the better match still ranks first.
+  Python role that is genuinely five points the better match still ranks first. That bound is now
+  enforced in jobcore's Python rather than by the constant happening to be small: each rule's
+  `delta` **and the sum of every matching rule** are clamped to ±4, and the clamp is not reachable
+  from the config file.
 
 A role wanting **both** stacks is not demoted - that is the path he is already on - and a role
-wanting neither is left alone. To retune it, change `PREFERENCE_TILT` or the two frozensets;
-`tests/test_fit.py` pins the intended ordering, including the case where the tilt must lose.
+wanting neither is left alone. The `and_not` clause is what makes that expressible, and it is why
+this is a rule rather than a per-skill weight.
+
+**Why not `scoring.skills.weights`?** Because the arithmetic runs backwards for the case that
+matters. Weighted coverage is `sum(w[matched]) / sum(w[job])`, which *cancels* whenever the matched
+set equals the job set - a pure-Python role against a profile holding Python is untouched - and
+*raises* the score of a job asking for a down-weighted skill he lacks. Measured: `{node.js, django}`
+scores 50 flat and 58.8 with `django` at 0.7, so down-weighting Django makes Django roles look
+better. Folding the preference into the score would also convert a visible, separately-reported
+ranking signal into an invisible component of a number that is supposed to mean the same thing on
+every board.
+
+To retune it, edit the file - `uplers_config()` shows what is in force.
+`tests/test_fit.py` pins the intended ordering including the case where the tilt must lose, and
+`tests/test_policy_wiring.py` reproduces the same -4 from a hand-written rule with the shipped one
+deleted.
 
 ### The pay floor: currency-blind, because Uplers already converted
 
@@ -258,6 +327,18 @@ A role whose band tops out below the floor is flagged, not hidden, when the floo
 profile; passing `min_pay_usd_year` explicitly to a search or ranking call is a filter and does
 exclude.
 
+**Two decisions, two numbers, one denomination.** In the shared config the pay keys are
+`candidate.pay.usd_per_year.floor` (walk-away, flags a role) and `.expected` (the target the +5
+salary bonus is scored against). They were one number doing both jobs, so an unset `expected`
+falls back to the floor and today's behaviour is unchanged. The band beside it,
+`candidate.pay.inr_lakhs_per_year`, belongs to the **Naukri** server and is never read here.
+That split is not tidiness: one shared scalar scores every job on this board +5 (a 24-lakh
+expectation read as dollars clears a $60-90k band by a factor of 2,500) and every job on Naukri 0
+(a $20,959 figure never clears a 25-lakh one) - and both failures look exactly like "no salary
+data". Nothing is ever converted; an exchange rate is not a fact about him, and a score must not
+depend on the day. When the two denominations imply an absurd rate, `uplers_config()` says so and
+still converts nothing.
+
 ### Profile
 
 `data/profile.json` - deliberately a file, not a database row, so you can open it, see exactly
@@ -272,10 +353,11 @@ identically and the numbers would look real.
 days, 75 want 30, 35 want you immediately and only 4 accept more than 30. Until it is set, no role
 can be ruled out on notice, and every tool says so.
 
-### The 17 tools
+### The 18 tools
 
 | Tool | What it is for |
 |---|---|
+| `uplers_config()` | Where the numbers come from: the shared `jobhunt.json` in force, its provenance, and - the field to read first - what it **refused**. `write_candidate=True` copies your local profile into the shared `candidate` block through jobcore's audited write path. |
 | `uplers_get_profile` / `uplers_set_profile` | What every score is computed against. Set-only-what-you-pass; `add_skills` / `remove_skills` are incremental. |
 | `uplers_assess_fit(hr_number)` | One role, full reasoning: matched and missing skills, must-have coverage, experience, bonuses, blockers, flags. |
 | `uplers_rank_opportunities(...)` | **The main tool.** Scores the cohort, drops what you are blocked from, returns the best few as compact rows. Ordered by score adjusted for the stack preference, then raw score, then must-have coverage. |
@@ -869,7 +951,7 @@ successes and failures side by side and `FetchReport.ok` is False if anything fa
 
 ## Tests
 
-`venv\Scripts\python.exe -m pytest` - **727 tests**, all offline via `httpx.MockTransport`,
+`venv\Scripts\python.exe -m pytest` - **817 tests**, all offline via `httpx.MockTransport`,
 against 7 real captured API responses in `tests/fixtures/` (see `tests/fixtures/MANIFEST.md` for
 why each one is there) - six job records plus `talent_profile.json`, his own profile with the
 private half removed by `scripts/capture_profile_fixture.py`. Coverage spans the native/aggregated split, the id date decoder, every
@@ -894,7 +976,7 @@ pins which profile is authoritative, and its last two tests grep the source to p
 writes to his Uplers profile; both were shown failing against an injected write before being
 trusted, because a check that has never failed certifies nothing.
 
-Four invariants hold in every test, three of them autouse so they cannot be forgotten:
+Five invariants hold in every test, four of them autouse so they cannot be forgotten:
 
 - **No network.** Every HTTP interaction goes through `httpx.MockTransport`.
 - **No real data dir.** Every `Store` is built on `tmp_path` or `:memory:`.
@@ -902,6 +984,11 @@ Four invariants hold in every test, three of them autouse so they cannot be forg
   unset, so a test can neither read nor overwrite the operator's real profile.
 - **No background sync.** `UPLERS_AUTO_SYNC=0` for the whole suite, so a tool call cannot spawn
   the scheduler and reach the network behind the mock transport's back.
+- **No ambient config.** `JOBHUNT_CONFIG=:none:` for the whole suite, so a shared `jobhunt.json`
+  anywhere up the tree cannot change what a test asserts - a failure that would otherwise look
+  like a scoring bug on whichever machine happened to have one. `:none:` is the explicit disable
+  token; an *empty* value deliberately means "unset, keep searching", so `JOBHUNT_CONFIG=""`
+  isolates nothing. `test_policy_wiring.py` opts back in per test by writing its own file.
 
 The authenticated tier adds three more guards. These are autouse **within the modules that could
 violate them** rather than in the shared `conftest.py`, which is why they are listed separately:
