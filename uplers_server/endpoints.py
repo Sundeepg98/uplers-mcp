@@ -78,6 +78,28 @@ AUTH_PROBE_NOTE = 'GET /api/talent/profile (401 {"message":"Unauthenticated."} w
 
 EP_INTRESTED = "talent/hr/intrested"                  # POST multipart - THIS IS APPLY
 EP_NOT_INTERESTED = "talent/hr/job-not-interested"    # POST JSON, reversible
+
+#: THE ONLY ROUTE IN THIS SERVER THAT CHANGES WHO HE IS. Everything else writes
+#: to a requisition; this writes to him.
+#:
+#: **REPLACEMENT SEMANTICS - an omitted skill is DELETED.** Body is
+#: ``{"field": "skills", "value": [<EVERY skill>], "tid"?}`` and the response
+#: `res.data.data` is the saved ARRAY.
+#:
+#: This is a DIFFERENT route from `talent/profile`, and the difference is the
+#: dangerous part. `talent/profile` POST carries a section-keyed SINGULAR
+#: envelope (`{experience: {...}}`, `{achievmentsNew: {...}}`) - a per-entity
+#: upsert, paired with `talent/profile/delete-details` for removal. This one
+#: carries `{field, value}` and replaces the whole field. Confusing the two
+#: means sending one skill to a route that treats it as the complete list.
+#:
+#: VERIFIED: chunk 196 module 30196 @122419, resolved through app.js module
+#: 26878 (`P7`) to module 81935 (`Imf`). The proof that removal is an omission
+#: rather than a delete call is their own remove handler at @126363, which
+#: splices the local array and issues no request. Skills is also the only
+#: profile section with NO delete route - all six siblings have one. Full
+#: evidence: `_audit/2026-08-21-uplers-skills-write-shape.md`.
+EP_PROFILE_UPSERT = "talent/profile-upsert"           # POST JSON {field, value}
 EP_CANCEL_OPPORTUNITY = "talent/hr/cancel-opportunity"  # POST JSON, dead code in this build
 EP_UPDATE_SAVED_HR = "talent/hr/update-saved-hr"      # POST JSON {hr_id: enc_id, type}
 

@@ -785,8 +785,12 @@ async def test_tailored_jobs_posts_the_anchor_and_hides_test_requisitions(monkey
     assert result.filters_applied == {"anchor": AGENTAI}
 
 
-async def test_my_profile_shapes_talent_details_and_flags_an_incomplete_one(monkeypatch):
-    """Uplers' matching runs against THIS record, so the gap costs visibility."""
+async def test_my_profile_shapes_talent_details_and_reports_their_completeness(monkeypatch):
+    """Their completeness score is REPORTED, not editorialised.
+
+    It used to say the gap was "costing you visibility". His profile is his
+    decision and this server does not know what he decided or why, so it hands
+    back Uplers' number and stops."""
     payload = {
         "talent_details": {
             "full_name": "Sundeep G",
@@ -812,8 +816,10 @@ async def test_my_profile_shapes_talent_details_and_flags_an_incomplete_one(monk
     assert "total_experience" in result.sections_present
 
     note = " ".join(result.notes)
-    assert "72% complete" in note
-    assert "costing you visibility" in note
+    assert "72%" in note
+    # Reported, not judged: no advice, no verdict on his profile.
+    for editorialising in ("costing you", "should", "thin", "limits", "visibility"):
+        assert editorialising not in note.lower()
 
 
 async def test_a_complete_uplers_profile_gets_no_scolding_note(monkeypatch):
@@ -882,7 +888,11 @@ async def test_compare_profiles_reports_both_directions_and_writes_to_neither(
 
     notes = " ".join(result.notes)
     assert "MISSING from the local profile" in notes
-    assert "local-only" in notes
+    assert "not on Uplers" in notes
+    # Neutral about HIS side: his Uplers skills are a decision he made, so the
+    # difference is stated and no action on that side is suggested.
+    assert "your decision" in notes
+    assert "platform.uplers.com" not in notes
 
     # It changed nothing. Byte-for-byte, not "looks the same".
     assert isolated_profile.read_bytes() == before

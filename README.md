@@ -15,12 +15,13 @@ There are two tiers, and the line between them is the first thing to read.
 endpoint plus the public sitemap. It never applies to anything and never mutates Uplers:
 `uplers_track` records what you already did by hand.
 
-**The authenticated tier** - 14 tools, added 2026-08-21 - reads *his account*, and the difference
+**The authenticated tier** - 17 tools, added 2026-08-21 - reads *his account*, and the difference
 is the whole reason it exists: the public board shows what Uplers is hiring for, his account shows
 what Uplers is doing about **him** - which requisitions he has been matched to, what their
 recruiters have moved to interview, and what his profile looks like to the people making that
-call. Three of the fourteen manage the session, eight read, one syncs his Uplers profile down into
-the local one, and two write to Uplers - and the two writes are not the same kind of act: `uplers_apply` **cannot be undone**, `uplers_dismiss` can. See "Applying
+call. Three of the seventeen manage the session, nine read, one syncs his Uplers profile down into
+the local one, two write to a requisition and two write to his PROFILE - and those are three
+different kinds of act: `uplers_apply` **cannot be undone**, `uplers_dismiss` can. See "Applying
 cannot be undone" before using either.
 
 ---
@@ -30,9 +31,9 @@ cannot be undone" before using either.
 | | |
 |---|---|
 | Stack | Python 3.11+, FastMCP (`mcp`), `httpx`, stdlib `sqlite3`, [`jobcore`](../jobcore) |
-| Tools | **36** - 22 public (5 board readers, 17 profile-aware) + 14 authenticated |
+| Tools | **39** - 22 public (5 board readers, 17 profile-aware) + 17 authenticated |
 | Size | 8,120 lines of server code, 8,577 lines of tests |
-| Tests | **697**, all offline |
+| Tests | **727**, all offline |
 | Network surface | 2 public GET endpoints needing no auth; 12 `talent/*` routes behind a bearer token |
 | Browser | Playwright, in exactly one module, for login only. The public tier needs none. |
 | Maintenance estimate | 1-3 hours/month |
@@ -71,7 +72,7 @@ answer, because **the record's own `is_aggregator_job` field is authoritative, n
 
 Five read the board. Seventeen answer "what is on it **for me**, and what have I done about it".
 Everything in the second group runs against the local index and costs **no network at all**.
-None of the twenty-two needs an account; the fourteen that do are documented under "The
+None of the twenty-two needs an account; the seventeen that do are documented under "The
 authenticated tier" below.
 
 ### `uplers_sync_index(hydrate=True, fetch_budget=300, refresh_stale=True)`
@@ -501,16 +502,22 @@ This is the distinction most likely to be misread, because both tools are called
 | `uplers_get_profile` | the **local** one, `data/profile.json` | what every fit score in this server is computed against |
 | `uplers_my_profile` | his **real Uplers** profile | what recruiters see, and what Uplers' own matching runs against |
 
-**His Uplers profile is authoritative.** He maintains it; the local file exists only so fit scores
-have a candidate to score against. It is a cache of him, not a record of him. So a gap between the
-two is a defect in the **local** copy, and the fix flows one way -
-`uplers_sync_profile_from_uplers()`. **No tool in this server writes to his Uplers profile**, and
-two tests in `test_profile_direction.py` grep the source to keep it that way.
+**His Uplers profile is authoritative.** He maintains it, deliberately; the local file exists only
+so fit scores have a candidate to score against. It is a cache of him, not a record of him. So a
+difference between the two is a defect in the **local** copy, and `uplers_sync_profile_from_uplers()`
+brings it up to date.
 
-This used to be backwards, and it cost him a real answer. `uplers_compare_profiles` reported
-*"Your Uplers profile is thinner than your local one (0 skills there vs 32 here)"* and told him to
-go and add the missing skills on platform.uplers.com - on the day he had just finished filling it
-in. Both halves were wrong: the direction, and the zero. See "The masters join" below.
+`uplers_compare_profiles` therefore **reports differences and recommends nothing about his Uplers
+profile.** What is on it is his decision, arrived at deliberately, and this server does not know
+what he decided or why. It used to say *"Your Uplers profile is thinner than your local one (0
+skills there vs 32 here)"* and tell him to go and add the missing skills on platform.uplers.com -
+on the day he had just finished filling it in. That was wrong three times over: the direction, the
+zero, and the presumption. See "The masters join" below.
+
+The server **can** write to his Uplers profile - `uplers_update_profile()` - and the capability is
+deliberate. Whether it should run is not a judgement this server is equipped to make, so the
+capability exists, is guarded, and the decision to invoke it belongs to the calling client. Read
+"Writing to his profile" before touching it: the route has replacement semantics.
 
 Skills are **unioned** on sync, never replaced, and that is a measured decision rather than
 caution. Scoring the 243 cached requisitions against a straight *replace* moved 73 of them and 71
@@ -527,6 +534,55 @@ computed against 32 skills instead of 62, so every one of them was too low. Full
 His headline and his years are **not** synced by default. "Software Engineer" vs "Backend Software
 Engineer" is positioning; 5.2 vs 5.0 is a rounding convention. Neither side is obviously right, so
 they go to `needs_your_decision` and stay there unless he names them in `also=`.
+
+### Writing to his profile: replacement semantics, and the one way to get it wrong
+
+`uplers_update_profile(add_skills=[...], remove_skills=[...], confirm=False)` changes the skills on
+his real Uplers profile. It is the only tool here that changes **who he is** rather than acting on
+a requisition, and it behaves differently from everything else for one reason:
+
+> **`POST talent/profile-upsert {"field":"skills","value":[...]}` REPLACES the whole list. A skill
+> left out of the array is DELETED. There is no skills delete route and no undo.**
+
+That is VERIFIED against Uplers' own bundle, not assumed - five independent links, with verbatim
+call sites in `_audit/2026-08-21-uplers-skills-write-shape.md`. The decisive one is their own
+remove handler: deleting a skill chip in Uplers' UI fires **no network call at all**, it just
+splices the local array. A removal reaches the server purely as an omission from the next
+full-array POST. Corroborating evidence: skills is the only profile section with no
+`delete-details` route, while all six of its siblings have one.
+
+So the obvious-looking request is the catastrophic one. `value: [{"label": "Rust"}]` reads as
+"add Rust" and deletes sixty skills. Five guards, each with a test:
+
+| guard | why |
+|---|---|
+| Reads the live profile and sends the **complete** rebuilt list | rebuilding rows from names alone would flatten `years_of_experience` to zero on every row - which on a replacement route deletes that data |
+| `confirm=False` returns the **exact request body**, not a summary | the caller is authorising a replacement write; the array *is* the decision |
+| A snapshot is written **before** the request | ordering is the property - a snapshot taken after a half-successful write records the damage, not the way back |
+| An empty resulting array is refused before anything is built | the single most destructive request this endpoint accepts |
+| The write is re-read and **verified**, not trusted from a 200 | "the request succeeded" and "the list is what you wanted" are different claims |
+
+`uplers_restore_profile(snapshot_id=None, confirm=False)` sends a snapshot back. It is itself a
+replacement write, so it is exactly as destructive as the thing it undoes - anything added since
+the snapshot is deleted by it. Its three input guards are inherited from the sibling Instahyre
+server, where the version **without** them destroyed real data: a `snapshot_id` of
+`"../not-a-snapshot"` escaped the snapshots directory, resolved to a file with no skills in it, and
+the "restore" deleted all four of his. The id must match a strict pattern, the resolved path must
+stay inside the snapshots directory, and the record must actually contain skills. Against a
+replacement route the third matters most: restoring an empty snapshot is not a no-op, it is an
+instruction to delete everything.
+
+**Nothing auto-invokes it.** No read, no sync, no scheduled task and no reconciliation can reach
+the write - two tests grep the source to keep it so, and `scheduler.py`, `sync.py`, `alerts.py`,
+`brief.py` and `insight.py` are asserted not to import `profile_write` at all. It runs because a
+caller decided it should, or not at all.
+
+One residual uncertainty, stated because it has not been closed: static analysis proves what the
+SPA **sends**, not what the server **does** with it. The server could in principle merge rather
+than replace. Confirming that needs one live write, and the safe form is writing back the identical
+list already there and re-reading - which the tool's own preview makes easy to inspect first. Until
+someone runs it, treat replacement as the operating assumption, because it is the assumption whose
+failure mode is safe.
 
 ### The masters join, and how 61 skills read as 0
 
@@ -564,7 +620,7 @@ capture time and their absence is asserted, in both the committed fixture and th
 because a shaped profile ends up in transcripts, logs and reports. The private key names are
 filtered out of `sections_present` too - "expected_ctc is populated" is itself a disclosure.
 
-### The 14 tools
+### The 17 tools
 
 | Tool | What it is for |
 |---|---|
@@ -578,6 +634,9 @@ filtered out of `sections_present` too - "expected_ctc is populated" is itself a
 | `uplers_my_profile()` | His real Uplers profile: all three skill sections resolved through the masters join, per-skill years, objective, experience/education/projects, preferred cities and work-mode preference. Carries nothing private. See "Two profiles". **Note:** the live payload has never carried `profile_completion_percentage`, so that field and the note it drives are always absent - the model keeps them because an older shape had them. |
 | `uplers_compare_profiles()` | Where the LOCAL profile has fallen behind the Uplers one. Writes to neither. |
 | `uplers_sync_profile_from_uplers(confirm=False, also=None)` | Copies his Uplers profile into the local one, so fit scores run against the real him. Previews by default; snapshots the local file before writing; unions skills rather than replacing them; leaves the contested headline/years alone unless named in `also`. **Never writes to Uplers.** |
+| `uplers_update_profile(add_skills, remove_skills, confirm=False)` | **Changes the skills on his real Uplers profile.** REPLACEMENT semantics - sends the complete rebuilt list, because an omitted skill is deleted. Previews the exact request body by default; snapshots first; verifies by re-reading. Read "Writing to his profile" first. |
+| `uplers_restore_profile(snapshot_id=None, confirm=False)` | Sends a snapshot back. Itself a replacement write, so anything added since the snapshot is deleted by it. Previews by default; refuses a traversing id or an empty snapshot. |
+| `uplers_list_profile_snapshots()` | Restore points, newest first. Reads disk only; needs no session. |
 | `uplers_my_interviews(detailed=True)` | Interviews Uplers has arranged for him. Read-only. See the namespace note below. |
 | `uplers_filter_options(kind, search=None)` | Turns "React" or "Bangalore" into the internal ids `uplers_my_feed` needs. `kind` is `role` / `skill` / `location` / `company`. |
 | `uplers_apply(hr_number, confirm=False)` | **Applies. Cannot be undone.** Previews by default; sends nothing without `confirm=True`; refuses to apply twice. Read "Applying cannot be undone" first. |
@@ -653,7 +712,7 @@ cd D:\Sundeep\projects\job-hunting\mcp-servers\uplers
 python -m venv venv
 venv\Scripts\python.exe -m pip install -r requirements.txt
 venv\Scripts\python.exe -m pip install -e ../jobcore   # the shared scoring engine
-venv\Scripts\python.exe -m pytest        # 697 tests, no network
+venv\Scripts\python.exe -m pytest        # 727 tests, no network
 venv\Scripts\python.exe server.py        # stdio MCP server
 ```
 
@@ -670,7 +729,7 @@ venv\Scripts\python.exe -m playwright install chromium
 
 **Only `uplers_login` needs this.** Playwright is an optional dependency, deliberately not in
 `requirements.txt`, and it is not needed to run the suite - which is entirely offline and never
-launches a real browser. All 22 public tools work without it, and so do the other thirteen
+launches a real browser. All 22 public tools work without it, and so do the other sixteen
 authenticated tools once a token exists: Playwright opens the sign-in window and does nothing
 else. Without it, `uplers_login` returns `error: "browser_unavailable"` carrying that install
 line, rather than failing obscurely.
@@ -810,7 +869,7 @@ successes and failures side by side and `FetchReport.ok` is False if anything fa
 
 ## Tests
 
-`venv\Scripts\python.exe -m pytest` - **697 tests**, all offline via `httpx.MockTransport`,
+`venv\Scripts\python.exe -m pytest` - **727 tests**, all offline via `httpx.MockTransport`,
 against 7 real captured API responses in `tests/fixtures/` (see `tests/fixtures/MANIFEST.md` for
 why each one is there) - six job records plus `talent_profile.json`, his own profile with the
 private half removed by `scripts/capture_profile_fixture.py`. Coverage spans the native/aggregated split, the id date decoder, every

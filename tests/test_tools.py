@@ -103,6 +103,19 @@ WRITE_TOOL_NAMES = {
 #: going the other way.
 LOCAL_WRITE_TOOL_NAMES = {
     "uplers_sync_profile_from_uplers",
+    "uplers_list_profile_snapshots",
+}
+
+#: The tools that can change HIM on Uplers, as opposed to acting on a
+#: requisition. Separate from WRITE_TOOL_NAMES because they are a different
+#: kind of act with a different worst case: `uplers_apply` sends an
+#: application that cannot be withdrawn, which is irreversible but bounded -
+#: one job. These replace a whole field on his profile, and the worst case is
+#: losing data he typed in by hand. Both are confirm-gated; only these two
+#: snapshot first, because only these two can destroy something.
+PROFILE_WRITE_TOOL_NAMES = {
+    "uplers_update_profile",
+    "uplers_restore_profile",
 }
 
 TOOL_NAMES = (
@@ -111,6 +124,7 @@ TOOL_NAMES = (
     | AUTH_TOOL_NAMES
     | WRITE_TOOL_NAMES
     | LOCAL_WRITE_TOOL_NAMES
+    | PROFILE_WRITE_TOOL_NAMES
 )
 
 S1 = "HR010126120000"   # 2026-01-01T12:00:00
@@ -159,14 +173,17 @@ def wire_client(monkeypatch, handler):
 async def test_importing_server_registers_exactly_the_expected_tools():
     tools_listed = await server.mcp.list_tools()
 
-    assert len(tools_listed) == 36
+    assert len(tools_listed) == 39
     assert {tool.name for tool in tools_listed} == TOOL_NAMES
     # The five original board tools must survive every later addition.
     assert BOARD_TOOL_NAMES <= {tool.name for tool in tools_listed}
-    # And the UPLERS write surface stays exactly this size. A third tool that
-    # can change something on his account appearing without this line being
-    # edited is the thing to catch. Local-only writers are counted separately.
+    # The requisition-write surface stays exactly this size. A third tool that
+    # can act on his account appearing without this line being edited is the
+    # thing to catch.
     assert len(WRITE_TOOL_NAMES) == 2
+    # And the surface that can change HIM stays exactly two: the write and its
+    # undo. Nothing else may ever POST to his profile.
+    assert len(PROFILE_WRITE_TOOL_NAMES) == 2
 
 
 async def test_every_tool_description_carries_its_docstring():

@@ -385,9 +385,9 @@ PROFILE_PAYLOAD = {
 def test_the_profile_block_projects_what_recruiters_actually_see():
     """This is the profile Uplers matches on, not the local one.
 
-    A thin profile here caps what he is shown regardless of how complete
-    data/profile.json is, so the completeness figure is projected beside the
-    content rather than left behind in the envelope.
+    This is the record Uplers' own matching runs on, so the completeness
+    figure is projected beside the content rather than left behind in the
+    envelope - reported as their number, not as a verdict on his profile.
     """
     result = talent_shape.to_talent_profile(PROFILE_PAYLOAD)
 

@@ -14,15 +14,18 @@ Two consequences, both tested here:
   * `uplers_compare_profiles` must recommend fixing the LOCAL side. It used to
     tell him to go and add skills on platform.uplers.com, which is instructing
     him to edit the authoritative record to match its own cache.
-  * NOTHING in this server may write to his Uplers profile. `uplers_apply` and
-    `uplers_dismiss` write to Uplers and stay - they act on requisitions, not
-    on him. The profile is read-only, permanently, and the last test in this
-    file is what keeps it that way.
+  * The two profile ROUTES are never confused. This server can write to his
+    Uplers profile - `uplers_update_profile` - but that write goes to
+    `talent/profile-upsert`, which REPLACES a whole field. The plain
+    `talent/profile` route stays read-only here. The guarantees about how the
+    write may be INVOKED live in `test_profile_write.py`; what this file pins
+    is that the read route never becomes a write one.
 """
 
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -305,55 +308,64 @@ async def test_sync_makes_no_request_other_than_reading_the_profile(
     assert [call.url.path for call in calls] == ["/api/" + endpoints.EP_PROFILE]
 
 
-# --- the standing guarantee ------------------------------------------------
+# --- the route separation --------------------------------------------------
+#
+# This server CAN write to his Uplers profile - `uplers_update_profile`, guarded
+# in `test_profile_write.py`, which is where the invocation guarantees live. The
+# guarantee kept HERE is narrower and is about routes rather than intent:
+#
+#   `talent/profile`        (EP_PROFILE)         READ ONLY, in this server.
+#   `talent/profile-upsert` (EP_PROFILE_UPSERT)  the write.
+#
+# They are different routes with different semantics and confusing them is the
+# dangerous mistake. A POST to `talent/profile` carries a section-keyed SINGULAR
+# envelope - one experience, one achievement - and pairs with a delete route. A
+# POST to `talent/profile-upsert` carries `{field, value}` and REPLACES the whole
+# field. Send a single skill to the second route thinking it behaves like the
+# first and you have deleted sixty.
+#
+# The names make that easy to get wrong: `EP_PROFILE` is a literal substring of
+# `EP_PROFILE_UPSERT`, so a naive grep matches both. This test caught exactly
+# that collision in its own first version, which is the reason the matching
+# below is anchored rather than a substring test.
 
-#: Read as: this server may write to a REQUISITION, never to HIM.
-PROFILE_WRITE_VERBS = ("post_json", "post_form", "put_json", "patch_json", "delete_json")
+_EP_PROFILE_RE = re.compile(r"\bEP_PROFILE\b(?!_)")
 
 
-def test_no_source_path_anywhere_writes_to_the_uplers_profile():
-    """A grep, as a test, because the guarantee is about absence.
+def test_the_plain_profile_route_is_only_ever_read():
+    """`talent/profile` is this server's READ of him. It is never POSTed to.
 
-    Absence cannot be demonstrated by exercising a code path - there is no path
-    to exercise - so the source itself is the thing under test. Every write
-    verb is located and the endpoint it targets is checked; EP_PROFILE must
-    never be one of them.
-
-    `uplers_apply` and `uplers_dismiss` legitimately POST, and they stay. They
-    act on a requisition. This test is the line between the two.
+    Uplers does expose a POST on it - the per-entity section upsert for
+    experiences and achievements - and this server deliberately does not build
+    that. If it ever does, it will be a separate, separately-guarded tool, and
+    this test is what makes that a decision rather than a drift.
     """
     root = Path(__file__).resolve().parent.parent
     sources = [root / "server.py"] + sorted((root / "uplers_server").glob("*.py"))
 
     offences = []
     for source in sources:
-        for number, line in enumerate(source.read_text(encoding="utf-8").splitlines(), 1):
-            if any(verb in line for verb in PROFILE_WRITE_VERBS) and "EP_PROFILE" in line:
-                offences.append("%s:%d  %s" % (source.name, number, line.strip()))
-
-    assert offences == [], (
-        "a write to the operator's Uplers profile has appeared. His profile is "
-        "authoritative and this server reads it only:\n%s" % "\n".join(offences)
-    )
-
-
-def test_the_profile_endpoint_is_only_ever_read():
-    """The complement of the test above, from the other direction.
-
-    Every line that mentions EP_PROFILE outside its own definition must be a
-    GET or a comparison. This catches a write built through a helper whose name
-    is not in PROFILE_WRITE_VERBS.
-    """
-    root = Path(__file__).resolve().parent.parent
-    sources = [root / "server.py"] + sorted((root / "uplers_server").glob("*.py"))
-
-    for source in sources:
         if source.name == "endpoints.py":
             continue
         for number, line in enumerate(source.read_text(encoding="utf-8").splitlines(), 1):
-            if "EP_PROFILE" not in line or line.strip().startswith("#"):
+            if not _EP_PROFILE_RE.search(line) or line.strip().startswith("#"):
                 continue
-            assert "get_json" in line or "EP_AUTH_PROBE" in line or "==" in line, (
-                "%s:%d touches EP_PROFILE in a way that is not a read: %s"
-                % (source.name, number, line.strip())
-            )
+            if not ("get_json" in line or "EP_AUTH_PROBE" in line or "==" in line):
+                offences.append("%s:%d  %s" % (source.name, number, line.strip()))
+
+    assert offences == [], (
+        "EP_PROFILE (the plain read route) is being used for something that is not a "
+        "read. The write route is EP_PROFILE_UPSERT and it has different semantics:\n%s"
+        % "\n".join(offences)
+    )
+
+
+def test_the_two_profile_routes_are_never_confused_for_each_other():
+    """They are different URLs, and the difference is replacement vs upsert."""
+    assert endpoints.EP_PROFILE != endpoints.EP_PROFILE_UPSERT
+    assert endpoints.EP_PROFILE_UPSERT.startswith(endpoints.EP_PROFILE)
+    # The above is precisely why a substring grep is not safe here, and is
+    # asserted so that a future rename that removes the trap also removes the
+    # need for the anchored regex above.
+    assert _EP_PROFILE_RE.search("EP_PROFILE_UPSERT") is None
+    assert _EP_PROFILE_RE.search("endpoints.EP_PROFILE)") is not None

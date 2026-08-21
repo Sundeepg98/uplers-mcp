@@ -270,6 +270,54 @@ class FieldChange(Compact):
     after: str | None = None
 
 
+class ProfileWriteResult(Compact):
+    """A write to HIS Uplers profile - proposed, or performed.
+
+    The only result type in this server that describes changing the person
+    rather than acting on a requisition, and the fields reflect that. It
+    carries the EXACT request rather than a summary, because the caller is
+    being asked to authorise a REPLACEMENT write and the array is the
+    decision - a summary cannot be reasoned about, and "add Rust" that quietly
+    ships 62 rows is exactly the shape of the accident this guards against.
+    """
+
+    applied: bool = Field(
+        False, description="False means this was a preview and NOTHING was sent."
+    )
+    request_method: str | None = None
+    request_path: str | None = None
+    request_body: dict = Field(
+        default_factory=dict,
+        description="The exact JSON that would be, or was, POSTed. Not a summary.",
+    )
+    skills_before: int | None = None
+    skills_after: int | None = None
+    skills_added: list[str] = Field(default_factory=list)
+    skills_removed: list[str] = Field(default_factory=list)
+    snapshot_id: str | None = Field(
+        None, description="Restore point taken BEFORE the write. Pass to uplers_restore_profile()."
+    )
+    verified: bool | None = Field(
+        None, description="Re-read after the write and the list matched. None = not checked."
+    )
+    notes: list[str] = Field(default_factory=list)
+
+
+class SnapshotEntry(Compact):
+    snapshot_id: str | None = None
+    taken_at: str | None = None
+    label: str | None = None
+    skills: int | None = None
+
+
+class SnapshotList(Compact):
+    """Restore points, newest first. Reads disk only; needs no session."""
+
+    snapshots: list[SnapshotEntry] = Field(default_factory=list)
+    directory: str | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
 class ProfileSyncResult(Compact):
     """What a local <- Uplers sync did, or would do. One direction only.
 

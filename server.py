@@ -21,6 +21,7 @@ from __future__ import annotations
 import inspect
 import logging
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -44,6 +45,7 @@ from uplers_server import (
     ids,
     insight,
     profile as prof,
+    profile_write,
     scheduler as sched_mod,
     search as search_mod,
     sync as sync_mod,
@@ -97,6 +99,9 @@ from uplers_server.talent_models import (
     PipelineResult,
     ProfileComparison,
     ProfileSyncResult,
+    ProfileWriteResult,
+    SnapshotEntry,
+    SnapshotList,
     TalentFeed,
     TalentProfileResult,
     WritePreview,
@@ -2179,19 +2184,24 @@ async def uplers_my_profile() -> TalentProfileResult:
     """Your REAL Uplers profile - the one recruiters and their matching see.
 
     Distinct from uplers_get_profile(), which returns the LOCAL profile this
-    server scores against. This one is what actually determines which
-    requisitions Uplers shows you, so a thin profile here limits your matching
-    no matter how complete the local one is.
+    server scores against. This is the record Uplers' own matching runs on and
+    the one you maintain, so where the two differ, this one is right.
 
-    Run uplers_compare_profiles() to see where the two disagree.
+    Reports what is there. It does not rate your profile or suggest changes to
+    it - what belongs on it is your call, and this server does not know what
+    you decided or why.
+
+    Run uplers_compare_profiles() to see where the two differ.
     """
     async with _talent_client() as client:
         payload = await client.get_json(endpoints.EP_PROFILE)
     result = talent_shape.to_talent_profile(payload)
     if result.completion_percentage is not None and result.completion_percentage < 100:
+        # Reported as Uplers' number, not as a verdict. Their completeness
+        # score counts sections this server has no opinion about, and a profile
+        # can be exactly as complete as its owner intends it to be.
         result.notes.append(
-            "Uplers rates this profile %s%% complete. Their matching runs against "
-            "this record, so the gap is costing you visibility."
+            "Uplers' own completeness score for this profile is %s%%."
             % round(result.completion_percentage)
         )
     return result
@@ -2267,9 +2277,9 @@ async def uplers_compare_profiles() -> ProfileComparison:
         )
     if only_local:
         notes.append(
-            "%d skill(s) are local-only: %s. Uplers does not list them, so they are "
-            "not working for you in their matching - but they stay in the local "
-            "profile, because a fit score should know about a skill you have."
+            "%d skill(s) are on the local profile and not on Uplers: %s. Stated as "
+            "a difference, not a gap - what is on your Uplers profile is your "
+            "decision. They stay in the local copy so fit scores keep using them."
             % (len(only_local), ", ".join(only_local[:12]))
         )
 
@@ -2419,8 +2429,8 @@ async def uplers_sync_profile_from_uplers(
     notes: list[str] = []
     if kept:
         notes.append(
-            "%d local-only skill(s) kept, not deleted: %s. Uplers does not list them, "
-            "so consider adding them there - that is the side that gets you shown."
+            "%d local-only skill(s) kept, not deleted: %s. Uplers does not list "
+            "them; that is not changed here and is not this server's call."
             % (len(kept), ", ".join(kept[:12]))
         )
     if removed:
@@ -2720,6 +2730,234 @@ async def uplers_dismiss(
         reverse_with='uplers_dismiss("%s", confirm=True%s)'
         % (hr_number, "" if undo else ", undo=True"),
         response=response if isinstance(response, dict) else {},
+    )
+
+
+# --------------------------------------------------------------- tool 37 ---
+#
+# The profile write. Read `uplers_server/profile_write.py` before touching any
+# of the three tools below - the route is REPLACEMENT semantics and the failure
+# mode is silent deletion of things a person typed in by hand.
+
+
+def _stamp_to_iso(stamp) -> str | None:
+    """Snapshot timestamps are unix floats on disk; a reader wants a date."""
+    if stamp is None:
+        return None
+    try:
+        return datetime.fromtimestamp(float(stamp), timezone.utc).isoformat(
+            timespec="seconds"
+        )
+    except (OSError, OverflowError, ValueError):
+        return None
+
+
+def _replacement_warning(value: list[dict]) -> str:
+    return (
+        "REPLACEMENT WRITE. Uplers replaces your ENTIRE skill list with the %d rows in "
+        "`value`; anything not in this list is DELETED. There is no skills delete route "
+        "on Uplers and no undo - removal happens by omission. The snapshot is the only "
+        "way back." % len(value)
+    )
+
+
+@mcp.tool()
+async def uplers_update_profile(
+    add_skills: list[str] | None = None,
+    remove_skills: list[str] | None = None,
+    confirm: bool = False,
+) -> ProfileWriteResult:
+    """Change the skills on your REAL Uplers profile. Previews by default.
+
+    This is the only tool here that changes who you are rather than acting on
+    a job. Whether it SHOULD run is not this server's call - it does not know
+    what you agreed with whom, or why a skill is or is not on your profile.
+
+    READ THIS BEFORE CONFIRMING. Uplers' skills endpoint is a REPLACEMENT: it
+    overwrites your whole list with what is sent, and a skill left out is
+    deleted. There is no delete route and no undo. This tool therefore reads
+    your live profile, applies your change to the complete set, and sends all
+    of it - and it writes a snapshot first, which is the only way back.
+
+    With confirm=False it returns the exact request it would send and changes
+    nothing. Read the `value` array in `request_body`: that array IS the
+    decision.
+
+    Args:
+        add_skills: skills to add. Matched case-insensitively against your
+            existing ones and against Uplers' master list, so a known skill
+            keeps its real id and its own spelling.
+        remove_skills: skills to remove. Removal is by omission from the array.
+        confirm: False previews. True sends the write.
+    """
+    async with _talent_client() as client:
+        payload = await client.get_json(endpoints.EP_PROFILE)
+
+    plan = profile_write.plan_skills(
+        payload, add=add_skills or [], remove=remove_skills or []
+    )
+    body = profile_write.request_body(plan["value"])
+    before = len(profile_write.current_skill_rows(payload))
+
+    notes = [_replacement_warning(plan["value"])]
+    if plan["unknown_removals"]:
+        notes.append(
+            "Not on your profile, so nothing to remove: %s."
+            % ", ".join(plan["unknown_removals"])
+        )
+
+    result = ProfileWriteResult(
+        applied=False,
+        request_method="POST",
+        request_path=endpoints.EP_PROFILE_UPSERT,
+        request_body=body,
+        skills_before=before,
+        skills_after=len(plan["value"]),
+        skills_added=plan["added"],
+        skills_removed=plan["removed"],
+        notes=notes,
+    )
+
+    if not confirm:
+        result.notes.insert(
+            0,
+            "PREVIEW - nothing was sent. Check the `value` array, then re-run with "
+            "confirm=True.",
+        )
+        return result
+
+    # Snapshot BEFORE the request, never after: a snapshot taken after a write
+    # that half-succeeded records the damage rather than the way back.
+    snapshot = profile_write.write_snapshot(payload, label="pre-skills-write")
+    result.snapshot_id = snapshot["snapshot_id"]
+
+    async with _talent_client() as client:
+        await client.post_json(endpoints.EP_PROFILE_UPSERT, body)
+        # Verified by re-reading, not by trusting a 200. This route replaces a
+        # list; "the request succeeded" and "the list is what you wanted" are
+        # different claims and only the second one matters.
+        after = await client.get_json(endpoints.EP_PROFILE)
+
+    landed = {row["label"].strip().lower() for row in profile_write.current_skill_rows(after)}
+    wanted = {row["label"].strip().lower() for row in plan["value"]}
+    result.applied = True
+    result.verified = landed == wanted
+    result.skills_after = len(landed)
+    if not result.verified:
+        result.notes.append(
+            "WRITE LANDED BUT DID NOT VERIFY. Uplers now holds %d skills, not the %d "
+            "sent. Missing: %s. Extra: %s. Restore with "
+            "uplers_restore_profile(snapshot_id=%r, confirm=True)."
+            % (
+                len(landed),
+                len(wanted),
+                ", ".join(sorted(wanted - landed)[:10]) or "none",
+                ", ".join(sorted(landed - wanted)[:10]) or "none",
+                snapshot["snapshot_id"],
+            )
+        )
+    else:
+        result.notes.append(
+            "Re-read after writing and the list matches. Restore point: %s."
+            % snapshot["snapshot_id"]
+        )
+    return result
+
+
+@mcp.tool()
+async def uplers_restore_profile(
+    snapshot_id: str | None = None, confirm: bool = False
+) -> ProfileWriteResult:
+    """Put your Uplers skills back to a snapshot. Previews by default.
+
+    Snapshots are written automatically before every uplers_update_profile()
+    write. This sends the snapshotted list back through the same replacement
+    endpoint.
+
+    A restore is itself a replacement write, so it is exactly as destructive as
+    the thing it undoes: anything added since the snapshot is deleted by it.
+    Preview first.
+
+    Args:
+        snapshot_id: which restore point. Omit for the most recent.
+        confirm: False previews. True sends the write.
+    """
+    record = profile_write.load_snapshot(snapshot_id)
+    body = profile_write.request_body(record["skills"])
+
+    async with _talent_client() as client:
+        payload = await client.get_json(endpoints.EP_PROFILE)
+    current = profile_write.current_skill_rows(payload)
+
+    live = {row["label"].strip().lower() for row in current}
+    saved = {row["label"].strip().lower() for row in record["skills"]}
+
+    result = ProfileWriteResult(
+        applied=False,
+        request_method="POST",
+        request_path=endpoints.EP_PROFILE_UPSERT,
+        request_body=body,
+        skills_before=len(current),
+        skills_after=len(record["skills"]),
+        skills_added=sorted(
+            row["label"] for row in record["skills"] if row["label"].strip().lower() not in live
+        ),
+        skills_removed=sorted(
+            row["label"] for row in current if row["label"].strip().lower() not in saved
+        ),
+        snapshot_id=record.get("snapshot_id"),
+        notes=[_replacement_warning(record["skills"])],
+    )
+
+    if not confirm:
+        result.notes.insert(
+            0,
+            "PREVIEW - nothing was sent. This would restore snapshot %s, taken when you "
+            "had %d skills." % (record.get("snapshot_id"), len(record["skills"])),
+        )
+        return result
+
+    # The pre-restore state is itself worth keeping: a restore aimed at the
+    # wrong snapshot is the obvious way to lose work, and without this there
+    # would be nothing to come back to.
+    profile_write.write_snapshot(payload, label="pre-restore")
+
+    async with _talent_client() as client:
+        await client.post_json(endpoints.EP_PROFILE_UPSERT, body)
+        after = await client.get_json(endpoints.EP_PROFILE)
+
+    landed = {row["label"].strip().lower() for row in profile_write.current_skill_rows(after)}
+    result.applied = True
+    result.verified = landed == saved
+    result.skills_after = len(landed)
+    return result
+
+
+@mcp.tool()
+async def uplers_list_profile_snapshots() -> SnapshotList:
+    """Restore points for your Uplers profile, newest first. Reads disk only.
+
+    One is written before every uplers_update_profile() write, and one before
+    every restore. An empty list means this server has never written to your
+    Uplers profile.
+    """
+    entries = profile_write.list_snapshots()
+    return SnapshotList(
+        snapshots=[
+            SnapshotEntry(
+                snapshot_id=entry["snapshot_id"],
+                taken_at=_stamp_to_iso(entry.get("taken_at")),
+                label=entry.get("label"),
+                skills=entry.get("skills"),
+            )
+            for entry in entries
+        ],
+        directory=str(profile_write.snapshots_dir()),
+        notes=(
+            []
+            if entries
+            else ["No snapshots. This server has never written to your Uplers profile."]
+        ),
     )
 
 
