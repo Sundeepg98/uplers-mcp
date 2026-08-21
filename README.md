@@ -513,10 +513,16 @@ go and add the missing skills on platform.uplers.com - on the day he had just fi
 in. Both halves were wrong: the direction, and the zero. See "The masters join" below.
 
 Skills are **unioned** on sync, never replaced, and that is a measured decision rather than
-caution. Scoring the 243 cached requisitions against his real Uplers skill set moved 73 of them
-and 71 moved *up* - but two email-infrastructure roles moved *down*, because the local profile
-carries seven email skills (SMTP, deliverability, bulk email, RabbitMQ) that Uplers does not list.
-A replace would delete real capability and quietly demote every email role.
+caution. Scoring the 243 cached requisitions against a straight *replace* moved 73 of them and 71
+moved up - but two email-infrastructure roles moved **down**, because the local profile carries
+seven email skills (SMTP, deliverability, bulk email, RabbitMQ) that Uplers does not list. A
+replace would delete real capability and quietly demote every email role. Under the union, 72 rows
+rise and **none falls** - minimum delta +0 across all 243.
+
+The correction is large and one-directional: **16 requisitions cross 70 upward and none crosses
+down**, taking the shortlist from 31 to 47. Every score this server produced before this fix was
+computed against 32 skills instead of 62, so every one of them was too low. Full measurement in
+`_audit/2026-08-21-uplers-fit-delta.md`.
 
 His headline and his years are **not** synced by default. "Software Engineer" vs "Backend Software
 Engineer" is positioning; 5.2 vs 5.0 is a rounding convention. Neither side is obviously right, so
