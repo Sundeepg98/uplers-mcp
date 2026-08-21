@@ -134,8 +134,14 @@ def build(
     peek: bool = False,
     alert_rows: int = 3,
     bound=None,
+    explain: bool = False,
 ) -> dict:
-    """Assemble the brief. Returns a plain dict the tool wraps in a model."""
+    """Assemble the brief. Returns a plain dict the tool wraps in a model.
+
+    ``explain`` reaches both scored sections - the new-requisition ranking and
+    the alert hits. The follow-up rows are read straight off tracked local
+    state and are never scored, so nothing is added to them.
+    """
     bound = policy_mod.resolve(bound)
     start, how = window_start(store, since=since)
     health, notes = index_health(store, bound)
@@ -150,6 +156,7 @@ def build(
         fresh, profile,
         exclude_blocked=bound.setting("exclude_blocked", "brief", default=True),
         bound=bound,
+        explain=explain,
     )
     new_rows = [
         fit.to_row(
@@ -187,7 +194,8 @@ def build(
     for alert in store.list_alerts():
         try:
             matches = alerts_mod.evaluate(
-                opportunities, alert["criteria"], profile, bound=bound)
+                opportunities, alert["criteria"], profile, bound=bound,
+                explain=explain)
         except Exception as exc:  # noqa: BLE001 - one bad alert must not kill the brief
             notes.append("alert %r could not be evaluated: %s" % (alert["name"], exc))
             continue

@@ -130,20 +130,28 @@ def to_talent_row(
     profile=None,
     opportunity: Opportunity | None = None,
     bound=None,
+    explain: bool = False,
 ) -> TalentRow:
     """One authenticated row: the public projection plus his own state.
 
     Scoring is optional and is jobcore's, unchanged. When `profile` is given
     the row carries a score comparable with every other score in this server.
+
+    `explain` only means anything alongside a profile: with no profile there is
+    no assessment, so the row is unscored and carries no block. That is the
+    same condition the tools' `score=False` produces, and it is why passing
+    `score=False, explain=True` is a no-op rather than an error.
     """
     opp = opportunity or shaping.to_opportunity(raw)
 
     score = verdict = None
+    working: dict | None = None
     gaps: list[str] = []
     blockers: list[str] = []
     if profile is not None:
-        assessment = fit.assess(opp, profile, bound)
+        assessment = fit.assess(opp, profile, bound, explain=explain)
         score = assessment.get("overall_score")
+        working = assessment.get("explain")
         verdict = fit.compact_verdict(assessment)
         must = assessment.get("must_have") or {}
         gaps = list(
@@ -184,6 +192,7 @@ def to_talent_row(
         gaps=gaps,
         blockers=blockers,
         posted_at=(opp.posted_at or "")[:10] or None,
+        explain=working,
     )
 
 
@@ -194,6 +203,7 @@ def rows_from(
     profile=None,
     drop_test_records: bool = True,
     bound=None,
+    explain: bool = False,
 ) -> tuple[list[TalentRow], dict, list[str]]:
     """`(rows, page_meta, notes)`. Raises rather than returning nothing quietly."""
     raw_rows, meta = unwrap_paginator(payload, route=route)
@@ -211,7 +221,10 @@ def rows_from(
             "Uplers' own UI does with them." % dropped
         )
     return (
-        [to_talent_row(raw, profile=profile, bound=bound) for raw in kept],
+        [
+            to_talent_row(raw, profile=profile, bound=bound, explain=explain)
+            for raw in kept
+        ],
         meta,
         notes,
     )

@@ -250,11 +250,19 @@ def blockers_and_flags(opp: Opportunity, profile, bound=None) -> tuple[list[str]
     return (blockers, flags)
 
 
-def assess(opp: Opportunity, profile, bound=None) -> dict:
+def assess(opp: Opportunity, profile, bound=None, *, explain: bool = False) -> dict:
     """Score one requisition against the profile.
 
     Returns the jobcore result dict plus the Uplers-specific fields:
     ``must_have`` coverage, ``blockers`` and ``flags``.
+
+    ``explain=True`` adds jobcore's ``explain`` block -- the weights, the two
+    base components and their weighted combination, the bonus table with the
+    cap that was or was not applied, the verdict band, and the ``scoring_hash``
+    of the arithmetic that produced the number. It is OFF by default because it
+    roughly doubles the size of a scored row and this server's governing
+    constraint is token cost. The number is identical either way: the block is
+    a readout of the working, never an input to it.
     """
     bound = policy_mod.resolve(bound)
     engine = bound.engine
@@ -280,6 +288,7 @@ def assess(opp: Opportunity, profile, bound=None) -> dict:
         profile_expected_ctc=policy_mod.expected_pay(profile),
         experience_min=low,
         experience_max=high,
+        explain=explain,
     )
 
     covered = must & mine
@@ -336,6 +345,7 @@ def rank(
     *,
     exclude_blocked: bool | None = None,
     bound=None,
+    explain: bool = False,
 ) -> tuple[list[tuple[Opportunity, dict]], int]:
     """Score and order a cohort. Returns (ranked pairs, blocked_count).
 
@@ -346,6 +356,9 @@ def rank(
 
     ``exclude_blocked=None`` takes ``servers.uplers.exclude_blocked.rank``,
     whose default is today's ``True``.
+
+    ``explain`` is handed straight to :func:`assess`, so every pair carries the
+    working as well as the number. It changes no score and no ordering.
     """
     bound = policy_mod.resolve(bound)
     if exclude_blocked is None:
@@ -353,7 +366,7 @@ def rank(
     scored: list[tuple[Opportunity, dict]] = []
     blocked = 0
     for opp in opportunities:
-        assessment = assess(opp, profile, bound)
+        assessment = assess(opp, profile, bound, explain=explain)
         if assessment["blockers"]:
             blocked += 1
             if exclude_blocked:
@@ -396,6 +409,11 @@ def to_row(
     `city` is dropped for Remote roles (it names an office nobody attends) and
     `posted_at` is trimmed to a date - the seconds in an HR number are exact
     but nobody needs them, and they cost nine characters on every row.
+
+    This is a PROJECTION and scores nothing, so it takes no `explain` switch:
+    the block rides on the assessment it was asked for and is carried through
+    to the row. An assessment scored without one leaves the field None, and
+    `Compact` then prunes it off the wire entirely.
     """
     from .models import RankedRow
 
@@ -420,4 +438,5 @@ def to_row(
         posted_at=(opp.posted_at or "")[:10] or None,
         saved=saved or None,
         status=status,
+        explain=(assessment or {}).get("explain"),
     )

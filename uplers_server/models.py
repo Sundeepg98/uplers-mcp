@@ -226,6 +226,15 @@ class RankedRow(Compact):
     posted_at: str | None = None
     saved: bool | None = None
     status: str | None = Field(None, description="Your tracked status, if any")
+    explain: dict | None = Field(
+        None,
+        description=(
+            "The arithmetic behind `score`, when the tool was called with "
+            "explain=True: weights, the two base components and their "
+            "combination, the bonus table and its cap, the verdict band, and "
+            "the scoring_hash. Absent unless asked for."
+        ),
+    )
 
 
 class ProfileSummary(Compact):
@@ -240,12 +249,26 @@ class ProfileSummary(Compact):
         None,
         description="The USD/year figure the +5 salary bonus was scored against",
     )
-    policy: str | None = Field(
+    policy_hash: str | None = Field(
         None,
         description=(
-            "First 12 chars of the scoring-policy fingerprint. Two scores carrying "
-            "the same one are directly comparable; two carrying different ones are "
-            "not, and this is how you can tell."
+            "Fingerprint of the WHOLE policy - the scoring arithmetic AND the "
+            "candidate block it was layered with. This is the config-identity "
+            "hash: it answers 'was this scored under the same setup', and it "
+            "is what an approval gate compares."
+        ),
+    )
+    scoring_hash: str | None = Field(
+        None,
+        description=(
+            "Fingerprint of the ARITHMETIC ALONE - weights, bonuses, caps, "
+            "verdict bands. THIS is the comparability field: two scores "
+            "carrying the same one were produced by the same sums and can be "
+            "compared directly; two carrying different ones cannot. It is the "
+            "value stamped on a scored result and reported by uplers_config(), "
+            "and it matches the Naukri server's for the same arithmetic. It "
+            "deliberately differs from policy_hash, which also covers the "
+            "candidate."
         ),
     )
 
@@ -281,7 +304,21 @@ class ConfigReport(Compact):
         None, description="Counter the loader advances on every NEW fingerprint it sees"
     )
     policy_hash: str | None = Field(
-        None, description="Fingerprint of exactly the inputs that can move a number"
+        None,
+        description=(
+            "Fingerprint of the whole policy: the scoring arithmetic AND the "
+            "candidate block. Config identity - 'is this the same setup'."
+        ),
+    )
+    scoring_hash: str | None = Field(
+        None,
+        description=(
+            "Fingerprint of the arithmetic alone. This is the one to compare "
+            "against a scored result's stamp: equal means the result was "
+            "produced by the sums currently in force. Different from "
+            "policy_hash by construction, because that one also covers the "
+            "candidate."
+        ),
     )
     candidate: dict = Field(default_factory=dict)
     scoring: dict = Field(default_factory=dict)
@@ -333,6 +370,15 @@ class FitAssessment(Compact):
     url: str | None = None
     saved: bool | None = None
     status: str | None = None
+    explain: dict | None = Field(
+        None,
+        description=(
+            "The arithmetic behind `score`, when called with explain=True: "
+            "weights, the two base components and their combination, the "
+            "bonus table and its cap, the verdict band, and the scoring_hash. "
+            "Absent unless asked for."
+        ),
+    )
     scored_against: ProfileSummary | None = None
     notes: list[str] = Field(default_factory=list)
 
@@ -362,6 +408,14 @@ class SavedJob(Compact):
     status: str | None = None
     still_listed: bool | None = Field(
         None, description="False means the record is no longer in the local index"
+    )
+    explain: dict | None = Field(
+        None,
+        description=(
+            "The arithmetic behind `score`, when called with explain=True. "
+            "Absent unless asked for, and absent anyway when score=False - "
+            "there is no score to explain."
+        ),
     )
 
 

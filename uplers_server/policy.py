@@ -110,7 +110,18 @@ class Bound:
 
     @property
     def policy_hash(self) -> str:
+        """Scoring AND candidate. Config identity - "is this the same setup"."""
         return self.loaded.policy_hash
+
+    @property
+    def scoring_hash(self) -> str:
+        """The arithmetic alone, and the one a scored result is stamped with.
+
+        Deliberately not equal to :attr:`policy_hash`: that one also covers the
+        candidate block, so comparing a result's stamp against it reports a
+        difference that does not exist. This is the comparability field.
+        """
+        return self.loaded.scoring_hash
 
     # ── servers.uplers.* accessors ────────────────────────────────────────
     def setting(self, *path, default=None):
@@ -176,6 +187,10 @@ _ENGINE_CACHE_MAX = 32
 
 def engine_for(loaded) -> ScoringEngine:
     """The :class:`ScoringEngine` this policy implies, memoised by fingerprint."""
+    # Deliberately the WIDER hash: the engine is built from scoring AND
+    # candidate, so scoring_hash would collide two engines that differ in the
+    # candidate half. A key wider than the thing it guards is only ever a
+    # missed cache hit; a narrower one is a wrong answer.
     key = loaded.policy_hash
     engine = _ENGINES.get(key)
     if engine is None:

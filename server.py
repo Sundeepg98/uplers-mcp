@@ -631,9 +631,20 @@ def _profile_summary(profile, bound=None) -> ProfileSummary:
     """Attached to every scored result, so a score is never orphaned from
     the profile it was computed against - nor from the policy that scored it.
 
-    `policy` is the fingerprint of exactly the inputs that can move a number.
-    Two results carrying the same one are directly comparable; two carrying
-    different ones are not, and now the reader can tell.
+    TWO fingerprints, because they answer two different questions and one name
+    over both is what made "is this score still current" unanswerable.
+
+    `policy_hash` covers the scoring arithmetic AND the candidate block: the
+    identity of the whole setup, and what an approval gate compares.
+
+    `scoring_hash` covers the arithmetic alone - weights, bonuses, caps,
+    verdict bands. THIS is the comparability field. It is the value stamped on
+    a scored result and reported by uplers_config(), and it is what the Naukri
+    server stamps too, so an equal one there means the two numbers were
+    produced by the same sums. The candidate half is deliberately outside it:
+    a result can only vouch for the arithmetic.
+
+    Neither is truncated. Both are already 12 characters.
     """
     bound = policy_mod.resolve(bound)
     return ProfileSummary(
@@ -643,7 +654,8 @@ def _profile_summary(profile, bound=None) -> ProfileSummary:
         notice_period_days=profile.notice_period_days,
         min_pay_usd_year=profile.min_pay_usd_year,
         expected_pay_usd_year=policy_mod.expected_pay(profile),
-        policy=bound.policy_hash[:12],
+        policy_hash=bound.policy_hash,
+        scoring_hash=bound.scoring_hash,
     )
 
 
@@ -914,7 +926,9 @@ async def uplers_set_profile(
 
 
 @mcp.tool()
-async def uplers_assess_fit(hr_number: str, refresh: bool = False) -> FitAssessment:
+async def uplers_assess_fit(
+    hr_number: str, refresh: bool = False, explain: bool = False
+) -> FitAssessment:
     """Score ONE requisition against your profile, with the full reasoning.
 
     The score is jobcore's - the same engine the Naukri server uses, so a 78
@@ -933,6 +947,12 @@ async def uplers_assess_fit(hr_number: str, refresh: bool = False) -> FitAssessm
     Args:
         hr_number: the requisition id, e.g. "HR030826155648".
         refresh: re-fetch the record from Uplers before scoring.
+        explain: show the arithmetic, not just the number - the two weighted
+            components, every bonus and whether the cap bit, the verdict band
+            the score fell in, and the scoring_hash. This is the one tool
+            where it is worth it: you are already reading one role in full,
+            and this is the surface that answers "why 78 and not 85". Off by
+            default because it is roughly another row's worth of tokens.
     """
     bound = _bind()
     _ensure_scheduler(bound)
@@ -952,7 +972,7 @@ async def uplers_assess_fit(hr_number: str, refresh: bool = False) -> FitAssessm
                 "requisition. It carries no end-client detail and no typed skill split, "
                 "so the score rests on thinner data than a native record."
             )
-        assessment = fit.assess(opp, profile, bound)
+        assessment = fit.assess(opp, profile, bound, explain=explain)
         must = assessment["must_have"]
         return FitAssessment(
             hr_number=opp.hr_number,
@@ -977,6 +997,7 @@ async def uplers_assess_fit(hr_number: str, refresh: bool = False) -> FitAssessm
             url=opp.url,
             saved=store.is_saved(normalised) or None,
             status=(store.get_tracked(normalised) or {}).get("status"),
+            explain=assessment.get("explain"),
             scored_against=_profile_summary(profile, bound),
             notes=notes,
         )
@@ -1002,6 +1023,7 @@ async def uplers_rank_opportunities(
     max_yoe: float | None = None,
     include_aggregated: bool | None = None,
     saved_only: bool = False,
+    explain: bool = False,
 ) -> RankResult:
     """Rank the native cohort against your profile. The main tool of this server.
 
@@ -1031,6 +1053,11 @@ async def uplers_rank_opportunities(
         include_aggregated: fold in the ~39k scraped postings. Unset takes
             servers.uplers.include_aggregated, default off.
         saved_only: rank just your shortlist.
+        explain: attach the arithmetic to EVERY row returned. The cost scales
+            with `limit`, which is why it is off here and why the usual move
+            is to rank first and then explain the one row that surprised you
+            with uplers_assess_fit(explain=True). Reach for it here only when
+            you are comparing how two roles got their scores.
     """
     bound = _bind()
     _ensure_scheduler(bound)
@@ -1067,7 +1094,8 @@ async def uplers_rank_opportunities(
                 )
         population = [opp for opp in population if search_mod.matches(opp, **filters)]
         ranked, blocked = fit.rank(
-            population, profile, exclude_blocked=exclude_blocked, bound=bound)
+            population, profile, exclude_blocked=exclude_blocked, bound=bound,
+            explain=explain)
         if min_score is not None:
             ranked = [pair for pair in ranked if pair[1]["overall_score"] >= min_score]
         rows = [
@@ -1155,7 +1183,9 @@ async def uplers_save_job(hr_number: str, note: str | None = None) -> SaveResult
 
 
 @mcp.tool()
-async def uplers_list_saved(score: bool = True, limit: int = 25) -> SavedList:
+async def uplers_list_saved(
+    score: bool = True, limit: int = 25, explain: bool = False
+) -> SavedList:
     """Your shortlist, optionally re-scored against the current profile.
 
     Re-scoring matters: a profile edit changes what a saved role is worth, and
@@ -1170,6 +1200,10 @@ async def uplers_list_saved(score: bool = True, limit: int = 25) -> SavedList:
         score: compute a current fit score for each entry. Costs nothing but
             local CPU; set False if you only want the list.
         limit: maximum entries returned, newest save first.
+        explain: show how each of those scores was reached. Useful for exactly
+            one question here - "why is this one worth less than when I saved
+            it" - and answered by reading the bonus table and the band. Does
+            nothing when score=False, since there is then no score to explain.
     """
     bound = _bind()
     _ensure_scheduler(bound)
@@ -1200,7 +1234,9 @@ async def uplers_list_saved(score: bool = True, limit: int = 25) -> SavedList:
                 entry.pay = fit.render_pay(opp)
                 entry.notice = opp.joining_period
                 if profile is not None:
-                    entry.score = fit.assess(opp, profile, bound)["overall_score"]
+                    assessment = fit.assess(opp, profile, bound, explain=explain)
+                    entry.score = assessment["overall_score"]
+                    entry.explain = assessment.get("explain")
             out.append(entry)
         if not rows:
             notes.append(
@@ -1525,7 +1561,9 @@ async def uplers_set_alert(
 
 
 @mcp.tool()
-async def uplers_list_alerts(evaluate: bool = False, rows: int = 3) -> AlertList:
+async def uplers_list_alerts(
+    evaluate: bool = False, rows: int = 3, explain: bool = False
+) -> AlertList:
     """Your saved alerts, optionally run right now.
 
     Use it: to see what is being watched, and to check an alert is not
@@ -1536,6 +1574,11 @@ async def uplers_list_alerts(evaluate: bool = False, rows: int = 3) -> AlertList
             requisitions match and how many are new since it last reported.
             Local only, no network.
         rows: sample rows per alert when evaluating.
+        explain: attach the arithmetic to each sampled row. The question it
+            answers here is about the ALERT rather than the role - a min_score
+            gate that lets nothing through, or lets everything through, is
+            usually a bonus or a band behaving differently from how you read
+            it. Needs evaluate=True; an unevaluated listing scores nothing.
     """
     bound = _bind()
     _ensure_scheduler(bound)
@@ -1574,7 +1617,8 @@ async def uplers_list_alerts(evaluate: bool = False, rows: int = 3) -> AlertList
             if evaluate:
                 try:
                     matches = alerts_mod.evaluate(
-                        population, alert["criteria"], profile, bound=bound)
+                        population, alert["criteria"], profile, bound=bound,
+                        explain=explain)
                 except Exception as exc:  # noqa: BLE001
                     notes.append("alert %r failed: %s" % (alert["name"], exc))
                     out.append(spec)
@@ -1638,7 +1682,8 @@ async def uplers_delete_alert(name: str) -> AlertResult:
 
 @mcp.tool()
 async def uplers_daily_brief(
-    limit: int = 5, since: str | None = None, peek: bool = False
+    limit: int = 5, since: str | None = None, peek: bool = False,
+    explain: bool = False,
 ) -> DailyBrief:
     """What changed since last time, ranked by fit. Start the day here.
 
@@ -1659,6 +1704,11 @@ async def uplers_daily_brief(
         since: override the window start, e.g. "2026-08-01". Default is the
             last brief, or seven days on the first run.
         peek: do not advance the window or mark alert hits as reported.
+        explain: attach the arithmetic to the new-requisition rows and the
+            alert hits. Against the grain of this tool, which exists to be
+            cheap enough to call every morning - it can multiply the brief
+            across two sections at once. Leave it off for the daily read and
+            drill into whatever looked wrong with uplers_assess_fit().
     """
     bound = _bind()
     _ensure_scheduler(bound)
@@ -1667,7 +1717,7 @@ async def uplers_daily_brief(
         population = _load_opportunities(store, bound=bound)
         data = brief_mod.build(
             store, profile, population, limit=limit, since=since, peek=peek,
-            bound=bound,
+            bound=bound, explain=explain,
         )
         data["notes"] = notes + data["notes"]
         if data.pop("_window_source", None) == "first_brief_7d":
@@ -1742,7 +1792,9 @@ async def uplers_skill_gap(top: int = 10, min_roles: int = 2) -> SkillGapResult:
 
 
 @mcp.tool()
-async def uplers_company_intel(name: str, limit: int = 5) -> CompanyIntel:
+async def uplers_company_intel(
+    name: str, limit: int = 5, explain: bool = False
+) -> CompanyIntel:
     """Everything cached about one END CLIENT, plus its posture on this board.
 
     The end-client name is the whole reason this server exists - LinkedIn shows
@@ -1761,6 +1813,11 @@ async def uplers_company_intel(name: str, limit: int = 5) -> CompanyIntel:
     Args:
         name: end-client name or a fragment, e.g. "Northladder".
         limit: requisition rows returned.
+        explain: show the arithmetic on `best_fit` and every row beside it.
+            Worth it on a client posting several roles at once, where the
+            useful question is why their openings score so differently from
+            each other. The aggregate posture above the rows is counted, not
+            scored, so it is unaffected.
     """
     bound = _bind()
     _ensure_scheduler(bound)
@@ -1772,7 +1829,8 @@ async def uplers_company_intel(name: str, limit: int = 5) -> CompanyIntel:
         notes = ["Fit scores omitted: %s" % exc]
     with _open_store() as store:
         pairs = _load_pairs(store, bound=bound)
-        data = insight.company_intel(pairs, name, profile, bound=bound)
+        data = insight.company_intel(
+            pairs, name, profile, bound=bound, explain=explain)
         ranked = data.pop("_ranked", [])
         saved_ids = store.saved_ids()
         tracked = store.tracked_ids()
@@ -1876,8 +1934,13 @@ async def uplers_config(write_candidate: bool = False,
     server's own `servers.uplers` settings. Nothing here is a constant in the
     code any more, and this tool is how you see what is actually in force.
 
-    Read `policy_hash` as the answer to "are these two scores comparable".
-    Two results carrying the same one are; two carrying different ones are not.
+    TWO fingerprints come back, and they answer two different questions.
+    `scoring_hash` answers "are these two scores comparable" - it covers the
+    arithmetic alone and is the value stamped on every scored result, so
+    compare a stored score's stamp against THIS one. `policy_hash` answers
+    "is this the same configuration" - it covers the arithmetic AND the
+    candidate block, so it moves when your own details change even though no
+    sum did.
 
     `refused` is the important field. Some keys are NOT loadable from the file
     at any tier - the autonomous-apply switches on the Naukri server, chiefly.
@@ -1958,6 +2021,7 @@ async def uplers_config(write_candidate: bool = False,
         revision=ld.revision,
         policy_rev=ld.policy_rev,
         policy_hash=ld.policy_hash,
+        scoring_hash=ld.scoring_hash,
         candidate=ld.policy.candidate.to_dict(),
         scoring=ld.policy.scoring.to_dict(),
         server=bound.settings,
@@ -2086,6 +2150,7 @@ async def _paged_read(
     pages: int,
     profile,
     bound=None,
+    explain: bool = False,
 ) -> tuple[list, dict, list[str]]:
     """Fetch `pages` pages of a paginator, stopping at the last real page."""
     rows: list = []
@@ -2096,7 +2161,7 @@ async def _paged_read(
         page_params["page"] = params.get("page", 1) + offset
         payload = await client.get_json(route, page_params)
         page_rows, page_meta, page_notes = talent_shape.rows_from(
-            payload, route=route, profile=profile, bound=bound
+            payload, route=route, profile=profile, bound=bound, explain=explain
         )
         rows.extend(page_rows)
         notes.extend(note for note in page_notes if note not in notes)
@@ -2219,6 +2284,7 @@ async def uplers_my_feed(
     locations: str | None = None,
     modes: list[str] | None = None,
     score: bool = True,
+    explain: bool = False,
 ) -> TalentFeed:
     """YOUR personalised Uplers opportunity feed. Needs a signed-in session.
 
@@ -2243,6 +2309,12 @@ async def uplers_my_feed(
         modes: any of "Remote", "Hybrid", "Onsite". Note Uplers says ONSITE,
             not "Office", on this API.
         score: compute fit scores against your local profile.
+        explain: show how each of those scores was reached. The one thing this
+            surface can tell you that no other can: Uplers ordered these rows
+            by THEIR relevance model, so an explained row lets you see where
+            their idea of a match and jobcore's actually part company. Costs a
+            block per row across every page fetched, so keep `pages` small.
+            Does nothing when score=False - an unscored row has no arithmetic.
     """
     sort = _validate_sort(sort)
     modes = _validate_modes(modes)
@@ -2261,7 +2333,7 @@ async def uplers_my_feed(
     async with _talent_client() as client:
         rows, meta, notes = await _paged_read(
             client, endpoints.EP_OPPORTUNITIES, params=params, pages=pages,
-            profile=profile, bound=bound,
+            profile=profile, bound=bound, explain=explain,
         )
         total = meta.get("total")
         if total is None:
@@ -2315,7 +2387,9 @@ async def uplers_my_feed(
 
 
 @mcp.tool()
-async def uplers_my_pipeline(page: int = 1, pages: int = 3, score: bool = False) -> PipelineResult:
+async def uplers_my_pipeline(
+    page: int = 1, pages: int = 3, score: bool = False, explain: bool = False
+) -> PipelineResult:
     """Your ACTUAL Uplers pipeline - the applications their recruiters are working.
 
     This is the authoritative record, unlike uplers_list_tracked(), which only
@@ -2330,6 +2404,11 @@ async def uplers_my_pipeline(page: int = 1, pages: int = 3, score: bool = False)
         pages: how many consecutive pages to fetch.
         score: also compute fit scores. Off by default - you already applied,
             so the score is rarely the question here.
+        explain: show the arithmetic behind those scores. Rarer still than the
+            score itself, and honest about why: this is the retrospective
+            surface, so the only real use is auditing why you applied to
+            something that has since gone quiet. Needs score=True; on its own
+            it adds nothing, because nothing was scored.
     """
     bound = _bind()
     profile = _profile_or_none(bound) if score else None
@@ -2341,6 +2420,7 @@ async def uplers_my_pipeline(page: int = 1, pages: int = 3, score: bool = False)
             pages=pages,
             profile=profile,
             bound=bound,
+            explain=explain,
         )
     return PipelineResult(
         rows=rows,
@@ -2398,7 +2478,9 @@ async def uplers_get_opportunity_live(hr_number: str, compare_public: bool = Fal
 
 
 @mcp.tool()
-async def uplers_tailored_jobs(hr_number: str | None = None, score: bool = True) -> TalentFeed:
+async def uplers_tailored_jobs(
+    hr_number: str | None = None, score: bool = True, explain: bool = False
+) -> TalentFeed:
     """Uplers' own tailored suggestions, optionally anchored to one requisition.
 
     Distinct from uplers_my_feed(): this is the "jobs like this one" surface
@@ -2408,6 +2490,12 @@ async def uplers_tailored_jobs(hr_number: str | None = None, score: bool = True)
     Args:
         hr_number: anchor requisition. Omit for the general tailored set.
         score: compute fit scores against your local profile.
+        explain: show the arithmetic behind those scores. These rows are
+            Uplers' "jobs like this one" and nothing here says why they were
+            suggested, so the block is the only account of the match you get -
+            read it against the anchor when a suggestion looks unrelated. The
+            set is small, which makes this the cheapest of the row surfaces to
+            explain. Does nothing when score=False.
     """
     body = {"HR_Number": _validate_hr(hr_number)} if hr_number else {}
     bound = _bind()
@@ -2427,7 +2515,7 @@ async def uplers_tailored_jobs(hr_number: str | None = None, score: bool = True)
             % (endpoints.EP_TAILOR_JOBS, sorted(payload)[:12] or "none")
         )
     rows = [
-        talent_shape.to_talent_row(row, profile=profile, bound=bound)
+        talent_shape.to_talent_row(row, profile=profile, bound=bound, explain=explain)
         for row in raw_rows
         if isinstance(row, dict) and not talent_shape.is_test_record(row)
     ]

@@ -165,8 +165,13 @@ def find_company(pairs: list[tuple[dict, Opportunity]], name: str):
 
 
 def company_intel(pairs: list[tuple[dict, Opportunity]], name: str, profile=None,
-                  *, bound=None) -> dict:
-    """Everything cached about one end client, plus its aggregate posture."""
+                  *, bound=None, explain: bool = False) -> dict:
+    """Everything cached about one end client, plus its aggregate posture.
+
+    ``explain`` reaches the ranked requisitions only. The aggregate posture
+    above them is counted from the cohort, not scored, so there is nothing
+    there to explain.
+    """
     hits, candidates = find_company(pairs, name)
     if not hits:
         return {"company": name, "open_requisitions": 0, "candidates": candidates[:15]}
@@ -209,6 +214,7 @@ def company_intel(pairs: list[tuple[dict, Opportunity]], name: str, profile=None
         # Deliberately NOT servers.uplers.exclude_blocked.*: this is an
         # aggregate posture over everything the client has open, not a
         # shortlist he is meant to act on.
-        ranked, _ = fit.rank(opps, profile, exclude_blocked=False, bound=bound)
+        ranked, _ = fit.rank(
+            opps, profile, exclude_blocked=False, bound=bound, explain=explain)
         intel["_ranked"] = ranked
     return intel

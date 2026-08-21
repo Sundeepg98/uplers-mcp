@@ -66,6 +66,15 @@ class TalentRow(Compact):
     gaps: list[str] = Field(default_factory=list)
     blockers: list[str] = Field(default_factory=list)
     posted_at: str | None = None
+    explain: dict | None = Field(
+        None,
+        description=(
+            "The arithmetic behind `score`, when called with explain=True: "
+            "weights, base components, bonuses and their cap, verdict band, "
+            "and the scoring_hash. Absent unless asked for, and absent anyway "
+            "when score=False - an unscored row has nothing to explain."
+        ),
+    )
 
 
 class TalentFeed(Compact):

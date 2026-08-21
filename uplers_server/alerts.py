@@ -79,7 +79,8 @@ def split_criteria(criteria: dict) -> tuple[dict, dict]:
 
 
 def evaluate(
-    opportunities: list[Opportunity], criteria: dict, profile=None, *, bound=None
+    opportunities: list[Opportunity], criteria: dict, profile=None, *, bound=None,
+    explain: bool = False,
 ) -> list[tuple[Opportunity, dict | None]]:
     """Which requisitions match. Returns (opportunity, assessment-or-None) pairs.
 
@@ -90,6 +91,10 @@ def evaluate(
 
     With a profile, every hit is scored - the caller wants the numbers for
     display even when the criteria carry no `min_score` gate.
+
+    ``explain`` rides along to :func:`fit.assess`. Without a profile there is
+    no assessment to hang it on, so it is silently a no-op there rather than
+    an error: the alert still matches exactly what it matched before.
     """
     # Validate at READ time too, not only when the alert was saved. Criteria
     # come out of sqlite, where a row could have been written by an older
@@ -119,7 +124,7 @@ def evaluate(
     )
     scored: list[tuple[Opportunity, dict | None]] = []
     for opp in hits:
-        assessment = fit.assess(opp, profile, bound)
+        assessment = fit.assess(opp, profile, bound, explain=explain)
         if exclude_blocked and assessment["blockers"]:
             continue
         if min_score is not None and assessment["overall_score"] < min_score:
