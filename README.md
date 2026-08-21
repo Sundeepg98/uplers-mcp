@@ -9,10 +9,19 @@ and its website, alongside a typed pay band, a must-have/good-to-have skill spli
 period the client will accept, the shift window and any required assessments. That turns an
 unresearchable staffing listing into something you can target.
 
-No login, no account, no browser, no scraping of a logged-in surface. One public JSON endpoint
-plus the public sitemap.
+There are two tiers, and the line between them is the first thing to read.
 
-**Nothing here ever applies to anything.** `uplers_track` records what you already did by hand.
+**The public tier** - 22 tools - needs no login, no account and no browser. One public JSON
+endpoint plus the public sitemap. It never applies to anything and never mutates Uplers:
+`uplers_track` records what you already did by hand.
+
+**The authenticated tier** - 13 tools, added 2026-08-21 - reads *his account*, and the difference
+is the whole reason it exists: the public board shows what Uplers is hiring for, his account shows
+what Uplers is doing about **him** - which requisitions he has been matched to, what their
+recruiters have moved to interview, and what his profile looks like to the people making that
+call. Three of the thirteen manage the session, eight read, and two write - and the two writes are
+not the same kind of act: `uplers_apply` **cannot be undone**, `uplers_dismiss` can. See "Applying
+cannot be undone" before using either.
 
 ---
 
@@ -21,12 +30,13 @@ plus the public sitemap.
 | | |
 |---|---|
 | Stack | Python 3.11+, FastMCP (`mcp`), `httpx`, stdlib `sqlite3`, [`jobcore`](../jobcore) |
-| Tools | **22** - 5 board readers, 17 profile-aware |
-| Size | 5,353 lines of server code, 5,141 lines of tests |
-| Tests | **449**, all offline |
-| Network surface | 2 public GET endpoints, no auth |
+| Tools | **35** - 22 public (5 board readers, 17 profile-aware) + 13 authenticated |
+| Size | 8,120 lines of server code, 8,577 lines of tests |
+| Tests | **667**, all offline |
+| Network surface | 2 public GET endpoints needing no auth; 12 `talent/*` routes behind a bearer token |
+| Browser | Playwright, in exactly one module, for login only. The public tier needs none. |
 | Maintenance estimate | 1-3 hours/month |
-| Verified live | 2026-08-20 - 235 native requisitions indexed; every tool called over stdio |
+| Verified live | 2026-08-20 - 235 native requisitions indexed; every public tool called over stdio |
 
 ---
 
@@ -57,10 +67,12 @@ answer, because **the record's own `is_aggregator_job` field is authoritative, n
 
 ---
 
-## The 22 tools
+## The public tier: 22 tools
 
 Five read the board. Seventeen answer "what is on it **for me**, and what have I done about it".
 Everything in the second group runs against the local index and costs **no network at all**.
+None of the twenty-two needs an account; the thirteen that do are documented under "The
+authenticated tier" below.
 
 ### `uplers_sync_index(hydrate=True, fetch_budget=300, refresh_stale=True)`
 Builds and refreshes the local index. **Run this first.** Fetches `sitemap.xml`, unions every
@@ -303,20 +315,280 @@ just be redefined. Changes ship as numbered migrations in `migrations.py`, recor
 and is detected by that absence, not guessed. The test that matters builds a pre-migration
 database by hand and upgrades it, asserting nothing that was there before is touched.
 
+---
+
+## The authenticated tier
+
+Thirteen tools that read his Uplers account. Everything above this point reads the public
+catalogue; everything here reads what Uplers is doing about **him**.
+
+The evidence base for every route, parameter and encoding below is
+[`../_audit/2026-08-21-uplers-bundle-callsites.md`](../_audit/2026-08-21-uplers-bundle-callsites.md)
+- a static read of Uplers' own production bundle (`app.js` plus its 85 lazy chunks, **13.4 MB**),
+cross-checked against live unauthenticated probes. Nothing here was guessed from a route name.
+Claims in that document are tagged VERIFIED (quoting bundle source) or INFERRED (reading intent),
+and this section says which it is relying on wherever the difference matters.
+
+### Applying cannot be undone
+
+**`uplers_apply` sends `talent/hr/intrested`, and on Uplers that IS applying.** Their own analytics
+label the two call sites `"Single Opportunity - Apply"` and `"All opportunity - Apply"`. Once it
+has gone through, the button is `disabled`, its label flips to **"Applied"**, and the hover text
+reads *"You have already applied for this Opportunity."* That is a terminal state.
+
+**There is no withdraw, no cancel and no un-apply anywhere in their product.** That is a complete
+negative search over all 13.4 MB, not an impression: `"Withdraw"` 0 hits, `"Cancel Application"`
+0 hits, `"unapply"` 0 hits. The lowercase `withdraw` occurs in exactly two places, both on the
+account-deactivation screen, where the product lists *"Any of your job applications will be
+withdrawn"* as a **side effect of deactivating the whole account**. A product that framed it that
+way would not also ship a per-application withdraw.
+
+So: **the only thing that retracts an application on Uplers is deactivating the account.** Treat
+every apply as final.
+
+Three things follow, and all three are built:
+
+- **Nothing is sent unless `confirm=True`.** With `confirm=False` - the default -
+  `uplers_apply` returns a preview of the exact request it *would* send (method, endpoint, body,
+  `reversible: false`, and the literal call to make) and performs nothing.
+- **It refuses to apply twice.** Every write first fetches the authenticated record, which costs
+  one request and buys three things: proof the requisition exists, the numeric `id` the route
+  actually needs, and the current state. If Uplers already has him down as interested, the tool
+  says so instead of sending a duplicate.
+- **It refuses to guess an id.** If the record carries no numeric `id`, it raises rather than
+  substituting one of the other two identifiers. See "The identifier spaces".
+
+`uplers_dismiss` is the opposite case and is labelled as such. Uplers ships an **explicit**
+`reset_not_interested` flag for it, so dismissing a requisition is genuinely reversible and a
+mistake there costs nothing. Both the preview and the result carry a `reversible` boolean, and a
+performed dismissal returns the exact call that reverses it.
+
+### Why `talent/hr/cancel-opportunity` is deliberately not exposed
+
+Its name says "withdraw". It is not that, and shipping it as one would be the most dangerous kind
+of wrong - it would imply an undo that does not exist.
+
+Two facts settle it, both VERIFIED against the bundle:
+
+1. **It acts on a different state.** It declines a job you have **not** applied to. Its confirm
+   modal is a thumbs-down titled *"Are you sure you are not interested?"*, and its subtitle
+   promises the job comes back: *"Once removed from here you can find in under 'All Work
+   Opportunities"* (the unbalanced apostrophe is theirs). Meanwhile the `"applied"` branch of the
+   same component renders a status label and interview links only - no cancel control at all.
+2. **Its one call site is unreachable.** The button renders only when the enclosing component's
+   `opportunityType === "matched"`, and `"matched"` is never passed as that prop anywhere in the
+   86 files. Every literal ever passed is `"individualHrPublic"`, `"individualHr"`, `"all"` or
+   `"myOpp"`; the rest is prop-drilling, which can only propagate a literal that exists. It is
+   effectively dead code in the shipped build.
+
+The route's shape is recorded in `endpoints.py` so the finding is not lost. No tool calls it.
+
+### The login model
+
+**Auth is a bearer token, not a cookie.** Every call site in the bundle does
+`Authorization: Bearer <localStorage["token"] ?? localStorage["guest_token"]>`. **No
+`X-XSRF-TOKEN` is ever attached by application code** - the only occurrences of `xsrfCookieName`
+/ `xsrfHeaderName` in 13.4 MB are inside axios's own bundled default config object, and the app
+sets neither, nor `withCredentials`. There is no `baseURL` and no request interceptor either;
+URLs are absolute, concatenated from one constants module.
+
+This **corrects** the earlier route-map research in
+[`../../tools/uplers-api-research.md`](../../tools/uplers-api-research.md), which assumed a
+`uplers_session` cookie plus an echoed `X-XSRF-TOKEN` header on mutations. That cookie does exist;
+the SPA simply never relies on it. Anything built against the cookie model would have been
+authenticating in a way the real client does not.
+
+**The logged-out signal is a 401, not a 302.** MEASURED live on 2026-08-21: with
+`Accept: application/json`, every `talent/*` route answers `401 {"message":"Unauthenticated."}`;
+*without* that header Laravel's `Authenticate` middleware redirects to `/console/login` with an
+HTML body. This client always sends the JSON header, so 401 is the normal signal - but the 302 is
+still handled and `follow_redirects` is off, because following it would turn a crisp "you are
+logged out" into a 200 carrying a login page, which every parser downstream would then report as a
+shape change. A middleware change must not read as "logged in".
+
+**Sessions are short-lived. Re-login is close to a daily event.** That is a property of Uplers,
+not a defect here. What matters is what an expired session *looks like*: every authenticated read
+reports it as **"run `uplers_login()`"** and **never** as an empty result. An empty list from
+these tools always means "nothing matched" - a failed fetch that returns `[]` is
+indistinguishable from a successful fetch that matched nothing, and this codebase has been bitten
+by exactly that before.
+
+**Login completes on a real authenticated request, never on a token appearing.** This is the
+shape of the whole module and it is written in blood. Uplers hands anonymous visitors a
+`guest_token`, and the SPA falls back to it, so *"a token exists"* is already true before anyone
+signs in. The window therefore stays open until `check_auth` gets a response actually carrying his
+profile back - an HTTP 200 alone is necessary but **not sufficient**, because an anonymous guest
+token can also get a 200. `guest_token` is read for exactly one purpose: so a failure can say
+"that was only a guest token" rather than "no token appeared".
+
+The sibling Instahyre server shipped the shallow version of this: a login tool that returned
+success the moment a session cookie appeared. Django issues those to anonymous visitors, so the
+condition was already true while the login page was still painting. It closed the browser before
+the operator could type and reported `authenticated: true` while every real call 401'd.
+
+Which is why **`uplers_auth_status` can honestly return `false`.** It spends one real request
+against a route whose logged-out behaviour was measured, rather than checking whether a file
+exists on disk. It has three answers, and the third is not decoration:
+
+| `authenticated` | meaning |
+|---|---|
+| `true` | a request came back carrying his profile |
+| `false` | Uplers rejected the session. Run `uplers_login()`. |
+| `null` | could not be determined - network, an unexpected 500, a 200 with no `talent_details`. **Not** the same as `false`, and not yet a reason to sign in again. |
+
+Unknown does not collapse into false, because "you are logged out, go and sign in again" is a lie
+that costs a browser round trip.
+
+**The browser is only for login.** Playwright appears in exactly one module of this package -
+`uplers_server/auth.py` - and never for fetching data. It opens the real login page, the operator
+signs in with their own hands, the token is read out of localStorage, and from that point every
+request is plain `httpx`. That is the same rule the public tier already follows, applied to the
+one place a browser is unavoidable. Nothing here types a credential.
+
+**Nothing sensitive is persisted or returned.** The bearer token lives in `data/session.json`
+(inside the already-gitignored `data/`, `chmod 0600` where the OS honours it - on Windows that is
+a floor, not a guarantee, and the gitignore is the real protection). It is **never logged, never
+returned by any tool, and never put in an error message - not even its length or a prefix.** A
+length is a small leak and buys nothing a boolean does not. What callers get is its *shape*:
+present or absent, its format, and an expiry when one is knowable. `uplers_logout` deletes it and
+leaves the persistent browser profile alone, so the next login usually needs no password.
+
+### The identifier spaces
+
+Three identifiers name the same requisition and the API is **not** consistent about which it
+wants. Confusing them is the most likely silent bug against this API - the wrong one is a no-op or
+a 422, not an obvious error. `endpoints.py` writes them down rather than remembering them:
+
+| identifier | sent as | used by |
+|---|---|---|
+| `id` (plain numeric) | `hr_id` | `talent/hr/intrested` (**apply**), `cancel-opportunity` |
+| `enc_id` (encrypted) | `hr_id` | `update-saved-hr`, `assign-assessment` |
+| `HR_Number` (the public `HR...` string) | `hr_number` / `HR_Number` / `activeJob` | `single-hr`, `my-opportunities`, `job-not-interested`, `tailor-jobs`, and **everything in this server's public tier** |
+
+Note the trap in the first two rows: **the same parameter name, `hr_id`, addresses two different
+identifier spaces** depending on the route. Every tool here takes the public `HR_Number` and
+resolves the others itself, so the distinction never reaches a caller - but it is why the write
+path fetches the record first instead of accepting an id it was handed.
+
+Response envelopes are inconsistent too: rows arrive at `res.hrs.data` on the paginated routes,
+`res.data` on the masters and `tailor-jobs`, `res` directly on `single-hr`, and
+`res.talent_details` on the profile. Success is the **string** `"success"` on some routes and the
+**number** `1` on others. Never write one check for both.
+
+### `uplers_my_feed` filters: four encodings that are easy to get wrong
+
+`uplers_my_feed` builds the query Uplers' own jobs board builds, copied from their query builder
+including the parts that look wrong until you check them:
+
+| argument | what it actually takes | the trap |
+|---|---|---|
+| `experience` | a **range string**: `"4,6"` | it is not a number. Valid bands: `0,2` / `2,4` / `4,6` / `6,8` / `8,10` / `10,12` / `12,14` |
+| `modes` | `Remote` / `Hybrid` / **`Onsite`** | Uplers says **Onsite**, not "Office", on this API - even though the public records say `Office`. Sent as `engagements`, a **JSON-encoded array of objects**: `[{"type":"Remote"}]`, not a plain list |
+| `roles` | comma-joined **internal ids** | not names. Get them from `uplers_filter_options("role")` |
+| `locations` | comma-joined **internal ids** | not names. Get them from `uplers_filter_options("location")` |
+
+A bad `sort` or a bad mode raises with the valid set named, rather than being silently dropped
+into a query that then returns the whole board. Uplers also reports the row count on a *separate*
+call (`is_count=1`), so the total is fetched only when the paginator did not already carry it, and
+a failure to get it is a note rather than a missing feed.
+
+### Two profiles, and they do different jobs
+
+This is the distinction most likely to be misread, because both tools are called "profile":
+
+| tool | which profile | what it governs |
+|---|---|---|
+| `uplers_get_profile` | the **local** one, `data/profile.json` | what every fit score in this server is computed against |
+| `uplers_my_profile` | his **real Uplers** profile | what recruiters see, and what Uplers' own matching runs against |
+
+They drift apart, and the consequence is asymmetric: **a thin Uplers profile directly limits which
+requisitions Uplers shows him, no matter how complete the local one is.** A skill that is on the
+local profile but not on Uplers is earning fit scores here while doing nothing for him there.
+
+`uplers_compare_profiles` reports where they disagree - fields that match, fields that differ,
+skills on one side only - and **writes to neither**. Which side is wrong is a judgement only he can
+make, so the tool reports and recommends and refuses to choose. `uplers_my_profile` additionally
+surfaces Uplers' own completion percentage, because their matching runs against that record and
+the gap is costing visibility.
+
+### The 13 tools
+
+| Tool | What it is for |
+|---|---|
+| `uplers_login(wait_seconds=300)` | Opens a real browser window at Uplers' login page; you type, nothing else does. Stays open until Uplers confirms a signed-in session - not until a token appears. Returns in about a second if already signed in. |
+| `uplers_auth_status()` | Are we actually signed in? Measured with one real request, so `false` is a measurement. Three-valued - see the table above. Never returns the token. |
+| `uplers_logout()` | Forget the stored token. Leaves the persistent browser profile alone. |
+| `uplers_my_feed(...)` | **The main authenticated read.** His personalised feed as Uplers orders it, each row carrying what he has already done about it (applied / saved / dismissed) and the ids the write tools need. Scored by the same jobcore scorer, so the numbers compare with `uplers_rank_opportunities` and with Naukri. |
+| `uplers_my_pipeline(...)` | His **actual** pipeline - the applications Uplers' recruiters are working, with their own `uplers_status` and `uplers_badge` ("Interviewed", "Slots Given", "Interview Scheduled"). Where this and `uplers_list_tracked` disagree, **this one is right**: the local tracker only holds what he told this server he did. |
+| `uplers_get_opportunity_live(hr_number, compare_public=False)` | One requisition as his account sees it. `compare_public=True` returns a field-level diff against the public record - the honest way to answer "is holding a session actually worth it", including when the answer is *no extra field for this one*. |
+| `uplers_tailored_jobs(hr_number=None)` | Uplers' own server-side "jobs like this" suggestions, optionally anchored to one requisition. Distinct from `uplers_my_feed`. |
+| `uplers_my_profile()` | His real Uplers profile, plus their completion percentage. See "Two profiles". |
+| `uplers_compare_profiles()` | Where the local and Uplers profiles disagree. Writes to neither. |
+| `uplers_my_interviews(detailed=True)` | Interviews Uplers has arranged for him. Read-only. See the namespace note below. |
+| `uplers_filter_options(kind, search=None)` | Turns "React" or "Bangalore" into the internal ids `uplers_my_feed` needs. `kind` is `role` / `skill` / `location` / `company`. |
+| `uplers_apply(hr_number, confirm=False)` | **Applies. Cannot be undone.** Previews by default; sends nothing without `confirm=True`; refuses to apply twice. Read "Applying cannot be undone" first. |
+| `uplers_dismiss(hr_number, confirm=False, undo=False)` | Mark "not interested", or reverse that with `undo=True`. Genuinely reversible - Uplers ships the reset flag. Previews by default. |
+
+Rows here go through the same compact models as the public tier, so the shaping rules under "The
+governing constraint: token cost" apply unchanged: empty fields never reach the wire, composites
+render as one short string, and no row repeats a URL.
+
+### Getting started with the authenticated tier
+
+```
+uplers_login()          # a browser window opens; sign in by hand
+uplers_auth_status()    # confirms it, by measurement
+uplers_my_feed()        # what Uplers is showing him
+uplers_my_pipeline()    # what their recruiters are actually working
+```
+
+Re-run `uplers_login()` whenever `uplers_auth_status()` says `false` or a read tells you the
+session expired - expect that roughly daily. The public tier needs none of this and keeps working
+throughout.
+
+### One namespace exception, stated plainly
+
+`uplers_my_interviews` reads `talent/outreach/interview-list`. That sits under `talent/outreach/*`,
+a prefix otherwise **excluded** from this server because it is where Uplers' paid outreach-agent
+product lives.
+
+This one route is admitted deliberately: it is a plain GET of his **own** interview schedule.
+Reading your own calendar is using the platform normally, not reimplementing a SKU. The write half
+of the pair, `talent/outreach/interview-feedback`, is deliberately **not** built - submitting
+feedback through an API instead of their UI is a different act, and nothing here needs it.
+
+One more route is excluded for a reason worth recording, because its name invites the mistake:
+**`talent/recommendations` is not a job-recommendations feed.** Despite the name, its body is
+`{key: "rnr", role: "<job title>"}` and its single caller in 13.4 MB is the *profile experience
+editor* - it returns suggested bullet-point text for a CV entry. Building it as a jobs feed would
+have produced a tool that silently returned the wrong kind of thing.
+
 ## Deliberately out of scope
 
-No apply, no outreach, no resume tailoring, no resume health check, no referral agent. Those
-endpoints (`talent/hr/intrested`, `talent/outreach/*`, `talent/tailor/*`,
-`talent/resume-health-check/*`, `talent/referral-agent/*`) are Uplers' own paid candidate
-products and need the authenticated session this design avoids. Reimplementing them for free
-against a marketplace whose value is a human recruiter advocating for you is a bad trade.
+No resume tailoring, no resume health check, no referral agent, and no outreach beyond reading his
+own interview list. Those endpoints (`talent/tailor/*`, `talent/resume-health-check/*`,
+`talent/referral-agent/*`, and the rest of `talent/outreach/*`) are Uplers' own **paid** candidate
+products - `talent/tailor/order/create`, `talent/tailor/order/capture` and
+`talent/tailor/refund-request` say so plainly. Reimplementing a paid product for free against a
+marketplace whose value is a human recruiter advocating for you is a bad trade.
 
-**This server never logs in, never mutates Uplers, and never applies to anything.**
+Also not exposed, each for a reason recorded above rather than by omission:
+`talent/hr/cancel-opportunity` (see "Why `talent/hr/cancel-opportunity` is deliberately not
+exposed"), `talent/outreach/interview-feedback`, and `talent/recommendations` (see "One namespace
+exception"). Their shapes are recorded in `endpoints.py` so the findings are not lost; no tool
+calls them.
 
-The tracking tools do not weaken that. `uplers_track(status="applied_manually")` is a note to
-yourself that you went to their site and applied; it sends nothing, and the only thing it mutates
-is the local sqlite file. The status is named `applied_manually` precisely so the record cannot be
-misread later as something this server did.
+**The public tier never logs in, never mutates Uplers, and never applies to anything.** That is
+still exactly true of all 22 of its tools, and `uplers_track(status="applied_manually")` does not
+weaken it: it is a note to yourself that you went to their site and applied. It sends nothing, and
+the only thing it mutates is the local sqlite file. The status is named `applied_manually`
+precisely so the record cannot be misread later as something this server did.
+
+What changed on 2026-08-21 is that a **second, clearly separated tier** now can log in and can
+mutate - through exactly two tools, both of which preview by default and neither of which does
+anything without `confirm=True`. The separation is the point: nothing in the public tier acquired
+a new power, and the authenticated tier is unreachable without a session the operator opened by
+hand.
 
 ---
 
@@ -327,13 +599,30 @@ cd D:\Sundeep\projects\job-hunting\mcp-servers\uplers
 python -m venv venv
 venv\Scripts\python.exe -m pip install -r requirements.txt
 venv\Scripts\python.exe -m pip install -e ../jobcore   # the shared scoring engine
-venv\Scripts\python.exe -m pytest        # 449 tests, no network
+venv\Scripts\python.exe -m pytest        # 667 tests, no network
 venv\Scripts\python.exe server.py        # stdio MCP server
 ```
 
 `ModuleNotFoundError: jobcore` means the second line was skipped. jobcore is a sibling package,
 not on PyPI, and it is shared with the Naukri server - **editing it changes what a live job
 server scores**, so run both suites after any change there.
+
+### Playwright - for login only
+
+```bash
+venv\Scripts\python.exe -m pip install playwright
+venv\Scripts\python.exe -m playwright install chromium
+```
+
+**Only `uplers_login` needs this.** Playwright is an optional dependency, deliberately not in
+`requirements.txt`, and it is not needed to run the suite - which is entirely offline and never
+launches a real browser. All 22 public tools work without it, and so do the other twelve
+authenticated tools once a token exists: Playwright opens the sign-in window and does nothing
+else. Without it, `uplers_login` returns `error: "browser_unavailable"` carrying that install
+line, rather than failing obscurely.
+
+Note that `requirements.txt` still opens with "No browser, no driver" - that comment describes the
+*required* dependency set, which is unchanged, and Playwright's absence from it is the point.
 
 ### Checking a CLEAN install
 
@@ -353,8 +642,9 @@ would produce. On 2026-08-20 the sibling naukri server declared `mcp[cli]>=1.25.
 while every local run stayed green on a venv holding mcp 1.26.0 from before 2.0.0 shipped.
 
 This server survives that move (`server.py` imports `MCPServer` with a fallback to the 1.x path,
-and a clean install on mcp 2.0.0 gives *"443 passed, 1 skipped"*), which is exactly why its cap is
-`<3` and not a copy of naukri's `<2`. `tests/test_requirements_pins.py` holds that reasoning in
+and a clean install on mcp 2.0.0 gave *"443 passed, 1 skipped"* when that was measured on
+2026-08-20, against the pre-authenticated-tier suite), which is exactly why its cap is `<3` and
+not a copy of naukri's `<2`. `tests/test_requirements_pins.py` holds that reasoning in
 place, reading `requirements.txt` as text - an assertion about the *installed* version would pass
 happily in the very venv that hides the bug.
 
@@ -364,6 +654,13 @@ State lives in `uplers\data\` (gitignored): `uplers.sqlite3` (~11 MB with the fu
 set, plus your shortlist, pipeline and alerts) and `profile.json`. Delete the database to start
 clean; `uplers_sync_index()` rebuilds the index, but **your shortlist and application history are
 in there too** and are not recoverable from Uplers. Override the location with `UPLERS_DATA_DIR`.
+
+The authenticated tier adds two more entries to the same directory, both also gitignored:
+
+| Path | What it holds | Safe to delete? |
+|---|---|---|
+| `data\session.json` | The bearer token, `chmod 0600` where the OS honours it. Never logged, never returned by a tool, never in an error message. | Yes - it is exactly what `uplers_logout()` removes. Costs one `uplers_login()`. |
+| `data\browser_profile\` | The persistent Chrome profile Playwright signs in through. | Yes, but then the next login needs the password again rather than resuming. |
 
 | Environment variable | Default | What it does |
 |---|---|---|
@@ -405,6 +702,34 @@ why `last_seen` is recorded per id. Do not "optimise" this into a replace-on-syn
    taxonomy or the 60/40 weighting moves every score on this board **and** on Naukri; jobcore's
    golden-parity suite is what catches it.
 
+**What breaks the authenticated tier specifically.** Its whole evidence base is one static read of
+a bundle they can rebuild at will, so this half ages faster than the public half. Ranked:
+
+1. *The login flow changes.* Most likely, and the most visible: `uplers_login` opens the real page
+   and waits, so a redesigned sign-in still works as long as the token still lands in
+   `localStorage["token"]` on the `platform.uplers.com` origin. If they move it, the window times
+   out rather than lying. `uplers_server/auth.py` is the only file to touch.
+2. *The auth scheme changes.* If they move off `Authorization: Bearer` - to the `uplers_session`
+   cookie the SPA currently ignores, say - every authenticated tool returns `auth_required` and
+   `uplers_auth_status` returns `false` in a loop that no re-login fixes. That symptom is the tell:
+   a login that reports success followed by a `false` status is a scheme change, not an expired
+   session.
+3. *Laravel stops honouring `Accept: application/json`.* Then the 401 becomes the 302, which is
+   already handled - `follow_redirects` is off and a redirect to `/console/login` is read as
+   `auth_required`. This should degrade rather than break, and it is the reason the 302 path was
+   kept after the 401 was measured.
+4. *A route moves.* All twelve live in `endpoints.py` as constants, one file. Re-extracting them
+   means repeating the bundle read that produced
+   [`../_audit/2026-08-21-uplers-bundle-callsites.md`](../_audit/2026-08-21-uplers-bundle-callsites.md);
+   that document records the method, the exact body shape and the response envelope for each, so
+   it is the thing to diff against, not to rewrite from scratch.
+5. *A filter encoding changes.* `experience` as a range string and `engagements` as a JSON-encoded
+   array of objects are the two most likely to move, and the failure mode is quiet - a rejected
+   filter that returns the unfiltered board. `_feed_params` is the one place they are built.
+6. *`opportunityType === "matched"` becomes reachable.* Then `talent/hr/cancel-opportunity` stops
+   being dead code, and the "no undo" finding needs re-checking before anything is built on it.
+   Nothing here would break; the reasoning would need revisiting.
+
 **Quirks already handled, so do not "fix" them:**
 
 - `YearOfExp`, `max_yoe`, `hr_yoe` and `cost` are decimal *strings* (`"5.00"`).
@@ -431,13 +756,21 @@ successes and failures side by side and `FetchReport.ok` is False if anything fa
 
 ## Tests
 
-`venv\Scripts\python.exe -m pytest` - **449 tests**, all offline via `httpx.MockTransport`,
+`venv\Scripts\python.exe -m pytest` - **667 tests**, all offline via `httpx.MockTransport`,
 against 6 real captured API responses in `tests/fixtures/` (see `tests/fixtures/MANIFEST.md` for
 why each one is there). Coverage spans the native/aggregated split, the id date decoder, every
 filter, the sitemap union, the market-stats maths, the scoring adapter, migrations from a
 hand-built pre-migration database, the lease under two connections, the error paths, and the
 dependency pins themselves (`tests/test_requirements_pins.py`, read as text - see "Checking a
 CLEAN install").
+
+The authenticated tier accounts for the growth, across five new modules - `test_session.py`,
+`test_auth.py`, `test_talent_client.py`, `test_talent_shape.py` and `test_talent_tools.py`. The
+ones worth knowing about assert the refusals rather than the happy paths: that a `guest_token`
+never counts as a session, that an HTTP 200 without `talent_details` is reported as **unknown**
+rather than as authenticated, that a 401 becomes "run `uplers_login()`" and never an empty list,
+that `uplers_apply` sends nothing without `confirm=True` and refuses a second application, and
+that no code path puts the token in a return value or an error message.
 
 Four invariants hold in every test, three of them autouse so they cannot be forgotten:
 
@@ -447,6 +780,14 @@ Four invariants hold in every test, three of them autouse so they cannot be forg
   unset, so a test can neither read nor overwrite the operator's real profile.
 - **No background sync.** `UPLERS_AUTO_SYNC=0` for the whole suite, so a tool call cannot spawn
   the scheduler and reach the network behind the mock transport's back.
+
+The authenticated tier adds three more guards. These are autouse **within the modules that could
+violate them** rather than in the shared `conftest.py`, which is why they are listed separately:
+`test_talent_tools.py` redirects both `server._session_store` and `session.session_path` to
+`tmp_path` (so no test can read or delete the real bearer token) and makes
+`auth.login_via_browser` raise; `test_auth.py` redirects `browser_profile_path` to `tmp_path` and
+drives the whole login handshake over fake browser objects. **No test in this suite ever launches
+a real browser or touches the real `data/session.json`.**
 
 Seven of these tests were written because the behaviour they assert was **wrong when first
 measured**, which is the only reason to trust the rest when they are green:
