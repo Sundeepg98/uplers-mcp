@@ -21,7 +21,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field
 
-from . import config, ids
+from . import config, ids, policy
 
 # Statuses that a tracked application may hold. Anything else is rejected
 # loudly, because a typo'd status silently creates a second bucket that no
@@ -259,11 +259,21 @@ def load(*, path: Path | None = None) -> Profile | None:
         with target.open(encoding="utf-8") as handle:
             data = json.load(handle)
     except (OSError, ValueError) as exc:
+        # BOTH halves name the file, in two different spellings, and neither is
+        # reachable from a config snapshot: `target` is profile_path(), so it is
+        # not in `Loaded.known_paths`. The sentence is composed exactly as
+        # before and then substituted as a whole, so the `%s` half and the
+        # repr-spelled path inside an OSError's own message are handled by one
+        # call. Measured on 2026-08-22: single spelling in the first half,
+        # doubled spelling in the second.
         raise ProfileError(
-            "%s exists but could not be read as JSON (%s). Fix or delete the file; "
-            "this server will not silently fall back to a default profile, because "
-            "every fit score would then be computed against somebody who is not you."
-            % (target, exc)
+            policy.relativise_paths(
+                "%s exists but could not be read as JSON (%s). Fix or delete the file; "
+                "this server will not silently fall back to a default profile, because "
+                "every fit score would then be computed against somebody who is not you."
+                % (target, exc),
+                (target,),
+            )
         ) from exc
     return Profile(**data)
 

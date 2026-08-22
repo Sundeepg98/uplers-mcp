@@ -351,10 +351,17 @@ def load_snapshot(snapshot_id: str | None = None) -> dict:
     try:
         record = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
+        # `path.name` was already safe; the `(%s)` beside it was not. An
+        # OSError renders its filename through repr(), so the full snapshot
+        # path arrives here with doubled separators and no single-spelling
+        # scrubber sees it.
         raise WriteRefused(
-            "Snapshot %s could not be read as JSON (%s). Refusing to restore from a "
-            "file this server cannot understand - a restore REPLACES the whole skill "
-            "list with what the snapshot holds." % (path.name, exc)
+            policy.relativise_paths(
+                "Snapshot %s could not be read as JSON (%s). Refusing to restore from a "
+                "file this server cannot understand - a restore REPLACES the whole skill "
+                "list with what the snapshot holds." % (path.name, exc),
+                (path,),
+            )
         ) from exc
 
     if not isinstance(record, dict) or not record.get("skills"):

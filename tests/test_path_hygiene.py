@@ -23,6 +23,7 @@ form they end up in.
 from __future__ import annotations
 
 import json
+import os
 import re
 from pathlib import Path
 
@@ -32,6 +33,7 @@ import server
 from jobcore import config as jobcore_config
 from uplers_server import config as uplers_config_mod
 from uplers_server import policy as policy_mod
+from uplers_server import profile as profile_mod
 from uplers_server import profile_write
 
 from conftest import CONFIDO, put_fixtures
@@ -57,6 +59,16 @@ HOME_TEXT = str(Path.home())
 #: a control reads the same on a POSIX runner.
 B = chr(92)
 
+# The character class above is the one thing in this file a careless rewrite
+# can silently destroy. MEASURED on 2026-08-22 elsewhere in this sweep: a
+# heredoc collapsed `[\\/]` to `[\/]` - forward slash only - and the detector
+# then reported CLEAN on a genuine Windows leak. A detector that cannot fail
+# certifies nothing, so the pattern is asserted at IMPORT time and raises
+# rather than waiting for a test that would now always pass.
+assert ABSOLUTE_LOCAL.search("C:" + B + "Users"), "ABSOLUTE_LOCAL lost its backslash"
+assert ABSOLUTE_LOCAL.search("C:/Users"), "ABSOLUTE_LOCAL lost its forward slash"
+assert not ABSOLUTE_LOCAL.search("https://x"), "ABSOLUTE_LOCAL lost its lookbehind"
+
 
 def leaks_in(node, trail="$"):
     """Every (path, string) in a payload that publishes local layout."""
@@ -71,6 +83,36 @@ def leaks_in(node, trail="$"):
                 or REPO_ROOT_TEXT in node
                 or HOME_TEXT in node):
             yield (trail, node)
+
+
+def spellings(needle):
+    """Every spelling a message can carry the path `needle` in.
+
+    TWO, on Windows, and the second one is the whole reason this function
+    exists. `OSError.__str__` renders its `filename` through `repr()`, so a
+    path that reaches a message through an exception arrives with DOUBLED
+    separators - and an exact search for the single-separator form finds
+    nothing and reports CLEAN. MEASURED on 2026-08-22: a jobhunt.json that
+    existed but could not be read put the full layout into
+    `uplers_config().status` and `.notes[0]`, where this detector saw nothing
+    and only the drive-letter regex fired.
+
+    That combination is the dangerous one. The regex CANNOT FIRE on the ubuntu
+    runner that gates a merge here, and this detector was blind to the repr
+    form on every platform - so a real leak had a window where nothing was
+    looking at all. Adding the spelling here rather than at each assertion is
+    what makes every existing call site inherit it.
+
+    Derived from the needle string unconditionally rather than from `os.sep`,
+    so a Windows-shaped literal still yields two forms on a POSIX runner and a
+    control means the same thing on both. A POSIX path has no separators to
+    double, so the two collapse to one and the tuple is length 1.
+    """
+    text = str(needle or "")
+    if not text:
+        return ()
+    doubled = text.replace(B, B + B)
+    return (text,) if doubled == text else (text, doubled)
 
 
 def path_hits(node, needle, trail="$"):
@@ -96,6 +138,8 @@ def path_hits(node, needle, trail="$"):
     Asserting the absence of the path the FIXTURE ACTUALLY CREATED is
     platform-independent and strictly stronger: it fails on a real leak on
     either OS, and it cannot pass by being unable to see.
+
+    The needle is searched for in every spelling - see :func:`spellings`.
     """
     if isinstance(node, dict):
         for key, value in node.items():
@@ -104,7 +148,7 @@ def path_hits(node, needle, trail="$"):
         for index, value in enumerate(node):
             yield from path_hits(value, needle, "%s[%d]" % (trail, index))
     elif isinstance(node, str):
-        if needle and needle in node:
+        if any(form in node for form in spellings(needle)):
             yield (trail, node)
 
 
@@ -502,3 +546,281 @@ class TestTheInstrumentCanActuallyFail:
 
         assert list(path_hits(clean, str(tmp_path))) == []
         assert list(leaks_in(clean)) == []
+
+
+class TestTheReprSpellingOfAPath:
+    """An OSError spells its filename through repr(), and the scrubber missed it.
+
+    MEASURED on this box on 2026-08-22, offline, against the committed tree at
+    15984d1. A jobhunt.json that EXISTS but cannot be read produced this
+    `uplers_config().status` of the form::
+
+        error: cannot read ~/AppData/Local/Temp/.../config/jobhunt.json:
+        [Errno 13] Permission denied: 'C: Users Dell ... jobhunt.json'
+
+    where every gap in that second half is a DOUBLED separator - two literal
+    characters in the string, not this docstring escaping one. They are shown
+    as gaps because a docstring cannot print them literally without escaping
+    them again, which is exactly the confusion this defect lives inside.
+
+    ONE sentence, two halves, OPPOSITE VERDICTS. The ``{path}`` half was
+    correctly relativised - the substitution machinery ran and worked. The
+    ``{exc}`` half is THE SAME PATH, spelled the way ``repr()`` spells it,
+    because ``OSError.__str__`` renders its ``filename`` through ``repr()``.
+    Every exact-substring scrubber in this family searches for the
+    single-separator form, finds nothing, and passes the payload through as
+    clean. Measured verdicts on that payload, before the fix::
+
+        PRIMARY  (exact single form) : CLEAN
+        REPR     (exact doubled form): ['.status', '.notes[0]']
+        2nd OPIN (drive-letter regex): ['.status', '.notes[0]']
+
+    ``.notes[0]`` matters as much as ``.status``: ``Bound.notes()`` is appended
+    by every scoring tool, so this reaches results that render no path field
+    at all.
+
+    THE FIX IS ONE MORE SPELLING OF THE SAME NEEDLE, never a path-shaped-text
+    hunt. A heuristic scrubber eventually eats a platform.uplers.com URL and
+    does more damage than the leak it was written for - the failure this
+    file's own ``ABSOLUTE_LOCAL`` control already documents. On POSIX the two
+    spellings are IDENTICAL, so the extra needle adds nothing there and costs
+    nothing.
+    """
+
+    def test_an_oserror_spells_its_filename_with_doubled_backslashes(self, tmp_path):
+        """The MECHANISM, pinned, so the extra needles can be retired knowingly.
+
+        Declared plainly: this one does NOT go red before the fix. It
+        characterises CPython rather than this server, and it is the premise
+        every needle below rests on. The ``os.sep`` guard is what makes it fail
+        LOUDLY if a future Python stops rendering ``filename`` through
+        ``repr()`` - at which point the extra spelling becomes dead weight and
+        can be dropped on purpose instead of by accident.
+        """
+        target = tmp_path / "config" / "jobhunt.json"
+        exc = OSError(13, "Permission denied", str(target))
+        message = str(exc)
+
+        assert "Permission denied" in message, message
+        # repr(), not str(): the filename arrives QUOTED and escaped.
+        assert repr(str(target)) in message, message
+        if os.sep == B:
+            # The blind spot itself, stated as a measurement, not a comment.
+            assert str(target) not in message, message
+            assert str(target).replace(B, B + B) in message, message
+
+    async def test_an_unreadable_config_does_not_leak_the_repr_spelling(
+            self, monkeypatch, tmp_path, make_profile):
+        """END TO END: a real OSError, from a real read, reaching a real result.
+
+        Nothing hand-built. ``OSError(13, "Permission denied", str(path))`` is
+        the object CPython itself constructs, raised from the one call jobcore
+        makes - ``path.read_bytes()`` in ``config.current`` - so the sentence
+        under test is jobcore's own ``f"cannot read {path}: {exc}"`` and cannot
+        drift from it.
+
+        Asserted three ways, because each detector is blind somewhere: the
+        single-form needle (what the scrubber searched for), the doubled-form
+        needle (what the message actually carries), and the drive-letter regex
+        (which sees the shape but cannot fire on the Linux runner at all).
+        """
+        make_profile()
+        config_file = tmp_path / "jobhunt.json"
+        config_file.write_text(json.dumps({"revision": 1}), encoding="utf-8")
+        monkeypatch.setenv("JOBHUNT_CONFIG", str(config_file))
+
+        readable = Path.read_bytes
+
+        def refuse(self):
+            if self.name == "jobhunt.json":
+                raise OSError(13, "Permission denied", str(self))
+            return readable(self)
+
+        monkeypatch.setattr(Path, "read_bytes", refuse)
+        policy_mod.invalidate()
+
+        report = await server.uplers_config()
+        profile = await server.uplers_get_profile()
+        payloads = {
+            "uplers_config": payload_of(report),
+            # renders no path field of its own, and still carried the leak
+            # through Bound.notes()
+            "uplers_get_profile": payload_of(profile),
+        }
+
+        # still an answer: it must say what went wrong and name the file
+        assert "cannot read" in (report.status or ""), report.status
+        assert "jobhunt.json" in (report.status or ""), report.status
+
+        raw = str(tmp_path)
+        doubled = raw.replace(B, B + B)
+        single = [
+            "%s %s = %r" % (tool, trail, text)
+            for tool, payload in payloads.items()
+            for trail, text in path_hits(payload, raw)
+        ]
+        assert single == [], single
+        repr_form = [
+            "%s %s = %r" % (tool, trail, text)
+            for tool, payload in payloads.items()
+            for trail, text in path_hits(payload, doubled)
+        ]
+        assert repr_form == [], repr_form
+        regex = [
+            "%s %s = %r" % (tool, trail, text)
+            for tool, payload in payloads.items()
+            for trail, text in leaks_in(payload)
+        ]
+        assert regex == [], regex
+
+    def test_the_two_detectors_disagree_on_the_repr_spelling(self):
+        """CONTROL. The disagreement IS the finding, so it is measured, not noted.
+
+        A Windows-shaped LITERAL, never this run's tmp_path, so every assertion
+        means the same thing on the ubuntu runner: both detectors are pure
+        functions of the string, and feeding them a real POSIX tmp_path would
+        assert something true here and FALSE there - the trap this file's
+        instrument-control class already documents.
+        """
+        single = B.join(("C:", "Users", "Dell", "cfg", "jobhunt.json"))
+        leak = {"status": "cannot read x: [Errno 13] Permission denied: %r" % single}
+
+        # 1. The needle every scrubber in this family searched for is GENUINELY
+        #    ABSENT from the leaking string. Not a near miss - not present.
+        assert single not in leak["status"], leak["status"]
+        # 2. The drive-letter regex does see it. Two detectors, one payload,
+        #    opposite verdicts - and on Linux the one that sees it cannot fire,
+        #    so a real leak has a window where NOTHING is looking.
+        assert ABSOLUTE_LOCAL.search(leak["status"]), leak["status"]
+        assert list(leaks_in(leak)), leak
+        # 3. With the repr spelling added as a needle, the primary agrees again
+        #    - on both platforms, which the regex never could.
+        assert list(path_hits(leak, single)), leak["status"]
+
+    def test_the_repr_needle_catches_a_planted_leak(self, tmp_path):
+        """CONTROL. Falsifiability for the added spelling, identical on both OSes.
+
+        The needle is a Windows-shaped LITERAL so ``path_hits`` derives two
+        DISTINCT spellings from it even on a POSIX runner; the tmp_path pair
+        keeps the control honest about the detector's ordinary use, and the
+        last assertion keeps it honest in the other direction - an instrument
+        that fires on a correctly rendered payload manufactures failures, and
+        the usual repair for one of those is to delete the field that tripped it.
+        """
+        single = B.join(("D:", "Sundeep", "projects", "data", "profile.json"))
+        planted = {"detail": "[Errno 13] Permission denied: "
+                             + single.replace(B, B + B)}
+
+        assert single not in planted["detail"], planted
+        assert list(path_hits(planted, single)), planted
+        # the ordinary single-spelling case must keep working
+        assert list(path_hits({"path": str(tmp_path / "x.json")}, str(tmp_path)))
+        # and neither spelling may fire on the rendered form
+        assert list(path_hits({"path": "data/profile.json"}, single)) == []
+
+    async def test_an_unparseable_config_does_not_report_as_loaded(
+            self, monkeypatch, tmp_path, make_profile):
+        """The negative pin ``config_status`` never had. A corrected finding.
+
+        The false-success found on the sibling server is NOT present here -
+        MEASURED on all three failure branches, uplers reports honestly. But
+        nothing pinned it: the only assertion on ``status`` anywhere was the
+        HEALTHY case (``"loaded from" in report.status``), which a false
+        success passes without noticing.
+
+        ``source`` is deliberately NOT asserted to be None, because it is not:
+        measured on all three branches it still NAMES the file, correctly, and
+        pinning a value the code does not produce would be pinning a wish.
+        """
+        make_profile()
+        config_file = tmp_path / "jobhunt.json"
+        cases = (
+            ("malformed json", b'{"revision": 1,}'),
+            ("json but not an object", b"[1, 2, 3]"),
+            ("undecodable bytes", b'{"a": "\xe9"}'),
+        )
+        for label, raw in cases:
+            config_file.write_bytes(raw)
+            monkeypatch.setenv("JOBHUNT_CONFIG", str(config_file))
+            policy_mod.invalidate()
+
+            report = await server.uplers_config()
+
+            status = report.status or ""
+            assert "loaded from" not in status, (label, status)
+            assert status.startswith("error:"), (label, status)
+            # and it is still an ANSWER - the pin must not be satisfiable by
+            # emptying the field
+            assert "jobhunt.json" in status, (label, status)
+
+    async def test_an_unreadable_profile_does_not_leak_its_path(
+            self, monkeypatch, make_profile, isolated_profile):
+        """The SECOND, different leak: profile.load() names the file twice over.
+
+        ``target`` is ``profile_path()`` - not a config path, so it is not in
+        ``Loaded.known_paths`` at all and no existing substitution touches
+        either half. MEASURED: the ``{target}`` half leaks the single spelling
+        and the ``{exc}`` half leaks the doubled one, from the same sentence.
+        It reaches a caller through ``uplers_config(write_candidate=True)``,
+        which re-raises ``str(exc)``.
+
+        The reader function is exercised against a file on disk, which is this
+        repo's established practice; no MCP tool is called.
+        """
+        make_profile()
+        readable = Path.open
+
+        def refuse(self, *args, **kwargs):
+            if self.name == "profile.json":
+                raise OSError(13, "Permission denied", str(self))
+            return readable(self, *args, **kwargs)
+
+        monkeypatch.setattr(Path, "open", refuse)
+
+        with pytest.raises(profile_mod.ProfileError) as caught:
+            profile_mod.load(path=isolated_profile)
+
+        message = str(caught.value)
+        # still an answer
+        assert "profile.json" in message, message
+        assert "could not be read as JSON" in message, message
+        # and neither spelling of the layout, by either detector
+        found = list(path_hits({"message": message},
+                               str(isolated_profile.parent)))
+        assert found == [], found
+        second = list(leaks_in({"message": message}))
+        assert second == [], second
+
+    def test_an_unreadable_snapshot_does_not_leak_its_path(
+            self, monkeypatch, tmp_path):
+        """``{path.name}`` was already safe; the ``({exc})`` beside it was not.
+
+        The same defect one file over, and the reason the fix is a SHARED
+        primitive rather than four local repairs: three of these four sites
+        compose a message around an exception this server never looks inside.
+        """
+        snapshots = tmp_path / "snaps"
+        snapshots.mkdir()
+        snapshot = snapshots / "1787000000-x.json"
+        snapshot.write_text(json.dumps({"skills": ["Node.js"]}), encoding="utf-8")
+        monkeypatch.setattr(profile_write, "snapshots_dir", lambda: snapshots)
+
+        readable = Path.read_text
+
+        def refuse(self, *args, **kwargs):
+            if self.name == snapshot.name:
+                raise OSError(13, "Permission denied", str(self))
+            return readable(self, *args, **kwargs)
+
+        monkeypatch.setattr(Path, "read_text", refuse)
+
+        with pytest.raises(profile_write.WriteRefused) as caught:
+            profile_write.load_snapshot("1787000000-x")
+
+        message = str(caught.value)
+        # still an answer: it must name WHICH snapshot
+        assert "1787000000-x.json" in message, message
+        found = list(path_hits({"message": message}, str(tmp_path)))
+        assert found == [], found
+        second = list(leaks_in({"message": message}))
+        assert second == [], second

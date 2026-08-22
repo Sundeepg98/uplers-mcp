@@ -129,6 +129,66 @@ def display_path(raw):
     return jobcore_paths.display_path(raw, anchor=DISPLAY_ANCHOR)
 
 
+#: One path separator, spelled rather than written, because the whole defect
+#: below is about how many of them a reader thinks they are looking at.
+_SEPARATOR = chr(92)
+
+
+def repr_spelling(raw):
+    """The way ``repr()`` spells *raw* inside an exception message.
+
+    ``OSError.__str__`` renders its ``filename`` through ``repr()``, so a
+    Windows path arrives in the message with DOUBLED separators. MEASURED on
+    2026-08-22 against a jobhunt.json that existed but could not be read: the
+    ``{path}`` half of jobcore's ``cannot read {path}: {exc}`` was correctly
+    relativised while the ``{exc}`` half published the full layout, out of the
+    same sentence, because every exact-substring scrubber in this family
+    searched for the single-separator form and found nothing.
+
+    So this is not a new kind of check - it is ONE MORE SPELLING of a needle
+    the scrubber already had. Deliberately not a "looks like a path" hunt:
+    a heuristic would eventually eat a platform.uplers.com URL or a quoted
+    Windows path inside user content, and a scrubber that mangles correct
+    fields does more damage than the leak it was written for.
+
+    On POSIX the two spellings are IDENTICAL - there are no separators to
+    double - so the extra needle collapses onto the first and costs nothing.
+    """
+    return str(raw).replace(_SEPARATOR, _SEPARATOR * 2)
+
+
+def relativise_paths(text, paths):
+    """Exact substitution of *paths*, in BOTH spellings, inside *text*.
+
+    The primitive under :func:`relativise_known_paths`, exposed because three
+    of this server's four leak sites compose a message around an exception
+    whose path this server never looks inside - the local profile file
+    (``profile.load``) and a profile snapshot (``profile_write.load_snapshot``)
+    are not config paths, so they are not in ``Loaded.known_paths`` and no
+    snapshot-driven substitution can reach them.
+
+    Both spellings render to the SAME string, which is what makes this exact
+    rather than clever: the mapping is built here, so a needle is only ever
+    replaced by the rendering of the path it actually is.
+    """
+    rendered = {}
+    for raw in paths or ():
+        if not raw:
+            continue
+        raw = str(raw)
+        shown = str(display_path(raw))
+        rendered[raw] = shown
+        rendered[repr_spelling(raw)] = shown
+    if not rendered:
+        return text
+    # Longest first is the upstream's job, and it matters twice over here: a
+    # searched path is often a prefix of another, and the doubled spelling is
+    # always longer than the single one it shadows.
+    return jobcore_paths.relativise_known(
+        text, known=rendered, render=rendered.__getitem__
+    )
+
+
 def relativise_known_paths(text, loaded):
     """Render any path jobcore already baked into a composed message.
 
@@ -150,10 +210,13 @@ def relativise_known_paths(text, loaded):
     Substitution stays EXACT rather than heuristic - only strings the snapshot
     already knows are paths - which is why a Naukri API route or a
     platform.uplers.com URL in the same sentence is left alone.
+
+    Each known path is now searched for in BOTH spellings; see
+    :func:`repr_spelling` for the measurement that made that necessary. That is
+    the only change to the algorithm, and it is why the upstream primitive is
+    reached through :func:`relativise_paths` rather than called directly.
     """
-    return jobcore_paths.relativise_known(
-        text, known=loaded.known_paths, render=display_path
-    )
+    return relativise_paths(text, loaded.known_paths)
 
 
 def relativise_mapping(payload, loaded):

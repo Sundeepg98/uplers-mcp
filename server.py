@@ -2038,7 +2038,16 @@ async def uplers_config(write_candidate: bool = False,
     # library that owns it.
     source = policy_mod.display_path(ld.source)
     searched = [policy_mod.display_path(path) for path in ld.searched]
-    status = ld.status_for(policy_mod.display_path)
+    # jobcore's own substitution runs inside `status_for` and searches for the
+    # SINGLE-separator spelling only, so it renders the `{path}` half of
+    # "cannot read {path}: {exc}" and leaves the `{exc}` half - the same path,
+    # spelled the way repr() spells it - untouched. That cannot be fixed from
+    # here without editing jobcore, so the result takes a second pass through
+    # this server's own binding, which knows both spellings. The pass is a
+    # no-op on anything jobcore already replaced.
+    status = policy_mod.relativise_known_paths(
+        ld.status_for(policy_mod.display_path), ld
+    )
     # jobcore hands `write` back verbatim and it carries paths in three places:
     # `path` on success, `ledger_error`, and `detail` on a lock conflict. The
     # last two name files DERIVED from the config's directory, which is why the
