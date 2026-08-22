@@ -40,6 +40,7 @@ from uplers_server import (
     __version__,
     alerts as alerts_mod,
     brief as brief_mod,
+    buildinfo as buildinfo_mod,
     config,
     fit,
     ids,
@@ -75,6 +76,7 @@ from uplers_server.models import (
     SavedList,
     SchedulerStatus,
     SearchResult,
+    ServerInfo,
     SkillGapResult,
     SkillGapRow,
     SyncResult,
@@ -151,7 +153,7 @@ def _no_cache_error(store: Store) -> UplersError:
         "The local Uplers index is empty (0 cached job records at %s). "
         "This is NOT 'no matching jobs' - nothing has been indexed yet. "
         "Run uplers_sync_index() first; it takes a few minutes on the first run."
-        % store.path
+        % policy_mod.display_path(str(store.path))
     )
 
 
@@ -792,15 +794,16 @@ async def uplers_get_profile() -> ProfileResult:
         notes.append(
             "Scoring uses the SHARED config for: %s. The rest comes from %s. "
             "The profile shown is what actually scores." % (
-                ", ".join(shared), prof.profile_path(),
+                ", ".join(shared),
+                policy_mod.display_path(str(prof.profile_path())),
             )
         )
     notes.extend(bound.notes())
     return ProfileResult(
         profile=effective,
-        path=str(prof.profile_path()),
+        path=policy_mod.display_path(str(prof.profile_path())),
         seeded_from_resume=seeded,
-        config_source=bound.loaded.source,
+        config_source=policy_mod.display_path(bound.loaded.source),
         field_source=where,
         notes=notes,
     )
@@ -919,7 +922,9 @@ async def uplers_set_profile(
             "This profile has neither skills nor years_experience, so scoring tools will "
             "refuse to run against it.",
         )
-    return ProfileResult(profile=profile, path=str(path), notes=notes)
+    return ProfileResult(
+        profile=profile, path=policy_mod.display_path(str(path)), notes=notes
+    )
 
 
 # ---------------------------------------------------------------- tool 8 ---
@@ -2005,7 +2010,7 @@ async def uplers_config(write_candidate: bool = False,
                 "candidate written to %s (revision %s). Every server that reads this "
                 "file now scores against it; data/profile.json stays as the local "
                 "fallback for anything the file does not set."
-                % (ld.source, write.get("revision"))
+                % (policy_mod.display_path(ld.source), write.get("revision"))
             )
         elif write.get("status") == "no_config_file":
             notes.append(
@@ -2026,9 +2031,29 @@ async def uplers_config(write_candidate: bool = False,
     except prof.ProfileError:
         field_source = {}
 
+    # Every path leaves through display_path. `status` is REBUILT rather than
+    # relativised after the fact: jobcore composes it out of the raw source or
+    # the raw searched list, so scrubbing the finished sentence would mean
+    # string surgery on prose. Rebuilding from the already-rendered parts keeps
+    # one representation of a path in the payload instead of two.
+    source = policy_mod.display_path(ld.source)
+    searched = [policy_mod.display_path(path) for path in ld.searched]
+    if ld.config_error:
+        # jobcore built this sentence with the raw path already inside it, so
+        # the path is substituted rather than rendered. See
+        # policy.relativise_known_paths.
+        status = policy_mod.relativise_known_paths(ld.config_status, ld)
+    elif source is None:
+        status = (
+            "no file found; built-in defaults in use. searched: "
+            + (", ".join(searched) if searched else "(nothing)")
+        )
+    else:
+        status = "loaded from %s" % source
+
     return ConfigReport(
-        source=ld.source,
-        status=ld.config_status,
+        source=source,
+        status=status,
         revision=ld.revision,
         policy_rev=ld.policy_rev,
         policy_hash=ld.policy_hash,
@@ -2042,9 +2067,64 @@ async def uplers_config(write_candidate: bool = False,
         },
         refused=list(ld.tier_c_refusals),
         unknown_keys=list(ld.unknown_keys),
-        searched=list(ld.searched) if ld.source is None else [],
+        searched=searched if ld.source is None else [],
         write=write,
         notes=notes,
+    )
+
+
+# ------------------------------------------------------------ tool 17 ---
+
+
+@mcp.tool()
+async def uplers_server_info() -> ServerInfo:
+    """What code THIS process is running. Check it before debugging behaviour.
+
+    HOW TO USE IT, and it is one comparison: take `build.code.commit` and run
+    `git rev-parse HEAD` in the uplers checkout. If they DIFFER, this process
+    predates the commit on disk - it is stale, it is still executing the old
+    code, and debugging its behaviour is pointless until the MCP host restarts
+    it. If they MATCH, the running code is the committed code and a surprising
+    result is a real bug rather than a ghost. `build.code.dirty` says whether
+    the tree carried uncommitted edits when this process started, because a
+    commit alone answers nothing about a modified working tree.
+
+    `build.jobcore` is the SAME check against the shared scoring library, and
+    it is not redundant: this server's fit scores are jobcore's, so a stale
+    jobcore changes every number here while `build.code` reads perfectly
+    current. Both must match disk before a scoring complaint means anything.
+
+    The stamps are frozen at import ON PURPOSE. A commit made after this
+    process started does not move them - that is what makes the comparison
+    able to detect staleness at all, and it is why `build.process.started_at`
+    is reported beside them.
+
+    `config.scoring_hash` is the other comparison worth making: it is the value
+    stamped on every scored result, so a stored score whose stamp differs was
+    produced by arithmetic no longer in force.
+
+    Costs nothing - it reads module constants and touches neither git, the
+    network, nor the database.
+    """
+    bound = _bind()
+    ld = bound.loaded
+    return ServerInfo(
+        server={"name": "uplers", "version": __version__},
+        build=buildinfo_mod.build_block(),
+        config={
+            "source": policy_mod.display_path(ld.source),
+            "policy_rev": ld.policy_rev,
+            "policy_hash": ld.policy_hash,
+            "scoring_hash": ld.scoring_hash,
+        },
+        tiers=(
+            "PUBLIC tools need no account (uplers_sync_index, uplers_daily_brief, "
+            "uplers_rank_opportunities and the rest of the board readers); "
+            "AUTHENTICATED tools read his Uplers account and need uplers_login "
+            "first (uplers_my_feed, uplers_my_pipeline, uplers_my_profile, "
+            "uplers_apply)."
+        ),
+        irreversible_tools=["uplers_apply"],
     )
 
 
@@ -2831,6 +2911,11 @@ async def uplers_sync_profile_from_uplers(
     prof.save(local.model_copy(update=updates), path=target)
 
     result.applied = True
+    # NOT relativised, unlike every other path in this server, and deliberately
+    # left for a ruling rather than changed here: this field is the UNDO HANDLE
+    # for a destructive sync - the caller is expected to open it - so shortening
+    # it changes a contract rather than a presentation.
+    # tests/test_profile_direction.py resolves it with Path(...).is_file().
     result.backup_path = str(backup) if backup else None
     result.notes.append(
         "Local profile updated. Fit scores computed before now were against the old "
@@ -3321,7 +3406,7 @@ async def uplers_list_profile_snapshots() -> SnapshotList:
             )
             for entry in entries
         ],
-        directory=str(profile_write.snapshots_dir()),
+        directory=policy_mod.display_path(str(profile_write.snapshots_dir())),
         notes=(
             []
             if entries

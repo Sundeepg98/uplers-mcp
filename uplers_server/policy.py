@@ -51,6 +51,9 @@ from jobcore import (
     ScoringEngine,
 )
 from jobcore import config as jobcore_config
+from jobcore import paths as jobcore_paths
+
+from . import config as server_config
 
 #: The name this server owns in the shared document: ``servers.uplers.*``.
 #: It is also the only section ``apply_patch`` will let this server write
@@ -77,6 +80,83 @@ PAY_UNIT = "usd_per_year"
 
 #: The other one, named here only so a test can assert it is never read.
 FOREIGN_PAY_UNIT = "inr_lakhs_per_year"
+
+
+#: The anchor every displayed path is measured against. Named here rather than
+#: passed at each call site so the ~12 places that render a path cannot drift
+#: into anchoring against different roots and rendering the same file two ways.
+DISPLAY_ANCHOR = server_config.REPO_ROOT
+
+
+def display_path(raw):
+    """A path a reader can act on, that is not this machine's absolute layout.
+
+    A live sweep on 2026-08-22 found ``D:\\Sundeep\\projects\\...`` in this
+    server's ``uplers_get_profile`` and ``uplers_config`` results. That is
+    wrong twice over: it publishes the box's directory layout into any shared
+    transcript, and it is paid for in tokens on every response carrying it.
+
+    RELATIVISE, DO NOT DELETE. "Where is the config file even?" is a documented
+    use of ``uplers_config`` - its own docstring points at ``searched`` for
+    exactly that - so a ``None`` here would trade a leak for a different defect:
+    a field that answers a different question than it looks like. jobcore's
+    renderer keeps the answer and drops the layout, in three forms (anchored
+    relative, then ``~/...``, then a ``.../a/b/c`` tail), none of which carries
+    a drive letter and all of which stay distinguishable from each other - the
+    basename fallback it replaced collapsed every entry of ``searched`` to the
+    identical string ``jobhunt.json``.
+
+    Delegation, not a copy: ``jobcore.paths.display_path`` is the canonical
+    implementation, shared with the naukri server, so the two report the same
+    file the same way. jobcore cannot know where its consumer lives, which is
+    why the anchor is supplied rather than inferred.
+
+    A NON-ABSOLUTE input is returned untouched. It already carries no machine
+    layout, so there is nothing to render, and rendering it anyway would be
+    actively wrong: ``os.path.relpath`` resolves a relative string against the
+    CURRENT WORKING DIRECTORY, which would turn the sqlite sentinel
+    ``":memory:"`` into a run of ``..`` hops that names no file at all. This
+    function is called from a dozen sites including error messages, so being
+    total matters more than being clever.
+    """
+    if not raw:
+        return raw
+    try:
+        if not Path(raw).is_absolute():
+            return raw
+    except (OSError, ValueError, TypeError):
+        return raw
+    return jobcore_paths.display_path(raw, anchor=DISPLAY_ANCHOR)
+
+
+def relativise_known_paths(text, loaded):
+    """Render any path jobcore already baked into a composed message.
+
+    Some of jobcore's strings arrive with the absolute path ALREADY inside
+    them - ``config_error`` is an f-string, ``"{path} is not valid JSON: ..."``
+    - so there is no field left to pass through :func:`display_path`. That one
+    string then reaches further than it looks: it is interpolated into
+    ``ConfigReport.status`` AND into :meth:`Bound.notes`, which every scoring
+    tool appends to its own notes, so one unparseable file publishes this box's
+    layout from tools that render no path of their own.
+
+    SUBSTITUTION, NOT DETECTION. Only the exact strings this snapshot already
+    knows to be paths are replaced - the source it loaded and each entry of the
+    list it searched. There is no "does this look like a path" heuristic, so
+    ordinary prose cannot be mangled and a message keeps saying what went
+    wrong; it just stops saying where the machine keeps its files.
+
+    Longest first, because one searched path can be a prefix of another and a
+    shorter replacement landing first would leave the remainder dangling.
+    """
+    if not text:
+        return text
+    candidates = {str(loaded.source)} if loaded.source else set()
+    candidates.update(str(entry) for entry in (loaded.searched or ()))
+    for raw in sorted(candidates, key=len, reverse=True):
+        if raw and raw in text:
+            text = text.replace(raw, display_path(raw) or raw)
+    return text
 
 
 def _taxonomy_for(scoring):
@@ -195,7 +275,10 @@ class Bound:
             )
         if ld.revision_regression:
             out.append("config revision went backwards: %s" % (ld.revision_regression,))
-        return out
+        # Applied to EVERY line rather than to the one known offender: several
+        # of these interpolate a jobcore-composed string, and the substitution
+        # is a no-op on a line that holds no path anyway.
+        return [relativise_known_paths(line, ld) for line in out]
 
 
 # ── Engine cache ───────────────────────────────────────────────────────────

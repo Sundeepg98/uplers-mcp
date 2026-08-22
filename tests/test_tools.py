@@ -128,6 +128,14 @@ CONFIG_TOOL_NAMES = {
     "uplers_config",
 }
 
+#: Reads module constants and nothing else - no network, no database, no disk,
+#: and no config write. Its own set because its blast radius is zero and it is
+#: the one tool that must stay that way: it exists to be trusted when the
+#: server's behaviour is already under suspicion.
+INTROSPECTION_TOOL_NAMES = {
+    "uplers_server_info",
+}
+
 TOOL_NAMES = (
     BOARD_TOOL_NAMES
     | TIER2_TOOL_NAMES
@@ -136,6 +144,7 @@ TOOL_NAMES = (
     | LOCAL_WRITE_TOOL_NAMES
     | PROFILE_WRITE_TOOL_NAMES
     | CONFIG_TOOL_NAMES
+    | INTROSPECTION_TOOL_NAMES
 )
 
 S1 = "HR010126120000"   # 2026-01-01T12:00:00
@@ -184,7 +193,7 @@ def wire_client(monkeypatch, handler):
 async def test_importing_server_registers_exactly_the_expected_tools():
     tools_listed = await server.mcp.list_tools()
 
-    assert len(tools_listed) == 40
+    assert len(tools_listed) == 41
     assert {tool.name for tool in tools_listed} == TOOL_NAMES
     # The five original board tools must survive every later addition.
     assert BOARD_TOOL_NAMES <= {tool.name for tool in tools_listed}

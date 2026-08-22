@@ -345,6 +345,44 @@ class ConfigReport(Compact):
     notes: list[str] = Field(default_factory=list)
 
 
+class ServerInfo(Compact):
+    """What code this PROCESS is running, so staleness stops being invisible.
+
+    Not a health check and not a version string. Every field here exists to be
+    COMPARED against something outside the process - `build.code.commit`
+    against `git rev-parse HEAD` on disk, `config.scoring_hash` against the
+    stamp on a stored score - because a claim a process makes about itself is
+    only useful when it can be falsified from outside.
+    """
+
+    server: dict = Field(
+        default_factory=dict, description="Name and package version of this server"
+    )
+    build: dict = Field(
+        default_factory=dict,
+        description=(
+            "Three blocks. `code` is this checkout's commit, FROZEN at import; "
+            "`jobcore` is the shared scoring library's, stamped separately "
+            "because a stale jobcore moves this server's numbers; `process` is "
+            "pid and uptime, derived live."
+        ),
+    )
+    config: dict = Field(
+        default_factory=dict,
+        description=(
+            "The bound jobhunt.json: its path relative to this checkout, plus "
+            "policy_rev/policy_hash/scoring_hash. Never an absolute local path."
+        ),
+    )
+    tiers: str | None = Field(
+        None, description="Which tools need an account and which do not"
+    )
+    irreversible_tools: list[str] = Field(
+        default_factory=list,
+        description="Tools whose effect CANNOT be undone from anywhere in Uplers' product",
+    )
+
+
 class FitAssessment(Compact):
     """The full reasoning for one requisition. Bigger than a row, on purpose."""
 

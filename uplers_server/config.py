@@ -36,8 +36,19 @@ SITEMAP_MIN_INTERVAL_SECONDS = 300      # do not re-pull a 4.8 MB sitemap more o
 # Upper bound on records fetched by one uplers_sync_index() call.
 DEFAULT_SYNC_FETCH_BUDGET = 300
 
+# --- Layout ---------------------------------------------------------------
+# The checkout root: the directory holding server.py, uplers_server/ and data/.
+#
+# Defined ONCE, here, because three unrelated things need the same answer and
+# a second definition is a second thing to get wrong: `buildinfo` stamps the
+# git repository rooted at it, `policy.display_path` measures every displayed
+# path against it, and the data directory hangs off it. Two of those are how a
+# reader decides whether a path is safe to publish, so they must not be able to
+# disagree about where "here" is.
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
 # --- Storage --------------------------------------------------------------
-_DEFAULT_DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+_DEFAULT_DATA_DIR = REPO_ROOT / "data"
 DATA_DIR = Path(os.environ.get("UPLERS_DATA_DIR", _DEFAULT_DATA_DIR))
 DB_PATH = DATA_DIR / "uplers.sqlite3"
 

@@ -49,7 +49,7 @@ import time
 from pathlib import Path
 from typing import Any, Iterable
 
-from . import config, talent_shape
+from . import config, policy, talent_shape
 from .client import UplersError
 
 #: What :func:`write_snapshot` names its files: a unix timestamp, a hyphen, and
@@ -271,7 +271,10 @@ def write_snapshot(payload: Any, *, label: str = "auto") -> dict:
     path.write_text(json.dumps(record, indent=2, ensure_ascii=False), encoding="utf-8")
     return {
         "snapshot_id": record["snapshot_id"],
-        "path": str(path),
+        # Relativised, not dropped: a snapshot the operator cannot find on disk
+        # is not much of a restore point, and `snapshot_id` alone does not say
+        # which directory to look in. See policy.display_path.
+        "path": policy.display_path(str(path)),
         "skills": len(rows),
     }
 

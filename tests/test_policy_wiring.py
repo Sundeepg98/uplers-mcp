@@ -25,6 +25,7 @@ own file into tmp_path and pointing the variable at it.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -770,7 +771,14 @@ class TestTheConfigTool:
         report = await server.uplers_config()
 
         assert report.source is None
-        assert report.searched == [str(tmp_path / "absent.json")]
+        # RELATIVISED, not raw and not dropped. The path is rendered so the
+        # payload publishes no machine layout, and it still NAMES the file
+        # tried - which is the whole use of this field. Two different searched
+        # paths must still render to two different strings; that is pinned in
+        # tests/test_path_hygiene.py.
+        assert report.searched == [policy_mod.display_path(str(tmp_path / "absent.json"))]
+        assert report.searched[0].endswith("absent.json")
+        assert not re.search(r"[A-Za-z]:[\\/]", report.searched[0])
         assert report.policy_hash == jp.DEFAULT_POLICY.policy_hash
 
     async def test_it_reports_the_file_and_its_provenance(self, configured,
