@@ -45,12 +45,14 @@ take is more useful labelled than quietly turned into a 71.
 from __future__ import annotations
 
 from . import policy as policy_mod
+from .client import UplersError
 from .models import Opportunity
 from .policy import USD_YEAR_CONFIG, UsdYearSalary  # re-exported: the units trap
 from .search import notice_days
 
 __all__ = [
     "USD_YEAR_CONFIG",
+    "UnscorableOpportunity",
     "UsdYearSalary",
     "assess",
     "blockers_and_flags",
@@ -62,9 +64,89 @@ __all__ = [
     "preference_tilt",
     "rank",
     "render_pay",
+    "score_basis",
     "to_row",
+    "unscorable_reason",
     "usd_salary_string",
 ]
+
+
+class UnscorableOpportunity(UplersError):
+    """There was nothing to score. Raised instead of returning a number.
+
+    jobcore's two base components each fall back to a neutral default when
+    their input is missing - 50 for unknown job skills, 50 for an unreadable
+    experience band - and 0.6 * 50 + 0.4 * 50 is 50. So a record carrying
+    NEITHER produces a confident-looking 50 that describes the defaults and not
+    the job. Every one of those 50s is indistinguishable from a real 50 earned
+    by a genuine half-match.
+
+    MEASURED, and the reason this class exists: his nine REAL Uplers
+    applications came back through `uplers_my_pipeline(score=True)` as nine
+    identical `score: 50, verdict: partial` rows, because the shaper was
+    reading the application wrapper rather than the job nested inside it. The
+    shaping bug is fixed; this is the guard that would have made it LOUD
+    instead of plausible, and it stays because the next envelope change will
+    fail the same way.
+    """
+
+    kind = "unscorable"
+
+
+def unscorable_reason(opp: Opportunity) -> str | None:
+    """Why *opp* cannot be scored, or None when it can.
+
+    The test is exactly "would BOTH base components fall back to their unknown
+    defaults" - not "does this record look thin". Bonuses are deliberately not
+    consulted: location, work mode and salary are worth at most +20 on top of a
+    base, and a score assembled from bonuses alone would be the same fabrication
+    one layer along.
+
+    Thin is fine and stays scoreable. A `tailor-jobs` row publishes no skills
+    but does publish an experience band, and it gets a real number with a flag
+    saying which half was unknown. Only NOTHING is refused.
+    """
+    has_skills = bool(opp.skills.must_have or opp.skills.good_to_have)
+    has_experience = (
+        opp.min_years_experience is not None or opp.max_years_experience is not None
+    )
+    if has_skills or has_experience:
+        return None
+    return (
+        "%s carries neither skills nor an experience band, so both halves of the "
+        "score would be jobcore's unknown-defaults and the result would be a flat "
+        "50 describing this scorer rather than the job. Refusing to return a "
+        "number. If this came from an authenticated list, the record was probably "
+        "read off the wrong node of its envelope."
+        % (opp.hr_number or "this record")
+    )
+
+
+def score_basis(opp: Opportunity) -> str | None:
+    """Which half of the score rested on a default, or None when neither did.
+
+    The sibling of :func:`unscorable_reason` for the case that is thin rather
+    than empty, and it exists because of what the fix to the empty case
+    revealed: `tailor-jobs` publishes no skill list at all, so all five of its
+    rows came back at an identical 80 - a real computation, but one whose
+    skills component (60% of the weight) was jobcore's neutral 50 for every
+    row. Five identical 80s read as a finding about the jobs. They were a
+    finding about the payload.
+
+    Returned per row rather than once per page because a page can be mixed, and
+    None on a complete row so the common case costs nothing.
+    """
+    missing = []
+    if not (opp.skills.must_have or opp.skills.good_to_have):
+        missing.append("this surface publishes no skill list")
+    if opp.min_years_experience is None and opp.max_years_experience is None:
+        missing.append("no experience band is stated")
+    if not missing:
+        return None
+    return (
+        "partial evidence: %s, so that half of the score is jobcore's neutral "
+        "default rather than a match" % " and ".join(missing)
+    )
 
 
 def parse_skills(raw, bound=None) -> set:
@@ -263,7 +345,17 @@ def assess(opp: Opportunity, profile, bound=None, *, explain: bool = False) -> d
     roughly doubles the size of a scored row and this server's governing
     constraint is token cost. The number is identical either way: the block is
     a readout of the working, never an input to it.
+
+    Raises :class:`UnscorableOpportunity` when there is nothing to score on.
+    Raising rather than returning ``None`` is deliberate: this function has six
+    call sites and only some of them can carry a null, so the default has to be
+    the loud one. The list surfaces that must survive one bad row catch it
+    explicitly and report the row as unscored.
     """
+    reason = unscorable_reason(opp)
+    if reason:
+        raise UnscorableOpportunity(reason)
+
     bound = policy_mod.resolve(bound)
     engine = bound.engine
 
@@ -319,6 +411,12 @@ def assess(opp: Opportunity, profile, bound=None, *, explain: bool = False) -> d
         )
     if low is None:
         flags.append("role states no experience band; experience scored neutral (50)")
+    if not (must | good):
+        # The counterpart of the line above, and it was missing. A row with no
+        # published skills gets jobcore's unknown-default for the whole 60% of
+        # the score that skills carry, and nothing said so. `tailor-jobs` rows
+        # are all like this.
+        flags.append("role lists no skills; skill match scored neutral (50)")
 
     tilt, labels = preference_tilt(must | good, bound)
     if tilt:
@@ -346,8 +444,8 @@ def rank(
     exclude_blocked: bool | None = None,
     bound=None,
     explain: bool = False,
-) -> tuple[list[tuple[Opportunity, dict]], int]:
-    """Score and order a cohort. Returns (ranked pairs, blocked_count).
+) -> tuple[list[tuple[Opportunity, dict]], int, list[str]]:
+    """Score and order a cohort. Returns (ranked pairs, blocked_count, unscorable).
 
     Ordering is jobcore's score adjusted by the stack preference, then the raw
     score, then must-have coverage, then the HR number so the order is total
@@ -359,14 +457,26 @@ def rank(
 
     ``explain`` is handed straight to :func:`assess`, so every pair carries the
     working as well as the number. It changes no score and no ordering.
+
+    The third return value names the records that could not be scored at all
+    (see :class:`UnscorableOpportunity`). They are LEFT OUT of the ranking
+    rather than sorted in at a fabricated 50, and reported so a caller can say
+    how many rather than quietly showing a shorter list.
     """
     bound = policy_mod.resolve(bound)
     if exclude_blocked is None:
         exclude_blocked = bound.setting("exclude_blocked", "rank", default=True)
     scored: list[tuple[Opportunity, dict]] = []
     blocked = 0
+    unscorable: list[str] = []
     for opp in opportunities:
-        assessment = assess(opp, profile, bound, explain=explain)
+        try:
+            assessment = assess(opp, profile, bound, explain=explain)
+        except UnscorableOpportunity:
+            # One unreadable record must not cost the whole cohort its ranking,
+            # and must not be smuggled in at the neutral default either.
+            unscorable.append(opp.hr_number or "?")
+            continue
         if assessment["blockers"]:
             blocked += 1
             if exclude_blocked:
@@ -380,7 +490,7 @@ def rank(
             pair[0].hr_number,
         )
     )
-    return (scored, blocked)
+    return (scored, blocked, unscorable)
 
 
 def compact_verdict(assessment: dict) -> str | None:

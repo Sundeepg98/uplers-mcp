@@ -1,0 +1,97 @@
+{
+  "data": [
+    {
+      "HR_Number": "HR280726200209",
+      "ModeOfWork": "Remote",
+      "company": "Building Autonomous AI for GCCs",
+      "company_logo": "NA",
+      "company_name_initials": "NA",
+      "enc_id": "MWxjVnVSYlc5Nis3eWtwNEdQeWZxQT09",
+      "experience": "3 - 5 Years of Exp",
+      "id": 302816,
+      "is_partner_company": "Jul 2026",
+      "is_saved": false,
+      "job_function_id": 3,
+      "job_location": [],
+      "job_nature": "Uplers On-Boarded",
+      "link": "/talent/all-opportunities/HR280726200209?from=tailor-jobs",
+      "title": "Senior Full-Stack Engineer"
+    },
+    {
+      "HR_Number": "HR1178539473158195",
+      "ModeOfWork": "Remote",
+      "company": "EkamApps",
+      "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_EkamApps_1777999250_rVgH7s93ZI.jpeg",
+      "company_name_initials": "E",
+      "enc_id": "dlpHcXdOY2ZVMEZINHpxZG5ZT01Tdz09",
+      "experience": "2 - 7 Years of Exp",
+      "id": 304193,
+      "is_partner_company": "Jul 2026",
+      "is_saved": false,
+      "job_function_id": 3,
+      "job_location": [],
+      "job_nature": "Uplers On-Boarded",
+      "link": "/talent/all-opportunities/HR1178539473158195?from=tailor-jobs",
+      "title": "Full Stack Developer (AI Product)"
+    },
+    {
+      "HR_Number": "HR200226181321",
+      "ModeOfWork": "Remote",
+      "company": "Lyzr",
+      "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/15771785245885.png",
+      "company_name_initials": "L",
+      "enc_id": "aEF5RFYyaUdyc0F6UVUzV1lCSm15UT09",
+      "experience": "3 - 5 Years of Exp",
+      "id": 205100,
+      "is_partner_company": "Jan 2025",
+      "is_saved": false,
+      "job_function_id": 3,
+      "job_location": [],
+      "job_nature": "Uplers On-Boarded",
+      "link": "/talent/all-opportunities/HR200226181321?from=tailor-jobs",
+      "title": "Senior Fullstack Engineer"
+    },
+    {
+      "HR_Number": "HR1178733060841826",
+      "ModeOfWork": "Remote",
+      "company": "SourcingXPress",
+      "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_SourcingXPress_1756272958_66uOL6tiEW.jpeg",
+      "company_name_initials": "S",
+      "enc_id": "ZEY2QmVFa2d6YzBrcStDNS8vTCtFdz09",
+      "experience": "5 Years of Exp",
+      "id": 332021,
+      "is_partner_company": false,
+      "is_saved": false,
+      "job_function_id": 3,
+      "job_location": [
+        {
+          "city_id": 394,
+          "city_name": "Mumbai",
+          "hr_id": 332021,
+          "state_name": "Maharashtra"
+        }
+      ],
+      "job_nature": "Aggregated",
+      "link": "/talent/all-opportunities/HR1178733060841826?from=tailor-jobs",
+      "title": "Senior Full Stack Engineer"
+    },
+    {
+      "HR_Number": "HR1178732232533485",
+      "ModeOfWork": "Remote",
+      "company": "Vibrant Brands Australia",
+      "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_Vibrant_Brands_Australia_1787322321_kZYozhRyNB.jpeg",
+      "company_name_initials": "VB",
+      "enc_id": "QlZIZDQ3TkFLZnNZcTZmN0VCYzhQdz09",
+      "experience": "5 Years of Exp",
+      "id": 331733,
+      "is_partner_company": false,
+      "is_saved": false,
+      "job_function_id": 3,
+      "job_location": [],
+      "job_nature": "Aggregated",
+      "link": "/talent/all-opportunities/HR1178732232533485?from=tailor-jobs",
+      "title": "Senior Full Stack Developer & React Native Mobile App Developer"
+    }
+  ],
+  "status": 200
+}

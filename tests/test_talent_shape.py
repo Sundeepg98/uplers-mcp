@@ -728,8 +728,11 @@ def test_a_non_success_status_is_surfaced_rather_than_swallowed():
     """
     interviews, notes = talent_shape.interviews_from({"status": "error", "data": []})
     assert interviews == []
-    assert len(notes) == 1
-    assert "error" in notes[0]
+    assert any("error" in note for note in notes)
+    # An empty list now also carries its own diagnosis, so this is no longer the
+    # only note. The count was never what mattered - that the client's own
+    # complaint survives is.
+    assert any("meta" in note for note in notes)
 
 
 # --- is_test_record / rows_from -------------------------------------------

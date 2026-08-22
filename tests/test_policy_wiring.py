@@ -307,8 +307,8 @@ class TestTheStackPreferenceIsNowConfig:
 
     def test_deleting_the_rule_changes_the_ORDER_and_not_the_scores(
             self, configured, unconfigured, me):
-        with_tilt, _ = fit.rank([PY_ROLE, NODE_ROLE], me, bound=unconfigured)
-        without, _ = fit.rank([PY_ROLE, NODE_ROLE], me,
+        with_tilt, _, _ = fit.rank([PY_ROLE, NODE_ROLE], me, bound=unconfigured)
+        without, _, _ = fit.rank([PY_ROLE, NODE_ROLE], me,
                               bound=configured({"scoring": {"rank_adjustments": []}}))
 
         assert [o.hr_number for o, _ in with_tilt] == [
@@ -539,10 +539,10 @@ class TestTheServerBlockIsRead:
     def test_exclude_blocked_default_for_rank_comes_from_the_file(
             self, configured, unconfigured, me):
         blocked = role("HR010126120099", [".NET", "Azure"])
-        kept, _ = fit.rank([blocked], me, bound=unconfigured)
+        kept, _, _ = fit.rank([blocked], me, bound=unconfigured)
         assert kept == []
 
-        shown, count = fit.rank([blocked], me, bound=configured(
+        shown, count, _ = fit.rank([blocked], me, bound=configured(
             {"servers": {"uplers": {"exclude_blocked": {"rank": False}}}}))
         assert count == 1 and len(shown) == 1
 
@@ -550,7 +550,7 @@ class TestTheServerBlockIsRead:
         blocked = role("HR010126120099", [".NET", "Azure"])
         bound = configured({"servers": {"uplers": {
             "exclude_blocked": {"rank": False}}}})
-        kept, _ = fit.rank([blocked], me, exclude_blocked=True, bound=bound)
+        kept, _, _ = fit.rank([blocked], me, exclude_blocked=True, bound=bound)
         assert kept == []
 
     def test_a_foreign_servers_block_does_not_reach_this_one(self, configured):
@@ -690,6 +690,53 @@ class TestCandidateLayering:
         before = me.model_dump()
         policy_mod.effective_profile(me, configured({"candidate": {"skills": ["rust"]}}))
         assert me.model_dump() == before
+
+    # -- the generated-template trap ---------------------------------------
+    #
+    # The three above establish that PROVENANCE decides, and they are right
+    # about the case they cover. These four cover the case they do not: a file
+    # that names EVERY key because a generator wrote it, not because a human
+    # answered it.
+
+    def test_the_documented_on_ramp_does_not_wipe_his_profile(self, configured):
+        """Copying the shipped example - or `default_document()`, which is the
+        same shape - must be inert. MEASURED before this guard: three scores
+        went 100 -> 30, 88 -> 23, 80 -> 20 and every "Strong match" became
+        "Weak match", because the template's `skills: []` and `pay.floor: null`
+        are provenance "file" on every key."""
+        local = Profile(
+            years_experience=5.0,
+            skills=["Node.js", "TypeScript", "AWS"],
+            location="Bangalore, India",
+            min_pay_usd_year=20959,
+        )
+        bound = configured(jobcore_config.default_document())
+
+        profile, where = policy_mod.effective_profile(local, bound)
+        assert profile.skills == local.skills
+        assert profile.min_pay_usd_year == 20959
+        assert profile.location == "Bangalore, India"
+        assert where["skills"] == "local"
+        assert where["min_pay_usd_year"] == "local"
+
+    def test_CONTROL_provenance_alone_would_have_wiped_it(self, configured):
+        """The old rule, run on the same input, so the harm is a number."""
+        bound = configured(jobcore_config.default_document())
+        assert bound.configured("candidate.skills") is True
+        assert bound.candidate.skills == ()
+        # Provenance says "the file set it"; the file set it to nothing.
+        assert policy_mod.states_nothing(bound.candidate.skills)
+
+    def test_a_key_the_file_names_but_does_not_answer_is_reported(self, configured):
+        """Not silent in either direction: local wins AND the reader is told."""
+        bound = configured(jobcore_config.default_document())
+        unanswered = bound.named_but_unanswered()
+        assert "candidate.skills" in unanswered
+        assert any("without answering" in note for note in bound.notes())
+
+    def test_a_key_the_file_actually_answers_is_not_reported(self, configured):
+        bound = configured({"candidate": {"skills": ["rust", "go"]}})
+        assert "candidate.skills" not in bound.named_but_unanswered()
 
 
 # === 9. THE uplers_config TOOL ============================================

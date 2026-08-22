@@ -8,6 +8,11 @@ Every quirk handled here was observed in real responses, not guessed:
   * CompanyName (top level) is the end client; company.company_name is usually null.
   * is_partner_company is a date string ("Jun 2026") or the bool False.
   * JobDescription and company.about are HTML.
+
+FOUR SURFACES, ONE REQUISITION. Uplers serves the same job through four routes
+and spells its two most important fields differently on each. That map lives in
+:func:`job_view` and :func:`company_name` and NOWHERE ELSE - three copies of a
+key map is how this bug recurs, and it already recurred once across three tools.
 """
 
 from __future__ import annotations
@@ -32,6 +37,15 @@ _BLANKLINES_RE = re.compile(r"\n{3,}")
 _BLOCK_END_RE = re.compile(r"</(p|div|li|h[1-6]|tr|blockquote)\s*>", re.IGNORECASE)
 _BREAK_RE = re.compile(r"<br\s*/?>", re.IGNORECASE)
 _MONEY_RE = re.compile(r"\d[\d,]*")
+
+
+def _first(raw: dict, *names: str):
+    """First present, non-empty value among several candidate spellings."""
+    for name in names:
+        value = raw.get(name)
+        if value not in (None, "", [], {}):
+            return value
+    return None
 
 
 def html_to_text(raw: str | None) -> str | None:
@@ -154,9 +168,9 @@ def build_company(raw: dict) -> CompanyInfo:
     if about and len(about) > config.COMPANY_ABOUT_PREVIEW_CHARS:
         about = about[: config.COMPANY_ABOUT_PREVIEW_CHARS].rstrip() + " ..."
     return CompanyInfo(
-        # Top-level CompanyName is the end client; company.company_name is
-        # almost always null. Prefer whichever is actually populated.
-        name=raw.get("CompanyName") or company.get("company_name") or None,
+        # One map, shared with `to_opportunity`. On the public catalogue this is
+        # top-level `CompanyName`; on the authenticated tiers it is nested.
+        name=company_name(raw),
         industry=company.get("industry") or None,
         team_size=str(company["team_size"]) if company.get("team_size") else None,
         website=company.get("website_url") or None,
@@ -213,22 +227,114 @@ def _company_obj(raw: dict) -> dict:
     return value if isinstance(value, dict) else {}
 
 
+#: The key under which `talent/hr/my-opportunities` nests the requisition. That
+#: route returns HIS APPLICATIONS, so its row is the application and the job
+#: hangs off it - which is the right shape for what it is, and the reason a
+#: reader written for the catalogue found nothing on it.
+JOB_NODE_KEY = "hr"
+
+#: Title, in the order the surfaces are preferred. `RequestForTalent` is the
+#: catalogue/feed/pipeline spelling; `title` is `tailor-jobs` alone.
+TITLE_KEYS = ("RequestForTalent", "title")
+
+_EXPERIENCE_RE = re.compile(r"\d+(?:\.\d+)?")
+
+
+def job_view(raw: dict) -> dict:
+    """The mapping carrying the JOB's fields, for any of the four surfaces.
+
+    Three of the four put them at the top level and this returns *raw*
+    unchanged. `my-opportunities` nests them under ``hr``, and for that one this
+    returns the nested node OVERLAID ON the wrapper - nested wins, wrapper fills
+    the gaps - because the wrapper still carries a few of the job's own fields
+    that the nested node omits (``created_at``, ``is_aggregator_job``).
+
+    **The overlay direction is the load-bearing half, and not only for reading.**
+    The wrapper's ``enc_id`` is HIS TALENT id: MEASURED identical across all nine
+    of his pipeline rows, while ``hr.enc_id`` differs per row and is the
+    requisition's. ``enc_id`` is what the save/unsave route sends as ``hr_id``,
+    so a wrapper-first read does not merely mislabel a row - it aims a write at
+    the wrong identifier space. The wrapper carries no ``id`` at all, so the
+    numeric id ``uplers_apply`` needs was simply absent.
+    """
+    nested = raw.get(JOB_NODE_KEY)
+    if not isinstance(nested, dict):
+        return raw
+    return {**raw, **nested}
+
+
+def company_name(raw: dict) -> str | None:
+    """The END CLIENT's name, however this surface spells it.
+
+    Three spellings, all live:
+
+    * ``CompanyName`` at the top level - the public catalogue.
+    * ``company.company_name`` - the authenticated feed and pipeline, where
+      ``CompanyName`` is ABSENT rather than empty. This is the field the
+      server's own instructions call its unique value, and it had never once
+      been read on the tier that has it.
+    * ``company`` as a bare STRING - `tailor-jobs`, which sends the name
+      directly rather than an object.
+
+    The name is frequently a deliberate alias ("A Series B Funded Innovative
+    Device Trade-In Company - Netherlands") where ``company.is_confidential``
+    is set. That is Uplers' own anonymisation and is passed through as given;
+    inventing the real name from the website URL beside it is not this
+    function's business.
+    """
+    direct = raw.get("CompanyName")
+    if direct:
+        return str(direct)
+    value = raw.get("company")
+    if isinstance(value, dict):
+        return value.get("company_name") or None
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return None
+
+
+def parse_experience_sentence(text) -> tuple[float | None, float | None]:
+    """``"3 - 5 Years of Exp"`` -> (3.0, 5.0). Only `tailor-jobs` sends this.
+
+    Every other surface publishes the pair as ``YearOfExp`` / ``max_yoe``.
+    MEASURED against `single-hr` on 2026-08-22, which is why the one-number
+    form resolves the way it does rather than the way it reads:
+
+        "3 - 5 Years of Exp"  <->  YearOfExp 3.00, max_yoe 5.00
+        "2 - 7 Years of Exp"  <->  YearOfExp 2.00, max_yoe 7.00
+        "5 Years of Exp"      <->  YearOfExp 5.00, max_yoe 0.00
+
+    So a lone number is the FLOOR with no ceiling, not an exact requirement -
+    ``max_yoe`` of 0 being Uplers' "no upper bound", handled in :func:`_max_yoe`.
+    """
+    if not isinstance(text, str):
+        return (None, None)
+    numbers = [float(m.group(0)) for m in _EXPERIENCE_RE.finditer(text)]
+    if not numbers:
+        return (None, None)
+    if len(numbers) == 1:
+        return (numbers[0], None)
+    return (min(numbers), max(numbers))
+
+
 def to_opportunity(raw: dict) -> Opportunity:
+    raw = job_view(raw)
     hr_number = ids.normalise(str(raw.get("HR_Number") or ""))
     detail = raw.get("detail") or {}
+    sentence_min, sentence_max = parse_experience_sentence(raw.get("experience"))
     return Opportunity(
         hr_number=hr_number,
-        title=raw.get("RequestForTalent") or None,
+        title=_first(raw, *TITLE_KEYS),
         role=raw.get("HR_Role") or detail.get("standardized_title") or None,
-        company=raw.get("CompanyName") or None,
+        company=company_name(raw),
         # `company` is an object on every surface except `talent/hr/tailor-jobs`,
         # which sends the pitch as a bare string. `or {}` guards a falsy value,
         # not a wrong type, so the isinstance check is the load-bearing half.
         industry=(_company_obj(raw).get("industry") or None),
         mode_of_work=raw.get("ModeOfWork") or None,
         city=_city(raw),
-        min_years_experience=to_float(raw.get("YearOfExp")),
-        max_years_experience=_max_yoe(raw),
+        min_years_experience=to_float(raw.get("YearOfExp")) or sentence_min,
+        max_years_experience=_max_yoe(raw) or sentence_max,
         pay=build_pay(raw),
         joining_period=raw.get("joining_period") or raw.get("HowSoon") or None,
         availability=raw.get("Availability") or None,
@@ -245,6 +351,10 @@ def to_opportunity(raw: dict) -> Opportunity:
 
 
 def to_detail(raw: dict, *, full_description: bool = False) -> OpportunityDetail:
+    # Same view as `to_opportunity`, resolved once here so every read below -
+    # description, company block, shift, assessments - sees the job node rather
+    # than whatever wraps it.
+    raw = job_view(raw)
     base = to_opportunity(raw).model_dump()
     description = html_to_text(raw.get("JobDescription"))
     truncated = False

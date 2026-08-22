@@ -147,10 +147,35 @@ class Bound:
         """
         return self.loaded.provenance.get(key) == "file"
 
+    def named_but_unanswered(self) -> list[str]:
+        """Candidate keys the file NAMES but leaves empty, so local wins.
+
+        Not a warning about a mistake - a generated template writes every key -
+        but it must not be silent, because "the file says skills and my skills
+        are not being used" is otherwise unexplainable. See
+        :func:`effective_profile`.
+        """
+        out: list[str] = []
+        for holder, field_map in ((self.candidate, FIELD_MAP), (self.pay_band(), PAY_FIELD_MAP)):
+            for key, _attr in field_map:
+                if self.configured(key) and states_nothing(
+                    getattr(holder, key.rsplit(".", 1)[1], None)
+                ):
+                    out.append(key)
+        return out
+
     def notes(self) -> list[str]:
         """Everything about the config a caller must not discover silently."""
         out: list[str] = []
         ld = self.loaded
+        unanswered = self.named_but_unanswered()
+        if unanswered:
+            out.append(
+                "config names %d candidate key(s) without answering them (%s); the "
+                "local profile is used for those. An empty value in the file is "
+                "read as 'not set', never as 'set to nothing'."
+                % (len(unanswered), ", ".join(unanswered[:5]))
+            )
         if ld.config_error:
             out.append("config: %s (built-in defaults in use)" % ld.config_error)
         for line in ld.tier_c_refusals:
@@ -298,12 +323,43 @@ PAY_FIELD_MAP: tuple[tuple[str, str], ...] = (
 )
 
 
+def states_nothing(value: Any) -> bool:
+    """True for a file value that NAMES a key without answering it.
+
+    ``null`` and an empty list/string are what a generated template writes for
+    a field nobody has filled in. Zero is NOT one of them, and that distinction
+    is the whole point: ``notice_period_days: 0`` is a real answer, which is why
+    :meth:`Bound.configured` keys on provenance rather than truthiness.
+    """
+    if value is None:
+        return True
+    return isinstance(value, (list, tuple, set, dict, str)) and len(value) == 0
+
+
 def effective_profile(local, bound: Bound | None = None):
     """(profile, provenance) — the local profile with configured fields applied.
 
     *local* is never mutated; a pydantic copy is returned. ``provenance`` maps
     each field name to ``"config"`` or ``"local"`` so a tool can say which
     number produced a score instead of leaving the reader to guess.
+
+    **AN EMPTY CONFIGURED VALUE NEVER OVERRIDES A LOCAL ONE.** Provenance alone
+    is not enough here, and this is measured rather than argued: the documented
+    way to start using the shared config is to copy ``jobhunt.example.json``,
+    which - like ``jobcore.config.default_document()`` - writes the WHOLE
+    candidate block out at its defaults. Every key in it is then provenance
+    ``"file"``, so ``skills: []`` and ``pay.floor: null`` replaced a local
+    profile carrying 88 skills and a real floor. MEASURED on 2026-08-22: three
+    representative scores went 100 -> 30, 88 -> 23, 80 -> 20, every "Strong
+    match" became "Weak match", and BOTH config fingerprints were unchanged
+    throughout - ``policy_hash`` covers the values, not which of them arrived
+    from the file, so nothing downstream could have detected it.
+
+    The asymmetry decides it. Reading "empty" as "unset" costs him the ability
+    to CLEAR a local list from the shared file - he clears it with
+    ``uplers_set_profile()`` instead, and :meth:`Bound.notes` says when the file
+    named a key it did not answer. Reading it as "set to nothing" silently
+    destroys every score on the server. Those are not comparable harms.
     """
     bound = resolve(bound)
     candidate = bound.candidate
@@ -317,6 +373,9 @@ def effective_profile(local, bound: Bound | None = None):
         value = getattr(candidate, key.rsplit(".", 1)[1])
         if isinstance(value, tuple):
             value = list(value)
+        if states_nothing(value):
+            where[attr] = "local"
+            continue
         updates[attr] = value
         where[attr] = "config"
 
@@ -325,7 +384,11 @@ def effective_profile(local, bound: Bound | None = None):
         if not bound.configured(key):
             where[attr] = "local"
             continue
-        updates[attr] = getattr(band, key.rsplit(".", 1)[1])
+        value = getattr(band, key.rsplit(".", 1)[1])
+        if states_nothing(value):
+            where[attr] = "local"
+            continue
+        updates[attr] = value
         where[attr] = "config"
 
     # `location` is one string locally and a LIST in the shared block, because

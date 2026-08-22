@@ -120,8 +120,14 @@ def is_test_record(raw: dict) -> bool:
 
     VERIFIED at the `single-hr` call site: ``1 != res.data.is_test_hr`` gates
     whether the record is rendered at all.
+
+    Read through `job_view` for the same reason every other job field is: the
+    flag describes the REQUISITION, so on `my-opportunities` it would arrive
+    under ``hr`` and a wrapper-level read would never see it. No captured list
+    payload carries the key at all today, so this changes nothing observable -
+    it stops the filter being silently dead if one ever does.
     """
-    return truthy(raw.get("is_test_hr")) is True
+    return truthy(shaping.job_view(raw).get("is_test_hr")) is True
 
 
 def to_talent_row(
@@ -145,23 +151,41 @@ def to_talent_row(
     opp = opportunity or shaping.to_opportunity(raw)
 
     score = verdict = None
+    unscorable: str | None = None
+    basis: str | None = None
     working: dict | None = None
     gaps: list[str] = []
     blockers: list[str] = []
     if profile is not None:
-        assessment = fit.assess(opp, profile, bound, explain=explain)
-        score = assessment.get("overall_score")
-        working = assessment.get("explain")
-        verdict = fit.compact_verdict(assessment)
-        must = assessment.get("must_have") or {}
-        gaps = list(
-            must.get("missing")
-            or (assessment.get("skill_match") or {}).get("missing")
-            or []
-        )[:3]
-        blockers = assessment.get("blockers") or []
+        try:
+            assessment = fit.assess(opp, profile, bound, explain=explain)
+        except fit.UnscorableOpportunity as exc:
+            # A page of rows must not die on one unreadable record, and must not
+            # quietly ship it at jobcore's neutral 50 either. The row comes back
+            # with no score and says why.
+            unscorable = str(exc)
+        else:
+            basis = fit.score_basis(opp)
+            score = assessment.get("overall_score")
+            working = assessment.get("explain")
+            verdict = fit.compact_verdict(assessment)
+            must = assessment.get("must_have") or {}
+            gaps = list(
+                must.get("missing")
+                or (assessment.get("skill_match") or {}).get("missing")
+                or []
+            )[:3]
+            blockers = assessment.get("blockers") or []
 
-    job_id = _first(raw, "id", "hr_id")
+    # The IDENTIFIER SPACES, and they must come from the JOB, not the wrapper.
+    # On `my-opportunities` the wrapper is the APPLICATION: it carries no `id`
+    # at all, and its `enc_id` is HIS TALENT id - MEASURED identical across all
+    # nine of his pipeline rows while `hr.enc_id` differs per row. `enc_id` is
+    # what the save/unsave route sends as `hr_id`, so reading the wrapper aims a
+    # write at the wrong identifier space. `shaping.job_view` resolves this once
+    # for every surface; it is a no-op on the three that do not nest.
+    job = shaping.job_view(raw)
+    job_id = _first(job, "id", "hr_id")
     return TalentRow(
         hr_number=opp.hr_number or None,
         title=opp.title,
@@ -175,7 +199,7 @@ def to_talent_row(
         notice=opp.joining_period,
         min_years_experience=opp.min_years_experience,
         job_id=int(job_id) if isinstance(job_id, (int, str)) and str(job_id).isdigit() else None,
-        enc_id=_stringify(_first(raw, "enc_id", "encrypted_id")),
+        enc_id=_stringify(_first(job, "enc_id", "encrypted_id")),
         applied=truthy(_first(raw, "is_intrested", "is_interested", "applied", "is_applied")),
         saved=truthy(_first(raw, "is_saved", "saved")),
         not_interested=truthy(raw.get("job_not_interested")),
@@ -189,10 +213,18 @@ def to_talent_row(
         uplers_badge=_stringify(_first(raw, "badgeName", "badge_name")),
         score=score,
         verdict=verdict,
+        unscorable=unscorable,
+        score_basis=basis,
         gaps=gaps,
         blockers=blockers,
         posted_at=(opp.posted_at or "")[:10] or None,
         explain=working,
+        # --- what the WRAPPER knows and the job does not ---------------------
+        # Read from `raw`, deliberately: these are facts about HIS application,
+        # not about the requisition, and on the three unnested surfaces they are
+        # simply absent.
+        applied_at=_stringify(_first(raw, "applied_at", "applied_date")),
+        uplers_match_score=_to_float(raw.get("matchmake_score")),
     )
 
 
@@ -569,6 +601,13 @@ def _stringify(value: Any) -> str | None:
     return str(value)
 
 
+def _to_float(value: Any) -> float | None:
+    """`matchmake_score` arrives as the decimal STRING "84.15", like every
+    other number on this API. None when absent or unparseable - never 0.0,
+    which would read as "Uplers rated this job zero"."""
+    return shaping.to_float(value)
+
+
 def _skill_names(raw: Any) -> list[str]:
     """Skills arrive as strings, or as objects under any of several keys."""
     out: list[str] = []
@@ -605,7 +644,20 @@ def to_interview(raw: dict) -> Interview:
 
 
 def interviews_from(payload: Any) -> tuple[list[Interview], list[str]]:
-    """VERIFIED envelope: `res.status == "success"` and `res.data` is an array."""
+    """VERIFIED envelope: `res.status == "success"` and `res.data` is an array.
+
+    A ZERO HERE HAS TWO READINGS AND THE PAYLOAD SAYS WHICH. Uplers builds this
+    list by scanning a connected mailbox, so an empty `data` means either "no
+    interviews have been arranged" or "the scan was never switched on". Those
+    are opposite facts and `{count: 0}` alone cannot tell them apart. The
+    distinguishing evidence rides in `meta` - and was being discarded.
+
+    MEASURED live 2026-08-22: `meta` was `{has_consent: false,
+    consent_interview_email_scan: null, gmail_connected: true}`, i.e. a mailbox
+    IS connected and the scan has never been consented to. So the zero was a
+    feature that was never turned on, and the tool reported it as an empty
+    diary.
+    """
     if not isinstance(payload, dict):
         raise TalentError(
             "interview-list returned %s, not a JSON object." % type(payload).__name__
@@ -621,7 +673,54 @@ def interviews_from(payload: Any) -> tuple[list[Interview], list[str]]:
     status = payload.get("status")
     if status is not None and status != "success":
         notes.append("Uplers reported status %r on this response." % status)
-    return ([to_interview(row) for row in rows if isinstance(row, dict)], notes)
+    interviews = [to_interview(row) for row in rows if isinstance(row, dict)]
+    if not interviews:
+        notes.extend(_empty_diary_diagnosis(payload.get("meta")))
+    return (interviews, notes)
+
+
+def _empty_diary_diagnosis(meta: Any) -> list[str]:
+    """Why the interview list is empty, in the terms Uplers itself reported.
+
+    Never prints `meta.gmail_email`. WHETHER a mailbox is connected is
+    diagnostic and belongs here; WHICH mailbox is his personal data and belongs
+    in the same bin as every other key in `PRIVATE_KEYS` - a shaped result ends
+    up in transcripts and reports.
+    """
+    if not isinstance(meta, dict):
+        return [
+            "No interviews. Uplers sent no `meta` block with this response, so "
+            "there is no evidence either way about whether the interview email "
+            "scan is switched on - read this as 'nothing scheduled that Uplers "
+            "knows about', not as a confirmed empty diary."
+        ]
+    consent = truthy(meta.get("has_consent"))
+    connected = truthy(meta.get("gmail_connected"))
+    if consent is False:
+        return [
+            "No interviews, and this is NOT evidence that none are scheduled: "
+            "Uplers reports has_consent=false, meaning the interview email scan "
+            "that populates this list has never been consented to. A mailbox %s. "
+            "Turn the scan on in Uplers' own settings before reading this zero "
+            "as an empty diary."
+            % (
+                "IS connected (gmail_connected=true), so consent is the only "
+                "thing missing"
+                if connected
+                else "is not connected either (gmail_connected=false)"
+            )
+        ]
+    if connected is False:
+        return [
+            "No interviews. Uplers reports gmail_connected=false, so the mailbox "
+            "this list is built by scanning is not connected - the zero describes "
+            "the integration, not your diary."
+        ]
+    return [
+        "No interviews. Uplers reports the email scan as consented (has_consent="
+        "true) and the mailbox as connected, so this is a REAL zero: nothing is "
+        "scheduled that Uplers can see."
+    ]
 
 
 # --- what the session actually buys ---------------------------------------

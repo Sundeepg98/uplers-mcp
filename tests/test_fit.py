@@ -71,7 +71,16 @@ def test_salary_bonus_is_earned_only_when_a_usd_band_exists(node_profile):
 
     with_band = fit.assess(opportunity(AGENTAI), node_profile)      # $60k-90k
     no_band = fit.assess(
-        Opportunity(hr_number="HR010126120000", pay=PayBand(currency="INR", local_min=900000)),
+        # `min_years_experience` is here because a record with NO skills and NO
+        # experience band is now refused outright rather than scored - see
+        # fit.unscorable_reason. It does not affect what this test measures:
+        # one scoreable input is all the guard asks for, and the salary bonus
+        # is still isolated by the pay band being local-currency only.
+        Opportunity(
+            hr_number="HR010126120000",
+            min_years_experience=4.0,
+            pay=PayBand(currency="INR", local_min=900000),
+        ),
         node_profile,
     )
 
@@ -302,7 +311,7 @@ def test_ranking_orders_by_score_and_excludes_blocked(node_profile):
     node_profile.notice_period_days = 60      # blocks every 15-day requisition
     population = [opportunity(h) for h in (AGENTAI, ANOMALY, CONFIDO)]
 
-    ranked, blocked = fit.rank(population, node_profile)
+    ranked, blocked, _ = fit.rank(population, node_profile)
 
     assert blocked >= 1
     assert all(assessment["blockers"] == [] for _, assessment in ranked)
@@ -314,7 +323,7 @@ def test_ranking_can_keep_blocked_rows_with_their_reasons(node_profile):
     node_profile.notice_period_days = 60
     population = [opportunity(h) for h in (AGENTAI, ANOMALY, CONFIDO)]
 
-    ranked, blocked = fit.rank(population, node_profile, exclude_blocked=False)
+    ranked, blocked, _ = fit.rank(population, node_profile, exclude_blocked=False)
 
     assert len(ranked) == 3
     assert blocked >= 1
@@ -336,14 +345,14 @@ def test_must_have_coverage_breaks_a_score_tie(node_profile):
         skills=SkillSet(must_have=["Node.js"], good_to_have=["Go", "Rust"]),
     )
 
-    ranked, _ = fit.rank([thin, thick], node_profile)
+    ranked, _, _ = fit.rank([thin, thick], node_profile)
 
     assert ranked[0][1]["overall_score"] == ranked[1][1]["overall_score"]
     assert ranked[0][0].hr_number == thick.hr_number
 
 
 def test_ranking_an_empty_cohort_is_empty_not_an_error(node_profile):
-    assert fit.rank([], node_profile) == ([], 0)
+    assert fit.rank([], node_profile) == ([], 0, [])
 
 
 # --- the stack preference -------------------------------------------------
@@ -381,7 +390,7 @@ NEITHER_ROLE = _same_shape_role("HR010126120013", ["Go", "PostgreSQL", "AWS"])
 def test_at_a_comparable_fit_the_node_role_outranks_the_python_one(node_profile):
     """The whole point. Both are scored identically by jobcore; the Node one
     is read first."""
-    ranked, _ = fit.rank([PYTHON_ROLE, NODE_ROLE], node_profile)
+    ranked, _, _ = fit.rank([PYTHON_ROLE, NODE_ROLE], node_profile)
 
     python_score = dict((o.hr_number, a) for o, a in ranked)[PYTHON_ROLE.hr_number]
     node_score = dict((o.hr_number, a) for o, a in ranked)[NODE_ROLE.hr_number]
@@ -397,7 +406,7 @@ def test_at_a_comparable_fit_the_node_role_outranks_the_python_one(node_profile)
 
 def test_the_python_role_keeps_its_real_score_and_stays_in_the_results(node_profile):
     """Ranked lower is not hidden, and not zeroed."""
-    ranked, blocked = fit.rank([PYTHON_ROLE, NODE_ROLE], node_profile)
+    ranked, blocked, _ = fit.rank([PYTHON_ROLE, NODE_ROLE], node_profile)
 
     assert blocked == 0
     assert len(ranked) == 2
@@ -443,7 +452,7 @@ def test_the_tilt_cannot_outweigh_a_genuinely_better_match(node_profile):
     )
     weak_node = _same_shape_role("HR010126120015", ["Node.js", "Kotlin", "Swift"])
 
-    ranked, _ = fit.rank([weak_node, strong_python], node_profile)
+    ranked, _, _ = fit.rank([weak_node, strong_python], node_profile)
     scores = {o.hr_number: a["overall_score"] for o, a in ranked}
     assert scores[strong_python.hr_number] - scores[weak_node.hr_number] > abs(
         fit.preference_tilt({"python"})[0]

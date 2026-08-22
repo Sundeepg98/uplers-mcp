@@ -214,7 +214,7 @@ def company_intel(pairs: list[tuple[dict, Opportunity]], name: str, profile=None
         # Deliberately NOT servers.uplers.exclude_blocked.*: this is an
         # aggregate posture over everything the client has open, not a
         # shortlist he is meant to act on.
-        ranked, _ = fit.rank(
+        ranked, _, _ = fit.rank(
             opps, profile, exclude_blocked=False, bound=bound, explain=explain)
         intel["_ranked"] = ranked
     return intel

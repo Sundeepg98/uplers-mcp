@@ -1,0 +1,10 @@
+{
+  "data": [],
+  "message": "Interview List",
+  "meta": {
+    "consent_interview_email_scan": null,
+    "gmail_connected": true,
+    "has_consent": false
+  },
+  "status": "success"
+}

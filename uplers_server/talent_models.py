@@ -61,8 +61,37 @@ class TalentRow(Compact):
         None, description="Uplers' badge, e.g. 'Slots Given', 'Interview Scheduled'"
     )
 
+    applied_at: str | None = Field(
+        None, description="When YOU applied, as Uplers prints it ('13th Aug 2026')"
+    )
+    uplers_match_score: float | None = Field(
+        None,
+        description=(
+            "UPLERS' OWN match score for you against this job, 0-100. Independent "
+            "of `score`, which is jobcore's: theirs is computed by their matching "
+            "on the profile THEY hold, ours on the profile this server scores "
+            "against. Where the two disagree, the disagreement is the signal."
+        ),
+    )
+
     score: int | None = Field(None, description="jobcore fit score, 0-100, when scored")
     verdict: str | None = None
+    unscorable: str | None = Field(
+        None,
+        description=(
+            "Set when this row could NOT be scored, saying why. `score` is then "
+            "null rather than a neutral default - a fabricated number on a row "
+            "you might act on is worse than an admitted blank."
+        ),
+    )
+    score_basis: str | None = Field(
+        None,
+        description=(
+            "Present only when the score rested PARTLY on a default - e.g. a "
+            "surface that publishes no skill list. Absent means both halves "
+            "were computed from real data."
+        ),
+    )
     gaps: list[str] = Field(default_factory=list)
     blockers: list[str] = Field(default_factory=list)
     posted_at: str | None = None

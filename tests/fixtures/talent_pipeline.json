@@ -1,0 +1,3247 @@
+{
+  "hrs": {
+    "current_page": 1,
+    "data": [
+      {
+        "CTPID": 0,
+        "HR_Number": "HR170725123514",
+        "HiringRequest_ID": 0,
+        "acceptance_by": 0,
+        "ai_attempt_date": null,
+        "ai_attempt_type": null,
+        "ai_data": [],
+        "ai_link_id": 0,
+        "ai_needed": false,
+        "ai_score": null,
+        "applied_at": "13th Aug 2026",
+        "applied_date": "2026-08-13 10:24:33",
+        "applied_type": "Self Applied",
+        "apply_link_id": 0,
+        "backend_talent_status": "1",
+        "badgeName": "Added",
+        "bubble_id": 1,
+        "client_hidden_at": null,
+        "client_list_at": null,
+        "client_shared_at": null,
+        "client_status": 0,
+        "client_unlocked_at": null,
+        "company_id": 6684,
+        "cost_string": "INR 16,00,000-20,00,000 / year",
+        "created_at": "2025-11-07T20:35:17.000000Z",
+        "credit_used": 0,
+        "currency": "INR",
+        "custom_screening_at": null,
+        "custom_screening_needed": false,
+        "deleted_at": null,
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "filter_version_id": null,
+        "flag": 1,
+        "frontend_data": {
+          "frontend_label": "Application Under Review",
+          "frontend_label_color": "#32936F",
+          "frontend_message_color": "#C1F4C6"
+        },
+        "hired_tag": 0,
+        "hr": {
+          "Availability": "Full Time",
+          "CompanyID": "38916",
+          "Currency": "INR",
+          "HRTypeText": "Pay Per Hire",
+          "HR_Number": "HR170725123514",
+          "HR_ShiftTime": "(GMT+05:30) Asia/Kolkata (IST)",
+          "HR_Status": "",
+          "HiringRequest_ID": 14671,
+          "HowSoon": "7 Days",
+          "IsConfidentialBudget": 0,
+          "JobDescription": "<p>About NorthLadder NorthLadder, headquartered in Dubai, is the region’s fastest-growing digital platform enabling frictionless pre-owned electronics trade. Most of us know what it feels like to sell a pre-owned device - a smartphone, a laptop, or a tablet. The pre-owned market is in-transparent, and finding a fair price for your asset is daunting. Even if you get a fair price, meeting the buyer, negotiating the price, shipping the asset, and waiting for payment could be exhausting. And then there is the worry of figuring out what happens to the data on your device. This is why NorthLadder came to be. We are the region’s only auction-driven selling platform for pre-owned electronic devices. With our thoughtfully created service, people can sell their devices to a network of global buyers and get cash instantly, safely, dignifiedly, and hassle-free. About the role As an ideal candidate, you must be a problem solver with solid experience and knowledge in Node.js &amp; TypeScript. You’ll be the brain behind crafting, developing, testing, going live and maintaining the system. You must be passionate in understanding the business context for features built to drive better customer experience and adoption. Our tech stack Node.js, TypeScript, MongoDB, AWS, AWS SQS, Microservices, and Kubernetes Requirements 1. At least 4 years of experience with Node.js &amp; TypeScript 2. In-depth knowledge of microservices architecture and unit testing 3. A deep understanding of the Node.js Event Loop 4. Expertise in document-oriented databases, especially MongoDB 5. Experience in designing, building, and scaling back-end systems on cloud infrastructure 6. Strong commitment to improving product experience and user satisfaction Responsibilities 1. Consistently write high-quality, efficient code 2. Develop and maintain a comprehensive suite of automated tests, including unit, integration, E2E, and functional tests 3. Perform code reviews and ensure adherence to design patterns and the organization''s coding standards 4. Mentor junior developers, contributing to their technical growth 5. Collaborate with product and design teams to build user-focused solutions 6. Identify, prioritize, and execute tasks in the software development life cycle 7. Develop tools and applications by producing clean, efficient code 8. Troubleshoot, debug, and upgrade existing software 9. Recommend and execute improvements 10 . Collaborate with multidisciplinary teams to understand requirements and develop new solutions. LOCATION: WORK FROM HOME BUDGET: 16-20 LPA</p>",
+          "ModeOfWork": "Remote",
+          "MonthDuration": "0.00",
+          "PayrollTypeId": 2,
+          "PricingId": 3,
+          "Quantity": 1,
+          "RequestForTalent": "Software Developer - Backend(Remote)",
+          "YearOfExp": "4.00",
+          "aggregator": null,
+          "aggregator_publish_date": null,
+          "ai_mandatory": 0,
+          "city": null,
+          "city_id": 0,
+          "company": {
+            "about": "<p>Trusted by 75+ leading OEM’s, Telcos, e-commerce companies and electronics retailers, NorthLadder is the #1 Trade-in platform across 10+ countries. Our Trade-in program optimizes every aspect, from top residual values backed by our proprietary multi buyer auction engine to automated assessments and a world class omnichannel journey. Our goals are aligned with our partners i.e. to improve their Trade-in attach rates which helps them sell more new devices, improve customer retention and promote sustainability. We believe that Trade-ins when done right, can be truly transformative. We are there to support our partners all the way, from design to execution.</p>",
+            "company_headquarter_alias": "",
+            "company_location": null,
+            "company_logo": "",
+            "company_name": "A Series B Funded Innovative Device Trade-In Company - Netherlands",
+            "company_name_initials": "AA",
+            "geo": null,
+            "industry": "Internet Marketplace Platforms",
+            "is_confidential": 1,
+            "is_partner_company": "May 2025",
+            "linkedin_url": "https://www.linkedin.com/company/northladder/about/",
+            "team_size": "0",
+            "website_url": "https://www.northladder.com/ae-en/"
+          },
+          "cost": "16,00,000-20,00,000",
+          "cost_range": "1600000-2000000",
+          "cost_string": "INR 16,00,000-20,00,000 / year",
+          "country": null,
+          "detail": {
+            "Discription": null,
+            "JDFilename": "BackendJDdocx_17072025123704.pdf",
+            "JDURL": "https://newbeta-adminapi.uplers.com/Media/JDParsing/JDfiles/BackendJDdocx_17072025123704.pdf",
+            "JobDescription": "<p>About NorthLadder NorthLadder, headquartered in Dubai, is the region’s fastest-growing digital platform enabling frictionless pre-owned electronics trade. Most of us know what it feels like to sell a pre-owned device - a smartphone, a laptop, or a tablet. The pre-owned market is in-transparent, and finding a fair price for your asset is daunting. Even if you get a fair price, meeting the buyer, negotiating the price, shipping the asset, and waiting for payment could be exhausting. And then there is the worry of figuring out what happens to the data on your device. This is why NorthLadder came to be. We are the region’s only auction-driven selling platform for pre-owned electronic devices. With our thoughtfully created service, people can sell their devices to a network of global buyers and get cash instantly, safely, dignifiedly, and hassle-free. About the role As an ideal candidate, you must be a problem solver with solid experience and knowledge in Node.js &amp; TypeScript. You’ll be the brain behind crafting, developing, testing, going live and maintaining the system. You must be passionate in understanding the business context for features built to drive better customer experience and adoption. Our tech stack Node.js, TypeScript, MongoDB, AWS, AWS SQS, Microservices, and Kubernetes Requirements 1. At least 4 years of experience with Node.js &amp; TypeScript 2. In-depth knowledge of microservices architecture and unit testing 3. A deep understanding of the Node.js Event Loop 4. Expertise in document-oriented databases, especially MongoDB 5. Experience in designing, building, and scaling back-end systems on cloud infrastructure 6. Strong commitment to improving product experience and user satisfaction Responsibilities 1. Consistently write high-quality, efficient code 2. Develop and maintain a comprehensive suite of automated tests, including unit, integration, E2E, and functional tests 3. Perform code reviews and ensure adherence to design patterns and the organization''s coding standards 4. Mentor junior developers, contributing to their technical growth 5. Collaborate with product and design teams to build user-focused solutions 6. Identify, prioritize, and execute tasks in the software development life cycle 7. Develop tools and applications by producing clean, efficient code 8. Troubleshoot, debug, and upgrade existing software 9. Recommend and execute improvements 10 . Collaborate with multidisciplinary teams to understand requirements and develop new solutions. LOCATION: WORK FROM HOME BUDGET: 16-20 LPA</p>",
+            "aggregator": null,
+            "aggregator_application_link": null,
+            "aggregator_sheet_id": null,
+            "ai_question_count": 36,
+            "apply_url": null,
+            "call_screen_enabled": 1,
+            "closed_at": null,
+            "closed_by": null,
+            "closed_reason": null,
+            "company_type": null,
+            "coresignal_boolean": null,
+            "created_at": "2025-07-17T07:08:28.000000Z",
+            "created_by": null,
+            "cv_screen_enabled": 1,
+            "frequency_office_visit": null,
+            "has_people_management_exp": 0,
+            "hirebeen_job_id": 0,
+            "hr_id": 102802,
+            "id": 102798,
+            "institute": null,
+            "is_ai_externally_modified": 0,
+            "is_ai_matched_recommendation_complete": 1,
+            "is_ai_matched_talent_added": 1,
+            "is_apply_url_mail_to": 0,
+            "is_hirebeen_active": 0,
+            "is_open_to_work_near_by": null,
+            "is_recommended_rejected_strip_visible": 0,
+            "is_spotlight_hr": null,
+            "is_top_match_nurture_send": 0,
+            "jd_path": "http:\\newbeta-adminapi.uplers.com\\Media\\JDParsing\\JDFiles\\BackendJDdocx_17072025123704.pdf",
+            "job_category_id": null,
+            "job_description_last_updated_at": null,
+            "job_sector": 1,
+            "last_shortlisted_rejected_at": null,
+            "last_step": 1,
+            "persona_company_type": null,
+            "preferred_domain": null,
+            "published_by": 25892,
+            "rejected_talent_count": 0,
+            "repost_reason": null,
+            "sales_user_type": "NBD",
+            "standardized_title": null,
+            "updated_at": "2026-03-06T01:38:38.000000Z",
+            "updated_by": null,
+            "updated_hr_at": "2025-07-17 14:03:10"
+          },
+          "enc_id": "Rk9jVXdaMkc5YXFSdGg2dkF1WGxPQT09",
+          "frequency_office_visit": null,
+          "hr_skills": [
+            {
+              "name": "Cloud Infrastructure"
+            },
+            {
+              "name": "Unit Testing"
+            },
+            {
+              "name": "Microservices"
+            },
+            {
+              "name": "Node.js"
+            },
+            {
+              "name": "AWS"
+            },
+            {
+              "name": "MongoDB"
+            },
+            {
+              "name": "TypeScript"
+            }
+          ],
+          "hr_yoe": "4.00",
+          "id": 102802,
+          "is_dp": "Yes",
+          "is_new": true,
+          "is_partner_company": "May 2025",
+          "is_transparent": 1,
+          "job_location": [],
+          "job_nature": "Uplers On-Boarded",
+          "job_type_id": 0,
+          "joining_period": "Immediately",
+          "matcherArray": [],
+          "max_yoe": "6.00",
+          "partner_name": null,
+          "pricingModel": "Full Time Permanent position",
+          "pricingModelIText": "Payroll and Compliance to be managed by: A Series B Funded Innovative Device Trade-In Company - Netherlands",
+          "shifts": [
+            {
+              "end_time": "6:00 PM",
+              "ist_shift_time": "9:00AM to 6:00PM",
+              "shift": "(GMT+05:30) Asia/Kolkata (IST)",
+              "start_time": "9:00 AM"
+            }
+          ],
+          "show_poc_detail": 1,
+          "skills": [
+            {
+              "skill": {
+                "name": "Cloud Infrastructure",
+                "type": "good_to_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "Unit Testing",
+                "type": "good_to_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "Microservices",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "Node.js",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "AWS",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "MongoDB",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "TypeScript",
+                "type": "must_have"
+              }
+            }
+          ],
+          "state": null,
+          "strong_proficiencyskills": [
+            {
+              "Proficiency": "Strong",
+              "created_at": "2025-07-17T07:08:28.000000Z",
+              "enc_id": "aGc4WHFrUUpYOHkrekJ2Ty9QU2Nhdz09",
+              "group": 3,
+              "hr_id": 102802,
+              "id": 3420226,
+              "skill": {
+                "id": 3898922,
+                "name": "Microservices",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3898922,
+              "updated_at": "2025-07-17T07:08:28.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2025-07-17T07:08:28.000000Z",
+              "enc_id": "TW4xSWNBT0JyT0NjM0pWbEtZUE42Zz09",
+              "group": 4,
+              "hr_id": 102802,
+              "id": 3420227,
+              "skill": {
+                "id": 3898076,
+                "name": "Node.js",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3898076,
+              "updated_at": "2025-07-17T07:08:28.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2025-07-17T07:08:28.000000Z",
+              "enc_id": "a25XQk1IVk4rYUpsTmVZUVg1cW5Odz09",
+              "group": 5,
+              "hr_id": 102802,
+              "id": 3420228,
+              "skill": {
+                "id": 3890028,
+                "name": "AWS",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3890028,
+              "updated_at": "2025-07-17T07:08:28.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2025-07-17T07:08:28.000000Z",
+              "enc_id": "am9lVWVQWDE3QUg3RXUvSWRrT0ZqUT09",
+              "group": 6,
+              "hr_id": 102802,
+              "id": 3420229,
+              "skill": {
+                "id": 3900084,
+                "name": "MongoDB",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3900084,
+              "updated_at": "2025-07-17T07:08:28.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2025-07-17T07:08:28.000000Z",
+              "enc_id": "ckVHQk1MUElPdDArTHMvWXZKMDJKQT09",
+              "group": 7,
+              "hr_id": 102802,
+              "id": 3420230,
+              "skill": {
+                "id": 3901097,
+                "name": "TypeScript",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3901097,
+              "updated_at": "2025-07-17T07:08:28.000000Z"
+            }
+          ]
+        },
+        "impression": 1000,
+        "is_aggregator_job": false,
+        "is_ai_matched": 1,
+        "is_applicant": 1,
+        "is_custome_screening": false,
+        "is_deleted": 0,
+        "is_in_pipeline": 0,
+        "is_linkedin_uploaded": 0,
+        "is_nurture_sent": 0,
+        "is_outreach_eligible": false,
+        "is_recommended": 0,
+        "is_recruiter_sourced": 0,
+        "is_saved": 0,
+        "is_self_applied": 1,
+        "is_top_match": 0,
+        "is_uploaded": 0,
+        "is_valid_outreach_job": true,
+        "master_audience_id": 1122,
+        "matchmake_score": "84.15",
+        "matchmake_score_v2": "84.15",
+        "next_round_flag": 0,
+        "not_relevant_marked_at": null,
+        "not_relevant_marked_by": null,
+        "rank_at_reject": 0,
+        "reject_reason": null,
+        "rejection_flag": 0,
+        "same_company_association": 0,
+        "screening_at": "2026-08-13 10:24:33",
+        "screening_status": true,
+        "self_applied_by": 1,
+        "share_ai_assessment": 0,
+        "share_talent_profile": 1,
+        "share_video_resume": 0,
+        "skill_boolean": [],
+        "spotlight_score": null,
+        "status": 1,
+        "statusName": "Added",
+        "status_text": "Added",
+        "tag_id": 1,
+        "top_badge": "",
+        "top_match_at": null,
+        "type": "Sourced Via Vector",
+        "updated_at": "2026-08-13T04:54:33.000000Z",
+        "vector_version_id": 1,
+        "video_resume_status": 0
+      },
+      {
+        "CTPID": 0,
+        "HR_Number": "HR1178297427119713",
+        "HiringRequest_ID": 0,
+        "acceptance_by": 0,
+        "ai_attempt_date": null,
+        "ai_attempt_type": null,
+        "ai_data": [],
+        "ai_link_id": 0,
+        "ai_needed": false,
+        "ai_score": null,
+        "applied_at": "12th Aug 2026",
+        "applied_date": "2026-08-12 23:21:18",
+        "applied_type": "Self Applied",
+        "apply_link_id": 0,
+        "backend_talent_status": "1",
+        "badgeName": "Added",
+        "bubble_id": 1,
+        "client_hidden_at": null,
+        "client_list_at": null,
+        "client_shared_at": null,
+        "client_status": 0,
+        "client_unlocked_at": null,
+        "company_id": 17044,
+        "cost": "Confidential",
+        "cost_string": "Confidential",
+        "created_at": "2026-08-12T17:51:18.000000Z",
+        "credit_used": 0,
+        "currency": "INR",
+        "custom_screening_at": null,
+        "custom_screening_needed": false,
+        "deleted_at": null,
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "filter_version_id": null,
+        "flag": 1,
+        "frontend_data": {
+          "frontend_label": "Application Under Review",
+          "frontend_label_color": "#32936F",
+          "frontend_message_color": "#C1F4C6"
+        },
+        "hired_tag": 0,
+        "hr": {
+          "Availability": "Full Time",
+          "CompanyID": null,
+          "Currency": "INR",
+          "HRTypeText": "Pay Per Credit",
+          "HR_Number": "HR1178297427119713",
+          "HR_ShiftTime": "(GMT+05:30) Asia/Kolkata (IST)",
+          "HR_Status": null,
+          "HiringRequest_ID": null,
+          "HowSoon": "30",
+          "IsConfidentialBudget": 1,
+          "JobDescription": "<p>Dino Ventures (Indidino Ventures Pvt. Ltd.) is a Bharat-focused, app-first technology company with 5M+ app downloads across a portfolio of 10+ live applications. Our flagship products — including Samaj Saathi, Samjho, and Stick — serve millions of users across India, solving meaningful problems at scale.</p><p><br></p><p>We're looking for a <strong>Senior Full Stack Developer</strong> with a strong backend focus to architect, own, and ship high-performance features across our growing portfolio of consumer apps.</p><p><strong>What You'll Do</strong></p><ul><li>Architect, build, and scale high-performance, real-time backend systems and APIs powering millions of users</li><li>Own entire modules or product areas end-to-end with minimal hand-holding</li><li>Design and optimise relational databases — indexing strategies, query optimisation, and schema design</li><li>Build and maintain caching layers (Redis), async job processing (BullMQ), and search infrastructure (OpenSearch)</li><li>Build fast, responsive frontend experiences using modern JavaScript frameworks</li><li>Lead technical design discussions, make architectural trade-off decisions, and mentor fellow engineers</li><li>Collaborate closely with product and design teams to ship impactful user experiences</li><li>Leverage modern AI-assisted development tools (Cursor, Claude Code, Codex, etc.) to maximise engineering productivity</li></ul><p><strong>Our Tech Stack</strong></p><ul><li><strong>Backend:</strong> Node.js, TypeScript, PostgreSQL, Redis, OpenSearch</li><li><strong>Frontend:</strong> SvelteKit, TypeScript, Tailwind CSS, tRPC, TanStack Query</li><li><strong>Cloud:</strong> DigitalOcean</li></ul><p><strong>Must-Have Requirements</strong></p><ul><li>3–5 years of experience building and shipping production-grade software at a product company</li><li>Strong backend engineering depth — any language (Node.js, Python, Java, Go, etc.)</li><li>Solid SQL/relational database experience — PostgreSQL strongly preferred</li><li>Hands-on experience with Redis or comparable caching/queue tools (BullMQ, Memcached, Celery, Sidekiq, RabbitMQ, Kafka)</li><li>Ability to reason through technical trade-offs — can clearly explain <em>why</em> they chose a tool, not just that they used it</li><li>Working frontend competency in any JavaScript framework (React, Vue, Angular, etc.)</li><li>Demonstrated end-to-end ownership of a module or feature in production</li><li>Measurable product impact — can speak to outcomes with data (latency improvements, user growth, scale achieved)</li></ul><p><strong>Good to Have</strong></p><ul><li>OpenSearch / Elasticsearch experience</li><li>SvelteKit experience</li><li>DevOps / CI-CD pipeline exposure</li><li>Background in gaming or fintech domains</li><li>Founding engineer or early employee experience (sub-20-person team)</li><li>Experience at high-growth startups (Razorpay, Zomato, PhonePe, CRED-tier)</li><li>TypeScript proficiency</li><li>Familiarity with AI-assisted development tools (Cursor, Claude Code, Codex)</li></ul><p><strong>Why Join Dino Ventures?</strong></p><ul><li>Build products that solve real problems for millions of Bharat users</li><li>Work across multiple live products with full ownership from Day 1</li><li>High ownership, minimal bureaucracy, fast decision-making</li><li>Shape the technical direction of products used at massive scale</li><li>Collaborate with an ambitious, product-first engineering team</li></ul>",
+          "ModeOfWork": "Office",
+          "MonthDuration": "0.00",
+          "PayrollTypeId": null,
+          "PricingId": null,
+          "Quantity": 1,
+          "RequestForTalent": "Senior Full Stack Developer (Backend-Heavy) - L2",
+          "YearOfExp": "3.50",
+          "aggregator": null,
+          "aggregator_publish_date": null,
+          "ai_mandatory": 0,
+          "city": null,
+          "city_id": 0,
+          "company": {
+            "about": "Building Bharat focused products for billion people to have net positive impact.",
+            "company_headquarter_alias": "",
+            "company_location": null,
+            "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_Dino_Ventures_1770628761_3h1WR6kHe2.jpeg",
+            "company_name": "Dino Ventures",
+            "company_name_initials": "DV",
+            "geo": null,
+            "industry": "Technology, Information and Internet",
+            "is_confidential": 0,
+            "is_partner_company": "Jul 2026",
+            "linkedin_url": "https://www.linkedin.com/company/indidino-ventures/",
+            "team_size": "11-50",
+            "website_url": "https://indidino.com/"
+          },
+          "cost": "Confidential",
+          "cost_range": "2000000-4500000",
+          "cost_string": "Confidential",
+          "country": null,
+          "detail": {
+            "Discription": null,
+            "JDFilename": null,
+            "JDURL": null,
+            "JobDescription": "<p>Dino Ventures (Indidino Ventures Pvt. Ltd.) is a Bharat-focused, app-first technology company with 5M+ app downloads across a portfolio of 10+ live applications. Our flagship products — including Samaj Saathi, Samjho, and Stick — serve millions of users across India, solving meaningful problems at scale.</p><p><br></p><p>We're looking for a <strong>Senior Full Stack Developer</strong> with a strong backend focus to architect, own, and ship high-performance features across our growing portfolio of consumer apps.</p><p><strong>What You'll Do</strong></p><ul><li>Architect, build, and scale high-performance, real-time backend systems and APIs powering millions of users</li><li>Own entire modules or product areas end-to-end with minimal hand-holding</li><li>Design and optimise relational databases — indexing strategies, query optimisation, and schema design</li><li>Build and maintain caching layers (Redis), async job processing (BullMQ), and search infrastructure (OpenSearch)</li><li>Build fast, responsive frontend experiences using modern JavaScript frameworks</li><li>Lead technical design discussions, make architectural trade-off decisions, and mentor fellow engineers</li><li>Collaborate closely with product and design teams to ship impactful user experiences</li><li>Leverage modern AI-assisted development tools (Cursor, Claude Code, Codex, etc.) to maximise engineering productivity</li></ul><p><strong>Our Tech Stack</strong></p><ul><li><strong>Backend:</strong> Node.js, TypeScript, PostgreSQL, Redis, OpenSearch</li><li><strong>Frontend:</strong> SvelteKit, TypeScript, Tailwind CSS, tRPC, TanStack Query</li><li><strong>Cloud:</strong> DigitalOcean</li></ul><p><strong>Must-Have Requirements</strong></p><ul><li>3–5 years of experience building and shipping production-grade software at a product company</li><li>Strong backend engineering depth — any language (Node.js, Python, Java, Go, etc.)</li><li>Solid SQL/relational database experience — PostgreSQL strongly preferred</li><li>Hands-on experience with Redis or comparable caching/queue tools (BullMQ, Memcached, Celery, Sidekiq, RabbitMQ, Kafka)</li><li>Ability to reason through technical trade-offs — can clearly explain <em>why</em> they chose a tool, not just that they used it</li><li>Working frontend competency in any JavaScript framework (React, Vue, Angular, etc.)</li><li>Demonstrated end-to-end ownership of a module or feature in production</li><li>Measurable product impact — can speak to outcomes with data (latency improvements, user growth, scale achieved)</li></ul><p><strong>Good to Have</strong></p><ul><li>OpenSearch / Elasticsearch experience</li><li>SvelteKit experience</li><li>DevOps / CI-CD pipeline exposure</li><li>Background in gaming or fintech domains</li><li>Founding engineer or early employee experience (sub-20-person team)</li><li>Experience at high-growth startups (Razorpay, Zomato, PhonePe, CRED-tier)</li><li>TypeScript proficiency</li><li>Familiarity with AI-assisted development tools (Cursor, Claude Code, Codex)</li></ul><p><strong>Why Join Dino Ventures?</strong></p><ul><li>Build products that solve real problems for millions of Bharat users</li><li>Work across multiple live products with full ownership from Day 1</li><li>High ownership, minimal bureaucracy, fast decision-making</li><li>Shape the technical direction of products used at massive scale</li><li>Collaborate with an ambitious, product-first engineering team</li></ul>",
+            "aggregator": null,
+            "aggregator_application_link": null,
+            "aggregator_sheet_id": null,
+            "ai_question_count": 0,
+            "apply_url": null,
+            "call_screen_enabled": 0,
+            "closed_at": null,
+            "closed_by": null,
+            "closed_reason": null,
+            "company_type": 1,
+            "coresignal_boolean": "[]",
+            "created_at": "2026-07-02T06:37:51.000000Z",
+            "created_by": 8562788,
+            "cv_screen_enabled": 1,
+            "frequency_office_visit": null,
+            "has_people_management_exp": 0,
+            "hirebeen_job_id": 0,
+            "hr_id": 264514,
+            "id": 264514,
+            "institute": 3,
+            "is_ai_externally_modified": 0,
+            "is_ai_matched_recommendation_complete": 1,
+            "is_ai_matched_talent_added": 1,
+            "is_apply_url_mail_to": 0,
+            "is_hirebeen_active": 0,
+            "is_open_to_work_near_by": null,
+            "is_recommended_rejected_strip_visible": 0,
+            "is_spotlight_hr": null,
+            "is_top_match_nurture_send": 0,
+            "jd_path": null,
+            "job_category_id": 1,
+            "job_description_last_updated_at": null,
+            "job_sector": 1,
+            "last_shortlisted_rejected_at": null,
+            "last_step": 1,
+            "persona_company_type": 1,
+            "preferred_domain": null,
+            "published_by": 8562788,
+            "rejected_talent_count": 0,
+            "repost_reason": null,
+            "sales_user_type": null,
+            "standardized_title": null,
+            "updated_at": "2026-08-13T05:03:22.000000Z",
+            "updated_by": null,
+            "updated_hr_at": "2026-08-07 12:44:30"
+          },
+          "enc_id": "N0tyclpOTjYvc1l4WDQ4TXJKVHBqZz09",
+          "frequency_office_visit": null,
+          "hr_skills": [
+            {
+              "name": "Node.js"
+            },
+            {
+              "name": "TypeScript"
+            },
+            {
+              "name": "JavaScript"
+            },
+            {
+              "name": "PostgreSQL"
+            },
+            {
+              "name": "Redis"
+            },
+            {
+              "name": "BullMQ"
+            },
+            {
+              "name": "SvelteKit"
+            },
+            {
+              "name": "react"
+            },
+            {
+              "name": "Opensearch"
+            },
+            {
+              "name": "Elasticsearch"
+            }
+          ],
+          "hr_yoe": "3.50",
+          "id": 264514,
+          "is_dp": null,
+          "is_new": true,
+          "is_partner_company": "Jul 2026",
+          "is_transparent": null,
+          "job_location": [
+            {
+              "city_id": 277,
+              "city_name": "Bengaluru",
+              "hr_id": 264514,
+              "state_name": "Karnataka"
+            }
+          ],
+          "job_nature": "Uplers On-Boarded",
+          "job_type_id": 1,
+          "joining_period": "Immediately",
+          "matcherArray": [],
+          "max_yoe": "6.00",
+          "partner_name": null,
+          "pricingModel": "Full time Permanent Position",
+          "pricingModelIText": null,
+          "shifts": [
+            {
+              "end_time": "6:30 PM",
+              "ist_shift_time": "09:30 AM to 06:30 PM",
+              "shift": "(GMT+05:30) Asia/Kolkata (IST)",
+              "start_time": "9:30 AM"
+            }
+          ],
+          "show_poc_detail": 0,
+          "skills": [
+            {
+              "skill": {
+                "name": "Node.js",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "TypeScript",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "JavaScript",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "PostgreSQL",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "Redis",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "BullMQ",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "SvelteKit",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "react",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "Opensearch",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "Elasticsearch",
+                "type": "must_have"
+              }
+            }
+          ],
+          "state": null,
+          "strong_proficiencyskills": [
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-07-02T06:37:52.000000Z",
+              "enc_id": "RnFyT3Y3MWlldGVObGFzSGZ3cnVwdz09",
+              "group": 1,
+              "hr_id": 264514,
+              "id": 12980568,
+              "skill": {
+                "id": 3898076,
+                "name": "Node.js",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3898076,
+              "updated_at": "2026-07-02T06:37:52.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-07-02T06:37:52.000000Z",
+              "enc_id": "bWlDK080QkcwY1JBbWlkVFM4ckwyQT09",
+              "group": 1,
+              "hr_id": 264514,
+              "id": 12980569,
+              "skill": {
+                "id": 3901097,
+                "name": "TypeScript",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3901097,
+              "updated_at": "2026-07-02T06:37:52.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-07-02T06:37:52.000000Z",
+              "enc_id": "RjZKOVhCSXczTUcwZTQvOVNLU2hndz09",
+              "group": 1,
+              "hr_id": 264514,
+              "id": 12980570,
+              "skill": {
+                "id": 11,
+                "name": "JavaScript",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 11,
+              "updated_at": "2026-07-02T06:37:52.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-07-02T06:37:52.000000Z",
+              "enc_id": "TmN5aDA1a0dGMUZ3elVoMjk0K1hYUT09",
+              "group": 1,
+              "hr_id": 264514,
+              "id": 12980571,
+              "skill": {
+                "id": 3901096,
+                "name": "PostgreSQL",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3901096,
+              "updated_at": "2026-07-02T06:37:52.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-07-02T06:37:52.000000Z",
+              "enc_id": "NCtBQVRDSFFjRy9ZbXAyajhmSDJIdz09",
+              "group": 1,
+              "hr_id": 264514,
+              "id": 12980572,
+              "skill": {
+                "id": 302,
+                "name": "Redis",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 302,
+              "updated_at": "2026-07-02T06:37:52.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-07-02T06:37:52.000000Z",
+              "enc_id": "NUppU1Q3VWpLUVF2Q21uMlZCQlJDZz09",
+              "group": 1,
+              "hr_id": 264514,
+              "id": 12980573,
+              "skill": {
+                "id": 248356,
+                "name": "BullMQ",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 248356,
+              "updated_at": "2026-07-02T06:37:52.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-07-02T06:37:52.000000Z",
+              "enc_id": "NDFNQnJzdE1URVpwRnFSNVRUMmtRdz09",
+              "group": 1,
+              "hr_id": 264514,
+              "id": 12980574,
+              "skill": {
+                "id": 3779047,
+                "name": "SvelteKit",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3779047,
+              "updated_at": "2026-07-02T06:37:52.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-07-02T06:37:52.000000Z",
+              "enc_id": "Qk8zSHJBSHZ4anUwTkNBdnFITnpVUT09",
+              "group": 1,
+              "hr_id": 264514,
+              "id": 12980575,
+              "skill": {
+                "id": 3890198,
+                "name": "react",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3890198,
+              "updated_at": "2026-07-02T06:37:52.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-07-02T06:37:52.000000Z",
+              "enc_id": "THVBWGdBSzNkd0JHT1ZaQlA0NFNxQT09",
+              "group": 1,
+              "hr_id": 264514,
+              "id": 12980576,
+              "skill": {
+                "id": 1377729,
+                "name": "Opensearch",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 1377729,
+              "updated_at": "2026-07-02T06:37:52.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-07-02T06:37:52.000000Z",
+              "enc_id": "NmhvSGc5N1c5aytJUkYybEp2MGkvZz09",
+              "group": 1,
+              "hr_id": 264514,
+              "id": 12980577,
+              "skill": {
+                "id": 296,
+                "name": "Elasticsearch",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 296,
+              "updated_at": "2026-07-02T06:37:52.000000Z"
+            }
+          ]
+        },
+        "impression": 1000,
+        "is_aggregator_job": false,
+        "is_ai_matched": 1,
+        "is_applicant": 1,
+        "is_custome_screening": false,
+        "is_deleted": 0,
+        "is_in_pipeline": 0,
+        "is_linkedin_uploaded": 0,
+        "is_nurture_sent": 0,
+        "is_outreach_eligible": false,
+        "is_recommended": 0,
+        "is_recruiter_sourced": 0,
+        "is_saved": 0,
+        "is_self_applied": 1,
+        "is_top_match": 0,
+        "is_uploaded": 0,
+        "is_valid_outreach_job": true,
+        "master_audience_id": null,
+        "matchmake_score": null,
+        "matchmake_score_v2": null,
+        "next_round_flag": 0,
+        "not_relevant_marked_at": null,
+        "not_relevant_marked_by": null,
+        "rank_at_reject": 0,
+        "reject_reason": null,
+        "rejection_flag": 0,
+        "same_company_association": 0,
+        "screening_at": "2026-08-12 23:21:18",
+        "screening_status": true,
+        "self_applied_by": 1,
+        "share_ai_assessment": 0,
+        "share_talent_profile": 1,
+        "share_video_resume": 0,
+        "skill_boolean": [],
+        "spotlight_score": null,
+        "status": 1,
+        "statusName": "Added",
+        "status_text": "Added",
+        "tag_id": 1,
+        "top_badge": "",
+        "top_match_at": null,
+        "type": "Self Applied",
+        "updated_at": "2026-08-12T17:52:12.000000Z",
+        "vector_version_id": 1,
+        "video_resume_status": 0
+      },
+      {
+        "CTPID": 0,
+        "HR_Number": "HR1178280696146711",
+        "HiringRequest_ID": 0,
+        "acceptance_by": 0,
+        "ai_attempt_date": null,
+        "ai_attempt_type": null,
+        "ai_data": [],
+        "ai_link_id": 0,
+        "ai_needed": false,
+        "ai_score": null,
+        "applied_at": "12th Aug 2026",
+        "applied_date": "2026-08-12 02:58:26",
+        "applied_type": "Self Applied",
+        "apply_link_id": 0,
+        "backend_talent_status": "1",
+        "badgeName": "Added",
+        "bubble_id": 3,
+        "client_hidden_at": null,
+        "client_list_at": null,
+        "client_shared_at": null,
+        "client_status": 0,
+        "client_unlocked_at": null,
+        "company_id": 12039,
+        "cost": "1400000-2000000",
+        "cost_string": "INR 14,00,000-20,00,000 / year",
+        "created_at": "2026-08-04T12:29:37.000000Z",
+        "credit_used": 0,
+        "currency": "INR",
+        "custom_screening_at": "2026-08-12 02:58:26",
+        "custom_screening_needed": false,
+        "deleted_at": null,
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "filter_version_id": null,
+        "flag": 1,
+        "frontend_data": {
+          "frontend_label": "Application Under Review",
+          "frontend_label_color": "#32936F",
+          "frontend_message_color": "#C1F4C6"
+        },
+        "hired_tag": 0,
+        "hr": {
+          "Availability": "Full Time",
+          "CompanyID": null,
+          "Currency": "INR",
+          "HRTypeText": "Pay Per Credit",
+          "HR_Number": "HR1178280696146711",
+          "HR_ShiftTime": "(GMT+05:30) Asia/Kolkata (IST)",
+          "HR_Status": null,
+          "HiringRequest_ID": null,
+          "HowSoon": "30",
+          "IsConfidentialBudget": 0,
+          "JobDescription": "<p><strong>ABOUT JUNTRAX SOLUTIONS</strong></p><p>Juntrax Solutions is a fast-growing B2B SaaS company building modern, all-in-one business management software for professional services firms — spanning HRMS, Professional Services Automation (PSA), and financial management. We serve SMEs who need enterprise-grade tooling without the enterprise complexity.</p><p>We are looking for an experienced Senior Software Developer who is passionate about building scalable, maintainable applications, writing clean code, and owning technical decisions end-to-end. This role offers significant ownership, a direct path to Tech Lead, and the opportunity to shape the product architecture of a growing platform.</p><p><br></p><p><strong>KEY RESPONSIBILITIES</strong></p><p>Architect, design, develop, and maintain scalable, high-performance SaaS application modules across the full stack.</p><p>Build robust frontend and backend features using modern JavaScript/TypeScript technologies, ensuring responsiveness, performance, and code quality.</p><p>Design and implement secure, versioned REST APIs adhering to industry standards and internal documentation practices.</p><p>Write clean, modular, reusable, and well-documented code that follows agreed engineering standards and design patterns.</p><p>Conduct thorough code reviews and provide constructive feedback; actively mentor junior and mid-level developers on best practices.</p><p>Participate in system design discussions, sprint planning, and architectural decision-making alongside the engineering team.</p><p>Own and resolve production issues — from root cause analysis through to fix, deployment, and post-mortem documentation.</p><p>Proactively identify and address performance bottlenecks, scalability gaps, and technical debt across the codebase.</p><p>Collaborate closely with Product, Design, QA, and Customer Success teams to translate requirements into high-quality engineering deliverables.</p><p>Contribute to the continuous improvement of engineering processes, tooling, coding standards, and CI/CD pipelines.</p><p>Maintain and evolve multi-tenant SaaS architecture — ensuring data isolation, security, and scalability across customer tenants.</p><p>Write and maintain unit, integration, and end-to-end test coverage to support product reliability.</p><p><br></p><p><strong>REQUIRED QUALIFICATIONS</strong></p><p>Bachelor's degree in computer science, Information Technology, or a related engineering field.</p><p>4–6 years of professional full-stack software development experience in a product or SaaS environment.</p><p>Proven track record of delivering production-grade features and managing technical complexity independently.</p><p>Strong understanding of software architecture principles — SOLID, DRY, separation of concerns, and design patterns.</p><p>Experience working in Agile/Scrum teams, including sprint planning, retrospectives, and daily standups.</p><p>Excellent problem-solving, debugging, and analytical skills with an ability to work through ambiguous requirements.</p><p>Strong written and verbal communication skills for collaboration across cross-functional teams.</p><p>Demonstrated leadership potential with the ability to mentor peers and grow into a Tech Lead role.</p><p><br></p><p><strong>CORE TECHNICAL SKILLS —  MUST HAVE</strong></p><p><br></p><p><strong>STRONGLY PREFERRED</strong></p><p><br></p><p><strong>WHAT WE'RE LOOKING FOR</strong></p><p><br></p><p>A strong ownership mindset, you take features from idea to production and stand behind them.</p><p>Genuine passion for building scalable, reliable software that real users depend on.</p><p>Ability to work independently and make sound technical decisions without constant supervision.</p><p>Exceptional debugging skills and the patience to trace issues methodically to root cause.</p><p>A collaborative team player who elevates the people around them through mentorship and knowledge-sharing.</p><p>Intellectual curiosity, you stay up to date with the ecosystem and are proactive about adopting better tools and practices.</p><p><br></p><p><strong>WHY JOIN JUNTRAX SOLUTIONS?</strong></p><p><br></p><p>Work on a meaningful B2B SaaS product used by real professional services firms — not just internal tools.</p><p>High ownership and autonomy — your decisions ship to production and you will see their impact.</p><p>A clear path to Tech Lead / Engineering Manager as the team scales.</p><p>Collaborative, low-bureaucracy startup culture where good ideas are heard and acted on quickly.</p><p>Opportunity to shape product architecture from an early stage and leave a lasting technical footprint.</p><p>Competitive compensation package with performance-linked growth opportunities.</p>",
+          "ModeOfWork": "Office",
+          "MonthDuration": "0.00",
+          "PayrollTypeId": null,
+          "PricingId": null,
+          "Quantity": 1,
+          "RequestForTalent": "Senior Software developer",
+          "YearOfExp": "4.00",
+          "aggregator": null,
+          "aggregator_publish_date": null,
+          "ai_mandatory": 0,
+          "city": null,
+          "city_id": 0,
+          "company": {
+            "about": "Cloud-based office management software solution",
+            "company_headquarter_alias": "",
+            "company_location": null,
+            "company_logo": "https://media.licdn.com/dms/image/v2/C560BAQH2DzJWGxUWTw/company-logo_400_400/company-logo_400_400/0/1657791763141/juntrax_logo?e=1788393600&v=beta&t=zxjQqbrSAthK4K4_gYDl-NEe6L8K9Vt-_fcl3in9iT3",
+            "company_name": "Juntrax Solutions",
+            "company_name_initials": "JS",
+            "geo": null,
+            "industry": null,
+            "is_confidential": 0,
+            "is_partner_company": "Jun 2026",
+            "linkedin_url": "https://linkedin.com/company/juntrax/",
+            "team_size": null,
+            "website_url": "https://juntrax.com/"
+          },
+          "cost": "14,00,000-20,00,000",
+          "cost_range": "1400000-2000000",
+          "cost_string": "INR 14,00,000-20,00,000 / year",
+          "country": null,
+          "detail": {
+            "Discription": null,
+            "JDFilename": null,
+            "JDURL": null,
+            "JobDescription": "<p><strong>ABOUT JUNTRAX SOLUTIONS</strong></p><p>Juntrax Solutions is a fast-growing B2B SaaS company building modern, all-in-one business management software for professional services firms — spanning HRMS, Professional Services Automation (PSA), and financial management. We serve SMEs who need enterprise-grade tooling without the enterprise complexity.</p><p>We are looking for an experienced Senior Software Developer who is passionate about building scalable, maintainable applications, writing clean code, and owning technical decisions end-to-end. This role offers significant ownership, a direct path to Tech Lead, and the opportunity to shape the product architecture of a growing platform.</p><p><br></p><p><strong>KEY RESPONSIBILITIES</strong></p><p>Architect, design, develop, and maintain scalable, high-performance SaaS application modules across the full stack.</p><p>Build robust frontend and backend features using modern JavaScript/TypeScript technologies, ensuring responsiveness, performance, and code quality.</p><p>Design and implement secure, versioned REST APIs adhering to industry standards and internal documentation practices.</p><p>Write clean, modular, reusable, and well-documented code that follows agreed engineering standards and design patterns.</p><p>Conduct thorough code reviews and provide constructive feedback; actively mentor junior and mid-level developers on best practices.</p><p>Participate in system design discussions, sprint planning, and architectural decision-making alongside the engineering team.</p><p>Own and resolve production issues — from root cause analysis through to fix, deployment, and post-mortem documentation.</p><p>Proactively identify and address performance bottlenecks, scalability gaps, and technical debt across the codebase.</p><p>Collaborate closely with Product, Design, QA, and Customer Success teams to translate requirements into high-quality engineering deliverables.</p><p>Contribute to the continuous improvement of engineering processes, tooling, coding standards, and CI/CD pipelines.</p><p>Maintain and evolve multi-tenant SaaS architecture — ensuring data isolation, security, and scalability across customer tenants.</p><p>Write and maintain unit, integration, and end-to-end test coverage to support product reliability.</p><p><br></p><p><strong>REQUIRED QUALIFICATIONS</strong></p><p>Bachelor's degree in computer science, Information Technology, or a related engineering field.</p><p>4–6 years of professional full-stack software development experience in a product or SaaS environment.</p><p>Proven track record of delivering production-grade features and managing technical complexity independently.</p><p>Strong understanding of software architecture principles — SOLID, DRY, separation of concerns, and design patterns.</p><p>Experience working in Agile/Scrum teams, including sprint planning, retrospectives, and daily standups.</p><p>Excellent problem-solving, debugging, and analytical skills with an ability to work through ambiguous requirements.</p><p>Strong written and verbal communication skills for collaboration across cross-functional teams.</p><p>Demonstrated leadership potential with the ability to mentor peers and grow into a Tech Lead role.</p><p><br></p><p><strong>CORE TECHNICAL SKILLS —  MUST HAVE</strong></p><p><br></p><p><strong>STRONGLY PREFERRED</strong></p><p><br></p><p><strong>WHAT WE'RE LOOKING FOR</strong></p><p><br></p><p>A strong ownership mindset, you take features from idea to production and stand behind them.</p><p>Genuine passion for building scalable, reliable software that real users depend on.</p><p>Ability to work independently and make sound technical decisions without constant supervision.</p><p>Exceptional debugging skills and the patience to trace issues methodically to root cause.</p><p>A collaborative team player who elevates the people around them through mentorship and knowledge-sharing.</p><p>Intellectual curiosity, you stay up to date with the ecosystem and are proactive about adopting better tools and practices.</p><p><br></p><p><strong>WHY JOIN JUNTRAX SOLUTIONS?</strong></p><p><br></p><p>Work on a meaningful B2B SaaS product used by real professional services firms — not just internal tools.</p><p>High ownership and autonomy — your decisions ship to production and you will see their impact.</p><p>A clear path to Tech Lead / Engineering Manager as the team scales.</p><p>Collaborative, low-bureaucracy startup culture where good ideas are heard and acted on quickly.</p><p>Opportunity to shape product architecture from an early stage and leave a lasting technical footprint.</p><p>Competitive compensation package with performance-linked growth opportunities.</p>",
+            "aggregator": null,
+            "aggregator_application_link": null,
+            "aggregator_sheet_id": null,
+            "ai_question_count": 0,
+            "apply_url": null,
+            "call_screen_enabled": 1,
+            "closed_at": null,
+            "closed_by": null,
+            "closed_reason": null,
+            "company_type": 2,
+            "coresignal_boolean": "[[\"Node.js\"],[\"AWS\"]]",
+            "created_at": "2026-06-30T08:09:21.000000Z",
+            "created_by": 2385268,
+            "cv_screen_enabled": 1,
+            "frequency_office_visit": null,
+            "has_people_management_exp": 0,
+            "hirebeen_job_id": 0,
+            "hr_id": 263178,
+            "id": 263178,
+            "institute": 3,
+            "is_ai_externally_modified": 0,
+            "is_ai_matched_recommendation_complete": 1,
+            "is_ai_matched_talent_added": 1,
+            "is_apply_url_mail_to": 0,
+            "is_hirebeen_active": 0,
+            "is_open_to_work_near_by": null,
+            "is_recommended_rejected_strip_visible": 0,
+            "is_spotlight_hr": null,
+            "is_top_match_nurture_send": 0,
+            "jd_path": null,
+            "job_category_id": 1,
+            "job_description_last_updated_at": null,
+            "job_sector": 1,
+            "last_shortlisted_rejected_at": null,
+            "last_step": 6,
+            "persona_company_type": 2,
+            "preferred_domain": null,
+            "published_by": 5357165,
+            "rejected_talent_count": 0,
+            "repost_reason": null,
+            "sales_user_type": null,
+            "standardized_title": null,
+            "updated_at": "2026-08-13T12:59:25.000000Z",
+            "updated_by": null,
+            "updated_hr_at": "2026-06-30 13:39:34"
+          },
+          "enc_id": "U0pUamp0MThjT3ZBNFp5SmhtTFh4UT09",
+          "frequency_office_visit": null,
+          "hr_skills": [
+            {
+              "name": "Node.js"
+            },
+            {
+              "name": "React.js"
+            },
+            {
+              "name": "TypeScript"
+            },
+            {
+              "name": "AWS"
+            }
+          ],
+          "hr_yoe": "4.00",
+          "id": 263178,
+          "is_dp": null,
+          "is_new": true,
+          "is_partner_company": "Jun 2026",
+          "is_transparent": null,
+          "job_location": [
+            {
+              "city_id": 277,
+              "city_name": "Bengaluru",
+              "hr_id": 263178,
+              "state_name": "Karnataka"
+            }
+          ],
+          "job_nature": "Uplers On-Boarded",
+          "job_type_id": 1,
+          "joining_period": "Immediately",
+          "matcherArray": [],
+          "max_yoe": "6.00",
+          "partner_name": null,
+          "pricingModel": "Full time Permanent Position",
+          "pricingModelIText": null,
+          "shifts": [
+            {
+              "end_time": "6:30 PM",
+              "ist_shift_time": "09:30 AM to 06:30 PM",
+              "shift": "(GMT+05:30) Asia/Kolkata (IST)",
+              "start_time": "9:30 AM"
+            }
+          ],
+          "show_poc_detail": 0,
+          "skills": [
+            {
+              "skill": {
+                "name": "Node.js",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "React.js",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "TypeScript",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "AWS",
+                "type": "must_have"
+              }
+            }
+          ],
+          "state": null,
+          "strong_proficiencyskills": [
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-06-30T08:09:21.000000Z",
+              "enc_id": "RS82TC82d2dkVFVFcHNyV1U4VzlOZz09",
+              "group": 1,
+              "hr_id": 263178,
+              "id": 12904970,
+              "skill": {
+                "id": 3898076,
+                "name": "Node.js",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3898076,
+              "updated_at": "2026-06-30T08:09:21.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-06-30T08:09:21.000000Z",
+              "enc_id": "MnlJRDB1K2NXYjdEUzJ1UGd5MjNLUT09",
+              "group": 2,
+              "hr_id": 263178,
+              "id": 12904971,
+              "skill": {
+                "id": 3898001,
+                "name": "React.js",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3898001,
+              "updated_at": "2026-06-30T08:09:21.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-06-30T08:09:21.000000Z",
+              "enc_id": "cjFyNWNBWnRnNkg3WlJBY1lLRmZHZz09",
+              "group": 2,
+              "hr_id": 263178,
+              "id": 12904972,
+              "skill": {
+                "id": 3901097,
+                "name": "TypeScript",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3901097,
+              "updated_at": "2026-06-30T08:09:21.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-06-30T08:09:21.000000Z",
+              "enc_id": "ZWN4RVNyaDVmeU1LOEJqVU8yQzErQT09",
+              "group": 3,
+              "hr_id": 263178,
+              "id": 12904973,
+              "skill": {
+                "id": 3890028,
+                "name": "AWS",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3890028,
+              "updated_at": "2026-06-30T08:09:21.000000Z"
+            }
+          ]
+        },
+        "impression": 1000,
+        "is_aggregator_job": false,
+        "is_ai_matched": 1,
+        "is_applicant": 1,
+        "is_custome_screening": true,
+        "is_deleted": 0,
+        "is_in_pipeline": 0,
+        "is_linkedin_uploaded": 0,
+        "is_nurture_sent": 0,
+        "is_outreach_eligible": false,
+        "is_recommended": 0,
+        "is_recruiter_sourced": 0,
+        "is_saved": 0,
+        "is_self_applied": 1,
+        "is_top_match": 0,
+        "is_uploaded": 0,
+        "is_valid_outreach_job": true,
+        "master_audience_id": null,
+        "matchmake_score": null,
+        "matchmake_score_v2": null,
+        "next_round_flag": 0,
+        "not_relevant_marked_at": null,
+        "not_relevant_marked_by": null,
+        "rank_at_reject": 0,
+        "reject_reason": null,
+        "rejection_flag": 0,
+        "same_company_association": 0,
+        "screening_at": "2026-08-12 02:58:26",
+        "screening_status": true,
+        "self_applied_by": 1,
+        "share_ai_assessment": 0,
+        "share_talent_profile": 1,
+        "share_video_resume": 0,
+        "skill_boolean": [],
+        "spotlight_score": null,
+        "status": 1,
+        "statusName": "Added",
+        "status_text": "Added",
+        "tag_id": 2,
+        "top_badge": "",
+        "top_match_at": null,
+        "type": "Sourced Directly",
+        "updated_at": "2026-08-11T21:29:13.000000Z",
+        "vector_version_id": 2,
+        "video_resume_status": 0
+      },
+      {
+        "CTPID": 0,
+        "HR_Number": "HR240726141741",
+        "HiringRequest_ID": 0,
+        "acceptance_by": 0,
+        "ai_attempt_date": null,
+        "ai_attempt_type": null,
+        "ai_data": [],
+        "ai_link_id": 0,
+        "ai_needed": false,
+        "ai_score": null,
+        "applied_at": "11th Aug 2026",
+        "applied_date": "2026-08-11 23:05:34",
+        "applied_type": "Self Applied",
+        "apply_link_id": 0,
+        "backend_talent_status": "1",
+        "badgeName": "Added",
+        "bubble_id": 1,
+        "client_hidden_at": null,
+        "client_list_at": null,
+        "client_shared_at": null,
+        "client_status": 0,
+        "client_unlocked_at": null,
+        "company_id": 17488,
+        "cost_string": "INR 18,00,000-30,00,000 / year",
+        "created_at": "2026-07-26T06:17:08.000000Z",
+        "credit_used": 0,
+        "currency": "INR",
+        "custom_screening_at": null,
+        "custom_screening_needed": false,
+        "deleted_at": null,
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "filter_version_id": null,
+        "flag": 1,
+        "frontend_data": {
+          "frontend_label": "Application Under Review",
+          "frontend_label_color": "#32936F",
+          "frontend_message_color": "#C1F4C6"
+        },
+        "hired_tag": 0,
+        "hr": {
+          "Availability": "Full Time",
+          "CompanyID": "39380",
+          "Currency": "INR",
+          "HRTypeText": "Pay Per Hire",
+          "HR_Number": "HR240726141741",
+          "HR_ShiftTime": "(GMT+05:30) Asia/Kolkata (IST)",
+          "HR_Status": "",
+          "HiringRequest_ID": 16265,
+          "HowSoon": "15 Days",
+          "IsConfidentialBudget": 0,
+          "JobDescription": "<p><strong>Senior Backend Engineer</strong></p><p><br></p><p>Must-haves for the role</p><p><br></p><ul><li>4 - 7 years building production backend systems, with deep, current Node.js + Express expertise (async patterns, streaming, memory/perf, the module ecosystem).</li><li>Deep MongoDB expertise — schema/data modeling for real workloads, indexing strategy, the aggregation framework, query profiling and optimization, and the operational realities of a database shared by many services. Strong Mongoose experience.</li><li>TypeScript proficiency and experience migrating JavaScript codebases to it incrementally.</li><li>Distributed-systems fundamentals — inter-service HTTP contracts, message queues/task backbones, idempotency, retries, caching (Redis), and the failure modes of a shared database.</li><li>API design and auth — designing clean service APIs practical knowledge of authentication/session models and common web security pitfalls.</li><li>Cloud + delivery — comfortable with containerized deploys on AWS (ECS or similar) and CI pipelines.</li></ul><p><br></p>",
+          "ModeOfWork": "Office",
+          "MonthDuration": "0.00",
+          "PayrollTypeId": 2,
+          "PricingId": 3,
+          "Quantity": 1,
+          "RequestForTalent": "Senior Backend Engineer",
+          "YearOfExp": "4.00",
+          "aggregator": null,
+          "aggregator_publish_date": null,
+          "ai_mandatory": 0,
+          "city": null,
+          "city_id": 0,
+          "company": {
+            "about": "<p>Somewhere between work and life… we stopped playing.We believe play isn’t something you schedule someday. It’s something you find again and again in everyday life. After work. On weekends. With friends, colleagues, strangers, or even solo.This year, we’re inviting everyone to do one simple thingWhether it’s badminton after office hours, football with a bunch of strangers, or trying a sport you’ve never played before... makes it easy to show up and just play.</p><p><br></p><p>And the best part... your age doesn’t matter, skill level doesn’t matter, all that matters is showing up!</p>",
+            "company_headquarter_alias": "",
+            "company_location": null,
+            "company_logo": "",
+            "company_name": "Discovering games and connecting with players",
+            "company_name_initials": "PY",
+            "geo": "India",
+            "industry": "Technology Information & Internet",
+            "is_confidential": 1,
+            "is_partner_company": "Mar 2026",
+            "linkedin_url": "https://www.linkedin.com/company/playo/about/",
+            "team_size": "0",
+            "website_url": "https://linktr.ee/Playo_App"
+          },
+          "cost": "18,00,000-30,00,000",
+          "cost_range": "1800000-3000000",
+          "cost_string": "INR 18,00,000-30,00,000 / year",
+          "country": null,
+          "detail": {
+            "Discription": null,
+            "JDFilename": null,
+            "JDURL": null,
+            "JobDescription": "<p><strong>Senior Backend Engineer</strong></p><p><br></p><p>Must-haves for the role</p><p><br></p><ul><li>4 - 7 years building production backend systems, with deep, current Node.js + Express expertise (async patterns, streaming, memory/perf, the module ecosystem).</li><li>Deep MongoDB expertise — schema/data modeling for real workloads, indexing strategy, the aggregation framework, query profiling and optimization, and the operational realities of a database shared by many services. Strong Mongoose experience.</li><li>TypeScript proficiency and experience migrating JavaScript codebases to it incrementally.</li><li>Distributed-systems fundamentals — inter-service HTTP contracts, message queues/task backbones, idempotency, retries, caching (Redis), and the failure modes of a shared database.</li><li>API design and auth — designing clean service APIs practical knowledge of authentication/session models and common web security pitfalls.</li><li>Cloud + delivery — comfortable with containerized deploys on AWS (ECS or similar) and CI pipelines.</li></ul><p><br></p>",
+            "aggregator": null,
+            "aggregator_application_link": null,
+            "aggregator_sheet_id": null,
+            "ai_question_count": 0,
+            "apply_url": null,
+            "call_screen_enabled": 1,
+            "closed_at": null,
+            "closed_by": null,
+            "closed_reason": null,
+            "company_type": null,
+            "coresignal_boolean": "[[\"Node.js\",\"Express.js\",\"express\"],[\"MongoDB\",\"Mongoose\"]]",
+            "created_at": "2026-07-24T08:52:30.000000Z",
+            "created_by": null,
+            "cv_screen_enabled": 1,
+            "frequency_office_visit": null,
+            "has_people_management_exp": 0,
+            "hirebeen_job_id": 0,
+            "hr_id": 298002,
+            "id": 297998,
+            "institute": null,
+            "is_ai_externally_modified": 0,
+            "is_ai_matched_recommendation_complete": 1,
+            "is_ai_matched_talent_added": 1,
+            "is_apply_url_mail_to": 0,
+            "is_hirebeen_active": 0,
+            "is_open_to_work_near_by": null,
+            "is_recommended_rejected_strip_visible": 0,
+            "is_spotlight_hr": null,
+            "is_top_match_nurture_send": 0,
+            "jd_path": null,
+            "job_category_id": null,
+            "job_description_last_updated_at": null,
+            "job_sector": 1,
+            "last_shortlisted_rejected_at": null,
+            "last_step": 1,
+            "persona_company_type": 2,
+            "preferred_domain": null,
+            "published_by": 5938661,
+            "rejected_talent_count": 0,
+            "repost_reason": null,
+            "sales_user_type": "AM",
+            "standardized_title": null,
+            "updated_at": "2026-07-26T06:25:30.000000Z",
+            "updated_by": null,
+            "updated_hr_at": "2026-07-26 11:46:58"
+          },
+          "enc_id": "WFdJSlZURFhvZGM4L0FoVmlzdjRyUT09",
+          "frequency_office_visit": null,
+          "hr_skills": [
+            {
+              "name": "Stratup background"
+            },
+            {
+              "name": "Cloud + delivery"
+            },
+            {
+              "name": "Deep MongoDB"
+            },
+            {
+              "name": "Distributed-systems fundamentals"
+            },
+            {
+              "name": "Node.js +"
+            },
+            {
+              "name": "TypeScript"
+            }
+          ],
+          "hr_yoe": "4.00",
+          "id": 298002,
+          "is_dp": "Yes",
+          "is_new": true,
+          "is_partner_company": "Mar 2026",
+          "is_transparent": 1,
+          "job_location": [
+            {
+              "city_id": 277,
+              "city_name": "Bengaluru",
+              "hr_id": 298002,
+              "state_name": "Karnataka"
+            }
+          ],
+          "job_nature": "Uplers On-Boarded",
+          "job_type_id": 3,
+          "joining_period": "15 Days",
+          "matcherArray": [],
+          "max_yoe": "7.00",
+          "partner_name": null,
+          "pricingModel": "Full Time Permanent position",
+          "pricingModelIText": "Payroll and Compliance to be managed by: Discovering games and connecting with players",
+          "shifts": [
+            {
+              "end_time": "8:00 PM",
+              "ist_shift_time": "11:00AM to 8:00PM",
+              "shift": "(GMT+05:30) Asia/Kolkata (IST)",
+              "start_time": "11:00 AM"
+            }
+          ],
+          "show_poc_detail": 1,
+          "skills": [
+            {
+              "skill": {
+                "name": "Stratup background",
+                "type": "good_to_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "Cloud + delivery",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "Deep MongoDB",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "Distributed-systems fundamentals",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "Node.js +",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "TypeScript",
+                "type": "must_have"
+              }
+            }
+          ],
+          "state": null,
+          "strong_proficiencyskills": [
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-07-24T08:52:30.000000Z",
+              "enc_id": "OURWdG5xenpHbGx5UEZJclJmQ2tSdz09",
+              "group": 2,
+              "hr_id": 298002,
+              "id": 13878973,
+              "skill": {
+                "id": 4376985,
+                "name": "Cloud + delivery",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 4376985,
+              "updated_at": "2026-07-24T08:52:30.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-07-24T08:52:30.000000Z",
+              "enc_id": "bEMrdDRJZDFvell6QlJodkRFRXNkQT09",
+              "group": 3,
+              "hr_id": 298002,
+              "id": 13878974,
+              "skill": {
+                "id": 4376986,
+                "name": "Deep MongoDB",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 4376986,
+              "updated_at": "2026-07-24T08:52:30.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-07-24T08:52:30.000000Z",
+              "enc_id": "a1JadjlydzJWK1BQY2NoNG1NcERPZz09",
+              "group": 4,
+              "hr_id": 298002,
+              "id": 13878975,
+              "skill": {
+                "id": 4293161,
+                "name": "Distributed-systems fundamentals",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 4293161,
+              "updated_at": "2026-07-24T08:52:30.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-07-24T08:52:31.000000Z",
+              "enc_id": "YThZQlJ2OTNCZ3NxbklQdFJvTmFQdz09",
+              "group": 5,
+              "hr_id": 298002,
+              "id": 13878976,
+              "skill": {
+                "id": 4376987,
+                "name": "Node.js +",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 4376987,
+              "updated_at": "2026-07-24T08:52:31.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-07-24T08:52:31.000000Z",
+              "enc_id": "TWVsT0hHUzFDYW1PbEM2K3ZNa1VBUT09",
+              "group": 6,
+              "hr_id": 298002,
+              "id": 13878977,
+              "skill": {
+                "id": 3901097,
+                "name": "TypeScript",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3901097,
+              "updated_at": "2026-07-24T08:52:31.000000Z"
+            }
+          ]
+        },
+        "impression": 1000,
+        "is_aggregator_job": false,
+        "is_ai_matched": 1,
+        "is_applicant": 1,
+        "is_custome_screening": false,
+        "is_deleted": 0,
+        "is_in_pipeline": 0,
+        "is_linkedin_uploaded": 0,
+        "is_nurture_sent": 0,
+        "is_outreach_eligible": false,
+        "is_recommended": 0,
+        "is_recruiter_sourced": 0,
+        "is_saved": 0,
+        "is_self_applied": 1,
+        "is_top_match": 0,
+        "is_uploaded": 0,
+        "is_valid_outreach_job": true,
+        "master_audience_id": 4822,
+        "matchmake_score": "84.94",
+        "matchmake_score_v2": "84.94",
+        "next_round_flag": 0,
+        "not_relevant_marked_at": null,
+        "not_relevant_marked_by": null,
+        "rank_at_reject": 0,
+        "reject_reason": null,
+        "rejection_flag": 0,
+        "same_company_association": 0,
+        "screening_at": "2026-08-11 23:05:34",
+        "screening_status": true,
+        "self_applied_by": 1,
+        "share_ai_assessment": 0,
+        "share_talent_profile": 1,
+        "share_video_resume": 0,
+        "skill_boolean": [],
+        "spotlight_score": null,
+        "status": 1,
+        "statusName": "Added",
+        "status_text": "Added",
+        "tag_id": 1,
+        "top_badge": "",
+        "top_match_at": null,
+        "type": "Sourced Via Vector",
+        "updated_at": "2026-08-13T22:18:32.000000Z",
+        "vector_version_id": 2,
+        "video_resume_status": 0
+      },
+      {
+        "CTPID": 0,
+        "HR_Number": "HR1177747293185520",
+        "HiringRequest_ID": 0,
+        "acceptance_by": 0,
+        "ai_attempt_date": null,
+        "ai_attempt_type": null,
+        "ai_data": [],
+        "ai_link_id": 0,
+        "ai_needed": false,
+        "ai_score": null,
+        "applied_at": "26th May 2026",
+        "applied_date": "2026-05-26 21:24:52",
+        "applied_type": "Sourced Outbound",
+        "apply_link_id": 5219390,
+        "backend_talent_status": "6",
+        "badgeName": "Profile Shared",
+        "bubble_id": 1,
+        "client_hidden_at": null,
+        "client_list_at": null,
+        "client_shared_at": null,
+        "client_status": 9,
+        "client_unlocked_at": null,
+        "company_id": 18569,
+        "cost": "Confidential",
+        "cost_string": "Confidential",
+        "created_at": "2026-05-26T15:54:52.000000Z",
+        "credit_used": 0,
+        "currency": "INR",
+        "custom_screening_at": "2026-05-26 21:24:52",
+        "custom_screening_needed": false,
+        "deleted_at": null,
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "filter_version_id": null,
+        "flag": 1,
+        "frontend_data": {
+          "frontend_label": "Job Closed",
+          "frontend_label_color": "#6B6B6B",
+          "frontend_message_color": "#DBDBDB"
+        },
+        "hired_tag": 0,
+        "hr": {
+          "Availability": "Full Time",
+          "CompanyID": null,
+          "Currency": "INR",
+          "HRTypeText": "Pay Per Credit",
+          "HR_Number": "HR1177747293185520",
+          "HR_ShiftTime": "(GMT+05:30) Asia/Kolkata (IST)",
+          "HR_Status": "Lost",
+          "HiringRequest_ID": null,
+          "HowSoon": "45",
+          "IsConfidentialBudget": 1,
+          "JobDescription": "<p><strong>Senior Full-Stack Developer (React.js, Node.js, MySQL, Azure)</strong></p><p>Role: Senior Full-Stack Developer </p><p>Location: Remote (India) | Hybrid available for Hyderabad/Nashik </p><p>Experience: 6+ years Company: CHRP</p><p><strong>Technologies, Inc. (US-based, India engineering team) Reports to: Lead Software Engineer / Director of Engineering</strong></p><p><strong>Why CHRP?</strong></p><p>CHRP Technologies is reshaping the $1.2 trillion US home insurance industry. Our platform powers the entire home inspection lifecycle —</p><p>from scheduling through AI-powered image analysis to automated repair coordination — for some of the largest insurance carriers in the</p><p>United States.</p><p><strong>What makes us different:</strong></p><p><strong>Real impact: </strong></p><ul><li>Every feature you build is used by thousands of homeowners and insurance professionals daily</li><li>AI-first product: In-browser ONNX models for image clarity, automated classification of 100+ home condition types, ML-powered</li><li>scoring</li><li>Serious scale: 380K+ inspections, 14.5M+ ML-processed images, 9.4M+ inspection photos in production</li><li>Small team, big ownership: You won't be writing tickets for someone else to build. You'll own features end-to-end — from</li><li>database schema to production deployment</li><li>Modern stack: React 18, Node.js 20, MySQL 8, Azure Kubernetes, Stripe, SendGrid, Puppeteer PDF generation — no legacy</li><li>frameworks</li></ul><p><br></p><p><strong>What You'll Work On</strong></p><ul><li>You'll build and ship features across our three web applications and backend services:</li><li>Homeowner Portal — The inspection experience homeowners see: photo uploads with real-time AI blur detection, multi-step</li><li>inspection flows, payment processing via Stripe</li><li>Insurance Portal — Dashboard used by insurance companies: AG Grid-powered data tables, bulk operations, PDF report</li><li>generation, real-time inspection tracking</li><li>Backend APIs — Node.js/Express services: 53 stored procedures, webhook integrations with insurance carriers, BullMQ job queues</li><li>for email/SMS, read replica routing</li><li>Recent projects our team shipped:</li><li>Stripe payment integration with embedded checkout and webhook-based inspection creation</li><li>ONNX-powered image clarity scoring running in-browser via WebAssembly</li><li>Westhill Global repair coordination — automated data transfer across 7 service categories</li><li>Nationwide PolicyCenter integration with mutual TLS and OAuth2</li><li><br></li></ul><p><strong>Responsibilities</strong></p><p>Build features end-to-end</p><p>Design database schemas, write stored procedures, build REST APIs, and ship React UIs</p><p>Own the full lifecycle: spec review, implementation, code review, deployment, monitoring</p><p><strong>Frontend</strong></p><ul><li>Build responsive UIs with React 18 (hooks, lazy loading, code splitting)</li><li>Implement complex forms with react-hook-form + yup validation</li><li>Work with Material-UI, AG Grid, Handsontable, and ApexCharts</li></ul><p><strong>Backend</strong></p><ul><li>Design and optimize Node.js/Express APIs with MySQL stored procedures</li><li>Implement webhook integrations with third-party insurance systems</li><li>Build background job processing with BullMQ (email, SMS, report generation)</li></ul><p><br></p><p><strong>Infrastructure</strong></p><p>Deploy to Azure Kubernetes Service via Azure DevOps CI/CD pipelines</p><p>Manage Azure Blob Storage, Redis caching, and MySQL read replicas</p><p>Monitor with Prometheus, Winston logging, and Sentry error tracking</p><p>Requirements</p><p><strong>Must have:</strong></p><p>6+ years building production web applications with React.js and Node.js</p><p>Strong SQL skills — ability to write and optimize complex MySQL queries and stored procedures</p><p>Experience with REST API design and implementation</p><p>Familiarity with Git, CI/CD pipelines, and deployment workflows</p><p>Understanding of authentication patterns (JWT, OAuth2, SSO)</p><p>Ability to debug across the full stack — browser DevTools, network traces, server logs, database queries</p><p>Comfortable working in a fast-paced startup where priorities shift</p><p><strong>Good to have:</strong></p><p>Experience with Azure services (AKS, Blob Storage, App Insights, DevOps)</p><p>Knowledge of Docker, Kubernetes, and container orchestration</p><p>Experience with Stripe or other payment integrations</p><p>Exposure to AI/ML pipelines or ONNX runtime</p><p>Background in insurance, fintech, or compliance-heavy domains</p><p>Experience with Puppeteer/headless Chrome for PDF generation</p><p><strong>What We Offer</strong></p><p>Competitive salary aligned with experience and market rates</p><p>Direct US client exposure — work directly with the US-based product and leadership team</p><p>Remote-first culture — work from anywhere in India, with occasional team meetups</p><p>Real ownership — no ticket factories. You'll design, build, and ship features that matter</p><p>Growth trajectory — early-stage company where your contributions directly shape the product and your career</p><p>Learning budget — conferences, courses, and tools that make you better at your craft</p><p>Health benefits as per company policy</p>",
+          "ModeOfWork": "Hybrid",
+          "MonthDuration": "0.00",
+          "PayrollTypeId": null,
+          "PricingId": null,
+          "Quantity": 1,
+          "RequestForTalent": "Senior FullStack Developer",
+          "YearOfExp": "5.00",
+          "aggregator": null,
+          "aggregator_publish_date": null,
+          "ai_mandatory": 0,
+          "city": null,
+          "city_id": 0,
+          "company": {
+            "about": "<p>CHRP helps home insurance companies build great relationships with their insureds. Our proprietary ai-products deliver loss prevention and enhanced customer experience.</p>",
+            "company_headquarter_alias": "",
+            "company_location": null,
+            "company_logo": "",
+            "company_name": "Chrp Technologies",
+            "company_name_initials": "CT",
+            "geo": null,
+            "industry": "Insurance",
+            "is_confidential": 0,
+            "is_partner_company": "Apr 2026",
+            "linkedin_url": "https://www.linkedin.com/company/chrptech/",
+            "team_size": "11-50",
+            "website_url": "https://chrptech.com/"
+          },
+          "cost": "Confidential",
+          "cost_range": "1000000-3000000",
+          "cost_string": "Confidential",
+          "country": null,
+          "detail": {
+            "Discription": null,
+            "JDFilename": null,
+            "JDURL": null,
+            "JobDescription": "<p><strong>Senior Full-Stack Developer (React.js, Node.js, MySQL, Azure)</strong></p><p>Role: Senior Full-Stack Developer </p><p>Location: Remote (India) | Hybrid available for Hyderabad/Nashik </p><p>Experience: 6+ years Company: CHRP</p><p><strong>Technologies, Inc. (US-based, India engineering team) Reports to: Lead Software Engineer / Director of Engineering</strong></p><p><strong>Why CHRP?</strong></p><p>CHRP Technologies is reshaping the $1.2 trillion US home insurance industry. Our platform powers the entire home inspection lifecycle —</p><p>from scheduling through AI-powered image analysis to automated repair coordination — for some of the largest insurance carriers in the</p><p>United States.</p><p><strong>What makes us different:</strong></p><p><strong>Real impact: </strong></p><ul><li>Every feature you build is used by thousands of homeowners and insurance professionals daily</li><li>AI-first product: In-browser ONNX models for image clarity, automated classification of 100+ home condition types, ML-powered</li><li>scoring</li><li>Serious scale: 380K+ inspections, 14.5M+ ML-processed images, 9.4M+ inspection photos in production</li><li>Small team, big ownership: You won't be writing tickets for someone else to build. You'll own features end-to-end — from</li><li>database schema to production deployment</li><li>Modern stack: React 18, Node.js 20, MySQL 8, Azure Kubernetes, Stripe, SendGrid, Puppeteer PDF generation — no legacy</li><li>frameworks</li></ul><p><br></p><p><strong>What You'll Work On</strong></p><ul><li>You'll build and ship features across our three web applications and backend services:</li><li>Homeowner Portal — The inspection experience homeowners see: photo uploads with real-time AI blur detection, multi-step</li><li>inspection flows, payment processing via Stripe</li><li>Insurance Portal — Dashboard used by insurance companies: AG Grid-powered data tables, bulk operations, PDF report</li><li>generation, real-time inspection tracking</li><li>Backend APIs — Node.js/Express services: 53 stored procedures, webhook integrations with insurance carriers, BullMQ job queues</li><li>for email/SMS, read replica routing</li><li>Recent projects our team shipped:</li><li>Stripe payment integration with embedded checkout and webhook-based inspection creation</li><li>ONNX-powered image clarity scoring running in-browser via WebAssembly</li><li>Westhill Global repair coordination — automated data transfer across 7 service categories</li><li>Nationwide PolicyCenter integration with mutual TLS and OAuth2</li><li><br></li></ul><p><strong>Responsibilities</strong></p><p>Build features end-to-end</p><p>Design database schemas, write stored procedures, build REST APIs, and ship React UIs</p><p>Own the full lifecycle: spec review, implementation, code review, deployment, monitoring</p><p><strong>Frontend</strong></p><ul><li>Build responsive UIs with React 18 (hooks, lazy loading, code splitting)</li><li>Implement complex forms with react-hook-form + yup validation</li><li>Work with Material-UI, AG Grid, Handsontable, and ApexCharts</li></ul><p><strong>Backend</strong></p><ul><li>Design and optimize Node.js/Express APIs with MySQL stored procedures</li><li>Implement webhook integrations with third-party insurance systems</li><li>Build background job processing with BullMQ (email, SMS, report generation)</li></ul><p><br></p><p><strong>Infrastructure</strong></p><p>Deploy to Azure Kubernetes Service via Azure DevOps CI/CD pipelines</p><p>Manage Azure Blob Storage, Redis caching, and MySQL read replicas</p><p>Monitor with Prometheus, Winston logging, and Sentry error tracking</p><p>Requirements</p><p><strong>Must have:</strong></p><p>6+ years building production web applications with React.js and Node.js</p><p>Strong SQL skills — ability to write and optimize complex MySQL queries and stored procedures</p><p>Experience with REST API design and implementation</p><p>Familiarity with Git, CI/CD pipelines, and deployment workflows</p><p>Understanding of authentication patterns (JWT, OAuth2, SSO)</p><p>Ability to debug across the full stack — browser DevTools, network traces, server logs, database queries</p><p>Comfortable working in a fast-paced startup where priorities shift</p><p><strong>Good to have:</strong></p><p>Experience with Azure services (AKS, Blob Storage, App Insights, DevOps)</p><p>Knowledge of Docker, Kubernetes, and container orchestration</p><p>Experience with Stripe or other payment integrations</p><p>Exposure to AI/ML pipelines or ONNX runtime</p><p>Background in insurance, fintech, or compliance-heavy domains</p><p>Experience with Puppeteer/headless Chrome for PDF generation</p><p><strong>What We Offer</strong></p><p>Competitive salary aligned with experience and market rates</p><p>Direct US client exposure — work directly with the US-based product and leadership team</p><p>Remote-first culture — work from anywhere in India, with occasional team meetups</p><p>Real ownership — no ticket factories. You'll design, build, and ship features that matter</p><p>Growth trajectory — early-stage company where your contributions directly shape the product and your career</p><p>Learning budget — conferences, courses, and tools that make you better at your craft</p><p>Health benefits as per company policy</p>",
+            "aggregator": null,
+            "aggregator_application_link": null,
+            "aggregator_sheet_id": null,
+            "ai_question_count": 0,
+            "apply_url": null,
+            "call_screen_enabled": 0,
+            "closed_at": "2026-06-26 15:02:11",
+            "closed_by": 96226,
+            "closed_reason": null,
+            "company_type": 1,
+            "coresignal_boolean": "[[\"React.js\",\"React\"],[\"MySQL\",\"SQL\",\"PostgreSQL\"]]",
+            "created_at": "2026-04-29T14:28:51.000000Z",
+            "created_by": 7944401,
+            "cv_screen_enabled": 1,
+            "frequency_office_visit": null,
+            "has_people_management_exp": 0,
+            "hirebeen_job_id": 0,
+            "hr_id": 234691,
+            "id": 234692,
+            "institute": 1,
+            "is_ai_externally_modified": 0,
+            "is_ai_matched_recommendation_complete": 1,
+            "is_ai_matched_talent_added": 2,
+            "is_apply_url_mail_to": 0,
+            "is_hirebeen_active": 0,
+            "is_open_to_work_near_by": null,
+            "is_recommended_rejected_strip_visible": 0,
+            "is_spotlight_hr": null,
+            "is_top_match_nurture_send": 0,
+            "jd_path": null,
+            "job_category_id": null,
+            "job_description_last_updated_at": null,
+            "job_sector": 1,
+            "last_shortlisted_rejected_at": null,
+            "last_step": 6,
+            "persona_company_type": 1,
+            "preferred_domain": 3,
+            "published_by": 7944401,
+            "rejected_talent_count": 0,
+            "repost_reason": null,
+            "sales_user_type": null,
+            "standardized_title": null,
+            "updated_at": "2026-06-26T09:32:11.000000Z",
+            "updated_by": null,
+            "updated_hr_at": "2026-06-01 10:33:28"
+          },
+          "enc_id": "YVhCMGJRSldJZlo0dkVlckRPd0ROUT09",
+          "frequency_office_visit": null,
+          "hr_skills": [
+            {
+              "name": "React.js"
+            },
+            {
+              "name": "react"
+            },
+            {
+              "name": "Node.js"
+            },
+            {
+              "name": "MySQL"
+            },
+            {
+              "name": "SQL"
+            },
+            {
+              "name": "PostgreSQL"
+            }
+          ],
+          "hr_yoe": "5.00",
+          "id": 234691,
+          "is_dp": null,
+          "is_new": true,
+          "is_partner_company": "Apr 2026",
+          "is_transparent": null,
+          "job_location": [
+            {
+              "city_id": 604,
+              "city_name": "Hyderabad",
+              "hr_id": 234691,
+              "state_name": "Telangana"
+            }
+          ],
+          "job_nature": "Uplers On-Boarded",
+          "job_type_id": 1,
+          "joining_period": "Immediately",
+          "matcherArray": [],
+          "max_yoe": "9.00",
+          "partner_name": null,
+          "pricingModel": "Full time Permanent Position",
+          "pricingModelIText": null,
+          "shifts": [
+            {
+              "end_time": "6:30 PM",
+              "ist_shift_time": "09:30 AM to 06:30 PM",
+              "shift": "(GMT+05:30) Asia/Kolkata (IST)",
+              "start_time": "9:30 AM"
+            }
+          ],
+          "show_poc_detail": 0,
+          "skills": [
+            {
+              "skill": {
+                "name": "React.js",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "react",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "Node.js",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "MySQL",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "SQL",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "PostgreSQL",
+                "type": "must_have"
+              }
+            }
+          ],
+          "state": null,
+          "strong_proficiencyskills": [
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-04-29T14:28:52.000000Z",
+              "enc_id": "dmJZa3duYlNGNFd3VHcvU3JqVkM0Zz09",
+              "group": 1,
+              "hr_id": 234691,
+              "id": 10811796,
+              "skill": {
+                "id": 3898001,
+                "name": "React.js",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3898001,
+              "updated_at": "2026-04-29T14:28:52.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-04-29T14:28:52.000000Z",
+              "enc_id": "bmp5QklPQmNlL0NON1RUS1I3RVdpZz09",
+              "group": 1,
+              "hr_id": 234691,
+              "id": 10811797,
+              "skill": {
+                "id": 3890198,
+                "name": "react",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3890198,
+              "updated_at": "2026-04-29T14:28:52.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-04-29T14:28:52.000000Z",
+              "enc_id": "d3JDSm5UMU1rcWFhR25qcllWZ3RBdz09",
+              "group": 2,
+              "hr_id": 234691,
+              "id": 10811798,
+              "skill": {
+                "id": 3898076,
+                "name": "Node.js",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3898076,
+              "updated_at": "2026-04-29T14:28:52.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-04-29T14:28:52.000000Z",
+              "enc_id": "ZCtMWjRuYW9XMkcvemhaUitrNllIdz09",
+              "group": 3,
+              "hr_id": 234691,
+              "id": 10811799,
+              "skill": {
+                "id": 10,
+                "name": "MySQL",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 10,
+              "updated_at": "2026-04-29T14:28:52.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-04-29T14:28:52.000000Z",
+              "enc_id": "bUxjNnRkZFgwazY3cGF4QnFKcEFIZz09",
+              "group": 3,
+              "hr_id": 234691,
+              "id": 10811800,
+              "skill": {
+                "id": 185,
+                "name": "SQL",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 185,
+              "updated_at": "2026-04-29T14:28:52.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-04-29T14:28:52.000000Z",
+              "enc_id": "TlhkY3N2UHk5cis4TDgwTW1TQjFGUT09",
+              "group": 3,
+              "hr_id": 234691,
+              "id": 10811801,
+              "skill": {
+                "id": 3901096,
+                "name": "PostgreSQL",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3901096,
+              "updated_at": "2026-04-29T14:28:52.000000Z"
+            }
+          ]
+        },
+        "impression": 1000,
+        "is_aggregator_job": false,
+        "is_ai_matched": 1,
+        "is_applicant": 1,
+        "is_custome_screening": true,
+        "is_deleted": 0,
+        "is_in_pipeline": 1,
+        "is_linkedin_uploaded": 0,
+        "is_nurture_sent": 0,
+        "is_outreach_eligible": false,
+        "is_recommended": 0,
+        "is_recruiter_sourced": 0,
+        "is_saved": 1,
+        "is_self_applied": 1,
+        "is_top_match": 0,
+        "is_uploaded": 0,
+        "is_valid_outreach_job": true,
+        "master_audience_id": null,
+        "matchmake_score": null,
+        "matchmake_score_v2": null,
+        "next_round_flag": 0,
+        "not_relevant_marked_at": null,
+        "not_relevant_marked_by": null,
+        "rank_at_reject": 0,
+        "reject_reason": null,
+        "rejection_flag": 0,
+        "same_company_association": 0,
+        "screening_at": "2026-05-26 21:24:52",
+        "screening_status": true,
+        "self_applied_by": 1,
+        "share_ai_assessment": 0,
+        "share_talent_profile": 1,
+        "share_video_resume": 0,
+        "skill_boolean": [],
+        "spotlight_score": null,
+        "status": 1,
+        "statusName": "Profile Shared",
+        "status_text": "Profile Shared",
+        "tag_id": 1,
+        "top_badge": "",
+        "top_match_at": null,
+        "type": "Sourced Outbound",
+        "updated_at": "2026-06-20T13:56:09.000000Z",
+        "vector_version_id": 1,
+        "video_resume_status": 0
+      },
+      {
+        "CTPID": 0,
+        "HR_Number": "HR080426152051",
+        "HiringRequest_ID": 0,
+        "acceptance_by": 0,
+        "ai_attempt_date": null,
+        "ai_attempt_type": null,
+        "ai_data": [],
+        "ai_link_id": 0,
+        "ai_needed": false,
+        "ai_score": null,
+        "applied_at": "26th May 2026",
+        "applied_date": "2026-05-26 21:34:19",
+        "applied_type": "Sourced Outbound",
+        "apply_link_id": 5219390,
+        "backend_talent_status": "1",
+        "badgeName": "Added",
+        "bubble_id": 1,
+        "client_hidden_at": null,
+        "client_list_at": null,
+        "client_shared_at": null,
+        "client_status": 0,
+        "client_unlocked_at": null,
+        "company_id": 18190,
+        "cost": "Confidential",
+        "cost_string": "Confidential",
+        "created_at": "2026-04-08T15:46:26.000000Z",
+        "credit_used": 0,
+        "currency": "USD",
+        "custom_screening_at": null,
+        "custom_screening_needed": false,
+        "deleted_at": null,
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "filter_version_id": null,
+        "flag": 1,
+        "frontend_data": {
+          "frontend_label": "Application Under Review",
+          "frontend_label_color": "#32936F",
+          "frontend_message_color": "#C1F4C6"
+        },
+        "hired_tag": 0,
+        "hr": {
+          "Availability": "Full Time",
+          "CompanyID": "39426",
+          "Currency": "USD",
+          "HRTypeText": "Pay Per Hire",
+          "HR_Number": "HR080426152051",
+          "HR_ShiftTime": "(GMT+05:30) Asia/Kolkata (IST)",
+          "HR_Status": "",
+          "HiringRequest_ID": 15819,
+          "HowSoon": "15 Days",
+          "IsConfidentialBudget": 1,
+          "JobDescription": "<p>Job Description </p><p><br></p><p><strong>Senior Full Stack TypeScript Developer </strong></p><p><br></p><p><strong>About the Company : </strong></p><p>A NYC-based development shop that builds software for fintech startups. The company deploys embedded product delivery teams—combining a Fractional CTO, a Product Delivery Manager, and dedicated engineers—that operate with the speed and accountability of an in-house team. Clients build in verticals including personal finance, banking and lending, capital markets, insurance, and blockchain. Teams ship daily, run 2-week sprints, and maintain a high bar for code quality, testing, and production reliability. The environment is small, fast-paced, and high-trust, suited for senior engineers who thrive in ownership-driven setups. </p><p><br></p><p><strong>The Role </strong></p><p>As a Senior Full Stack TypeScript Developer, you will be embedded in a client-facing pod responsible for building and shipping production fintech software. </p><p>You will work across the entire stack—frontend, backend, database, and infrastructure—delivering features end-to-end from ticket to production. </p><p>This is not a passive staff augmentation role. You are expected to understand the product, think critically about edge cases and user experience, and take full ownership of the quality of your output. </p><p>You will ship code to real users daily and are accountable for what you ship. </p><p><br></p><p><strong>What You Will Do Build and ship features end-to-end</strong>. </p><p>Take well-defined tickets from Sprint Planning through implementation, testing, code review, and production deployment—typically within 1–2 days per ticket. Write clean, well-tested TypeScript.</p><p> Produce code that passes strict TypeScript, ESLint, and Prettier checks. Write meaningful unit, integration, and E2E tests as part of every feature PR.</p><p>Handle edge cases and error states proactively. </p><p>Think about empty states, null values, network failures, permission boundaries, concurrent access, and malformed input before they become bugs in production. Ship incremental, daily releases. </p><p>Break work into small, reviewable PRs. </p><p>Merge and deploy at least one PR per working day during active Sprints. </p><p>Participate in code reviews. </p><p>Review teammates’ PRs within 4 hours. </p><p>Provide constructive, specific feedback. </p><p>Accept feedback on your own work with professionalism. </p><p>Own production quality. </p><p>Monitor your changes after deployment. </p><p>Investigate and fix bugs traced to your work promptly. </p><p>Participate in incident response and blameless post-mortems. </p><p>Communicate proactively. </p><p>Surface blockers early in daily standup or Slack.</p><p> Ask clarifying questions rather than making assumptions. </p><p>Keep the PDM informed of progress and risks. </p><p>Leverage AI tools effectively. </p><p>Use AI for code generation, test writing, debugging, and documentation—while maintaining full ownership and understanding of every line you commit. </p><p><br></p><p><strong>Technical Requirements Required </strong></p><p><br></p><p>5–8+ years of professional experience building production web applications. </p><p>Deep proficiency in TypeScript and the modern JavaScript ecosystem. </p><p>You should be comfortable with strict mode, generics, advanced types, and async patterns. </p><p>Strong experience with React and Next.js including server-side rendering, App Router, API routes, and performance optimization. </p><p>Strong experience with Node.js for building RESTful APIs, background jobs, and data pipelines. Relational database skills (PostgreSQL). </p><p>You can design schemas, write efficient queries, build migrations, and reason about indexing and performance. </p><p>Experience with MongoDB for document-oriented data models, aggregation pipelines, and schema design. </p><p>Solid testing discipline. </p><p>Hands-on experience with Jest and at least one E2E framework (Playwright preferred). </p><p>You write tests as part of development, not as an afterthought. </p><p>Git proficiency. </p><p>Comfortable with Gitflow, rebasing, resolving conflicts, and writing clean commit histories. CI/CD familiarity. </p><p>Experience with GitHub Actions or equivalent. You understand automated linting, testing, and deployment pipelines. </p><p>AI tool experience.</p><p> Exposure to AI tools, preferably Cursor or Claude Code, for code generation, test writing, debugging, and documentation.</p><p> You should be using these tools on a daily basis. </p><p>Preferred React Native experience for cross-platform mobile development. </p><p>AWS services (Lambda, ECS, RDS, S3, SQS, CloudWatch) and Vercel deployment workflows. </p><p>Terraform or other Infrastructure as Code tooling. </p><p>Fintech domain experience — payments, lending, KYC/AML, trading platforms, or insurance systems. </p><p>Sentry for error monitoring and production observability. </p><p>Experience working in Agile/Scrum teams with 2-week Sprint cadences and daily releases. </p><p><br></p><p><strong>What Sets Great Candidates Apart </strong></p><p>Technical skills get you in the door.</p><p><br></p><p><strong> The following qualities determine whether the partnership is successful long-term: </strong></p><p>Ownership mentality. You don’t consider a feature “done” when the code compiles. </p><p>You consider it done when a real user can use it without encountering issues—and you’ve verified that yourself. Defensive thinking. </p><p>You instinctively ask “What could go wrong here?” before submitting a PR. </p><p>You handle the unhappy path with the same care as the happy path. </p><p>Low bug rate. </p><p>Your work rarely comes back as a bug ticket. </p><p>When it does, the same root cause never repeats. </p><p>Clear communication. </p><p>You write concise PR descriptions, ask focused questions, and surface risks before they become problems. </p><p>You are responsive in Slack during working hours. Independence. </p><p>You can take a well-written ticket with acceptance criteria and deliver it without hand-holding. </p><p>You know when to ask for help and when to push through on your own. </p><p>Growth mindset.</p><p> You incorporate feedback from code reviews and retrospectives.</p><p> You actively look for ways to improve your craft and your team’s processes. </p><p><br></p><p><strong>How We Work Performance Standards</strong> </p><p><br></p><p>We evaluate developers holistically across these dimensions on an ongoing basis: </p><p>Developers who consistently meet these standards become long-term partners. </p><p>Those who do not will be replaced after a structured feedback and improvement process.</p>",
+          "ModeOfWork": "Remote",
+          "MonthDuration": "12.00",
+          "PayrollTypeId": 0,
+          "PricingId": 4,
+          "Quantity": 1,
+          "RequestForTalent": "Senior Full Stack TypeScript Developer",
+          "YearOfExp": "5.00",
+          "aggregator": null,
+          "aggregator_publish_date": null,
+          "ai_mandatory": 0,
+          "city": null,
+          "city_id": 0,
+          "company": {
+            "about": "<p>It is a fintech-focused engineering consultancy that works with early-stage startups to design, build, and scale their software products by combining strategic leadership (via a fractional CTO) with embedded development teams. They act as an outsourced engineering function, taking ownership of everything from product thinking and architecture to development, testing, and deployment, typically operating in fast sprint cycles with daily production releases. Their work centres on high-stakes systems such as payments, lending, and financial platforms, where code quality, reliability, and accountability are critical, and engineers are expected to own features end-to-end rather than execute tickets.</p>",
+            "company_headquarter_alias": "",
+            "company_location": null,
+            "company_logo": "",
+            "company_name": "Embedded Fintech Engineering Partner",
+            "company_name_initials": "N/A",
+            "geo": "US",
+            "industry": "IT Services / Tech Consulting + Product Development",
+            "is_confidential": 1,
+            "is_partner_company": "Apr 2026",
+            "linkedin_url": "https://www.linkedin.com/company/tech-suite/",
+            "team_size": "2",
+            "website_url": "https://techsuite.io"
+          },
+          "cost": "Confidential",
+          "cost_range": "3000-4000",
+          "cost_string": "Confidential",
+          "country": null,
+          "detail": {
+            "Discription": null,
+            "JDFilename": null,
+            "JDURL": "https://docs.google.com/document/d/1ONAadqjpUzsxgcU0p-GoZCh3IWDI49ks/edit?usp=sharing&ouid=598622378042100905665&rtpof=true&sd=true",
+            "JobDescription": "<p>Job Description </p><p><br></p><p><strong>Senior Full Stack TypeScript Developer </strong></p><p><br></p><p><strong>About the Company : </strong></p><p>A NYC-based development shop that builds software for fintech startups. The company deploys embedded product delivery teams—combining a Fractional CTO, a Product Delivery Manager, and dedicated engineers—that operate with the speed and accountability of an in-house team. Clients build in verticals including personal finance, banking and lending, capital markets, insurance, and blockchain. Teams ship daily, run 2-week sprints, and maintain a high bar for code quality, testing, and production reliability. The environment is small, fast-paced, and high-trust, suited for senior engineers who thrive in ownership-driven setups. </p><p><br></p><p><strong>The Role </strong></p><p>As a Senior Full Stack TypeScript Developer, you will be embedded in a client-facing pod responsible for building and shipping production fintech software. </p><p>You will work across the entire stack—frontend, backend, database, and infrastructure—delivering features end-to-end from ticket to production. </p><p>This is not a passive staff augmentation role. You are expected to understand the product, think critically about edge cases and user experience, and take full ownership of the quality of your output. </p><p>You will ship code to real users daily and are accountable for what you ship. </p><p><br></p><p><strong>What You Will Do Build and ship features end-to-end</strong>. </p><p>Take well-defined tickets from Sprint Planning through implementation, testing, code review, and production deployment—typically within 1–2 days per ticket. Write clean, well-tested TypeScript.</p><p> Produce code that passes strict TypeScript, ESLint, and Prettier checks. Write meaningful unit, integration, and E2E tests as part of every feature PR.</p><p>Handle edge cases and error states proactively. </p><p>Think about empty states, null values, network failures, permission boundaries, concurrent access, and malformed input before they become bugs in production. Ship incremental, daily releases. </p><p>Break work into small, reviewable PRs. </p><p>Merge and deploy at least one PR per working day during active Sprints. </p><p>Participate in code reviews. </p><p>Review teammates’ PRs within 4 hours. </p><p>Provide constructive, specific feedback. </p><p>Accept feedback on your own work with professionalism. </p><p>Own production quality. </p><p>Monitor your changes after deployment. </p><p>Investigate and fix bugs traced to your work promptly. </p><p>Participate in incident response and blameless post-mortems. </p><p>Communicate proactively. </p><p>Surface blockers early in daily standup or Slack.</p><p> Ask clarifying questions rather than making assumptions. </p><p>Keep the PDM informed of progress and risks. </p><p>Leverage AI tools effectively. </p><p>Use AI for code generation, test writing, debugging, and documentation—while maintaining full ownership and understanding of every line you commit. </p><p><br></p><p><strong>Technical Requirements Required </strong></p><p><br></p><p>5–8+ years of professional experience building production web applications. </p><p>Deep proficiency in TypeScript and the modern JavaScript ecosystem. </p><p>You should be comfortable with strict mode, generics, advanced types, and async patterns. </p><p>Strong experience with React and Next.js including server-side rendering, App Router, API routes, and performance optimization. </p><p>Strong experience with Node.js for building RESTful APIs, background jobs, and data pipelines. Relational database skills (PostgreSQL). </p><p>You can design schemas, write efficient queries, build migrations, and reason about indexing and performance. </p><p>Experience with MongoDB for document-oriented data models, aggregation pipelines, and schema design. </p><p>Solid testing discipline. </p><p>Hands-on experience with Jest and at least one E2E framework (Playwright preferred). </p><p>You write tests as part of development, not as an afterthought. </p><p>Git proficiency. </p><p>Comfortable with Gitflow, rebasing, resolving conflicts, and writing clean commit histories. CI/CD familiarity. </p><p>Experience with GitHub Actions or equivalent. You understand automated linting, testing, and deployment pipelines. </p><p>AI tool experience.</p><p> Exposure to AI tools, preferably Cursor or Claude Code, for code generation, test writing, debugging, and documentation.</p><p> You should be using these tools on a daily basis. </p><p>Preferred React Native experience for cross-platform mobile development. </p><p>AWS services (Lambda, ECS, RDS, S3, SQS, CloudWatch) and Vercel deployment workflows. </p><p>Terraform or other Infrastructure as Code tooling. </p><p>Fintech domain experience — payments, lending, KYC/AML, trading platforms, or insurance systems. </p><p>Sentry for error monitoring and production observability. </p><p>Experience working in Agile/Scrum teams with 2-week Sprint cadences and daily releases. </p><p><br></p><p><strong>What Sets Great Candidates Apart </strong></p><p>Technical skills get you in the door.</p><p><br></p><p><strong> The following qualities determine whether the partnership is successful long-term: </strong></p><p>Ownership mentality. You don’t consider a feature “done” when the code compiles. </p><p>You consider it done when a real user can use it without encountering issues—and you’ve verified that yourself. Defensive thinking. </p><p>You instinctively ask “What could go wrong here?” before submitting a PR. </p><p>You handle the unhappy path with the same care as the happy path. </p><p>Low bug rate. </p><p>Your work rarely comes back as a bug ticket. </p><p>When it does, the same root cause never repeats. </p><p>Clear communication. </p><p>You write concise PR descriptions, ask focused questions, and surface risks before they become problems. </p><p>You are responsive in Slack during working hours. Independence. </p><p>You can take a well-written ticket with acceptance criteria and deliver it without hand-holding. </p><p>You know when to ask for help and when to push through on your own. </p><p>Growth mindset.</p><p> You incorporate feedback from code reviews and retrospectives.</p><p> You actively look for ways to improve your craft and your team’s processes. </p><p><br></p><p><strong>How We Work Performance Standards</strong> </p><p><br></p><p>We evaluate developers holistically across these dimensions on an ongoing basis: </p><p>Developers who consistently meet these standards become long-term partners. </p><p>Those who do not will be replaced after a structured feedback and improvement process.</p>",
+            "aggregator": null,
+            "aggregator_application_link": null,
+            "aggregator_sheet_id": null,
+            "ai_question_count": 41,
+            "apply_url": null,
+            "call_screen_enabled": 1,
+            "closed_at": null,
+            "closed_by": null,
+            "closed_reason": null,
+            "company_type": null,
+            "coresignal_boolean": "[[\"TypeScript\",\"JavaScript\"],[\"PostgreSQL\",\"MongoDB\"]]",
+            "created_at": "2026-04-08T09:53:46.000000Z",
+            "created_by": null,
+            "cv_screen_enabled": 1,
+            "frequency_office_visit": null,
+            "has_people_management_exp": 0,
+            "hirebeen_job_id": 0,
+            "hr_id": 225395,
+            "id": 225396,
+            "institute": null,
+            "is_ai_externally_modified": 0,
+            "is_ai_matched_recommendation_complete": 1,
+            "is_ai_matched_talent_added": 1,
+            "is_apply_url_mail_to": 0,
+            "is_hirebeen_active": 0,
+            "is_open_to_work_near_by": null,
+            "is_recommended_rejected_strip_visible": 0,
+            "is_spotlight_hr": null,
+            "is_top_match_nurture_send": 0,
+            "jd_path": "https://docs.google.com/document/d/1ONAadqjpUzsxgcU0p-GoZCh3IWDI49ks/edit?usp=sharing&ouid=598622378042100905665&rtpof=true&sd=true",
+            "job_category_id": null,
+            "job_description_last_updated_at": null,
+            "job_sector": 1,
+            "last_shortlisted_rejected_at": null,
+            "last_step": 1,
+            "persona_company_type": 2,
+            "preferred_domain": null,
+            "published_by": 8680128,
+            "rejected_talent_count": 0,
+            "repost_reason": null,
+            "sales_user_type": "AM",
+            "standardized_title": null,
+            "updated_at": "2026-04-08T19:50:22.000000Z",
+            "updated_by": null,
+            "updated_hr_at": "2026-04-08 21:09:15"
+          },
+          "enc_id": "TlpVT1pSTVVHWHMycVNKK3daM2hPUT09",
+          "frequency_office_visit": null,
+          "hr_skills": [
+            {
+              "name": "Fintech Experience"
+            },
+            {
+              "name": "Cursor"
+            },
+            {
+              "name": "LLMs"
+            },
+            {
+              "name": "Node.js"
+            },
+            {
+              "name": "React + Next.js"
+            },
+            {
+              "name": "Strong TypeScript expertise"
+            },
+            {
+              "name": "PostgreSQL"
+            },
+            {
+              "name": "React Native"
+            }
+          ],
+          "hr_yoe": "5.00",
+          "id": 225395,
+          "is_dp": "No",
+          "is_new": true,
+          "is_partner_company": "Apr 2026",
+          "is_transparent": 0,
+          "job_location": [],
+          "job_nature": "Uplers On-Boarded",
+          "job_type_id": 1,
+          "joining_period": "15 Days",
+          "matcherArray": [],
+          "max_yoe": "8.00",
+          "partner_name": null,
+          "pricingModel": "Full Time Contract for 12 Months",
+          "pricingModelIText": "40 hrs a week/160 hrs a month",
+          "shifts": [
+            {
+              "end_time": "2:30 AM",
+              "ist_shift_time": "6:30PM to 2:30AM",
+              "shift": "(GMT+05:30) Asia/Kolkata (IST)",
+              "start_time": "6:30 PM"
+            }
+          ],
+          "show_poc_detail": 1,
+          "skills": [
+            {
+              "skill": {
+                "name": "Fintech Experience",
+                "type": "good_to_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "Cursor",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "LLMs",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "Node.js",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "React + Next.js",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "Strong TypeScript expertise",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "PostgreSQL",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "React Native",
+                "type": "good_to_have"
+              }
+            }
+          ],
+          "state": null,
+          "strong_proficiencyskills": [
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-04-08T19:41:02.000000Z",
+              "enc_id": "dlU1U3pTelVlR3ZGdkRJaktKSlhWdz09",
+              "group": 2,
+              "hr_id": 225395,
+              "id": 10385167,
+              "skill": {
+                "id": 3235827,
+                "name": "Cursor",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3235827,
+              "updated_at": "2026-04-08T19:41:02.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-04-08T19:41:02.000000Z",
+              "enc_id": "TFdhOFdWNGs0UDA1QW83RTl5VUswdz09",
+              "group": 3,
+              "hr_id": 225395,
+              "id": 10385168,
+              "skill": {
+                "id": 288503,
+                "name": "LLMs",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 288503,
+              "updated_at": "2026-04-08T19:41:02.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-04-08T19:41:02.000000Z",
+              "enc_id": "amxXZ3F4eUxZRE16VjgvdWVlZTlnQT09",
+              "group": 4,
+              "hr_id": 225395,
+              "id": 10385169,
+              "skill": {
+                "id": 3898076,
+                "name": "Node.js",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3898076,
+              "updated_at": "2026-04-08T19:41:02.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-04-08T19:41:02.000000Z",
+              "enc_id": "QTBWVWlmeElERUtreXNIMnlQMnRGdz09",
+              "group": 5,
+              "hr_id": 225395,
+              "id": 10385170,
+              "skill": {
+                "id": 4348293,
+                "name": "React + Next.js",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 4348293,
+              "updated_at": "2026-04-08T19:41:02.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-04-08T19:41:02.000000Z",
+              "enc_id": "WXNSU3J0RGdpakQxaUp3UFNHeGFCdz09",
+              "group": 6,
+              "hr_id": 225395,
+              "id": 10385171,
+              "skill": {
+                "id": 4348294,
+                "name": "Strong TypeScript expertise",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 4348294,
+              "updated_at": "2026-04-08T19:41:02.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2026-04-08T19:41:02.000000Z",
+              "enc_id": "dGIyQkhtejVTdWVpbTNpYzBtMk1Idz09",
+              "group": 7,
+              "hr_id": 225395,
+              "id": 10385172,
+              "skill": {
+                "id": 3901096,
+                "name": "PostgreSQL",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3901096,
+              "updated_at": "2026-04-08T19:41:02.000000Z"
+            }
+          ]
+        },
+        "impression": 1000,
+        "is_aggregator_job": false,
+        "is_ai_matched": 1,
+        "is_applicant": 1,
+        "is_custome_screening": false,
+        "is_deleted": 0,
+        "is_in_pipeline": 0,
+        "is_linkedin_uploaded": 0,
+        "is_nurture_sent": 0,
+        "is_outreach_eligible": false,
+        "is_recommended": 0,
+        "is_recruiter_sourced": 0,
+        "is_saved": 0,
+        "is_self_applied": 1,
+        "is_top_match": 0,
+        "is_uploaded": 0,
+        "is_valid_outreach_job": true,
+        "master_audience_id": 4150,
+        "matchmake_score": "81.65",
+        "matchmake_score_v2": "66.65",
+        "next_round_flag": 0,
+        "not_relevant_marked_at": null,
+        "not_relevant_marked_by": null,
+        "rank_at_reject": 0,
+        "reject_reason": null,
+        "rejection_flag": 0,
+        "same_company_association": 0,
+        "screening_at": "2026-05-26 21:34:19",
+        "screening_status": true,
+        "self_applied_by": 1,
+        "share_ai_assessment": 0,
+        "share_talent_profile": 1,
+        "share_video_resume": 0,
+        "skill_boolean": [],
+        "spotlight_score": null,
+        "status": 1,
+        "statusName": "Added",
+        "status_text": "Added",
+        "tag_id": 1,
+        "top_badge": "",
+        "top_match_at": null,
+        "type": "Sourced Via Vector",
+        "updated_at": "2026-08-13T22:17:08.000000Z",
+        "vector_version_id": 2,
+        "video_resume_status": 0
+      },
+      {
+        "CTPID": 0,
+        "HR_Number": "HR061125222411",
+        "HiringRequest_ID": 0,
+        "acceptance_by": 0,
+        "ai_attempt_date": null,
+        "ai_attempt_type": null,
+        "ai_data": [],
+        "ai_link_id": 0,
+        "ai_needed": false,
+        "ai_score": null,
+        "applied_at": "7th Nov 2025",
+        "applied_date": "2025-11-07 13:32:06",
+        "applied_type": "Sourced Via Nurture",
+        "apply_link_id": 5082587,
+        "backend_talent_status": "1",
+        "badgeName": "Added",
+        "bubble_id": 1,
+        "client_hidden_at": null,
+        "client_list_at": null,
+        "client_shared_at": null,
+        "client_status": 0,
+        "client_unlocked_at": null,
+        "company_id": 4929,
+        "cost_string": "INR 20,00,000-30,00,000 / year",
+        "created_at": "2025-11-07T06:21:31.000000Z",
+        "credit_used": 0,
+        "currency": "INR",
+        "custom_screening_at": null,
+        "custom_screening_needed": false,
+        "deleted_at": null,
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "filter_version_id": null,
+        "flag": 1,
+        "frontend_data": {
+          "frontend_label": "Job Closed",
+          "frontend_label_color": "#6B6B6B",
+          "frontend_message_color": "#DBDBDB"
+        },
+        "hired_tag": 0,
+        "hr": {
+          "Availability": "Full Time",
+          "CompanyID": "38839",
+          "Currency": "INR",
+          "HRTypeText": "Pay Per Hire",
+          "HR_Number": "HR061125222411",
+          "HR_ShiftTime": "(GMT+05:30) Asia/Kolkata (IST)",
+          "HR_Status": "Won",
+          "HiringRequest_ID": 15181,
+          "HowSoon": "7 Days",
+          "IsConfidentialBudget": 0,
+          "JobDescription": "<h3><br></h3><h3><strong style=\"background-color: transparent; color: rgb(0, 0, 0);\">About the Role</strong></h3><p><span style=\"background-color: transparent; color: rgb(0, 0, 0);\">We are seeking an experienced Support Engineer to handle backend debugging, production triage, and performance optimization across our AWS-hosted Node.js, GraphQL, and MongoDB stack.</span></p><p><span style=\"background-color: transparent; color: rgb(0, 0, 0);\"> This role is backend-heavy and critical to maintaining uptime, reliability, and customer satisfaction.</span></p><p><span style=\"background-color: transparent; color: rgb(0, 0, 0);\">Support Engineers will also contribute a portion of their working hours to Quality Assurance (QA). At our startup’s high pace, maintaining consistent knowledge transfer across releases can be difficult. Hands-on QA participation helps Support Engineers better understand the product, stay aligned with release changes, and act as an implicit knowledge bridge between product, engineering, and support.</span></p><p><span style=\"background-color: transparent; color: rgb(0, 0, 0);\">You will collaborate closely with engineering, QA, and product teams across US and India time zones to ensure smooth operations and quick resolution of production issues.</span></p><h3><br></h3><h3><strong style=\"background-color: transparent; color: rgb(0, 0, 0);\">Key Responsibilities</strong></h3><ul><li><span style=\"background-color: transparent;\">Diagnose, debug, and resolve backend issues in Node.js and GraphQL services hosted on AWS Elastic Beanstalk, EC2, and CloudFront</span></li><li><span style=\"background-color: transparent;\">Write, optimize, and analyze MongoDB aggregation pipelines for analytics, dashboards, and large dataset operations</span></li><li><span style=\"background-color: transparent;\">Collaborate with QA teams during pre-release testing to gain hands-on understanding of new features and regression areas</span></li><li><span style=\"background-color: transparent;\">Participate in QA test cycles to validate bug fixes, API behavior, and production readiness</span></li><li><span style=\"background-color: transparent;\">Review logs and metrics (AWS CloudWatch, ELB, Beanstalk) to identify and resolve performance bottlenecks</span></li><li><span style=\"background-color: transparent;\">Work with distributed teams across time zones to ensure smooth handoffs and continuous support coverage</span></li><li><span style=\"background-color: transparent;\">Contribute to postmortems, documentation, and long-term reliability improvements</span></li><li><span style=\"background-color: transparent;\">Participate in on-call rotations and maintain strong communication during incident response</span></li></ul><p><br></p><h3><strong style=\"background-color: transparent; color: rgb(0, 0, 0);\">Technical Skills</strong></h3><p><strong style=\"background-color: transparent;\">Core Expertise:</strong></p><ul><li><span style=\"background-color: transparent;\">Deep hands-on experience with MongoDB aggregation frameworks and query optimization</span></li><li><span style=\"background-color: transparent;\">Proficiency in Node.js (Express / Apollo Server) and GraphQL schema or resolver design</span></li></ul><p><br></p><p><strong style=\"background-color: transparent;\">Infrastructure Knowledge:</strong></p><ul><li><span style=\"background-color: transparent;\">Experience with AWS Beanstalk, EC2, CloudFront, S3, and ELB</span></li><li><span style=\"background-color: transparent;\">Familiarity with logging and observability tools such as CloudWatch, New Relic, or Datadog</span></li></ul><p><br></p><ul><li><strong style=\"background-color: transparent;\">Additional Skills:</strong></li><li><span style=\"background-color: transparent;\">REST and GraphQL API debugging</span></li><li><span style=\"background-color: transparent;\">Understanding of frontend-backend data flow (React familiarity is a plus)</span></li><li><span style=\"background-color: transparent;\">Experience with GitHub Actions, CI/CD pipelines, and deployment troubleshooting</span></li></ul><p><br></p><h3><strong style=\"background-color: transparent; color: rgb(0, 0, 0);\">Soft Skills</strong></h3><ul><li><span style=\"background-color: transparent;\">Strong analytical and debugging mindset</span></li><li><span style=\"background-color: transparent;\">Clear communicator across distributed teams</span></li><li><span style=\"background-color: transparent;\">Ownership-oriented with a focus on stability and long-term solutions</span></li><li><span style=\"background-color: transparent;\">Comfortable working in US primary hours with defined India-time overlap for collaboration</span></li><li><span style=\"background-color: transparent;\">Adaptable to startup environments and eager to learn through direct product exposure and QA involvement</span></li></ul><p><br></p><h3><strong style=\"background-color: transparent; color: rgb(0, 0, 0);\">Preferred Qualifications</strong></h3><ul><li><span style=\"background-color: transparent;\">Prior experience in SaaS or multi-tenant systems</span></li><li><span style=\"background-color: transparent;\">Exposure to microservices or event-driven architecture</span></li><li><span style=\"background-color: transparent;\">Understanding of data security and compliance standards such as SOC-2 and GDPR</span></li></ul><p><br></p><p><span style=\"background-color: transparent; color: rgb(0, 0, 0);\">Engagement Type: Fulltime</span></p><p><span style=\"background-color: transparent; color: rgb(0, 0, 0);\">Direct-hire on the Delightree payroll</span></p><p><span style=\"background-color: transparent; color: rgb(0, 0, 0);\">Shift time- 11 PM to 4AM IST (Remaining IST Time)</span></p><p><span style=\"background-color: transparent; color: rgb(0, 0, 0);\">Job Type: Permanent</span></p><p><span style=\"background-color: transparent; color: rgb(0, 0, 0);\">Location: Remote</span></p><p><span style=\"background-color: transparent; color: rgb(0, 0, 0);\">Interview Process - 3 Rounds</span></p><p><br></p>",
+          "ModeOfWork": "Remote",
+          "MonthDuration": "0.00",
+          "PayrollTypeId": 2,
+          "PricingId": 3,
+          "Quantity": 1,
+          "RequestForTalent": "Backend Support Engineer (Node.js & MongoDB)",
+          "YearOfExp": "4.00",
+          "aggregator": null,
+          "aggregator_publish_date": null,
+          "ai_mandatory": 0,
+          "city": null,
+          "city_id": 0,
+          "company": {
+            "about": "<p>Delightree is an AI-powered, all-in-one franchise management platform designed to simplify multi-unit operations for businesses. It enables franchises to efficiently manage tasks, train staff, and open new locations from a centralized system. The platform offers features such as AI-powered search for instant answers, a comprehensive knowledge base for storing essential documents, customizable digital forms for task management, and tools for consistent training and onboarding across all locations. Delightree aims to eliminate the complexities of multi-unit management, empowering businesses to work smarter and foster growth.&nbsp;</p>",
+            "company_headquarter_alias": "",
+            "company_location": null,
+            "company_logo": "",
+            "company_name": "A  Series A funded California based Software Development Company",
+            "company_name_initials": "AA",
+            "geo": "India",
+            "industry": "Software Development",
+            "is_confidential": 1,
+            "is_partner_company": "Feb 2025",
+            "linkedin_url": "https://www.linkedin.com/company/delightree/",
+            "team_size": "0",
+            "website_url": "https://www.delightree.com/"
+          },
+          "cost": "20,00,000-30,00,000",
+          "cost_range": "2000000-3000000",
+          "cost_string": "INR 20,00,000-30,00,000 / year",
+          "country": null,
+          "detail": {
+            "Discription": null,
+            "JDFilename": "BackendSupportEngineerNode.jsMongoDB_07112025114208.pdf",
+            "JDURL": "https://newbeta-adminapi.uplers.com/Media/JDParsing/JDfiles/BackendSupportEngineerNode.jsMongoDB_07112025114208.pdf",
+            "JobDescription": "<h3><br></h3><h3><strong style=\"background-color: transparent; color: rgb(0, 0, 0);\">About the Role</strong></h3><p><span style=\"background-color: transparent; color: rgb(0, 0, 0);\">We are seeking an experienced Support Engineer to handle backend debugging, production triage, and performance optimization across our AWS-hosted Node.js, GraphQL, and MongoDB stack.</span></p><p><span style=\"background-color: transparent; color: rgb(0, 0, 0);\"> This role is backend-heavy and critical to maintaining uptime, reliability, and customer satisfaction.</span></p><p><span style=\"background-color: transparent; color: rgb(0, 0, 0);\">Support Engineers will also contribute a portion of their working hours to Quality Assurance (QA). At our startup’s high pace, maintaining consistent knowledge transfer across releases can be difficult. Hands-on QA participation helps Support Engineers better understand the product, stay aligned with release changes, and act as an implicit knowledge bridge between product, engineering, and support.</span></p><p><span style=\"background-color: transparent; color: rgb(0, 0, 0);\">You will collaborate closely with engineering, QA, and product teams across US and India time zones to ensure smooth operations and quick resolution of production issues.</span></p><h3><br></h3><h3><strong style=\"background-color: transparent; color: rgb(0, 0, 0);\">Key Responsibilities</strong></h3><ul><li><span style=\"background-color: transparent;\">Diagnose, debug, and resolve backend issues in Node.js and GraphQL services hosted on AWS Elastic Beanstalk, EC2, and CloudFront</span></li><li><span style=\"background-color: transparent;\">Write, optimize, and analyze MongoDB aggregation pipelines for analytics, dashboards, and large dataset operations</span></li><li><span style=\"background-color: transparent;\">Collaborate with QA teams during pre-release testing to gain hands-on understanding of new features and regression areas</span></li><li><span style=\"background-color: transparent;\">Participate in QA test cycles to validate bug fixes, API behavior, and production readiness</span></li><li><span style=\"background-color: transparent;\">Review logs and metrics (AWS CloudWatch, ELB, Beanstalk) to identify and resolve performance bottlenecks</span></li><li><span style=\"background-color: transparent;\">Work with distributed teams across time zones to ensure smooth handoffs and continuous support coverage</span></li><li><span style=\"background-color: transparent;\">Contribute to postmortems, documentation, and long-term reliability improvements</span></li><li><span style=\"background-color: transparent;\">Participate in on-call rotations and maintain strong communication during incident response</span></li></ul><p><br></p><h3><strong style=\"background-color: transparent; color: rgb(0, 0, 0);\">Technical Skills</strong></h3><p><strong style=\"background-color: transparent;\">Core Expertise:</strong></p><ul><li><span style=\"background-color: transparent;\">Deep hands-on experience with MongoDB aggregation frameworks and query optimization</span></li><li><span style=\"background-color: transparent;\">Proficiency in Node.js (Express / Apollo Server) and GraphQL schema or resolver design</span></li></ul><p><br></p><p><strong style=\"background-color: transparent;\">Infrastructure Knowledge:</strong></p><ul><li><span style=\"background-color: transparent;\">Experience with AWS Beanstalk, EC2, CloudFront, S3, and ELB</span></li><li><span style=\"background-color: transparent;\">Familiarity with logging and observability tools such as CloudWatch, New Relic, or Datadog</span></li></ul><p><br></p><ul><li><strong style=\"background-color: transparent;\">Additional Skills:</strong></li><li><span style=\"background-color: transparent;\">REST and GraphQL API debugging</span></li><li><span style=\"background-color: transparent;\">Understanding of frontend-backend data flow (React familiarity is a plus)</span></li><li><span style=\"background-color: transparent;\">Experience with GitHub Actions, CI/CD pipelines, and deployment troubleshooting</span></li></ul><p><br></p><h3><strong style=\"background-color: transparent; color: rgb(0, 0, 0);\">Soft Skills</strong></h3><ul><li><span style=\"background-color: transparent;\">Strong analytical and debugging mindset</span></li><li><span style=\"background-color: transparent;\">Clear communicator across distributed teams</span></li><li><span style=\"background-color: transparent;\">Ownership-oriented with a focus on stability and long-term solutions</span></li><li><span style=\"background-color: transparent;\">Comfortable working in US primary hours with defined India-time overlap for collaboration</span></li><li><span style=\"background-color: transparent;\">Adaptable to startup environments and eager to learn through direct product exposure and QA involvement</span></li></ul><p><br></p><h3><strong style=\"background-color: transparent; color: rgb(0, 0, 0);\">Preferred Qualifications</strong></h3><ul><li><span style=\"background-color: transparent;\">Prior experience in SaaS or multi-tenant systems</span></li><li><span style=\"background-color: transparent;\">Exposure to microservices or event-driven architecture</span></li><li><span style=\"background-color: transparent;\">Understanding of data security and compliance standards such as SOC-2 and GDPR</span></li></ul><p><br></p><p><span style=\"background-color: transparent; color: rgb(0, 0, 0);\">Engagement Type: Fulltime</span></p><p><span style=\"background-color: transparent; color: rgb(0, 0, 0);\">Direct-hire on the Delightree payroll</span></p><p><span style=\"background-color: transparent; color: rgb(0, 0, 0);\">Shift time- 11 PM to 4AM IST (Remaining IST Time)</span></p><p><span style=\"background-color: transparent; color: rgb(0, 0, 0);\">Job Type: Permanent</span></p><p><span style=\"background-color: transparent; color: rgb(0, 0, 0);\">Location: Remote</span></p><p><span style=\"background-color: transparent; color: rgb(0, 0, 0);\">Interview Process - 3 Rounds</span></p><p><br></p>",
+            "aggregator": null,
+            "aggregator_application_link": null,
+            "aggregator_sheet_id": null,
+            "ai_question_count": 36,
+            "apply_url": null,
+            "call_screen_enabled": 1,
+            "closed_at": "2026-03-05 09:01:54",
+            "closed_by": 0,
+            "closed_reason": null,
+            "company_type": null,
+            "coresignal_boolean": "[[\"Node.js\",\"Express.js\"],[\"MongoDB\",\"aggregation frameworks\"]]",
+            "created_at": "2025-11-06T16:56:54.000000Z",
+            "created_by": null,
+            "cv_screen_enabled": 1,
+            "frequency_office_visit": null,
+            "has_people_management_exp": 0,
+            "hirebeen_job_id": 0,
+            "hr_id": 164028,
+            "id": 164029,
+            "institute": null,
+            "is_ai_externally_modified": 0,
+            "is_ai_matched_recommendation_complete": 1,
+            "is_ai_matched_talent_added": 1,
+            "is_apply_url_mail_to": 0,
+            "is_hirebeen_active": 0,
+            "is_open_to_work_near_by": null,
+            "is_recommended_rejected_strip_visible": 0,
+            "is_spotlight_hr": null,
+            "is_top_match_nurture_send": 0,
+            "jd_path": "http:\\newbeta-adminapi.uplers.com\\Media\\JDParsing\\JDFiles\\BackendSupportEngineerNode.jsMongoDB_07112025114208.pdf",
+            "job_category_id": null,
+            "job_description_last_updated_at": null,
+            "job_sector": 1,
+            "last_shortlisted_rejected_at": null,
+            "last_step": 1,
+            "persona_company_type": 2,
+            "preferred_domain": null,
+            "published_by": 18198,
+            "rejected_talent_count": 0,
+            "repost_reason": null,
+            "sales_user_type": "NBD",
+            "standardized_title": null,
+            "updated_at": "2026-03-05T03:31:54.000000Z",
+            "updated_by": null,
+            "updated_hr_at": "2025-12-09 12:13:14"
+          },
+          "enc_id": "am5vaHdkQ1FWNGtOcEU5MXQyWnlxdz09",
+          "frequency_office_visit": null,
+          "hr_skills": [
+            {
+              "name": "compliance standards such as SOC-2 and GDPR"
+            },
+            {
+              "name": "aggregation frameworks"
+            },
+            {
+              "name": "GraphQL"
+            },
+            {
+              "name": "AWS"
+            },
+            {
+              "name": "MongoDB"
+            },
+            {
+              "name": "Node Js"
+            }
+          ],
+          "hr_yoe": "4.00",
+          "id": 164028,
+          "is_dp": "Yes",
+          "is_new": true,
+          "is_partner_company": "Feb 2025",
+          "is_transparent": 1,
+          "job_location": [],
+          "job_nature": "Uplers On-Boarded",
+          "job_type_id": 0,
+          "joining_period": "Immediately",
+          "matcherArray": [],
+          "max_yoe": "7.00",
+          "partner_name": null,
+          "pricingModel": "Full Time Permanent position",
+          "pricingModelIText": "Payroll and Compliance to be managed by: A  Series A funded California based Software Development Company",
+          "shifts": [
+            {
+              "end_time": "8:00 AM",
+              "ist_shift_time": "11:00PM to 8:00AM",
+              "shift": "(GMT+05:30) Asia/Kolkata (IST)",
+              "start_time": "11:00 PM"
+            }
+          ],
+          "show_poc_detail": 1,
+          "skills": [
+            {
+              "skill": {
+                "name": "compliance standards such as SOC-2 and GDPR",
+                "type": "good_to_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "aggregation frameworks",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "GraphQL",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "AWS",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "MongoDB",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "Node Js",
+                "type": "must_have"
+              }
+            }
+          ],
+          "state": null,
+          "strong_proficiencyskills": [
+            {
+              "Proficiency": "Strong",
+              "created_at": "2025-12-08T11:55:52.000000Z",
+              "enc_id": "UnlPRlZJOXBKMGVRdis2RGpaN296QT09",
+              "group": 2,
+              "hr_id": 164028,
+              "id": 7709835,
+              "skill": {
+                "id": 4256281,
+                "name": "aggregation frameworks",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 4256281,
+              "updated_at": "2025-12-08T11:55:52.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2025-12-08T11:55:52.000000Z",
+              "enc_id": "UlZWTmZsRkIzbWFDU3dra1VZd0ZJUT09",
+              "group": 3,
+              "hr_id": 164028,
+              "id": 7709836,
+              "skill": {
+                "id": 4559,
+                "name": "GraphQL",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 4559,
+              "updated_at": "2025-12-08T11:55:52.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2025-12-08T11:55:52.000000Z",
+              "enc_id": "bDU0NTM2SFVlVG9TRVlxamZ2QmVEUT09",
+              "group": 4,
+              "hr_id": 164028,
+              "id": 7709837,
+              "skill": {
+                "id": 3890028,
+                "name": "AWS",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3890028,
+              "updated_at": "2025-12-08T11:55:52.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2025-12-08T11:55:52.000000Z",
+              "enc_id": "NzhQTitUbFdsN1hkTjM2dUNvK3dyZz09",
+              "group": 5,
+              "hr_id": 164028,
+              "id": 7709838,
+              "skill": {
+                "id": 3900084,
+                "name": "MongoDB",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3900084,
+              "updated_at": "2025-12-08T11:55:52.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2025-12-08T11:55:52.000000Z",
+              "enc_id": "K0tVdGgzemZka0haRVpaSFZxM3VoQT09",
+              "group": 6,
+              "hr_id": 164028,
+              "id": 7709839,
+              "skill": {
+                "id": 80,
+                "name": "Node Js",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 80,
+              "updated_at": "2025-12-08T11:55:52.000000Z"
+            }
+          ]
+        },
+        "impression": 1000,
+        "is_aggregator_job": false,
+        "is_ai_matched": 1,
+        "is_applicant": 1,
+        "is_custome_screening": false,
+        "is_deleted": 0,
+        "is_in_pipeline": 0,
+        "is_linkedin_uploaded": 0,
+        "is_nurture_sent": 0,
+        "is_outreach_eligible": false,
+        "is_recommended": 0,
+        "is_recruiter_sourced": 0,
+        "is_saved": 0,
+        "is_self_applied": 1,
+        "is_top_match": 0,
+        "is_uploaded": 0,
+        "is_valid_outreach_job": true,
+        "master_audience_id": 2803,
+        "matchmake_score": "82.20",
+        "matchmake_score_v2": "67.20",
+        "next_round_flag": 0,
+        "not_relevant_marked_at": null,
+        "not_relevant_marked_by": null,
+        "rank_at_reject": 0,
+        "reject_reason": null,
+        "rejection_flag": 0,
+        "same_company_association": 0,
+        "screening_at": "2025-11-07 13:32:06",
+        "screening_status": true,
+        "self_applied_by": 1,
+        "share_ai_assessment": 0,
+        "share_talent_profile": 1,
+        "share_video_resume": 0,
+        "skill_boolean": [],
+        "spotlight_score": null,
+        "status": 1,
+        "statusName": "Added",
+        "status_text": "Added",
+        "tag_id": 1,
+        "top_badge": "",
+        "top_match_at": null,
+        "type": "Sourced Via Vector",
+        "updated_at": "2025-12-09T06:44:30.000000Z",
+        "vector_version_id": 0,
+        "video_resume_status": 0
+      },
+      {
+        "CTPID": 0,
+        "HR_Number": "HR1174843469378598",
+        "HiringRequest_ID": 0,
+        "acceptance_by": 0,
+        "ai_attempt_date": null,
+        "ai_attempt_type": null,
+        "ai_data": [],
+        "ai_link_id": 0,
+        "ai_needed": false,
+        "ai_score": null,
+        "applied_at": "4th Jun 2025",
+        "applied_date": "2025-06-04 13:04:58",
+        "applied_type": "Sourced Outbound",
+        "apply_link_id": 4895422,
+        "backend_talent_status": "1",
+        "badgeName": "Added",
+        "bubble_id": 1,
+        "client_hidden_at": null,
+        "client_list_at": null,
+        "client_shared_at": null,
+        "client_status": 0,
+        "client_unlocked_at": null,
+        "company_id": 8316,
+        "cost": "2500000-3500000",
+        "cost_string": "INR 25,00,000-35,00,000 / year",
+        "created_at": "2025-06-04T07:34:58.000000Z",
+        "credit_used": 0,
+        "currency": "INR",
+        "custom_screening_at": null,
+        "custom_screening_needed": false,
+        "deleted_at": null,
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "filter_version_id": null,
+        "flag": 1,
+        "frontend_data": {
+          "frontend_label": "Job Closed",
+          "frontend_label_color": "#6B6B6B",
+          "frontend_message_color": "#DBDBDB"
+        },
+        "hired_tag": 0,
+        "hr": {
+          "Availability": "Full Time",
+          "CompanyID": null,
+          "Currency": "INR",
+          "HRTypeText": "Pay Per Credit",
+          "HR_Number": "HR1174843469378598",
+          "HR_ShiftTime": "(GMT+05:30) Asia/Kolkata (IST)",
+          "HR_Status": "Expired",
+          "HiringRequest_ID": 0,
+          "HowSoon": "30",
+          "IsConfidentialBudget": 0,
+          "JobDescription": "<p>We seek a motivated, talented, and intelligent individual who shares our vision of being a changemaker. We value individuals dissatisfied with the status quo, strive to make improvements, and envision making significant contributions. We look for those who embrace challenges and dedicate themselves to solutions. We seek individuals who push for data-driven decisions, are unconstrained by titles, and value collaboration. We are building a fast-paced team to shape various aspects of business and technology.</p><p><br></p><p><br></p><p><br></p><p>Responsibilities: </p><p><br></p><p>Be a part of the initial team to define and set up a best-in-class digital platform for the Private Credit industry, and take full ownership of the components of the digital platform.</p><p>You will build robust and scalable web-based applications and need to think of platforms and reuse them.</p><p>Driving and active contribution to High-Level Designs(HLDs) and Low-Level Designs (LLDs).</p><p>Collaborate with frontend developers, product managers, and other stakeholders to understand requirements and translate them into technical specifications.</p><p>Mentor team members in adopting effective coding practices.</p><p>Conduct comprehensive code reviews, focusing on both functional and non-functional aspects.</p><p>Ensure the security, performance, and reliability of backend systems through proper testing, monitoring, and optimization.</p><p>Participate in code reviews, sprint planning, and agile development processes to maintain code quality and project timelines.</p><p>Simply, be an owner of the platform and do whatever it takes to get the required output for customers.</p><p>Be curious about product problems and have an open mind to dive into new domains eg: gen-AI.</p><p>Stay up-to-date with the latest development trends, tools, and technologies.</p><p><br></p><p><br></p><p>Requirements: </p><p><br></p><p>3-5 years of experience in backend development, with a strong track record of successfully architecting and implementing scalable and high-performance backend systems.</p><p>Proficiency in at least one backend programming language (e. g., Python, Golang, Node.js, Java) and tech stack to write maintainable, scalable, unit-tested code.</p><p>Good understanding of databases (e. g. MySQL, PostgreSQL) and NoSQL (e. g. MongoDB, Elasticsearch, etc).</p><p>Solid understanding of RESTful API design principles and best practices.</p><p>Experience with multi-threading and concurrency programming.</p><p>Extensive experience in object-oriented design skills, knowledge of design patterns, and huge passion and ability to design intuitive module and class-level interfaces.</p><p>Experience with cloud computing platforms and services (e. g., AWS, Azure, Google Cloud Platform).</p><p>Knowledge of Test Driven Development.</p><p>Experience with microservices architecture.</p><p>Knowledge of serverless computing and event-driven architectures (e. g., AWS Lambda, Azure Functions).</p><p>Understanding of DevOps practices and tools for continuous integration and deployment (CI/CD).</p><p>Contributions to open-source projects or active participation in developer communities.</p><p>Experience working with LLMs and AI technologies.</p>",
+          "ModeOfWork": "Office",
+          "MonthDuration": "0.00",
+          "PayrollTypeId": null,
+          "PricingId": null,
+          "Quantity": 1,
+          "RequestForTalent": "Senior Backend Developer",
+          "YearOfExp": "4.00",
+          "aggregator": null,
+          "aggregator_publish_date": null,
+          "ai_mandatory": 0,
+          "city": "Bengaluru",
+          "city_id": 277,
+          "company": {
+            "about": "<p>Empowering Alternative Investors with Agentic Gen-AI: Introducing Binocs.</p><p><br></p><p>Binocs is a cutting-edge software platform leveraging agentic Gen-AI to revolutionize Due Diligence and Portfolio Monitoring for Alternative Investors in Private Equity and Private Credit. Recognizing the challenges of manual, time-consuming, and error-prone processes, Binocs offers a powerful automation solution.</p><p><br></p><p>Our platform stands out by employing an agentic Gen-AI framework that intelligently mirrors the complex workflows of Alt Funds. This enables rapid and accurate Deal Analysis, encompassing Commercial, Financial, and Operational Due Diligence, alongside continuous and insightful portfolio monitoring.</p><p><br></p><p>Binocs is committed to enhancing operational efficiency and strengthening risk management. Our integrated platform automates document management from all sources, utilizes AI and ML to extract and standardize financial statement data for in-depth analysis, and provides robust covenant and ESG monitoring capabilities. </p>",
+            "company_headquarter_alias": "",
+            "company_location": null,
+            "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_Binocs_co_1746796060_JblRFcdRqJ.jpeg",
+            "company_name": "Binocs.co",
+            "company_name_initials": "B",
+            "geo": null,
+            "industry": "Software Development",
+            "is_confidential": 0,
+            "is_partner_company": "May 2025",
+            "linkedin_url": "https://www.linkedin.com/company/binocs-co/",
+            "team_size": "11-50",
+            "website_url": "https://binocs.co"
+          },
+          "cost": "25,00,000-35,00,000",
+          "cost_range": "2500000-3500000",
+          "cost_string": "INR 25,00,000-35,00,000 / year",
+          "country": null,
+          "detail": {
+            "Discription": null,
+            "JDFilename": null,
+            "JDURL": null,
+            "JobDescription": "<p>We seek a motivated, talented, and intelligent individual who shares our vision of being a changemaker. We value individuals dissatisfied with the status quo, strive to make improvements, and envision making significant contributions. We look for those who embrace challenges and dedicate themselves to solutions. We seek individuals who push for data-driven decisions, are unconstrained by titles, and value collaboration. We are building a fast-paced team to shape various aspects of business and technology.</p><p><br></p><p><br></p><p><br></p><p>Responsibilities: </p><p><br></p><p>Be a part of the initial team to define and set up a best-in-class digital platform for the Private Credit industry, and take full ownership of the components of the digital platform.</p><p>You will build robust and scalable web-based applications and need to think of platforms and reuse them.</p><p>Driving and active contribution to High-Level Designs(HLDs) and Low-Level Designs (LLDs).</p><p>Collaborate with frontend developers, product managers, and other stakeholders to understand requirements and translate them into technical specifications.</p><p>Mentor team members in adopting effective coding practices.</p><p>Conduct comprehensive code reviews, focusing on both functional and non-functional aspects.</p><p>Ensure the security, performance, and reliability of backend systems through proper testing, monitoring, and optimization.</p><p>Participate in code reviews, sprint planning, and agile development processes to maintain code quality and project timelines.</p><p>Simply, be an owner of the platform and do whatever it takes to get the required output for customers.</p><p>Be curious about product problems and have an open mind to dive into new domains eg: gen-AI.</p><p>Stay up-to-date with the latest development trends, tools, and technologies.</p><p><br></p><p><br></p><p>Requirements: </p><p><br></p><p>3-5 years of experience in backend development, with a strong track record of successfully architecting and implementing scalable and high-performance backend systems.</p><p>Proficiency in at least one backend programming language (e. g., Python, Golang, Node.js, Java) and tech stack to write maintainable, scalable, unit-tested code.</p><p>Good understanding of databases (e. g. MySQL, PostgreSQL) and NoSQL (e. g. MongoDB, Elasticsearch, etc).</p><p>Solid understanding of RESTful API design principles and best practices.</p><p>Experience with multi-threading and concurrency programming.</p><p>Extensive experience in object-oriented design skills, knowledge of design patterns, and huge passion and ability to design intuitive module and class-level interfaces.</p><p>Experience with cloud computing platforms and services (e. g., AWS, Azure, Google Cloud Platform).</p><p>Knowledge of Test Driven Development.</p><p>Experience with microservices architecture.</p><p>Knowledge of serverless computing and event-driven architectures (e. g., AWS Lambda, Azure Functions).</p><p>Understanding of DevOps practices and tools for continuous integration and deployment (CI/CD).</p><p>Contributions to open-source projects or active participation in developer communities.</p><p>Experience working with LLMs and AI technologies.</p>",
+            "aggregator": null,
+            "aggregator_application_link": null,
+            "aggregator_sheet_id": null,
+            "ai_question_count": 0,
+            "apply_url": null,
+            "call_screen_enabled": 0,
+            "closed_at": "2025-06-28 03:00:47",
+            "closed_by": null,
+            "closed_reason": null,
+            "company_type": 1,
+            "coresignal_boolean": null,
+            "created_at": "2025-05-28T12:18:13.000000Z",
+            "created_by": 8236569,
+            "cv_screen_enabled": 1,
+            "frequency_office_visit": null,
+            "has_people_management_exp": 0,
+            "hirebeen_job_id": 0,
+            "hr_id": 77214,
+            "id": 77210,
+            "institute": 1,
+            "is_ai_externally_modified": 0,
+            "is_ai_matched_recommendation_complete": 1,
+            "is_ai_matched_talent_added": 1,
+            "is_apply_url_mail_to": 0,
+            "is_hirebeen_active": 0,
+            "is_open_to_work_near_by": null,
+            "is_recommended_rejected_strip_visible": 0,
+            "is_spotlight_hr": null,
+            "is_top_match_nurture_send": 1,
+            "jd_path": null,
+            "job_category_id": null,
+            "job_description_last_updated_at": null,
+            "job_sector": 1,
+            "last_shortlisted_rejected_at": null,
+            "last_step": 1,
+            "persona_company_type": 1,
+            "preferred_domain": 3,
+            "published_by": 8236569,
+            "rejected_talent_count": 0,
+            "repost_reason": null,
+            "sales_user_type": null,
+            "standardized_title": null,
+            "updated_at": "2025-06-27T21:30:47.000000Z",
+            "updated_by": null,
+            "updated_hr_at": "2025-05-28 17:48:13"
+          },
+          "enc_id": "a1ZONkdxeDFza0tBdTVWMHROeDE1dz09",
+          "frequency_office_visit": null,
+          "hr_skills": [
+            {
+              "name": "Node.js"
+            },
+            {
+              "name": "Python"
+            },
+            {
+              "name": "AWS"
+            },
+            {
+              "name": "Mongo DB"
+            }
+          ],
+          "hr_yoe": "4.00",
+          "id": 77214,
+          "is_dp": null,
+          "is_new": true,
+          "is_partner_company": "May 2025",
+          "is_transparent": null,
+          "job_location": [
+            {
+              "city_id": 277,
+              "city_name": "Bengaluru",
+              "hr_id": 77214,
+              "state_name": "Karnataka"
+            }
+          ],
+          "job_nature": "Uplers On-Boarded",
+          "job_type_id": 1,
+          "joining_period": "Immediately",
+          "matcherArray": [],
+          "max_yoe": "5.00",
+          "partner_name": null,
+          "pricingModel": "Full time Permanent Position",
+          "pricingModelIText": null,
+          "shifts": [
+            {
+              "end_time": "6:30 PM",
+              "ist_shift_time": "09:30 AM to 06:30 PM",
+              "shift": "(GMT+05:30) Asia/Kolkata (IST)",
+              "start_time": "9:30 AM"
+            }
+          ],
+          "show_poc_detail": 0,
+          "skills": [
+            {
+              "skill": {
+                "name": "Node.js",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "Python",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "AWS",
+                "type": "must_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "Mongo DB",
+                "type": "must_have"
+              }
+            }
+          ],
+          "state": null,
+          "strong_proficiencyskills": [
+            {
+              "Proficiency": "Strong",
+              "created_at": "2025-05-28T12:18:13.000000Z",
+              "enc_id": "Y3VTNWptYU9xMjVheXlqaE9DUDlPQT09",
+              "group": 1,
+              "hr_id": 77214,
+              "id": 1976140,
+              "skill": {
+                "id": 3898076,
+                "name": "Node.js",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3898076,
+              "updated_at": "2025-05-28T12:18:13.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2025-05-28T12:18:13.000000Z",
+              "enc_id": "WFMvZExMbWFGRVh1SHBWYzBzblhwZz09",
+              "group": 1,
+              "hr_id": 77214,
+              "id": 1976141,
+              "skill": {
+                "id": 166,
+                "name": "Python",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 166,
+              "updated_at": "2025-05-28T12:18:13.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2025-05-28T12:18:13.000000Z",
+              "enc_id": "Yk91cm9PY0I2NGp1VmhrVTRzazEwdz09",
+              "group": 2,
+              "hr_id": 77214,
+              "id": 1976142,
+              "skill": {
+                "id": 3890028,
+                "name": "AWS",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 3890028,
+              "updated_at": "2025-05-28T12:18:13.000000Z"
+            },
+            {
+              "Proficiency": "Strong",
+              "created_at": "2025-05-28T12:18:13.000000Z",
+              "enc_id": "YnZjR1ozNGhzY1I4bWpyYWNaKzk5Zz09",
+              "group": 3,
+              "hr_id": 77214,
+              "id": 1976143,
+              "skill": {
+                "id": 78,
+                "name": "Mongo DB",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 78,
+              "updated_at": "2025-05-28T12:18:13.000000Z"
+            }
+          ]
+        },
+        "impression": 1000,
+        "is_aggregator_job": false,
+        "is_ai_matched": 1,
+        "is_applicant": 1,
+        "is_custome_screening": false,
+        "is_deleted": 0,
+        "is_in_pipeline": 0,
+        "is_linkedin_uploaded": 0,
+        "is_nurture_sent": 0,
+        "is_outreach_eligible": false,
+        "is_recommended": 0,
+        "is_recruiter_sourced": 0,
+        "is_saved": 0,
+        "is_self_applied": 1,
+        "is_top_match": 0,
+        "is_uploaded": 0,
+        "is_valid_outreach_job": true,
+        "master_audience_id": null,
+        "matchmake_score": "83.39",
+        "matchmake_score_v2": "68.39",
+        "next_round_flag": 0,
+        "not_relevant_marked_at": null,
+        "not_relevant_marked_by": null,
+        "rank_at_reject": 0,
+        "reject_reason": null,
+        "rejection_flag": 0,
+        "same_company_association": 0,
+        "screening_at": "2025-06-04 13:04:58",
+        "screening_status": true,
+        "self_applied_by": 1,
+        "share_ai_assessment": 0,
+        "share_talent_profile": 1,
+        "share_video_resume": 0,
+        "skill_boolean": [],
+        "spotlight_score": null,
+        "status": 1,
+        "statusName": "Added",
+        "status_text": "Added",
+        "tag_id": 1,
+        "top_badge": "",
+        "top_match_at": null,
+        "type": "Sourced Outbound",
+        "updated_at": "2025-07-07T12:59:16.000000Z",
+        "vector_version_id": 0,
+        "video_resume_status": 0
+      },
+      {
+        "CTPID": 0,
+        "HR_Number": "HR220224200526",
+        "HiringRequest_ID": 12344,
+        "acceptance_by": 0,
+        "ai_attempt_date": null,
+        "ai_attempt_type": null,
+        "ai_data": {
+          "assesment_report_url": null,
+          "assessment_id": 272,
+          "assessment_tool": "AiInterview",
+          "assessment_url": "https://assessment.upscreen.ai/invite/nk-QXh6NVE0Y2NhQzlXcjNITGhXMGNRWDhGbUl6S0JLdXpiTlZiMWRmb0kwQT0=",
+          "attempt": 0,
+          "duration_formatted": "",
+          "enc_id": "UCtXUGxqZWdRZ0RVNXBjTk50T2NhUT09",
+          "hr_id": 2171,
+          "id": 7123366,
+          "image_url": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/assessment/icon-ai_screening.svg",
+          "master_enc_id": "G7X0jfndlaq3PPp8MQTgcc2pOLFcZV91",
+          "result": null,
+          "score": 0,
+          "short_created_at": "1970-01-01",
+          "status": 5,
+          "status_text": "Cancelled",
+          "timeline_created_at": "1970-01-01 05:30"
+        },
+        "ai_link_id": 0,
+        "ai_needed": false,
+        "ai_score": 0,
+        "applied_at": null,
+        "applied_date": null,
+        "applied_type": null,
+        "apply_link_id": 0,
+        "backend_talent_status": "1",
+        "badgeName": "Added",
+        "bubble_id": 1,
+        "client_hidden_at": null,
+        "client_list_at": null,
+        "client_shared_at": null,
+        "client_status": 0,
+        "client_unlocked_at": null,
+        "company_id": 29,
+        "cost_string": "INR 73,964-1,33,136 / month",
+        "created_at": "2024-03-07T16:26:55.000000Z",
+        "credit_used": 0,
+        "currency": null,
+        "custom_screening_at": null,
+        "custom_screening_needed": false,
+        "deleted_at": null,
+        "enc_id": "VHdQWnhITkI0Z2Zva0J0YkdzeE02Zz09",
+        "filter_version_id": null,
+        "flag": 1,
+        "frontend_data": {
+          "frontend_label": "Job Closed",
+          "frontend_label_color": "#6B6B6B",
+          "frontend_message_color": "#DBDBDB"
+        },
+        "hired_tag": 0,
+        "hr": {
+          "Availability": "Full Time",
+          "CompanyID": "10403",
+          "Currency": "INR",
+          "HRTypeText": "Pay Per Hire",
+          "HR_Number": "HR220224200526",
+          "HR_ShiftTime": "(GMT+05:30) Asia/Kolkata (IST)",
+          "HR_Status": "Lost",
+          "HiringRequest_ID": 12344,
+          "HowSoon": "15 Days",
+          "IsConfidentialBudget": 0,
+          "JobDescription": "<br/><b>Roles and Responsibilities : </b>Work with other team members such as front end developers\n2. Design and implement Node.Js code/Python\n3. Ensure modern security standards are implemented to prevent unauthorised entry\n4. Identify and fix code where bugs have been identified\n5. Write adequate test suites to ensure all functionality originally outlined by the design is\nbeing met\n6. Ensure server side code is correctly interfacing with databases\n7. Ensure the code written is extremely robust and able to provide high performance to the\nend user\n8. Integrate server side code with front end components\n9. The ability to problem-solve\n10. High level of understanding of JavaScript\n11. Knowledge of how to use the Node.Js Framework\n12. Understanding of modern patterns for how backend code interacts with the front end\nsystems\n13. Designing and developing APIs(Rest /Restful)<br/><b>Requirements : </b><div>Requirement - Onsite and to be hired on Uplers Payroll</div><div><br></div>A bachelor's degree in computer science, engineering, or related field\n2. Professional experience in End-to-End software development.\n3. You have several years of software development experience and are well-versed in\nfrontend frameworks such as Typescript/React as well as server-side frameworks such\nas Python/FastAPI\n4. Strong knowledge in building and designing GraphQL and/or REST APIs is required\n5. hands-on expertise with Object Relational Mapper (ORM) tools (SQLAlchemy)\n6. Proficiency in NoSQL and SQL databases and in high-throughput data-related\narchitecture and technologies (e.g. Kafka, Spark, Hadoop)\n7. You are familiar with the most up-to-date technologies, frameworks and best practices,\nsuch as autoscaling and serverless backends, as well as CI/CD\n8. A thorough understanding of performance-related choices and optimizations.\n9. Passion for writing clean, well-maintainable code\n10. Excellent troubleshooting and problem-solving abilities are required\n11. Strong organizational and project management skills.\n12. Familiarity with database technology such as MySQL, Postgre SQL MongoDB\n13. Understanding and experience of using OOPS concepts\n14. AWS or any standard cloud environment work experience",
+          "ModeOfWork": "Office",
+          "MonthDuration": "12.00",
+          "PayrollTypeId": 1,
+          "PricingId": 2,
+          "Quantity": 2,
+          "RequestForTalent": "Backend Developer Nodejs",
+          "YearOfExp": "3.00",
+          "aggregator": null,
+          "aggregator_publish_date": null,
+          "ai_mandatory": 0,
+          "city": "Mumbai",
+          "city_id": 394,
+          "company": {
+            "about": "A globally diversified organisation that delivers end-to-end solutions in Engineering & Construction, Infrastructure, Real Estate, Water, Energy and Financial Services. Established in 1865, in India, they are now in over 50 countries, across Europe, the Americas and Australia, with a significant presence in the Middle East and Africa. The journey in sustainable engineering is due to a strong workforce of over 50,000 people who are focused on safety first, led by the motto of ‘Either Safe Work Else Refusal’ and guided by over 400 safety champions.",
+            "company_headquarter_alias": "",
+            "company_location": null,
+            "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/65151728545498.png",
+            "company_name": "Shapoorji",
+            "company_name_initials": "S",
+            "geo": "India",
+            "industry": null,
+            "is_confidential": 0,
+            "is_partner_company": "Jan 2023",
+            "linkedin_url": "https://www.linkedin.com/company/shapoorji-pallonji-&-co--ltd-/?originalSubdomain=in/",
+            "team_size": "7571",
+            "website_url": "shapoorjipallonji.com"
+          },
+          "cost": "73,964-1,33,136",
+          "cost_range": "96154-173077",
+          "cost_string": "INR 73,964-1,33,136 / month",
+          "country": "India",
+          "detail": {
+            "Discription": null,
+            "JDFilename": "Shapoorji _JD_ Back End Developer -Node JS _Python202305091855.pdf",
+            "JDURL": null,
+            "JobDescription": "<br/><b>Roles and Responsibilities : </b>Work with other team members such as front end developers\n2. Design and implement Node.Js code/Python\n3. Ensure modern security standards are implemented to prevent unauthorised entry\n4. Identify and fix code where bugs have been identified\n5. Write adequate test suites to ensure all functionality originally outlined by the design is\nbeing met\n6. Ensure server side code is correctly interfacing with databases\n7. Ensure the code written is extremely robust and able to provide high performance to the\nend user\n8. Integrate server side code with front end components\n9. The ability to problem-solve\n10. High level of understanding of JavaScript\n11. Knowledge of how to use the Node.Js Framework\n12. Understanding of modern patterns for how backend code interacts with the front end\nsystems\n13. Designing and developing APIs(Rest /Restful)<br/><b>Requirements : </b><div>Requirement - Onsite and to be hired on Uplers Payroll</div><div><br></div>A bachelor's degree in computer science, engineering, or related field\n2. Professional experience in End-to-End software development.\n3. You have several years of software development experience and are well-versed in\nfrontend frameworks such as Typescript/React as well as server-side frameworks such\nas Python/FastAPI\n4. Strong knowledge in building and designing GraphQL and/or REST APIs is required\n5. hands-on expertise with Object Relational Mapper (ORM) tools (SQLAlchemy)\n6. Proficiency in NoSQL and SQL databases and in high-throughput data-related\narchitecture and technologies (e.g. Kafka, Spark, Hadoop)\n7. You are familiar with the most up-to-date technologies, frameworks and best practices,\nsuch as autoscaling and serverless backends, as well as CI/CD\n8. A thorough understanding of performance-related choices and optimizations.\n9. Passion for writing clean, well-maintainable code\n10. Excellent troubleshooting and problem-solving abilities are required\n11. Strong organizational and project management skills.\n12. Familiarity with database technology such as MySQL, Postgre SQL MongoDB\n13. Understanding and experience of using OOPS concepts\n14. AWS or any standard cloud environment work experience",
+            "aggregator": null,
+            "aggregator_application_link": null,
+            "aggregator_sheet_id": null,
+            "ai_question_count": 0,
+            "apply_url": null,
+            "call_screen_enabled": 1,
+            "closed_at": null,
+            "closed_by": null,
+            "closed_reason": null,
+            "company_type": null,
+            "coresignal_boolean": null,
+            "created_at": "2024-02-22T14:38:38.000000Z",
+            "created_by": null,
+            "cv_screen_enabled": 1,
+            "frequency_office_visit": null,
+            "has_people_management_exp": 0,
+            "hirebeen_job_id": 0,
+            "hr_id": 2171,
+            "id": 2168,
+            "institute": null,
+            "is_ai_externally_modified": 0,
+            "is_ai_matched_recommendation_complete": 1,
+            "is_ai_matched_talent_added": 1,
+            "is_apply_url_mail_to": 0,
+            "is_hirebeen_active": 0,
+            "is_open_to_work_near_by": null,
+            "is_recommended_rejected_strip_visible": 0,
+            "is_spotlight_hr": null,
+            "is_top_match_nurture_send": 0,
+            "jd_path": "http:\\newbeta-adminapi.uplers.com\\Media\\JDParsing\\JDFiles\\Shapoorji _JD_ Back End Developer -Node JS _Python202305091855.pdf",
+            "job_category_id": null,
+            "job_description_last_updated_at": null,
+            "job_sector": null,
+            "last_shortlisted_rejected_at": null,
+            "last_step": 1,
+            "persona_company_type": null,
+            "preferred_domain": null,
+            "published_by": null,
+            "rejected_talent_count": 0,
+            "repost_reason": null,
+            "sales_user_type": null,
+            "standardized_title": null,
+            "updated_at": "2024-04-17T15:34:37.000000Z",
+            "updated_by": null,
+            "updated_hr_at": "2024-02-22 20:08:38"
+          },
+          "enc_id": "cHZKdXpaUWRVK2Z4VFpvS2NZNXZqUT09",
+          "frequency_office_visit": null,
+          "hr_skills": [
+            {
+              "name": "AI"
+            },
+            {
+              "name": "ML"
+            },
+            {
+              "name": "Rabbit MQ"
+            }
+          ],
+          "hr_yoe": "3.00",
+          "id": 2171,
+          "is_dp": "No",
+          "is_new": true,
+          "is_partner_company": "Jan 2023",
+          "is_transparent": 1,
+          "job_location": [
+            {
+              "city_id": 394,
+              "city_name": "Mumbai",
+              "hr_id": 2171,
+              "state_name": "Maharashtra"
+            }
+          ],
+          "job_nature": "Uplers On-Boarded",
+          "job_type_id": 0,
+          "joining_period": "15 Days",
+          "matcherArray": [],
+          "max_yoe": "0.00",
+          "partner_name": null,
+          "pricingModel": "Full Time 12 months Project Based Employment",
+          "pricingModelIText": "Payroll and Compliance to be managed by: Uplers Solutions Pvt. Ltd.",
+          "shifts": [
+            {
+              "end_time": "6:00 PM",
+              "ist_shift_time": "10:00AM to 6:00PM",
+              "shift": "(GMT+05:30) Asia/Kolkata (IST)",
+              "start_time": "10:00 AM"
+            }
+          ],
+          "show_poc_detail": 0,
+          "skills": [
+            {
+              "skill": {
+                "name": "AI",
+                "type": "good_to_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "ML",
+                "type": "good_to_have"
+              }
+            },
+            {
+              "skill": {
+                "name": "Rabbit MQ",
+                "type": "must_have"
+              }
+            }
+          ],
+          "state": null,
+          "strong_proficiencyskills": [
+            {
+              "Proficiency": "Strong",
+              "created_at": "2024-04-15T09:56:33.000000Z",
+              "enc_id": "alBSOUtvemMzeTZ0TTZQZDE2cktUQT09",
+              "group": 1,
+              "hr_id": 2171,
+              "id": 97885,
+              "skill": {
+                "id": 4689,
+                "name": "Rabbit MQ",
+                "short_created_at": "1970-01-01",
+                "status_text": ""
+              },
+              "skill_id": 4689,
+              "updated_at": "2025-02-05T05:39:38.000000Z"
+            }
+          ]
+        },
+        "impression": 1000,
+        "is_aggregator_job": false,
+        "is_ai_matched": 1,
+        "is_applicant": 1,
+        "is_custome_screening": false,
+        "is_deleted": 0,
+        "is_in_pipeline": 0,
+        "is_linkedin_uploaded": 0,
+        "is_nurture_sent": 0,
+        "is_outreach_eligible": false,
+        "is_recommended": 0,
+        "is_recruiter_sourced": 0,
+        "is_saved": 0,
+        "is_self_applied": 0,
+        "is_top_match": 0,
+        "is_uploaded": 0,
+        "is_valid_outreach_job": true,
+        "master_audience_id": null,
+        "matchmake_score": "83.62",
+        "matchmake_score_v2": "68.62",
+        "next_round_flag": 0,
+        "not_relevant_marked_at": null,
+        "not_relevant_marked_by": null,
+        "rank_at_reject": 0,
+        "reject_reason": null,
+        "rejection_flag": 0,
+        "same_company_association": 0,
+        "screening_at": null,
+        "screening_status": false,
+        "self_applied_by": 0,
+        "share_ai_assessment": 0,
+        "share_talent_profile": 1,
+        "share_video_resume": 0,
+        "skill_boolean": [],
+        "spotlight_score": null,
+        "status": 1,
+        "statusName": "Added",
+        "status_text": "Added",
+        "tag_id": 1,
+        "top_badge": "",
+        "top_match_at": null,
+        "type": "Sourced Inbound",
+        "updated_at": "2024-08-25T17:42:40.000000Z",
+        "vector_version_id": 0,
+        "video_resume_status": 0
+      }
+    ],
+    "first_page_url": "https://platform.uplers.com/api/talent/hr/my-opportunities?page=1",
+    "from": 1,
+    "last_page": 1,
+    "last_page_url": "https://platform.uplers.com/api/talent/hr/my-opportunities?page=1",
+    "links": [
+      {
+        "active": false,
+        "label": "&laquo; Previous",
+        "url": null
+      },
+      {
+        "active": true,
+        "label": "1",
+        "url": "https://platform.uplers.com/api/talent/hr/my-opportunities?page=1"
+      },
+      {
+        "active": false,
+        "label": "Next &raquo;",
+        "url": null
+      }
+    ],
+    "next_page_url": null,
+    "path": "https://platform.uplers.com/api/talent/hr/my-opportunities",
+    "per_page": "10",
+    "prev_page_url": null,
+    "to": 9,
+    "total": 9
+  }
+}

@@ -1093,9 +1093,16 @@ async def uplers_rank_opportunities(
                     "local index. Add roles with uplers_save_job()."
                 )
         population = [opp for opp in population if search_mod.matches(opp, **filters)]
-        ranked, blocked = fit.rank(
+        ranked, blocked, unscorable = fit.rank(
             population, profile, exclude_blocked=exclude_blocked, bound=bound,
             explain=explain)
+        if unscorable:
+            notes.append(
+                "%d cached record(s) carried neither skills nor an experience band "
+                "and were left OUT of the ranking rather than scored at a neutral "
+                "50: %s. Re-run uplers_sync_index() if they should be complete."
+                % (len(unscorable), ", ".join(unscorable[:5]))
+            )
         if min_score is not None:
             ranked = [pair for pair in ranked if pair[1]["overall_score"] >= min_score]
         rows = [
@@ -1234,9 +1241,13 @@ async def uplers_list_saved(
                 entry.pay = fit.render_pay(opp)
                 entry.notice = opp.joining_period
                 if profile is not None:
-                    assessment = fit.assess(opp, profile, bound, explain=explain)
-                    entry.score = assessment["overall_score"]
-                    entry.explain = assessment.get("explain")
+                    try:
+                        assessment = fit.assess(opp, profile, bound, explain=explain)
+                    except fit.UnscorableOpportunity as exc:
+                        notes.append("%s not scored: %s" % (row["hr_number"], exc))
+                    else:
+                        entry.score = assessment["overall_score"]
+                        entry.explain = assessment.get("explain")
             out.append(entry)
         if not rows:
             notes.append(

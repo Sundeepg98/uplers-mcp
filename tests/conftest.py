@@ -54,6 +54,23 @@ def load_fixture(hr_number: str) -> dict:
         return json.load(handle)
 
 
+# The four AUTHENTICATED envelopes, captured live by
+# `scripts/capture_talent_rows.py` with the private half deleted. They exist
+# because the four surfaces spell the SAME two fields differently, and three of
+# the four were being read with the public catalogue's spelling. See
+# tests/fixtures/MANIFEST.md.
+TALENT_PIPELINE = "talent_pipeline"    # GET  talent/hr/my-opportunities
+TALENT_FEED = "talent_feed"            # GET  talent/hr/opportunities
+TALENT_TAILOR = "talent_tailor"        # POST talent/hr/tailor-jobs
+TALENT_INTERVIEWS = "talent_interviews"  # GET talent/outreach/interview-list
+
+
+def load_talent_fixture(name: str) -> dict:
+    """Read one captured AUTHENTICATED envelope, whole and unmodified."""
+    with (FIXTURE_DIR / (name + ".json")).open(encoding="utf-8") as handle:
+        return json.load(handle)
+
+
 def put_fixtures(store, hr_numbers=ALL_IDS):
     """Cache the given captured records in a Store."""
     for hr_number in hr_numbers:

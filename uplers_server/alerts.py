@@ -124,7 +124,14 @@ def evaluate(
     )
     scored: list[tuple[Opportunity, dict | None]] = []
     for opp in hits:
-        assessment = fit.assess(opp, profile, bound, explain=explain)
+        try:
+            assessment = fit.assess(opp, profile, bound, explain=explain)
+        except fit.UnscorableOpportunity:
+            # An alert is a filter over scores, so a record that cannot be
+            # scored cannot pass one. Dropping it is the only honest answer:
+            # admitting it at jobcore's neutral 50 would fire alerts whose
+            # min_score is 50 or lower on records nobody has read.
+            continue
         if exclude_blocked and assessment["blockers"]:
             continue
         if min_score is not None and assessment["overall_score"] < min_score:

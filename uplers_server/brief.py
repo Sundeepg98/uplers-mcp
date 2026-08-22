@@ -152,7 +152,7 @@ def build(
 
     # -- what is new -------------------------------------------------------
     fresh = new_since(opportunities, start)
-    ranked, blocked = fit.rank(
+    ranked, blocked, unscorable = fit.rank(
         fresh, profile,
         exclude_blocked=bound.setting("exclude_blocked", "brief", default=True),
         bound=bound,
@@ -187,6 +187,13 @@ def build(
                 ranked[0][0].company or "unnamed client",
                 ranked[0][1]["overall_score"],
             )
+        )
+    if unscorable:
+        notes.append(
+            "%d new requisition(s) carried neither skills nor an experience band "
+            "and are NOT in the counts above: %s. They were left unscored rather "
+            "than given jobcore's neutral 50."
+            % (len(unscorable), ", ".join(unscorable[:5]))
         )
 
     # -- alerts ------------------------------------------------------------

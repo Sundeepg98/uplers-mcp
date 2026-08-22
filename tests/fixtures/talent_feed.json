@@ -1,0 +1,925 @@
+{
+  "bookmarkedCount": "0",
+  "hrs": {
+    "current_page": 1,
+    "data": [
+      {
+        "Availability": "Part Time",
+        "Currency": "USD",
+        "HRTypeText": "Pay Per Hire",
+        "HR_Number": "HR280726200209",
+        "HR_ShiftTime": "(GMT+05:30) Asia/Kolkata (IST)",
+        "HR_Status": "",
+        "HiringRequest_ID": 16281,
+        "HowSoon": "7 Days",
+        "IsConfidentialBudget": 1,
+        "JDURL": "",
+        "JobDescription": "<p><strong><u>The Opportunity</u></strong></p><p><br></p><p><strong>🚀 Founding Full-Stack Engineer | Remote | 4 hrs/day | Saudi Arabia Startup | Full Technical Ownership</strong></p><p>We are looking for its first senior engineering hire — someone who will build both products from an early-stage codebase to live, tested platforms used by real consumers, merchants, and businesses in Saudi Arabia. This is not a supporting role on a large team. You will make architectural decisions, ship features end-to-end across two products, and directly shape technical direction alongside the founding team.</p><p><br></p><p>The near-term goal is a testable alpha for both products — targeting real pilot users within 8 to 10 weeks of joining — followed by iteration toward product market fit.</p><p><br></p><p><strong>What You Will Build</strong></p><p>Your time is split evenly across both products. You will decide how each is built. The founding team defines what it needs to do and why.</p><p><br></p><p><u>AI Commerce Platform</u></p><p>It is a neutral commerce discovery and comparison platform for Saudi Arabia and the GCC. Consumers search, compare, and complete purchases across listed retail partners and independent merchants, in Arabic and English.</p><p>• Consumer discovery and comparison experience, bilingual Arabic/English with full RTL support</p><p>• Merchant pages with affiliate link tracking for listed retail partners</p><p>• A payment flow for unlisted independent merchants — the specific approach (redirect-based PSP checkout vs. embedded payments) is still open and part of what you''''ll help shape</p><p>• One AI-assisted feature powered by a Saudi-native LLM via streaming responses</p><p>• Alpha target: a working, tested product with real pilot users</p><p><br></p><p><u>Inventory Intelligence Platform</u></p><p>It is an AI-integrated inventory intelligence platform for GCC businesses, providing demand forecasting, real-time stock alerts, and inventory health tracking. It is a product-focused platform, not cloud infrastructure.</p><p>• Core inventory tracking and real-time stock alerting</p><p>• Foundational demand forecasting logic for a pilot business</p><p>• Data modeling built to scale cleanly as forecasting depth increases post-alpha</p><p><br></p><p><strong>Skills &amp; Experience</strong></p><p>We care about what you have actually built and shipped. The items below are genuine requirements for this role the nice-to-haves will make you immediately more effective.</p><p><br></p><p><strong>Required</strong></p><p>• 3–5 years of professional full-stack experience, with a track record of owning a product end-to-end, not just contributing within a larger team</p><p>• Strong command of at least one modern frontend framework (e.g., React/Next.js) and one backend runtime (e.g., Node.js/Express) — or an equally strong equivalent you can justify</p><p>• Solid database design judgment — able to choose and justify the right engine(s) for commerce and inventory/forecasting data respectively</p><p>• Experience deploying and running production systems independently, with no dedicated DevOps or QA function to lean on</p><p>• Experience integrating LLM APIs — including streaming responses and prompt design</p><p>• Comfort making architectural decisions and shipping full features without detailed specs or hand- holding</p><p><br></p><p><strong>Strongly Preferred</strong></p><p>• Experience working at startups, ideally across multiple early-stage companies — comfortable with ambiguity, shifting priorities, and wearing multiple hats</p><p>• Domain knowledge of e-commerce and supply chain — understands catalog structures, affiliate or commission logic, checkout flows, inventory/warehouse fundamentals, and demand-forecasting logic</p><p>• Direct experience building marketplace, commerce, or supply-chain/inventory products specifically</p><p>• Arabic RTL and bilingual web application experience</p><p>• PDPL or regional data-residency compliance awareness</p><p><br></p><p><strong>What We Are Not Looking For</strong></p><p>We are not looking for someone who needs detailed specifications before writing a line of code, who is uncomfortable making decisions without approval, or who treats scope questions as something to defer rather than resolve. This role demands someone energised by ambiguity and genuine product ownership — not someone waiting to be told what to build.</p><p><br></p><p><strong>What Is Fixed vs. What Is Yours to Decide</strong></p><p>We deliberately have not locked the technology stack. The following are genuine, non-negotiable constraints everything else is your call to propose and defend.</p><p><br></p><p><strong>Fixed constraints</strong></p><p>• All infrastructure and personal data storage for Saudi users must be hosted within the Kingdom of Saudi Arabia in compliance with PDPL — the specific cloud provider (e.g., AWS me-central-1, Oracle Cloud KSA, STC Cloud, or an equivalent in-Kingdom provider) is open to your recommendation</p><p>• The AI layer must run on a Saudi-native or Saudi-hosted LLM (e.g., HUMAIN, ALLAM, or an equivalent) with streaming responses</p><p>• Both products require full Arabic RTL support with bilingual Arabic/English interfaces Open — your recommendation</p><p>• Frontend and backend frameworks, database engine(s), caching, hosting/deployment tooling, and overall architecture</p><p>• Whether AI Commerce Platform and Inventory Intelligence Platform share infrastructure or run as separate systems</p><p>• Payment integration approach for AI Commerce Platform''''s unlisted-merchant flow</p><p><br></p><p><strong>What We Offer</strong></p><ul><li>Full technical ownership: You make the architectural decisions across both products. There is no senior engineer above you and no committee approving your stack choices.</li><li>Direct founding-team access: You work directly with the founding team. Product and business decisions are made in conversation, not through a ticketing layer.</li><li>Market-defining work: You are building the technical foundation for two category-defining products in one of the fastest- growing digital markets in the region.</li><li>Outcomes-based culture: We measure what ships and what works for real users — not hours logged. Ship well and you have full autonomy over how you work.</li></ul><p><br></p><p>Saudi &amp; GCC Context</p><p>• Arabic-first product — RTL layout, dialect handling, and Arabic/English code-switching are genuine technical challenges you will solve, not an afterthought</p><p>• Data residency under PDPL — personal data on Saudi residents must be stored within the Kingdom this shapes every infrastructure decision</p><p>• Vision 2030 tailwind — Saudi Arabia's digital commerce and business-intelligence markets are among the fastest-growing in the world, with a young, highly connected population</p>",
+        "ModeOfWork": "Remote",
+        "MonthDuration": "6.00",
+        "PayrollTypeId": 0,
+        "PricingId": 4,
+        "Quantity": 1,
+        "RequestForTalent": "Senior Full-Stack Engineer",
+        "YearOfExp": "3.00",
+        "aggregator": null,
+        "aggregator_application_link": null,
+        "aggregator_publish_date": null,
+        "ai_data": [],
+        "ai_mandatory": 0,
+        "ai_needed": false,
+        "apply_url": null,
+        "city": "",
+        "city_data": null,
+        "city_id": 0,
+        "closed_for_talent": false,
+        "company": {
+          "about": "<p>A product company building autonomous AI across commerce, supply chain and energy.</p>",
+          "company_headquarter_alias": "Dubai, UAE",
+          "company_location": null,
+          "company_logo": "",
+          "company_name": "Building Autonomous AI for GCCs",
+          "company_name_initials": "NA",
+          "geo": "Other",
+          "industry": "AI / E-commerce Technology / Inventory Intelligence",
+          "is_confidential": 1,
+          "linkedin_url": null,
+          "team_size": "10",
+          "website_url": "https://blackcore.enterprises/"
+        },
+        "cost": "Confidential",
+        "cost_string": "Confidential",
+        "created_at": "2026-07-28T14:36:40.000000Z",
+        "current_talent_hr": {
+          "CTPID": 0,
+          "HiringRequest_ID": 0,
+          "acceptance_by": 0,
+          "acceptance_time": null,
+          "ai_attempt_date": null,
+          "ai_attempt_type": null,
+          "ai_link_id": 0,
+          "ai_score": null,
+          "applied_date": null,
+          "applied_type": null,
+          "apply_link_id": 0,
+          "backend_talent_status": "1",
+          "badgeName": "Added",
+          "bubble_id": 4,
+          "client_hidden_at": null,
+          "client_list_at": null,
+          "client_shared_at": null,
+          "client_status": 0,
+          "client_unlocked_at": null,
+          "company_id": 24485,
+          "created_at": "2026-07-29T06:03:11.000000Z",
+          "created_by": 0,
+          "credit_used": 0,
+          "currency": null,
+          "deleted_at": null,
+          "enc_id": "tFZBELAsZrAwova6Nsy6LrrYVxCRCZ81",
+          "filter_version_id": null,
+          "flag": 1,
+          "full_created_at": "2026-07-29 11:33:11",
+          "hired_tag": 0,
+          "hr_id": 302816,
+          "id": 28165479,
+          "is_acceptance": 0,
+          "is_ai_matched": 1,
+          "is_applicant": 0,
+          "is_deleted": 0,
+          "is_in_pipeline": 0,
+          "is_linkedin_uploaded": 0,
+          "is_nurture_sent": 0,
+          "is_recommended": 0,
+          "is_recruiter_sourced": 0,
+          "is_self_applied": 0,
+          "is_top_match": 0,
+          "is_uploaded": 0,
+          "link_id": 0,
+          "master_audience_id": 4853,
+          "matcher_id": null,
+          "matcher_lead_id": null,
+          "matchmake_score": "85.12",
+          "matchmake_score_v2": "85.12",
+          "next_round_flag": 0,
+          "not_relevant_marked_at": null,
+          "not_relevant_marked_by": null,
+          "rank_at_reject": 0,
+          "rejected_by": null,
+          "rejection_flag": 0,
+          "rejectreason": null,
+          "same_company_association": 0,
+          "screening_status": 0,
+          "self_applied_by": 0,
+          "share_ai_assessment": 0,
+          "share_talent_profile": 1,
+          "share_video_resume": 0,
+          "short_created_at": "2026-07-29",
+          "spotlight_score": null,
+          "status": 1,
+          "statusName": "Added",
+          "status_text": "Added",
+          "ta_id": null,
+          "tag_id": null,
+          "talent_id": 9440850,
+          "top_match_at": null,
+          "type": "Sourced Via Vector",
+          "updated_at": "2026-08-13T22:18:32.000000Z",
+          "vector_version_id": 0,
+          "video_resume_status": 0
+        },
+        "custom_screening_at": null,
+        "custom_screening_needed": false,
+        "detail": {
+          "JobDescription": "<p><strong><u>The Opportunity</u></strong></p><p><br></p><p><strong>🚀 Founding Full-Stack Engineer | Remote | 4 hrs/day | Saudi Arabia Startup | Full Technical Ownership</strong></p><p>We are looking for its first senior engineering hire — someone who will build both products from an early-stage codebase to live, tested platforms used by real consumers, merchants, and businesses in Saudi Arabia. This is not a supporting role on a large team. You will make architectural decisions, ship features end-to-end across two products, and directly shape technical direction alongside the founding team.</p><p><br></p><p>The near-term goal is a testable alpha for both products — targeting real pilot users within 8 to 10 weeks of joining — followed by iteration toward product market fit.</p><p><br></p><p><strong>What You Will Build</strong></p><p>Your time is split evenly across both products. You will decide how each is built. The founding team defines what it needs to do and why.</p><p><br></p><p><u>AI Commerce Platform</u></p><p>It is a neutral commerce discovery and comparison platform for Saudi Arabia and the GCC. Consumers search, compare, and complete purchases across listed retail partners and independent merchants, in Arabic and English.</p><p>• Consumer discovery and comparison experience, bilingual Arabic/English with full RTL support</p><p>• Merchant pages with affiliate link tracking for listed retail partners</p><p>• A payment flow for unlisted independent merchants — the specific approach (redirect-based PSP checkout vs. embedded payments) is still open and part of what you''''ll help shape</p><p>• One AI-assisted feature powered by a Saudi-native LLM via streaming responses</p><p>• Alpha target: a working, tested product with real pilot users</p><p><br></p><p><u>Inventory Intelligence Platform</u></p><p>It is an AI-integrated inventory intelligence platform for GCC businesses, providing demand forecasting, real-time stock alerts, and inventory health tracking. It is a product-focused platform, not cloud infrastructure.</p><p>• Core inventory tracking and real-time stock alerting</p><p>• Foundational demand forecasting logic for a pilot business</p><p>• Data modeling built to scale cleanly as forecasting depth increases post-alpha</p><p><br></p><p><strong>Skills &amp; Experience</strong></p><p>We care about what you have actually built and shipped. The items below are genuine requirements for this role the nice-to-haves will make you immediately more effective.</p><p><br></p><p><strong>Required</strong></p><p>• 3–5 years of professional full-stack experience, with a track record of owning a product end-to-end, not just contributing within a larger team</p><p>• Strong command of at least one modern frontend framework (e.g., React/Next.js) and one backend runtime (e.g., Node.js/Express) — or an equally strong equivalent you can justify</p><p>• Solid database design judgment — able to choose and justify the right engine(s) for commerce and inventory/forecasting data respectively</p><p>• Experience deploying and running production systems independently, with no dedicated DevOps or QA function to lean on</p><p>• Experience integrating LLM APIs — including streaming responses and prompt design</p><p>• Comfort making architectural decisions and shipping full features without detailed specs or hand- holding</p><p><br></p><p><strong>Strongly Preferred</strong></p><p>• Experience working at startups, ideally across multiple early-stage companies — comfortable with ambiguity, shifting priorities, and wearing multiple hats</p><p>• Domain knowledge of e-commerce and supply chain — understands catalog structures, affiliate or commission logic, checkout flows, inventory/warehouse fundamentals, and demand-forecasting logic</p><p>• Direct experience building marketplace, commerce, or supply-chain/inventory products specifically</p><p>• Arabic RTL and bilingual web application experience</p><p>• PDPL or regional data-residency compliance awareness</p><p><br></p><p><strong>What We Are Not Looking For</strong></p><p>We are not looking for someone who needs detailed specifications before writing a line of code, who is uncomfortable making decisions without approval, or who treats scope questions as something to defer rather than resolve. This role demands someone energised by ambiguity and genuine product ownership — not someone waiting to be told what to build.</p><p><br></p><p><strong>What Is Fixed vs. What Is Yours to Decide</strong></p><p>We deliberately have not locked the technology stack. The following are genuine, non-negotiable constraints everything else is your call to propose and defend.</p><p><br></p><p><strong>Fixed constraints</strong></p><p>• All infrastructure and personal data storage for Saudi users must be hosted within the Kingdom of Saudi Arabia in compliance with PDPL — the specific cloud provider (e.g., AWS me-central-1, Oracle Cloud KSA, STC Cloud, or an equivalent in-Kingdom provider) is open to your recommendation</p><p>• The AI layer must run on a Saudi-native or Saudi-hosted LLM (e.g., HUMAIN, ALLAM, or an equivalent) with streaming responses</p><p>• Both products require full Arabic RTL support with bilingual Arabic/English interfaces Open — your recommendation</p><p>• Frontend and backend frameworks, database engine(s), caching, hosting/deployment tooling, and overall architecture</p><p>• Whether AI Commerce Platform and Inventory Intelligence Platform share infrastructure or run as separate systems</p><p>• Payment integration approach for AI Commerce Platform''''s unlisted-merchant flow</p><p><br></p><p><strong>What We Offer</strong></p><ul><li>Full technical ownership: You make the architectural decisions across both products. There is no senior engineer above you and no committee approving your stack choices.</li><li>Direct founding-team access: You work directly with the founding team. Product and business decisions are made in conversation, not through a ticketing layer.</li><li>Market-defining work: You are building the technical foundation for two category-defining products in one of the fastest- growing digital markets in the region.</li><li>Outcomes-based culture: We measure what ships and what works for real users — not hours logged. Ship well and you have full autonomy over how you work.</li></ul><p><br></p><p>Saudi &amp; GCC Context</p><p>• Arabic-first product — RTL layout, dialect handling, and Arabic/English code-switching are genuine technical challenges you will solve, not an afterthought</p><p>• Data residency under PDPL — personal data on Saudi residents must be stored within the Kingdom this shapes every infrastructure decision</p><p>• Vision 2030 tailwind — Saudi Arabia's digital commerce and business-intelligence markets are among the fastest-growing in the world, with a young, highly connected population</p>",
+          "apply_url": null,
+          "frequency_office_visit": null,
+          "hr_id": 302816
+        },
+        "enc_id": "MWxjVnVSYlc5Nis3eWtwNEdQeWZxQT09",
+        "experience_score": "70.10447472000",
+        "frequency_office_visit": null,
+        "frontend_data": {
+          "frontend_label": "",
+          "frontend_label_color": "#B76038",
+          "frontend_message_color": "#FFE8CC"
+        },
+        "hr_np_days": "7",
+        "hr_yoe": "3.00",
+        "id": 302816,
+        "impression": 0,
+        "is_aggregator_job": false,
+        "is_applied": false,
+        "is_custome_screening": false,
+        "is_dp": "No",
+        "is_new": false,
+        "is_outreach_eligible": false,
+        "is_partner_company": "Jul 2026",
+        "is_saved": false,
+        "is_score_breakdown": false,
+        "is_transparent": 0,
+        "is_valid_outreach_job": true,
+        "job_function_id": 3,
+        "job_location": [],
+        "job_nature": "Uplers On-Boarded",
+        "job_not_interested": false,
+        "job_type_id": 1,
+        "joining_period": "Immediately",
+        "location_score": "84.66724",
+        "location_type": 1,
+        "matched_with_talent_details": [],
+        "matcherArray": {
+          "MatcherLead": [],
+          "matcher": [
+            {
+              "Name": "Ishani Marlowe"
+            }
+          ]
+        },
+        "max_yoe": "5.00",
+        "not_relevant_hr_id": null,
+        "partner_name": null,
+        "posted_date_score": "42.3336200",
+        "pricingModel": "Part Time Contract for 6 Months",
+        "pricingModelIText": "40 hrs a week/160 hrs a month",
+        "qdrant_score": "84.66724",
+        "reject_reason": "",
+        "relevancy_score": "70.443143680000000",
+        "role_id": 0,
+        "saved_hr_id": null,
+        "screening_status": false,
+        "shifts": [
+          {
+            "end_time": "6:00 PM",
+            "ist_shift_time": "9:00AM to 6:00PM",
+            "shift": "(GMT+05:30) Asia/Kolkata (IST)",
+            "start_time": "9:00 AM"
+          }
+        ],
+        "skill_boolean": [],
+        "skills": [
+          {
+            "skill": {
+              "name": "Arabic RTL",
+              "type": "good_to_have"
+            }
+          },
+          {
+            "skill": {
+              "name": "bilingual web application",
+              "type": "good_to_have"
+            }
+          },
+          {
+            "skill": {
+              "name": "E-Commerce",
+              "type": "good_to_have"
+            }
+          },
+          {
+            "skill": {
+              "name": "React Js",
+              "type": "must_have"
+            }
+          },
+          {
+            "skill": {
+              "name": "Next Js",
+              "type": "must_have"
+            }
+          },
+          {
+            "skill": {
+              "name": "Node Js",
+              "type": "must_have"
+            }
+          },
+          {
+            "skill": {
+              "name": "Express Js",
+              "type": "must_have"
+            }
+          }
+        ],
+        "status": 1,
+        "strong_proficiencyskills": [
+          {
+            "Proficiency": "Strong",
+            "created_at": "2026-07-29T06:08:45.000000Z",
+            "enc_id": "TjVqdVM0aXAxQ1gvNWJWOVBseG5Zdz09",
+            "group": 1,
+            "hr_id": 302816,
+            "id": 14063186,
+            "skill": {
+              "id": 13,
+              "name": "React Js",
+              "short_created_at": "1970-01-01",
+              "status_text": ""
+            },
+            "skill_id": 13,
+            "updated_at": "2026-07-29T06:08:45.000000Z"
+          },
+          {
+            "Proficiency": "Strong",
+            "created_at": "2026-07-29T06:08:45.000000Z",
+            "enc_id": "L1hNRFNpaCtLOStzTG9DdGdPTXg3UT09",
+            "group": 1,
+            "hr_id": 302816,
+            "id": 14063187,
+            "skill": {
+              "id": 85,
+              "name": "Next Js",
+              "short_created_at": "1970-01-01",
+              "status_text": ""
+            },
+            "skill_id": 85,
+            "updated_at": "2026-07-29T06:08:45.000000Z"
+          },
+          {
+            "Proficiency": "Strong",
+            "created_at": "2026-07-29T06:08:45.000000Z",
+            "enc_id": "TGUvM0hqOWtPTENESlRDcWFHQWZYUT09",
+            "group": 2,
+            "hr_id": 302816,
+            "id": 14063188,
+            "skill": {
+              "id": 80,
+              "name": "Node Js",
+              "short_created_at": "1970-01-01",
+              "status_text": ""
+            },
+            "skill_id": 80,
+            "updated_at": "2026-07-29T06:08:45.000000Z"
+          },
+          {
+            "Proficiency": "Strong",
+            "created_at": "2026-07-29T06:08:45.000000Z",
+            "enc_id": "NmJyb2RDQnNoUHl4VDV1RmNjYmdZdz09",
+            "group": 2,
+            "hr_id": 302816,
+            "id": 14063189,
+            "skill": {
+              "id": 86,
+              "name": "Express Js",
+              "short_created_at": "1970-01-01",
+              "status_text": ""
+            },
+            "skill_id": 86,
+            "updated_at": "2026-07-29T06:08:45.000000Z"
+          }
+        ],
+        "tailored_status": null,
+        "top_badge": ""
+      },
+      {
+        "Availability": "Full Time",
+        "Currency": "INR",
+        "HRTypeText": "Pay Per Credit",
+        "HR_Number": "HR1178539473158195",
+        "HR_ShiftTime": "(GMT+05:30) Asia/Kolkata (IST)",
+        "HR_Status": null,
+        "HiringRequest_ID": null,
+        "HowSoon": "45",
+        "IsConfidentialBudget": 0,
+        "JDURL": "",
+        "JobDescription": "<p><strong>Job Description:</strong></p><p><strong>OPEN POSITION · ENGINEERING</strong></p><p>Full Stack Developer<br>2–4 Years Experience<br>Full-Time<br>AI Product<br>Work From Home<br>Complete Tech Ownership</p><p>We're building an AI-native B2B platform that helps organizations surface intelligent insights from complex business data: automating research, structuring information, and accelerating decision-making for professionals who can't afford to be slow. The product is live, serving real clients, and growing. You'll be the engineer who owns it end-to-end.</p><p><strong>THE ROLE</strong></p><p>AI-driven product work, not feature factories. This is a high-ownership role, not a team where you pick up tickets and close them. You'll work directly on an AI product roadmap, making architectural and product decisions alongside the founders. If you're the kind of engineer who gets frustrated when you can't see the full picture of what you're building, this is for you.</p><p>The product is built around AI pipelines: document ingestion, LLM-powered analysis, intelligent search, and structured data extraction. You'll be shipping features that directly shape how clients understand and act on information.</p><p><strong>HOW WE WORK</strong></p><p>AI-first, not AI-assisted. We are an AI-first company. That means AI tools are not an add-on here; they are the default way we work across everything: coding, debugging, research, documentation, and communication. You will be set up with the best AI coding tools available and expected to use them to move faster and think bigger.</p><p>If you have been waiting for a team that genuinely embraces AI in the development workflow rather than tolerating it, this is it.</p><p><strong>RESPONSIBILITIES</strong></p><p>What you'll be doing:</p><ul><li>Full technical ownership of the product</li><li>Build and ship AI-powered features: LLM integrations, document processing, and intelligent search</li><li>Work across the full stack: Node.js backend, vanilla JS frontend, PostgreSQL, and Redis job queues</li><li>Integrate AI capabilities into product features using LLM APIs, building prompts and pipelines that actually work in production</li><li>Iterate quickly on features based on direct client feedback, with short cycles from idea to production</li><li>Contribute to the product roadmap; you'll have a voice in what gets built and why</li><li>Work directly with the founding team at Ekam Apps and the client</li></ul><p><strong>WHAT WE'RE LOOKING FOR</strong></p><p>Strong fundamentals. Real curiosity about AI.</p><ul><li>2–4 years of full stack experience with a strong Node.js foundation</li><li>Genuine JavaScript depth: you understand the event loop, async patterns, and can work without a framework when needed</li><li>Comfortable writing SQL and thinking about relational data models, not just ORMs</li><li>Experience with async job processing: queues, workers, retry logic, failure handling</li><li>Some exposure to AI/LLM integrations, even if informal. You've shipped something with an LLM API, built a RAG pipeline, or experimented with document processing</li><li>Takes ownership seriously: you debug production issues, you care about performance, you don't wait to be told what to fix</li><li>Comfortable working in ambiguity on a fast-moving product; things change, priorities shift, you adapt</li></ul><p><strong>NICE TO HAVE</strong></p><p>Bonus points:</p><ul><li>Experience with Supabase or similar BaaS (auth, real-time, row-level security)</li><li>Worked on PWAs, service workers, or offline-capable web apps</li><li>Built multi-process Node.js applications with process isolation</li><li>Contributed to prompt engineering, vector search, or embedding pipelines</li><li>Worked at a startup or small product team where you shipped end-to-end</li></ul><p><strong>TECH STACK</strong></p><p>What you'll be working with:</p><p>You don't need to know all of this, but you should be comfortable picking it up quickly. The stack is deliberately lean: no magic, no bloat.</p><ul><li><strong>AI & INTELLIGENCE</strong>: RAG Pipelines, Document Processing</li><li><strong>BACKEND</strong>: Node.js ≥ v20, Express.js, Bull (job queues), Redis, Multi-process workers</li><li><strong>DATABASE & AUTH</strong>: Supabase (PostgreSQL), pg (raw queries)</li><li><strong>FRONTEND</strong>: Vanilla JS / HTML / CSS, PWA + Service Worker, Component-based architecture</li></ul><p><strong>COMPENSATION</strong></p><p>What we offer:</p><p><strong>ANNUAL PACKAGE</strong>: ₹10 – 15 LPA Based on experience and demonstrated depth</p><p><strong>BEFORE YOU APPLY</strong></p><p>This role is right for you if...</p><ul><li><strong>ROLE TYPE</strong>: Full-Time</li><li>Complete tech ownership from day one</li><li>You are comfortable working remotely and can hold yourself accountable without someone looking over your shoulder</li><li>You thrive in a high-ownership environment where you define the solution, not just execute a ticket</li><li>You are willing to commit to at least a year: this is a product role, not a stepping stone, and we invest in people who are here to build something</li><li>You are okay with startup reality: some weeks are fast and exciting, others involve grinding through edge cases and reworking things. You can handle both with composure</li><li>You want to work directly with a founder and a client, not through layers of management</li></ul><p>To apply: Share your resume and a short note on something you've built: a project, a side product, an AI integration you're proud of. We care more about what you've shipped than what your CV lists.</p><p>We're a small team building AI software for clients who depend on it. The work is real, the ownership is real, and if you're the right person, you'll see your fingerprints on the product within the first month.</p>",
+        "ModeOfWork": "Remote",
+        "MonthDuration": "0.00",
+        "PayrollTypeId": null,
+        "PricingId": null,
+        "Quantity": 1,
+        "RequestForTalent": "Full Stack Developer (AI Product)",
+        "YearOfExp": "2.00",
+        "aggregator": null,
+        "aggregator_application_link": null,
+        "aggregator_publish_date": null,
+        "ai_data": [],
+        "ai_mandatory": 0,
+        "ai_needed": false,
+        "apply_url": null,
+        "city": "",
+        "city_data": null,
+        "city_id": 0,
+        "closed_for_talent": false,
+        "company": {
+          "about": "Ekam Apps builds intelligent AI automation solutions that transform business operations. We develop custom AI agents powered by cutting-edge language models (GPT, Claude, Gemini) that automate workflows, streamline decision-making, and integrate seamlessly with existing tools. Our mission is to help businesses leverage the full potential of AI to work smarter and more efficiently in the digital age. www.ekamapps.com",
+          "company_location": null,
+          "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_EkamApps_1777999250_rVgH7s93ZI.jpeg",
+          "company_name": "EkamApps",
+          "company_name_initials": "E",
+          "geo": null,
+          "industry": "Technology, Information and Internet",
+          "is_confidential": 0,
+          "linkedin_url": "https://www.linkedin.com/company/ekamapps/",
+          "team_size": "2-10",
+          "website_url": "http://www.ekamapps.com"
+        },
+        "cost": "10,00,000-20,00,000",
+        "cost_string": "INR 10,00,000-20,00,000 / year",
+        "created_at": "2026-07-30T06:58:51.000000Z",
+        "current_talent_hr": {
+          "CTPID": 0,
+          "HiringRequest_ID": 0,
+          "acceptance_by": 0,
+          "acceptance_time": null,
+          "ai_attempt_date": null,
+          "ai_attempt_type": null,
+          "ai_link_id": 0,
+          "ai_score": null,
+          "applied_date": null,
+          "applied_type": null,
+          "apply_link_id": 0,
+          "backend_talent_status": "1",
+          "badgeName": "Added",
+          "bubble_id": 5,
+          "client_hidden_at": null,
+          "client_list_at": null,
+          "client_shared_at": null,
+          "client_status": 0,
+          "client_unlocked_at": null,
+          "company_id": 18744,
+          "created_at": "2026-07-30T07:53:29.000000Z",
+          "created_by": 5357165,
+          "credit_used": 0,
+          "currency": null,
+          "deleted_at": null,
+          "enc_id": "EqtpWJtMBhK2gTyVS4UeJlYNTEkaXg96",
+          "filter_version_id": null,
+          "flag": 1,
+          "full_created_at": "2026-07-30 13:23:29",
+          "hired_tag": 0,
+          "hr_id": 304193,
+          "id": 28206558,
+          "is_acceptance": 0,
+          "is_ai_matched": 1,
+          "is_applicant": 0,
+          "is_deleted": 0,
+          "is_in_pipeline": 0,
+          "is_linkedin_uploaded": 0,
+          "is_nurture_sent": 0,
+          "is_recommended": 0,
+          "is_recruiter_sourced": 0,
+          "is_self_applied": 0,
+          "is_top_match": 0,
+          "is_uploaded": 0,
+          "link_id": 0,
+          "master_audience_id": null,
+          "matcher_id": null,
+          "matcher_lead_id": null,
+          "matchmake_score": null,
+          "matchmake_score_v2": null,
+          "next_round_flag": 0,
+          "not_relevant_marked_at": null,
+          "not_relevant_marked_by": null,
+          "rank_at_reject": 0,
+          "rejected_by": null,
+          "rejection_flag": 0,
+          "rejectreason": null,
+          "same_company_association": 0,
+          "screening_status": 0,
+          "self_applied_by": 0,
+          "share_ai_assessment": 0,
+          "share_talent_profile": 1,
+          "share_video_resume": 0,
+          "short_created_at": "2026-07-30",
+          "spotlight_score": null,
+          "status": 1,
+          "statusName": "Added",
+          "status_text": "Added",
+          "ta_id": 5357165,
+          "tag_id": 4,
+          "talent_id": 9440850,
+          "top_match_at": null,
+          "type": "Sourced Via Filter",
+          "updated_at": "2026-07-30T07:54:18.000000Z",
+          "vector_version_id": 0,
+          "video_resume_status": 0
+        },
+        "custom_screening_at": null,
+        "custom_screening_needed": false,
+        "detail": {
+          "JobDescription": "<p><strong>Job Description:</strong></p><p><strong>OPEN POSITION · ENGINEERING</strong></p><p>Full Stack Developer<br>2–4 Years Experience<br>Full-Time<br>AI Product<br>Work From Home<br>Complete Tech Ownership</p><p>We're building an AI-native B2B platform that helps organizations surface intelligent insights from complex business data: automating research, structuring information, and accelerating decision-making for professionals who can't afford to be slow. The product is live, serving real clients, and growing. You'll be the engineer who owns it end-to-end.</p><p><strong>THE ROLE</strong></p><p>AI-driven product work, not feature factories. This is a high-ownership role, not a team where you pick up tickets and close them. You'll work directly on an AI product roadmap, making architectural and product decisions alongside the founders. If you're the kind of engineer who gets frustrated when you can't see the full picture of what you're building, this is for you.</p><p>The product is built around AI pipelines: document ingestion, LLM-powered analysis, intelligent search, and structured data extraction. You'll be shipping features that directly shape how clients understand and act on information.</p><p><strong>HOW WE WORK</strong></p><p>AI-first, not AI-assisted. We are an AI-first company. That means AI tools are not an add-on here; they are the default way we work across everything: coding, debugging, research, documentation, and communication. You will be set up with the best AI coding tools available and expected to use them to move faster and think bigger.</p><p>If you have been waiting for a team that genuinely embraces AI in the development workflow rather than tolerating it, this is it.</p><p><strong>RESPONSIBILITIES</strong></p><p>What you'll be doing:</p><ul><li>Full technical ownership of the product</li><li>Build and ship AI-powered features: LLM integrations, document processing, and intelligent search</li><li>Work across the full stack: Node.js backend, vanilla JS frontend, PostgreSQL, and Redis job queues</li><li>Integrate AI capabilities into product features using LLM APIs, building prompts and pipelines that actually work in production</li><li>Iterate quickly on features based on direct client feedback, with short cycles from idea to production</li><li>Contribute to the product roadmap; you'll have a voice in what gets built and why</li><li>Work directly with the founding team at Ekam Apps and the client</li></ul><p><strong>WHAT WE'RE LOOKING FOR</strong></p><p>Strong fundamentals. Real curiosity about AI.</p><ul><li>2–4 years of full stack experience with a strong Node.js foundation</li><li>Genuine JavaScript depth: you understand the event loop, async patterns, and can work without a framework when needed</li><li>Comfortable writing SQL and thinking about relational data models, not just ORMs</li><li>Experience with async job processing: queues, workers, retry logic, failure handling</li><li>Some exposure to AI/LLM integrations, even if informal. You've shipped something with an LLM API, built a RAG pipeline, or experimented with document processing</li><li>Takes ownership seriously: you debug production issues, you care about performance, you don't wait to be told what to fix</li><li>Comfortable working in ambiguity on a fast-moving product; things change, priorities shift, you adapt</li></ul><p><strong>NICE TO HAVE</strong></p><p>Bonus points:</p><ul><li>Experience with Supabase or similar BaaS (auth, real-time, row-level security)</li><li>Worked on PWAs, service workers, or offline-capable web apps</li><li>Built multi-process Node.js applications with process isolation</li><li>Contributed to prompt engineering, vector search, or embedding pipelines</li><li>Worked at a startup or small product team where you shipped end-to-end</li></ul><p><strong>TECH STACK</strong></p><p>What you'll be working with:</p><p>You don't need to know all of this, but you should be comfortable picking it up quickly. The stack is deliberately lean: no magic, no bloat.</p><ul><li><strong>AI & INTELLIGENCE</strong>: RAG Pipelines, Document Processing</li><li><strong>BACKEND</strong>: Node.js ≥ v20, Express.js, Bull (job queues), Redis, Multi-process workers</li><li><strong>DATABASE & AUTH</strong>: Supabase (PostgreSQL), pg (raw queries)</li><li><strong>FRONTEND</strong>: Vanilla JS / HTML / CSS, PWA + Service Worker, Component-based architecture</li></ul><p><strong>COMPENSATION</strong></p><p>What we offer:</p><p><strong>ANNUAL PACKAGE</strong>: ₹10 – 15 LPA Based on experience and demonstrated depth</p><p><strong>BEFORE YOU APPLY</strong></p><p>This role is right for you if...</p><ul><li><strong>ROLE TYPE</strong>: Full-Time</li><li>Complete tech ownership from day one</li><li>You are comfortable working remotely and can hold yourself accountable without someone looking over your shoulder</li><li>You thrive in a high-ownership environment where you define the solution, not just execute a ticket</li><li>You are willing to commit to at least a year: this is a product role, not a stepping stone, and we invest in people who are here to build something</li><li>You are okay with startup reality: some weeks are fast and exciting, others involve grinding through edge cases and reworking things. You can handle both with composure</li><li>You want to work directly with a founder and a client, not through layers of management</li></ul><p>To apply: Share your resume and a short note on something you've built: a project, a side product, an AI integration you're proud of. We care more about what you've shipped than what your CV lists.</p><p>We're a small team building AI software for clients who depend on it. The work is real, the ownership is real, and if you're the right person, you'll see your fingerprints on the product within the first month.</p>",
+          "apply_url": null,
+          "frequency_office_visit": null,
+          "hr_id": 304193
+        },
+        "enc_id": "dlpHcXdOY2ZVMEZINHpxZG5ZT01Tdz09",
+        "experience_score": "0.00000000000",
+        "frequency_office_visit": null,
+        "frontend_data": {
+          "frontend_label": "",
+          "frontend_label_color": "#B76038",
+          "frontend_message_color": "#FFE8CC"
+        },
+        "hr_np_days": 365,
+        "hr_yoe": "2.00",
+        "id": 304193,
+        "impression": 0,
+        "is_aggregator_job": false,
+        "is_applied": false,
+        "is_custome_screening": false,
+        "is_dp": null,
+        "is_new": false,
+        "is_outreach_eligible": false,
+        "is_partner_company": "Jul 2026",
+        "is_saved": false,
+        "is_score_breakdown": false,
+        "is_transparent": null,
+        "is_valid_outreach_job": true,
+        "job_function_id": 3,
+        "job_location": [],
+        "job_nature": "Uplers On-Boarded",
+        "job_not_interested": false,
+        "job_type_id": 1,
+        "joining_period": "Immediately",
+        "location_score": "0.00000",
+        "location_type": 1,
+        "matched_with_talent_details": [],
+        "matcherArray": {
+          "MatcherLead": [],
+          "matcher": []
+        },
+        "max_yoe": "7.00",
+        "not_relevant_hr_id": null,
+        "partner_name": null,
+        "posted_date_score": "0.0000000",
+        "pricingModel": "Full time Permanent Position",
+        "pricingModelIText": null,
+        "qdrant_score": "0.00000",
+        "reject_reason": "",
+        "relevancy_score": "0.000000000000000",
+        "role_id": 0,
+        "saved_hr_id": null,
+        "screening_status": false,
+        "shifts": [
+          {
+            "end_time": "6:30 PM",
+            "ist_shift_time": "09:30 AM to 06:30 PM",
+            "shift": "(GMT+05:30) Asia/Kolkata (IST)",
+            "start_time": "9:30 AM"
+          }
+        ],
+        "skill_boolean": [],
+        "skills": [
+          {
+            "skill": {
+              "name": "Node.js",
+              "type": "must_have"
+            }
+          },
+          {
+            "skill": {
+              "name": "PostgreSQL",
+              "type": "must_have"
+            }
+          },
+          {
+            "skill": {
+              "name": "LLM APIs",
+              "type": "must_have"
+            }
+          },
+          {
+            "skill": {
+              "name": "rag",
+              "type": "must_have"
+            }
+          }
+        ],
+        "status": 1,
+        "strong_proficiencyskills": [
+          {
+            "Proficiency": "Strong",
+            "created_at": "2026-07-30T06:59:15.000000Z",
+            "enc_id": "bkpNSzNmdnBlYVlVUEg4TWNyMUpuQT09",
+            "group": 1,
+            "hr_id": 304193,
+            "id": 14093343,
+            "skill": {
+              "id": 3898076,
+              "name": "Node.js",
+              "short_created_at": "1970-01-01",
+              "status_text": ""
+            },
+            "skill_id": 3898076,
+            "updated_at": "2026-07-30T06:59:15.000000Z"
+          },
+          {
+            "Proficiency": "Strong",
+            "created_at": "2026-07-30T06:59:15.000000Z",
+            "enc_id": "VEZCZlVyM3M0MFo4eTJ0OEJPWjV5QT09",
+            "group": 2,
+            "hr_id": 304193,
+            "id": 14093344,
+            "skill": {
+              "id": 3901096,
+              "name": "PostgreSQL",
+              "short_created_at": "1970-01-01",
+              "status_text": ""
+            },
+            "skill_id": 3901096,
+            "updated_at": "2026-07-30T06:59:15.000000Z"
+          },
+          {
+            "Proficiency": "Strong",
+            "created_at": "2026-07-30T06:59:15.000000Z",
+            "enc_id": "emVHdkw1dGgyU3FwblR5M21sb0psZz09",
+            "group": 3,
+            "hr_id": 304193,
+            "id": 14093345,
+            "skill": {
+              "id": 3737630,
+              "name": "LLM APIs",
+              "short_created_at": "1970-01-01",
+              "status_text": ""
+            },
+            "skill_id": 3737630,
+            "updated_at": "2026-07-30T06:59:15.000000Z"
+          },
+          {
+            "Proficiency": "Strong",
+            "created_at": "2026-07-30T06:59:15.000000Z",
+            "enc_id": "anpNQU1GVGJaVVdMVmpUR0dqUTdnQT09",
+            "group": 3,
+            "hr_id": 304193,
+            "id": 14093346,
+            "skill": {
+              "id": 2177393,
+              "name": "rag",
+              "short_created_at": "1970-01-01",
+              "status_text": ""
+            },
+            "skill_id": 2177393,
+            "updated_at": "2026-07-30T06:59:15.000000Z"
+          }
+        ],
+        "tailored_status": null,
+        "top_badge": ""
+      },
+      {
+        "Availability": "Full Time",
+        "Currency": "INR",
+        "HRTypeText": "Pay Per Credit",
+        "HR_Number": "HR1178733060841826",
+        "HR_ShiftTime": "(GMT+05:30) Asia/Kolkata (IST)",
+        "HR_Status": null,
+        "HiringRequest_ID": null,
+        "HowSoon": "30 Days",
+        "IsConfidentialBudget": 1,
+        "JDURL": "",
+        "JobDescription": "\n          <strong>Company:</strong> Procedure<br><br><strong>Website:</strong> Visit Website<br><br><strong>LinkedIn:</strong> Visit LinkedIn<br><br><strong>Business Type:</strong> Small/Medium Business<br><br><strong>Company Type:</strong> Product<br><br><strong>Business Model:</strong> B2B<br><br><strong>Funding Stage:</strong> Bootstrapped<br><br><strong>Industry:</strong> Software Product Development<br><br><strong>Salary Range:</strong> ₹ 40-70 Lacs PA<br><br><strong>Job Description<br><br></strong><strong>Procedure is hiring for WorkHero.<br><br></strong><strong>WorkHero</strong> is building the <strong>AI-powered </strong>back office for the skilled trades, starting with the $50B+ <strong>HVAC industry</strong>. Small contractors are great at their trade but lose 20+ hours a week to invoicing, permits, scheduling, and paperwork. WorkHero combines expert office managers with automation and AI tooling, enabling a small team to take real ownership of that back-office work<br><br>We’re hiring a <strong>senior engineer </strong>to own our <strong>real-time voice stack end to end—AI agents operating on live phone calls—and the data platform</strong> that turns those calls into insight: <em>call → transcript → events → warehouse → dashboards</em>. You’ll own meaningful systems end to end alongside a small, senior team with deep experience in AI, product, and the trades.<br><br><strong>What You’ll Build<br><br></strong><ul><li>New product screens and flows (jobs, customers, invoices, scheduling) in React and React Native, especially AI chat UI (chat &amp; tool result rendering, streaming responses, human review and feedback loops)</li><li>AI workflows in production: tool-using agents, RAG/search, classification/extraction, and human-in-the-loop flows</li><li>Automations: Contribute new features and improvements to our AI-powered business automation platform<br><br></li></ul>In Addition, You’ll Own Our First Investments Into a Realtime Voice Stack And The Call-data Platform Behind It. For Example<br><br><ul><li>Realtime voice agents on live phone calls: telephony/WebRTC integration, streaming speech-to-text and text-to-speech, turn-taking, interruption handling, and latency optimization</li><li>Voice pipeline reliability: backpressure, failover, graceful degradation, and monitoring for live calls</li><li>Call-data pipeline: transcripts, events, and structured extraction flowing from every call into the warehouse</li><li>Analytics &amp; dashboards: data modeling and conversation-intelligence features on top of call data</li><li>Evals &amp; monitoring for voice agents: quality metrics, drift detection, and cost/latency tracking</li><li>Cloud infrastructure: scaling our platform with infrastructure as code, queues and orchestration, and CI/CD<br><br></li></ul><strong>Responsibilities<br><br></strong><ul><li>Analyze requirements and propose innovative AI-native solutions to technical problems</li><li>Write clean scalable code</li><li>Own the voice and data stack end-to-end: design, build, test, deploy, and operate</li><li>Optimize the performance, latency, and cost of our real-time AI systems</li><li>Respond to critical system issues and ensure continuous system reliability</li><li>Mentor team members and collaborate across teams, especially with product and subject matter experts</li><li>Work to understand the needs of our users and think creatively about how to solve design challenges in your work</li><li>This is a Remote role. We expect a minimum 4 hours overlap with the WorkHero team (11 AM - 3 PM ET).<br><br></li></ul><strong>Qualifications<br><br></strong><ul><li>Senior-level backend experience (typically 5+ years) shipping production systems that you've owned</li><li>Hands-on experience with realtime voice or streaming systems: telephony (SIP/Twilio), WebRTC, streaming STT/TTS, or frameworks like LiveKit or Pipecat — or comparable experience with demanding realtime/streaming infrastructure</li><li>Data engineering fundamentals: event pipelines, data modeling, warehousing, and analytics on production data</li><li>Strong proficiency in a typed backend language (TypeScript preferred; comparable experience welcome)</li><li>Hands-on experience with LLM-powered features (usage, prompting, optimization, etc) and AI architectures</li><li>The ability to work with infrastructure as code (terraform), cloud, and CI/CD systems at scale. We're a small team, so we own the whole stack!</li><li>Excitement to leverage AI coding tools to their maximum benefit. We love Claude Code and Cursor and are constantly looking for better ways to leverage our time to build fast and build for scale.<br><br></li></ul><strong>Nice to have<br><br></strong><ul><li>Experience with voice-AI platforms (Vapi, Retell, Bland, Deepgram, LiveKit) or conversation-intelligence products (e.g. Gong-style analytics)</li><li>Experience scaling cloud infrastructure, especially AWS, and how to get the most out of key AWS services</li><li>Experience with workflow automation tools like n8n or Lindy</li><li>Experience with React for building internal dashboards</li><li>Experience with HVAC or back-office business workflows<br><br></li></ul>WorkHero is committed to building a diverse team. We encourage candidates from all backgrounds to apply.\n        ",
+        "ModeOfWork": "Remote",
+        "MonthDuration": "0.00",
+        "PayrollTypeId": null,
+        "PricingId": null,
+        "Quantity": 1,
+        "RequestForTalent": "Senior Full Stack Engineer",
+        "YearOfExp": "5.00",
+        "aggregator": "44",
+        "aggregator_application_link": "https://www.linkedin.com/jobs/view/4456727311",
+        "aggregator_publish_date": "2026-08-20 21:44:48",
+        "ai_data": [],
+        "ai_mandatory": 0,
+        "ai_needed": false,
+        "apply_url": "https://www.linkedin.com/jobs/view/4456727311",
+        "city": "Mumbai",
+        "city_data": {
+          "city": "Mumbai",
+          "id": 394
+        },
+        "city_id": 394,
+        "closed_for_talent": false,
+        "company": {
+          "about": "Post a free Job > Sort with % match > View full profile > Liked the candidate > Download for free\n\n\nWelcome to SourcingXPress, where we’re building a future-ready hiring ecosystem designed for transparency, efficiency, and human connection.\n\nOur mission is simple: to create a seamless platform where employers, job seekers, and recruiters thrive together. From cutting-edge matchmaking algorithms that evaluate candidates to real-time updates for job seekers, we ensure clarity and empowerment at every step of the hiring process.\n\nWhat We Offer:\nFor Employers: Save time with our advanced candidate-matching algorithms and make informed hiring decisions faster.\n\nFor Job Seekers: Track every action recruiters take on your profile, from resume views to shortlisting or rejections—no more waiting in the dark.\n\nFor Recruiters: Access a curated marketplace and tools to source the best talent efficiently.\n\nAt SourcingXPress, we’re not just a hiring platform—we’re a community-driven ecosystem focused on empowering people through meaningful connections and cutting-edge technology.\n\nJoin us as we reshape the hiring journey—one connection at a time.\n\nPost a free Job ➡️ www.sourcingxpress.com\n\nFollow us for updates, job opportunities, and hiring insights!",
+          "company_location": null,
+          "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_SourcingXPress_1756272958_66uOL6tiEW.jpeg",
+          "company_name": "SourcingXPress",
+          "company_name_initials": "S",
+          "geo": null,
+          "industry": "Technology, Information and Internet",
+          "is_confidential": 0,
+          "linkedin_url": "https://www.linkedin.com/company/sourcingxpress/",
+          "team_size": "11-50",
+          "website_url": "https://www.sourcingxpress.com/"
+        },
+        "cost": "Confidential",
+        "cost_string": "Confidential",
+        "created_at": "2026-08-21T16:43:28.000000Z",
+        "current_talent_hr": null,
+        "custom_screening_at": null,
+        "custom_screening_needed": false,
+        "detail": {
+          "JobDescription": "\n          <strong>Company:</strong> Procedure<br><br><strong>Website:</strong> Visit Website<br><br><strong>LinkedIn:</strong> Visit LinkedIn<br><br><strong>Business Type:</strong> Small/Medium Business<br><br><strong>Company Type:</strong> Product<br><br><strong>Business Model:</strong> B2B<br><br><strong>Funding Stage:</strong> Bootstrapped<br><br><strong>Industry:</strong> Software Product Development<br><br><strong>Salary Range:</strong> ₹ 40-70 Lacs PA<br><br><strong>Job Description<br><br></strong><strong>Procedure is hiring for WorkHero.<br><br></strong><strong>WorkHero</strong> is building the <strong>AI-powered </strong>back office for the skilled trades, starting with the $50B+ <strong>HVAC industry</strong>. Small contractors are great at their trade but lose 20+ hours a week to invoicing, permits, scheduling, and paperwork. WorkHero combines expert office managers with automation and AI tooling, enabling a small team to take real ownership of that back-office work<br><br>We’re hiring a <strong>senior engineer </strong>to own our <strong>real-time voice stack end to end—AI agents operating on live phone calls—and the data platform</strong> that turns those calls into insight: <em>call → transcript → events → warehouse → dashboards</em>. You’ll own meaningful systems end to end alongside a small, senior team with deep experience in AI, product, and the trades.<br><br><strong>What You’ll Build<br><br></strong><ul><li>New product screens and flows (jobs, customers, invoices, scheduling) in React and React Native, especially AI chat UI (chat &amp; tool result rendering, streaming responses, human review and feedback loops)</li><li>AI workflows in production: tool-using agents, RAG/search, classification/extraction, and human-in-the-loop flows</li><li>Automations: Contribute new features and improvements to our AI-powered business automation platform<br><br></li></ul>In Addition, You’ll Own Our First Investments Into a Realtime Voice Stack And The Call-data Platform Behind It. For Example<br><br><ul><li>Realtime voice agents on live phone calls: telephony/WebRTC integration, streaming speech-to-text and text-to-speech, turn-taking, interruption handling, and latency optimization</li><li>Voice pipeline reliability: backpressure, failover, graceful degradation, and monitoring for live calls</li><li>Call-data pipeline: transcripts, events, and structured extraction flowing from every call into the warehouse</li><li>Analytics &amp; dashboards: data modeling and conversation-intelligence features on top of call data</li><li>Evals &amp; monitoring for voice agents: quality metrics, drift detection, and cost/latency tracking</li><li>Cloud infrastructure: scaling our platform with infrastructure as code, queues and orchestration, and CI/CD<br><br></li></ul><strong>Responsibilities<br><br></strong><ul><li>Analyze requirements and propose innovative AI-native solutions to technical problems</li><li>Write clean scalable code</li><li>Own the voice and data stack end-to-end: design, build, test, deploy, and operate</li><li>Optimize the performance, latency, and cost of our real-time AI systems</li><li>Respond to critical system issues and ensure continuous system reliability</li><li>Mentor team members and collaborate across teams, especially with product and subject matter experts</li><li>Work to understand the needs of our users and think creatively about how to solve design challenges in your work</li><li>This is a Remote role. We expect a minimum 4 hours overlap with the WorkHero team (11 AM - 3 PM ET).<br><br></li></ul><strong>Qualifications<br><br></strong><ul><li>Senior-level backend experience (typically 5+ years) shipping production systems that you've owned</li><li>Hands-on experience with realtime voice or streaming systems: telephony (SIP/Twilio), WebRTC, streaming STT/TTS, or frameworks like LiveKit or Pipecat — or comparable experience with demanding realtime/streaming infrastructure</li><li>Data engineering fundamentals: event pipelines, data modeling, warehousing, and analytics on production data</li><li>Strong proficiency in a typed backend language (TypeScript preferred; comparable experience welcome)</li><li>Hands-on experience with LLM-powered features (usage, prompting, optimization, etc) and AI architectures</li><li>The ability to work with infrastructure as code (terraform), cloud, and CI/CD systems at scale. We're a small team, so we own the whole stack!</li><li>Excitement to leverage AI coding tools to their maximum benefit. We love Claude Code and Cursor and are constantly looking for better ways to leverage our time to build fast and build for scale.<br><br></li></ul><strong>Nice to have<br><br></strong><ul><li>Experience with voice-AI platforms (Vapi, Retell, Bland, Deepgram, LiveKit) or conversation-intelligence products (e.g. Gong-style analytics)</li><li>Experience scaling cloud infrastructure, especially AWS, and how to get the most out of key AWS services</li><li>Experience with workflow automation tools like n8n or Lindy</li><li>Experience with React for building internal dashboards</li><li>Experience with HVAC or back-office business workflows<br><br></li></ul>WorkHero is committed to building a diverse team. We encourage candidates from all backgrounds to apply.\n        ",
+          "apply_url": "https://www.linkedin.com/jobs/view/4456727311",
+          "frequency_office_visit": null,
+          "hr_id": 332021
+        },
+        "enc_id": "ZEY2QmVFa2d6YzBrcStDNS8vTCtFdz09",
+        "experience_score": "84.94808000000",
+        "frequency_office_visit": null,
+        "frontend_data": {
+          "frontend_label": "",
+          "frontend_label_color": "#B76038",
+          "frontend_message_color": "#FFE8CC"
+        },
+        "hr_np_days": "30",
+        "hr_yoe": "5.00",
+        "id": 332021,
+        "impression": 0,
+        "is_aggregator_job": true,
+        "is_applied": false,
+        "is_custome_screening": false,
+        "is_dp": null,
+        "is_new": true,
+        "is_outreach_eligible": true,
+        "is_partner_company": false,
+        "is_saved": false,
+        "is_score_breakdown": false,
+        "is_transparent": null,
+        "is_valid_outreach_job": true,
+        "job_function_id": 3,
+        "job_location": [
+          {
+            "city_id": 394,
+            "city_name": "Mumbai",
+            "hr_id": 332021,
+            "state_name": "Maharashtra"
+          }
+        ],
+        "job_nature": "Aggregated",
+        "job_not_interested": false,
+        "job_type_id": 1,
+        "joining_period": "30 Days",
+        "location_score": "84.94808",
+        "location_type": 1,
+        "matched_with_talent_details": [],
+        "matcherArray": {
+          "MatcherLead": [],
+          "matcher": []
+        },
+        "max_yoe": "0.00",
+        "not_relevant_hr_id": null,
+        "partner_name": null,
+        "posted_date_score": "55.2162520",
+        "pricingModel": "Full time Permanent Position",
+        "pricingModelIText": null,
+        "qdrant_score": "84.94808",
+        "reject_reason": "",
+        "relevancy_score": "77.515123000000000",
+        "role_id": 0,
+        "saved_hr_id": null,
+        "screening_status": false,
+        "shifts": [
+          {
+            "end_time": "6:30 PM",
+            "ist_shift_time": "09:30 AM to 06:30 PM",
+            "shift": "(GMT+05:30) Asia/Kolkata (IST)",
+            "start_time": "9:30 AM"
+          }
+        ],
+        "skill_boolean": [],
+        "skills": [
+          {
+            "skill": {
+              "name": "react",
+              "type": "must_have"
+            }
+          },
+          {
+            "skill": {
+              "name": "React Native",
+              "type": "must_have"
+            }
+          },
+          {
+            "skill": {
+              "name": "AI",
+              "type": "must_have"
+            }
+          },
+          {
+            "skill": {
+              "name": "telephony",
+              "type": "must_have"
+            }
+          },
+          {
+            "skill": {
+              "name": "WebRTC",
+              "type": "must_have"
+            }
+          },
+          {
+            "skill": {
+              "name": "TypeScript",
+              "type": "must_have"
+            }
+          },
+          {
+            "skill": {
+              "name": "Cloud Infrastructure",
+              "type": "must_have"
+            }
+          },
+          {
+            "skill": {
+              "name": "Voice-ai",
+              "type": "good_to_have"
+            }
+          },
+          {
+            "skill": {
+              "name": "AWS",
+              "type": "good_to_have"
+            }
+          },
+          {
+            "skill": {
+              "name": "Workflow automation",
+              "type": "good_to_have"
+            }
+          },
+          {
+            "skill": {
+              "name": "Internal dashboards",
+              "type": "good_to_have"
+            }
+          },
+          {
+            "skill": {
+              "name": "HVAC",
+              "type": "good_to_have"
+            }
+          }
+        ],
+        "status": 1,
+        "strong_proficiencyskills": [
+          {
+            "Proficiency": "Strong",
+            "created_at": "2026-08-21T16:43:28.000000Z",
+            "enc_id": "bG5oZ2lwYVFkMHNnK2VrTjNXV1pIdz09",
+            "group": 1,
+            "hr_id": 332021,
+            "id": 14773088,
+            "skill": {
+              "id": 3890198,
+              "name": "react",
+              "short_created_at": "1970-01-01",
+              "status_text": ""
+            },
+            "skill_id": 3890198,
+            "updated_at": "2026-08-21T16:43:28.000000Z"
+          },
+          {
+            "Proficiency": "Strong",
+            "created_at": "2026-08-21T16:43:28.000000Z",
+            "enc_id": "eFF3QmlEMSt2ZEhHbDl5Y3VsWGZjZz09",
+            "group": 2,
+            "hr_id": 332021,
+            "id": 14773089,
+            "skill": {
+              "id": 89,
+              "name": "React Native",
+              "short_created_at": "1970-01-01",
+              "status_text": ""
+            },
+            "skill_id": 89,
+            "updated_at": "2026-08-21T16:43:28.000000Z"
+          },
+          {
+            "Proficiency": "Strong",
+            "created_at": "2026-08-21T16:43:28.000000Z",
+            "enc_id": "c3ZXTjY3TEhWUHJzVURZVzdabG9yUT09",
+            "group": 3,
+            "hr_id": 332021,
+            "id": 14773090,
+            "skill": {
+              "id": 256569,
+              "name": "AI",
+              "short_created_at": "1970-01-01",
+              "status_text": ""
+            },
+            "skill_id": 256569,
+            "updated_at": "2026-08-21T16:43:28.000000Z"
+          },
+          {
+            "Proficiency": "Strong",
+            "created_at": "2026-08-21T16:43:28.000000Z",
+            "enc_id": "ZG1VNXc3NnoxeU5SdDVCT0hpd3dPUT09",
+            "group": 4,
+            "hr_id": 332021,
+            "id": 14773091,
+            "skill": {
+              "id": 3624763,
+              "name": "telephony",
+              "short_created_at": "1970-01-01",
+              "status_text": ""
+            },
+            "skill_id": 3624763,
+            "updated_at": "2026-08-21T16:43:28.000000Z"
+          },
+          {
+            "Proficiency": "Strong",
+            "created_at": "2026-08-21T16:43:28.000000Z",
+            "enc_id": "eWI2UWZ1ZGRNQnljKzdHMHAzbXN2dz09",
+            "group": 5,
+            "hr_id": 332021,
+            "id": 14773092,
+            "skill": {
+              "id": 288479,
+              "name": "WebRTC",
+              "short_created_at": "1970-01-01",
+              "status_text": ""
+            },
+            "skill_id": 288479,
+            "updated_at": "2026-08-21T16:43:28.000000Z"
+          },
+          {
+            "Proficiency": "Strong",
+            "created_at": "2026-08-21T16:43:28.000000Z",
+            "enc_id": "V3pGRFh2NStIYjhhTlp0UHVmRDNUUT09",
+            "group": 6,
+            "hr_id": 332021,
+            "id": 14773093,
+            "skill": {
+              "id": 3901097,
+              "name": "TypeScript",
+              "short_created_at": "1970-01-01",
+              "status_text": ""
+            },
+            "skill_id": 3901097,
+            "updated_at": "2026-08-21T16:43:28.000000Z"
+          },
+          {
+            "Proficiency": "Strong",
+            "created_at": "2026-08-21T16:43:28.000000Z",
+            "enc_id": "NG1UUVI4R2VxZjg4b2gzbWttd0Z6Zz09",
+            "group": 7,
+            "hr_id": 332021,
+            "id": 14773094,
+            "skill": {
+              "id": 118939,
+              "name": "Cloud Infrastructure",
+              "short_created_at": "1970-01-01",
+              "status_text": ""
+            },
+            "skill_id": 118939,
+            "updated_at": "2026-08-21T16:43:28.000000Z"
+          }
+        ],
+        "tailored_status": null,
+        "top_badge": "<span>Within 1 day</span><span>Be an early applicant</span>"
+      }
+    ],
+    "first_page_url": "https://platform.uplers.com/api/talent/hr/opportunities?page=1",
+    "from": 1,
+    "next_page_url": "https://platform.uplers.com/api/talent/hr/opportunities?page=2",
+    "path": "https://platform.uplers.com/api/talent/hr/opportunities",
+    "per_page": "3",
+    "prev_page_url": null,
+    "to": 3
+  },
+  "loosen_needed": false,
+  "non_matching_jobs": false,
+  "search": ""
+}

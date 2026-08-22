@@ -82,3 +82,62 @@ domain, and a substring scan flags his own CV as a leak.
 - `years_of_experience` is a decimal STRING and is `"0"` on 58 of the 61 skill rows - Uplers means
   "not recorded", not "zero years", so only positive figures are carried through.
 - `short_created_at` is `"1970-01-01"` on both profile and master rows: an unset epoch date.
+
+---
+
+## The four AUTHENTICATED ROW fixtures - `talent_pipeline` / `talent_feed` / `talent_tailor` / `talent_interviews`
+
+Captured live on **2026-08-22** by `scripts/capture_talent_rows.py` against his signed-in session,
+GET-only except `tailor-jobs`, which is a POST by Uplers' design and writes nothing.
+
+They exist for the reason `talent_profile.json` exists, one level out. Every authenticated ROW test
+in this suite used to be a PUBLIC CATALOGUE record with five session flags pasted onto it - see
+`SESSION_EXTRAS` in `test_talent_shape.py`. A record built that way agrees with the reader by
+construction, and 864 tests were green while `uplers_my_pipeline` returned his nine real
+applications with **title, company, role, mode, notice and experience all absent** and all nine
+scored an identical fabricated `50 / partial`.
+
+**The reason is that one requisition has four spellings**, and only the first was implemented:
+
+| fixture | route | job node | title | company |
+|---|---|---|---|---|
+| (the six public captures above) | `single-hr-public` | the row | `RequestForTalent` | `CompanyName` |
+| `talent_feed.json` | `GET talent/hr/opportunities` | the row | `RequestForTalent` | `company.company_name` |
+| `talent_pipeline.json` | `GET talent/hr/my-opportunities` | **`row["hr"]`** | `hr.RequestForTalent` | `hr.company.company_name` |
+| `talent_tailor.json` | `POST talent/hr/tailor-jobs` | the row | `title` | `company`, a bare **string** |
+
+| file | rows | why this capture was kept |
+|---|---|---|
+| `talent_pipeline.json` | 9 (all of them) | HIS REAL APPLICATIONS. The only nesting surface. Covers `statusName` Added x8 / Profile Shared x1, `matchmake_score` present on 5 and absent on 4, one row with `applied_at` null, and nine DISTINCT `hr.enc_id` beside a wrapper `enc_id` that is identical on all nine |
+| `talent_feed.json` | 3 | `CompanyName` absent on every row; row 2 is `is_aggregator_job: true` / `job_nature: Aggregated`, so the aggregated path is covered on this tier too |
+| `talent_tailor.json` | 5 | the renamed-and-retyped surface; also the only one stating experience as a SENTENCE - three `"3 - 5 Years of Exp"` forms and two `"5 Years of Exp"` |
+| `talent_interviews.json` | 0 | an EMPTY list that explains itself: `meta.has_consent false`, `meta.gmail_connected true`. The zero is real and its cause is a feature never switched on |
+
+**The wrapper `enc_id` trap, measured.** On `my-opportunities` the row is the APPLICATION, not the
+job. It carries no `id` at all, and its `enc_id` is **HIS TALENT id** - byte-identical across all
+nine rows - while `hr.enc_id` differs per row and is the requisition's. `enc_id` is what the
+save/unsave route sends as `hr_id`, so reading the wrapper does not merely mislabel a row, it aims
+a write at the wrong identifier space.
+
+**"5 Years of Exp" is a FLOOR, not an exact figure.** MEASURED against `single-hr` on 2026-08-22,
+rather than read off the English: `"3 - 5 Years of Exp"` <-> `YearOfExp 3.00 / max_yoe 5.00`;
+`"2 - 7 Years of Exp"` <-> `2.00 / 7.00`; `"5 Years of Exp"` <-> `YearOfExp 5.00 / max_yoe 0.00`,
+and `max_yoe` of 0 is Uplers' "no upper bound".
+
+**Sanitisation is by DELETION**, same rule as the profile capture, and the guard EARNED its keep -
+it refused the write three times during this capture and each refusal was a real leak:
+`hr.detail.client_poc_email` (the client's contact), and `matcherArray.matcher[].profile_pic` plus
+`whatsapp_number` (the assigned Uplers recruiter's personal details). Removed: his pay
+(`currenct_ctc`, `talent_expected_salary_in_usd`, `talent_fee_expected_ctc`, `hr_cost_dp_value`,
+`nr_dp_margin`), his account id (`TalentEncId`), his mailbox (`gmail_email`), the client POC block
+(`client_poc_email`/`_name`/`_designation`/`_linkedin`, `sales_poc_name`) and the recruiter's
+contact routes (`profile_pic`, `whatsapp_number`, `skype_id`, `linkedin_id`).
+
+Two keys are exempted BY NAME rather than by loosening the pattern, each with its reason in the
+script: `share_video_resume` / `video_resume_status` are integer flags that match on "resume", and
+`consent_interview_email_scan` matches on "email" but is the consent flag the interviews fixture
+exists to pin. The address itself, `gmail_email`, is deleted.
+
+The JOB's published band (`cost`, `cost_string`, `cost_range`) is KEPT - what the client pays is
+public, what he earns is not. The two `CTC` strings inside `talent_pipeline.json` are in the
+clients' own job descriptions, not his record.
