@@ -132,31 +132,47 @@ def display_path(raw):
 def relativise_known_paths(text, loaded):
     """Render any path jobcore already baked into a composed message.
 
-    Some of jobcore's strings arrive with the absolute path ALREADY inside
-    them - ``config_error`` is an f-string, ``"{path} is not valid JSON: ..."``
-    - so there is no field left to pass through :func:`display_path`. That one
-    string then reaches further than it looks: it is interpolated into
-    ``ConfigReport.status`` AND into :meth:`Bound.notes`, which every scoring
-    tool appends to its own notes, so one unparseable file publishes this box's
-    layout from tools that render no path of their own.
+    A BINDING of ``jobcore.paths.relativise_known``, not a second copy of it.
+    This server shipped its own substitution loop in c65f9ef; jobcore took the
+    idea upstream in 0f557eb and it is strictly better, so the algorithm here
+    is gone and only the two arguments this server knows remain.
 
-    SUBSTITUTION, NOT DETECTION. Only the exact strings this snapshot already
-    knows to be paths are replaced - the source it loaded and each entry of the
-    list it searched. There is no "does this look like a path" heuristic, so
-    ordinary prose cannot be mangled and a message keeps saying what went
-    wrong; it just stops saying where the machine keeps its files.
+    What the upstream adds, and it is not cosmetic: ``Loaded.known_paths``
+    includes the PARENT DIRECTORY of the config and of every searched path.
+    The local version keyed on ``source`` plus ``searched`` alone, which cannot
+    touch the two files jobcore names from that directory - the history ledger
+    (``could not append to {ledger}``) and the write lock (``config file locked
+    by live PID ... (lock: {lock_file})``). Neither equals ``source``, both
+    reach a caller through ``uplers_config().write``, and MEASURED here: the
+    lock message published the full temp path with the local implementation in
+    place and clean with this one.
 
-    Longest first, because one searched path can be a prefix of another and a
-    shorter replacement landing first would leave the remainder dangling.
+    Substitution stays EXACT rather than heuristic - only strings the snapshot
+    already knows are paths - which is why a Naukri API route or a
+    platform.uplers.com URL in the same sentence is left alone.
     """
-    if not text:
-        return text
-    candidates = {str(loaded.source)} if loaded.source else set()
-    candidates.update(str(entry) for entry in (loaded.searched or ()))
-    for raw in sorted(candidates, key=len, reverse=True):
-        if raw and raw in text:
-            text = text.replace(raw, display_path(raw) or raw)
-    return text
+    return jobcore_paths.relativise_known(
+        text, known=loaded.known_paths, render=display_path
+    )
+
+
+def relativise_mapping(payload, loaded):
+    """:func:`relativise_known_paths` over every string value of a flat dict.
+
+    For jobcore's ``apply_patch`` return, which this server hands back verbatim
+    as ``ConfigReport.write`` and which carries a path in three places -
+    ``path`` on success, ``ledger_error``, and ``detail`` on a lock conflict.
+    Passing that dict through untouched is how a leak survived a sweep that had
+    already cleaned every path FIELD on the report beside it.
+
+    Non-string values pass through: the upstream returns anything that is not a
+    string unchanged, so this is safe to map over a mixed payload.
+    """
+    if not isinstance(payload, dict):
+        return payload
+    return {
+        key: relativise_known_paths(value, loaded) for key, value in payload.items()
+    }
 
 
 def _taxonomy_for(scoring):

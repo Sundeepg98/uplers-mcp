@@ -31,6 +31,8 @@ from pathlib import Path
 import pytest
 
 from test_talent_tools import serve, wire_talent, writes  # noqa: F401
+from uplers_server import config as uconfig
+from uplers_server import policy as policy_mod
 from uplers_server import endpoints, profile as profile_mod, talent_shape
 from uplers_server.talent_models import ProfileComparison
 
@@ -159,7 +161,8 @@ async def test_sync_with_confirm_updates_local_and_says_exactly_what_changed(
 
 
 async def test_sync_snapshots_the_local_profile_so_it_is_restorable(
-    monkeypatch, make_profile, real_payload, isolated_profile
+    monkeypatch, make_profile, real_payload, isolated_profile,
+    checkout_holds_the_profile
 ):
     """A destructive-feeling operation the operator cannot undo is a trap.
 
@@ -173,7 +176,13 @@ async def test_sync_snapshots_the_local_profile_so_it_is_restorable(
     result = await server.uplers_sync_profile_from_uplers(confirm=True)
 
     assert result.backup_path
-    backup = Path(result.backup_path)
+    # RESOLVE, then check. `backup_path` is now rendered relative to the
+    # checkout so it publishes no local layout, so a bare Path() no longer
+    # names the file - profile.resolve_backup_handle anchors it again. This is
+    # a changed contract being followed, not a bug being asserted: the pair in
+    # TestTheBackupHandleIsUsableAndLeakFree pins both halves - that the handle
+    # leaks nothing AND that it still round-trips to the pre-sync profile.
+    backup = profile_mod.resolve_backup_handle(result.backup_path)
     assert backup.is_file()
     assert json.loads(backup.read_text(encoding="utf-8"))["skills"] == original.skills
 
@@ -446,3 +455,145 @@ async def test_the_comparator_can_report_uplers_as_the_richer_side(
     assert "Skills are in sync" in (ahead.recommendation or "")
     assert "behind" not in (ahead.recommendation or "")
     assert not [note for note in ahead.notes if "MISSING from the local" in note]
+
+
+# --- the backup handle: leak-free AND still usable -------------------------
+#
+# `uplers_sync_profile_from_uplers` overwrites data/profile.json and hands back
+# `backup_path` so the operator can get the old one. In c65f9ef that field was
+# the one path in this server left absolute, deliberately and under protest:
+# relativising it looked like it would break the handle.
+#
+# The ruling is that it does not have to be a trade. The handle is relativised
+# AND `profile.resolve_backup_handle` turns it back into a real path, so the
+# leak closes and the undo still works. Both halves are asserted here, because
+# either one alone is a defect wearing the other's clothes.
+
+
+@pytest.fixture
+def checkout_holds_the_profile(isolated_profile, monkeypatch):
+    """Anchor the checkout at the profile's own directory - as in production.
+
+    WHY THIS EXISTS, and it is not tidiness. In production the backup is
+    written beside data/profile.json INSIDE the checkout, so display_path
+    renders it with form 1 (`data/profile.backup-x.json`) and
+    resolve_backup_handle inverts it exactly. A pytest tmp dir is somewhere
+    else entirely, and where it is differs by platform:
+
+      * on Windows tmp lives under the user's home, so form 2 (`~/...`) fires
+        and the round-trip happens to work;
+      * on ubuntu tmp is `/tmp/...`, under NEITHER the checkout nor
+        `/home/runner`. MEASURED with posixpath: relpath from
+        `/home/runner/work/<repo>/<repo>` to `/tmp/...` is FIVE `..` hops, one
+        past MAX_PARENT_HOPS, so form 1 is refused and form 3 - the lossy tail
+        - fires. resolve_backup_handle correctly REFUSES a tail, so the
+        round-trip test would fail on the runner and pass here.
+
+    Anchoring the checkout at the profile's directory makes the fixture model
+    production and assert the SAME property on both operating systems, which
+    is the whole point.
+    """
+    checkout = isolated_profile.parent
+    monkeypatch.setattr(uconfig, "REPO_ROOT", checkout)
+    monkeypatch.setattr(policy_mod, "DISPLAY_ANCHOR", checkout)
+    return checkout
+
+
+class TestTheBackupHandleIsUsableAndLeakFree:
+
+    async def test_the_returned_handle_carries_no_local_layout(
+        self, monkeypatch, make_profile, real_payload, isolated_profile,
+        checkout_holds_the_profile
+    ):
+        make_profile(skills=["Node.js", "TypeScript"])
+        wire_talent(monkeypatch, serve(real_payload))
+
+        result = await server.uplers_sync_profile_from_uplers(confirm=True)
+
+        assert result.backup_path
+        # PRIMARY, and the half that can fail on the ubuntu runner: the exact
+        # directory the fixture created must not appear in the handle.
+        assert str(isolated_profile.parent) not in result.backup_path, (
+            result.backup_path
+        )
+        assert not re.search(r"(?<![A-Za-z])[A-Za-z]:[\/]", result.backup_path)
+
+    async def test_the_returned_handle_still_round_trips_to_the_old_profile(
+        self, monkeypatch, make_profile, real_payload, isolated_profile,
+        checkout_holds_the_profile
+    ):
+        """Leak-free is worthless if the undo stops working. This is the pair.
+
+        The handle goes back through `resolve_backup_handle` and must name a
+        real file holding the profile as it was BEFORE the sync - which is the
+        only thing that makes the sync safe to try.
+        """
+        original = make_profile(skills=["Node.js", "TypeScript"])
+        wire_talent(monkeypatch, serve(real_payload))
+
+        result = await server.uplers_sync_profile_from_uplers(confirm=True)
+
+        backup = profile_mod.resolve_backup_handle(result.backup_path)
+        assert backup.is_file(), backup
+        assert json.loads(backup.read_text(encoding="utf-8"))["skills"] == (
+            original.skills
+        )
+
+    def test_an_absolute_handle_is_still_accepted(self, tmp_path):
+        """An old brief already sitting in a transcript must not stop working.
+
+        Before this change the field was absolute, so a handle copied out of
+        any earlier run is absolute. Resolution accepts both forms; it only
+        anchors the ones that need anchoring.
+        """
+        target = tmp_path / "profile.backup-20260101T000000.json"
+        target.write_text("{}", encoding="utf-8")
+
+        assert profile_mod.resolve_backup_handle(str(target)) == target
+
+    def test_a_relative_handle_anchors_on_the_checkout_not_the_cwd(self):
+        """The anchor must be REPO_ROOT, not os.getcwd().
+
+        A handle resolved against the working directory would name a different
+        file depending on where the MCP host happened to be started, which is
+        the class of bug `display_path` exists to avoid on the way out.
+        """
+        resolved = profile_mod.resolve_backup_handle("data/profile.backup-x.json")
+
+        assert resolved == uconfig.REPO_ROOT / "data" / "profile.backup-x.json"
+        assert resolved.is_absolute()
+
+    def test_a_home_form_handle_expands_rather_than_being_anchored(self, tmp_path):
+        """The form the first implementation got wrong, pinned.
+
+        `display_path` renders anything outside the checkout but under home as
+        `~/...`. Anchoring that on REPO_ROOT yields
+        `<checkout>/~/AppData/...`, which names nothing - and the handle it
+        came from was correct. Measured: this is what the round-trip test hit.
+        """
+        resolved = profile_mod.resolve_backup_handle("~/backups/profile.json")
+
+        assert "~" not in str(resolved), resolved
+        assert resolved.is_absolute()
+        assert str(uconfig.REPO_ROOT) not in str(resolved), resolved
+        assert resolved == Path.home() / "backups" / "profile.json"
+
+    def test_a_tail_form_handle_refuses_rather_than_guessing(self):
+        """Form 3 is lossy by construction, so it must not be inverted.
+
+        The renderer prints `.../a/b/c` for a path under neither anchor and
+        deliberately drops everything above those three components. There is
+        nothing to resolve it against, so a plausible-looking path here would
+        be a wrong file handed to an UNDO. The error says where to look instead.
+        """
+        with pytest.raises(profile_mod.ProfileError) as excinfo:
+            profile_mod.resolve_backup_handle(".../tmp/x/profile.backup-1.json")
+
+        assert "UPLERS_DATA_DIR" in str(excinfo.value)
+        assert "profile.backup-1.json" in str(excinfo.value)
+
+    def test_an_empty_handle_is_none_rather_than_the_checkout_root(self):
+        """`backup_path` is None when no backup was written. Resolving that must
+        not silently produce REPO_ROOT, which is a directory that does exist."""
+        assert profile_mod.resolve_backup_handle(None) is None
+        assert profile_mod.resolve_backup_handle("") is None

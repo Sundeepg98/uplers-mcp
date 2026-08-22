@@ -193,6 +193,63 @@ def profile_path() -> Path:
     return config.DATA_DIR / "profile.json"
 
 
+def resolve_backup_handle(handle):
+    """Turn a `backup_path` handle back into a real path. All three forms.
+
+    `uplers_sync_profile_from_uplers` overwrites data/profile.json and returns
+    `backup_path` so the operator can get the old one back. That field used to
+    be an absolute local path - the last one in this server - because
+    relativising it looked like a trade: close the leak or keep the handle
+    usable. It is not a trade, PROVIDED the resolver inverts every form the
+    renderer can emit.
+
+    `policy.display_path` emits three, and getting this wrong is not a
+    theoretical worry - the first version of this function handled only the
+    first and produced
+    ``<checkout>/~/AppData/Local/Temp/.../profile.backup-....json``, a path
+    that names nothing, from a handle that was perfectly correct:
+
+      1. ``data/profile.backup-x.json``  - anchored on the CHECKOUT. This is
+         the production case: the backup is written beside data/profile.json.
+      2. ``~/AppData/...``               - expanded against the user's home.
+         Reached whenever UPLERS_DATA_DIR points outside the checkout, and the
+         form the test suite hits, because a pytest tmp dir lives under home.
+      3. ``.../a/b/c``                   - the tail. LOSSY BY CONSTRUCTION: it
+         is what the renderer falls back to for a path under neither anchor,
+         and the components above the last three were deliberately not
+         published. It cannot be inverted, so this raises instead of returning
+         a plausible path that names nothing. An error the operator can read
+         beats a wrong file, especially for an undo.
+
+    An ABSOLUTE handle passes straight through. That is not tolerance for its
+    own sake: every handle produced before this change is absolute, and one
+    sitting in a transcript must not stop working because the rendering moved.
+
+    THE ANCHOR IS THE CHECKOUT, NEVER THE WORKING DIRECTORY. `Path("data/x")`
+    resolved against `os.getcwd()` names a different file depending on where
+    the MCP host was launched - the same class of bug `display_path` prevents
+    on the way out. `config.REPO_ROOT` is the one anchor both directions share.
+
+    Returns None for a falsy handle, because `backup_path` is None when no
+    backup was written and anchoring "" would yield the checkout ROOT - a
+    directory that exists, which is the worst possible answer.
+    """
+    if not handle:
+        return None
+    text = str(handle)
+    if text.startswith(".../"):
+        raise ProfileError(
+            "%r is a shortened display path, not a locatable one. It is what "
+            "this server prints for a file under neither the checkout nor your "
+            "home directory, and the components above the last three were "
+            "never published, so there is nothing to resolve it against. The "
+            "file is named at the end of that string; look for it under "
+            "whatever UPLERS_DATA_DIR points at." % text
+        )
+    path = Path(text).expanduser() if text.startswith("~") else Path(text)
+    return path if path.is_absolute() else config.REPO_ROOT / path
+
+
 def load(*, path: Path | None = None) -> Profile | None:
     """Read the stored profile, or None if it has never been set."""
     target = path or profile_path()

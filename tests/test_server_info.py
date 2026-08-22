@@ -29,7 +29,15 @@ from uplers_server import policy as policy_mod
 
 # A drive letter followed by a separator: "D:\", "C:/". The one shape that
 # proves a raw local path survived into a payload.
-ABSOLUTE_LOCAL = re.compile(r"[A-Za-z]:[\\/]")
+#
+# THE LOOKBEHIND IS LOAD-BEARING. A drive letter is ONE character, and
+# without it this matches the "s:/" inside "https://" and reports every
+# correct URL in a payload as a leak - measured on this suite, where the
+# walker flagged two real platform.uplers.com URLs before it was tightened.
+# An instrument that manufactures failures is worse than no instrument,
+# because the usual repair is to delete the field that tripped it. The
+# control for this line is test_the_leak_regex_does_not_fire_on_an_https_url.
+ABSOLUTE_LOCAL = re.compile(r"(?<![A-Za-z])[A-Za-z]:[\\/]")
 
 
 def payload_of(result) -> dict:
@@ -107,6 +115,18 @@ class TestTheStampIsFrozen:
 
         payload = payload_of(await server.uplers_server_info())
 
+        # PRIMARY: the exact directory this test created, absent from the
+        # payload. Platform-independent - the drive-letter rule below cannot
+        # fire at all on the ubuntu runner that gates a merge for this repo,
+        # so on its own it would certify nothing there. See
+        # test_path_hygiene.path_hits for the measurement.
+        primary = [
+            (trail, text)
+            for trail, text in strings_in(payload)
+            if str(tmp_path) in text
+        ]
+        assert primary == [], primary
+        # SECOND OPINION: shape-based, Windows-only.
         leaks = [
             (trail, text)
             for trail, text in strings_in(payload)

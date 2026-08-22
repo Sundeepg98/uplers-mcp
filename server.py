@@ -2031,25 +2031,20 @@ async def uplers_config(write_candidate: bool = False,
     except prof.ProfileError:
         field_source = {}
 
-    # Every path leaves through display_path. `status` is REBUILT rather than
-    # relativised after the fact: jobcore composes it out of the raw source or
-    # the raw searched list, so scrubbing the finished sentence would mean
-    # string surgery on prose. Rebuilding from the already-rendered parts keeps
-    # one representation of a path in the payload instead of two.
+    # Every path leaves through display_path. `status` comes from jobcore's own
+    # `status_for`, which composes the sentence and substitutes every known path
+    # inside it in one step - this server used to rebuild that sentence by hand,
+    # which worked but was a second place for the wording to drift from the
+    # library that owns it.
     source = policy_mod.display_path(ld.source)
     searched = [policy_mod.display_path(path) for path in ld.searched]
-    if ld.config_error:
-        # jobcore built this sentence with the raw path already inside it, so
-        # the path is substituted rather than rendered. See
-        # policy.relativise_known_paths.
-        status = policy_mod.relativise_known_paths(ld.config_status, ld)
-    elif source is None:
-        status = (
-            "no file found; built-in defaults in use. searched: "
-            + (", ".join(searched) if searched else "(nothing)")
-        )
-    else:
-        status = "loaded from %s" % source
+    status = ld.status_for(policy_mod.display_path)
+    # jobcore hands `write` back verbatim and it carries paths in three places:
+    # `path` on success, `ledger_error`, and `detail` on a lock conflict. The
+    # last two name files DERIVED from the config's directory, which is why the
+    # substitution has to key on `known_paths` (parents included) rather than on
+    # source+searched.
+    write = policy_mod.relativise_mapping(write, ld)
 
     return ConfigReport(
         source=source,
@@ -2911,12 +2906,13 @@ async def uplers_sync_profile_from_uplers(
     prof.save(local.model_copy(update=updates), path=target)
 
     result.applied = True
-    # NOT relativised, unlike every other path in this server, and deliberately
-    # left for a ruling rather than changed here: this field is the UNDO HANDLE
-    # for a destructive sync - the caller is expected to open it - so shortening
-    # it changes a contract rather than a presentation.
-    # tests/test_profile_direction.py resolves it with Path(...).is_file().
-    result.backup_path = str(backup) if backup else None
+    # Relativised like every other path here, which for a while looked like it
+    # would break this one: `backup_path` is the UNDO HANDLE for a destructive
+    # sync and the caller is expected to OPEN it. It is not a trade - the handle
+    # is rendered here and anchored again by profile.resolve_backup_handle(),
+    # which accepts the absolute form too so a handle from an older run still
+    # works. Leak closed, undo intact.
+    result.backup_path = policy_mod.display_path(str(backup)) if backup else None
     result.notes.append(
         "Local profile updated. Fit scores computed before now were against the old "
         "%d-skill set; re-run uplers_rank_opportunities() to see the corrected ones."
