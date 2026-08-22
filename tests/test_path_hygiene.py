@@ -824,3 +824,292 @@ class TestTheReprSpellingOfAPath:
         assert found == [], found
         second = list(leaks_in({"message": message}))
         assert second == [], second
+
+
+# =====================================================================
+# The FOURTH branch, where the path is not a string but a LIST
+# =====================================================================
+# ``no_config_file`` returns ``searched`` as a list of absolute paths beside a
+# ``detail`` string composed from the same path. The string half was already
+# rendered; the list half was not, because the walk stopped at a flat dict's
+# string values - this server's own explicit, documented decision, which the
+# naukri server then mirrored.
+#
+# ``searched`` is the field whose entire job is answering "why is my config
+# file not being read", and THIS SERVER HAS NO BOUNDARY SCRUBBER - grep for
+# ``scrub_result`` across ``uplers_server/`` and ``server.py`` returns nothing -
+# so the raw absolute paths reached the wire on every platform, through
+# ``uplers_config(write_candidate=True).write``.
+#
+# MEASURED on 2026-08-22, this box, before any edit::
+#
+#     "detail":   "JOBHUNT_CONFIG=~/AppData/.../does-not-exist/jobhunt.json
+#                  points at no file"                          <- rendered
+#     "searched": ["C:\\Users\\Dell\\AppData\\...\\jobhunt.json"]   <- raw
+#     PRIMARY (exact) ['.searched[0]']   2nd OPIN (regex) ['.searched[0]']
+#
+# The identical measurement was taken on the naukri server, whose scrubber
+# "saves" the field only by collapsing every entry to the identical string
+# ``jobhunt.json``. The fix is one shape in both repos; see
+# ``naukri_server/policy.py``.
+
+
+def _one_level_only(payload, loaded):
+    """THE REJECTED ALTERNATIVE, kept executable so the choice is a measurement.
+
+    "Walk one level" means: render a string value, and render the string
+    ELEMENTS of a value that is a list. It fixes ``searched`` and it does not
+    reach ``changed``, whose values are ``{key: [old, new]}`` one level further
+    down. Full recursion was chosen instead; this exists so that choice is
+    pinned by a test that FAILS on the shallower rule rather than by a comment.
+    """
+    out = {}
+    for key, value in payload.items():
+        if isinstance(value, list):
+            out[key] = [policy_mod.relativise_known_paths(item, loaded)
+                        for item in value]
+        else:
+            out[key] = policy_mod.relativise_known_paths(value, loaded)
+    return out
+
+
+def _bind_missing_config(monkeypatch, where: Path) -> Path:
+    """Bind a config path that DOES NOT EXIST, and prove nothing resolves.
+
+    The safety gate matters even though this branch writes nothing: the file
+    ``apply_patch`` would otherwise resolve to is shared by every server in
+    this family, and a test that accidentally found a real one would stop
+    exercising the branch under test and start writing it.
+    """
+    where.mkdir(parents=True, exist_ok=True)
+    cfg = where / "jobhunt.json"
+    assert not cfg.exists(), cfg
+    monkeypatch.setenv("JOBHUNT_CONFIG", str(cfg))
+    policy_mod.invalidate()
+
+    located = jobcore_config.locate(Path(profile_mod.__file__))
+    assert not located.found, (
+        "REFUSING TO CONTINUE: a real config file resolved at %r"
+        % (getattr(located, "path", None),)
+    )
+    assert located.searched, "locate() searched nothing; the branch is not armed"
+    for entry in located.searched:
+        assert str(where) in str(entry), (
+            "REFUSING TO CONTINUE: locate() names %r, outside the temp dir %r"
+            % (entry, where)
+        )
+    return cfg
+
+
+def _bind_real_config(monkeypatch, tmp_path: Path) -> Path:
+    """A throwaway jobhunt.json that EXISTS, so ``known_paths`` is populated."""
+    cfg = tmp_path / "config" / "jobhunt.json"
+    cfg.parent.mkdir(parents=True, exist_ok=True)
+    cfg.write_text(json.dumps({"config_version": 1, "revision": 1}),
+                   encoding="utf-8")
+    monkeypatch.setenv("JOBHUNT_CONFIG", str(cfg))
+    policy_mod.invalidate()
+    return cfg
+
+
+class TestTheseListAssertionsCanFail:
+    """Controls. Every assertion in the next class says a path is ABSENT."""
+
+    def test_raw_jobcore_really_does_return_the_searched_list_absolute(
+            self, monkeypatch, tmp_path):
+        """CONTROL for the branch, and it runs on every OS.
+
+        If jobcore ever rendered ``searched`` itself, the leak test below would
+        pass while proving nothing about this server.
+        """
+        missing = _bind_missing_config(monkeypatch, tmp_path / "gone")
+        raw = jobcore_config.apply_patch(
+            {"candidate": {"years_experience": 5}},
+            start=missing.parent, actor="test",
+            allowed_sections=("candidate",))
+
+        assert raw["status"] == "no_config_file", raw
+        assert raw["searched"], "the branch returned no searched list at all"
+        assert any(str(tmp_path) in entry for entry in raw["searched"]), (
+            "jobcore no longer bakes the absolute path into `searched`; the "
+            "absence assertions below prove nothing"
+        )
+
+    def test_the_primary_detector_sees_a_path_inside_a_list(self, tmp_path):
+        """CONTROL for the instrument on the SHAPE this slice is about.
+
+        ``path_hits`` was only ever shown firing on a path in a string FIELD.
+        A detector that walked dicts but not lists would report CLEAN on
+        exactly the payload below and certify the leak as fixed.
+        """
+        leaking = {"status": "no_config_file",
+                   "searched": [str(tmp_path / "gone" / "jobhunt.json")]}
+
+        assert [trail for trail, _ in path_hits(leaking, str(tmp_path))] == [
+            "$.searched[0]"
+        ]
+
+    def test_a_one_level_walk_leaves_the_changed_payload_absolute(
+            self, monkeypatch, tmp_path):
+        """CONTROL that turns the depth choice into a measurement.
+
+        This is the shallower rule this slice rejected, run against the payload
+        that separates the two. It renders ``searched`` and it does NOT render
+        the path sitting inside ``changed``, which is where jobcore puts
+        ``{key: [old, new]}`` pairs of arbitrary config values. If this ever
+        stops failing to render, one level became sufficient and the recursion
+        can be narrowed.
+        """
+        cfg = _bind_real_config(monkeypatch, tmp_path)
+        ld = policy_mod.snapshot()
+        payload = {"searched": [str(cfg)],
+                   "changed": {"servers.uplers.export_dir": [str(cfg), None]}}
+
+        shallow = _one_level_only(payload, ld)
+
+        assert list(path_hits(shallow["searched"], str(tmp_path))) == [], (
+            "the one-level rule cannot even render `searched`; this control is "
+            "measuring something other than depth"
+        )
+        assert list(path_hits(shallow["changed"], str(tmp_path))) != [], (
+            "the one-level rule now reaches `changed` too, so the recursion "
+            "chosen here is wider than it needs to be"
+        )
+
+
+class TestTheSearchedListIsRendered:
+
+    async def test_the_no_config_file_branch_does_not_leak_the_searched_list(
+            self, monkeypatch, tmp_path, make_profile):
+        """THE LEAK, at the tool. A list of paths beside a string that was fine."""
+        make_profile()
+        _bind_missing_config(monkeypatch, tmp_path / "gone")
+
+        report = await server.uplers_config(write_candidate=True)
+
+        assert report.write.get("status") == "no_config_file", report.write
+        assert report.write["searched"], report.write
+        primary = [
+            "%s = %r" % (trail, text)
+            for trail, text in path_hits(payload_of(report), str(tmp_path))
+        ]
+        assert primary == [], primary
+        found = [
+            "%s = %r" % (trail, text)
+            for trail, text in leaks_in(payload_of(report))
+        ]
+        assert found == [], found
+
+    async def test_two_missing_candidates_do_not_render_alike(
+            self, monkeypatch, tmp_path, make_profile):
+        """STILL AN ANSWER, on the field whose whole job is being one.
+
+        A basename fallback renders every entry of this list as the identical
+        string ``jobhunt.json`` - which is what the sibling server's boundary
+        scrubber does to it today - and under that a reader comparing two
+        candidate locations sees one. A fix that reproduces the collapse must
+        fail here.
+        """
+        make_profile()
+
+        alpha = _bind_missing_config(monkeypatch, tmp_path / "alpha")
+        one = (await server.uplers_config(write_candidate=True)).write
+        assert one.get("status") == "no_config_file", one
+
+        beta = _bind_missing_config(monkeypatch, tmp_path / "beta")
+        two = (await server.uplers_config(write_candidate=True)).write
+        assert two.get("status") == "no_config_file", two
+
+        # CONTROL: the two candidates really are indistinguishable by basename.
+        assert alpha.name == beta.name == "jobhunt.json"
+        assert one["searched"] and two["searched"], (one, two)
+        assert one["searched"] != two["searched"], (
+            "two different candidate paths render identically as %r"
+            % (one["searched"],)
+        )
+        for entry in one["searched"]:
+            assert entry.endswith("alpha/jobhunt.json"), entry
+        for entry in two["searched"]:
+            assert entry.endswith("beta/jobhunt.json"), entry
+
+
+class TestTheWalkGoesAllTheWayDown:
+    """FULL RECURSION, chosen over one level, pinned here rather than described.
+
+    ``changed`` on the SUCCESS payload is ``{key: [old, new]}`` over arbitrary
+    config values, so a path can sit two containers below the top. Depth costs
+    nothing in safety because ``relativise_known`` only ever replaces a string
+    the snapshot ALREADY KNOWS is a path - the exactness, not the depth, is
+    what keeps a platform.uplers.com URL out of reach. A depth limit would be
+    an arbitrary line that the next jobcore field crosses, and this leak is
+    what that line looks like when it is crossed.
+    """
+
+    def test_a_known_path_nested_two_containers_deep_is_rendered(
+            self, monkeypatch, tmp_path):
+        cfg = _bind_real_config(monkeypatch, tmp_path)
+        ld = policy_mod.snapshot()
+        payload = {"status": "ok",
+                   "changed": {"servers.uplers.export_dir": [str(cfg), None]}}
+
+        rendered = policy_mod.relativise_mapping(payload, ld)
+
+        assert list(path_hits(rendered, str(tmp_path))) == [], rendered
+        # STILL AN ANSWER, and still the same shape.
+        old, new = rendered["changed"]["servers.uplers.export_dir"]
+        assert new is None
+        assert old.endswith("config/jobhunt.json"), old
+
+    def test_a_tuple_stays_a_tuple_and_a_list_stays_a_list(
+            self, monkeypatch, tmp_path):
+        """Types survive the walk, because a caller compares them.
+
+        ``Loaded.searched`` is a tuple and jobcore's payload lists are lists;
+        rebuilding either as the other would break equality for every consumer
+        that round-trips this dict.
+        """
+        _bind_real_config(monkeypatch, tmp_path)
+        ld = policy_mod.snapshot()
+
+        out = policy_mod.relativise_mapping(
+            {"a": [1, 2], "b": (1, 2), "c": {"d": [3]}}, ld)
+
+        assert isinstance(out["a"], list) and out["a"] == [1, 2]
+        assert isinstance(out["b"], tuple) and out["b"] == (1, 2)
+        assert out["c"] == {"d": [3]}
+        # and the "a mapping, or nothing" contract at the top is unchanged
+        assert policy_mod.relativise_mapping("not a dict", ld) == "not a dict"
+
+    def test_a_url_and_an_api_route_inside_a_list_survive(
+            self, monkeypatch, tmp_path):
+        """The exactness that makes walking into a list safe at all.
+
+        A loose "looks like a path" rule flagged two CORRECT
+        platform.uplers.com URLs in a real payload on 2026-08-22. Walking
+        deeper multiplies the number of strings a heuristic would get to be
+        wrong about, which is exactly why the substitution must stay exact -
+        and why this control lives next to the depth increase.
+        """
+        _bind_real_config(monkeypatch, tmp_path)
+        ld = policy_mod.snapshot()
+        payload = {"searched": [
+            "https://platform.uplers.com/talent/hr/profile",
+            "GET talent/hr/opportunity returned 500",
+            "http://localhost:8765/preview",
+        ]}
+
+        assert policy_mod.relativise_mapping(payload, ld) == payload
+
+    def test_but_a_known_path_in_that_same_list_is_replaced(
+            self, monkeypatch, tmp_path):
+        """CONTROL for the test above: the deep walk is not simply inert."""
+        cfg = _bind_real_config(monkeypatch, tmp_path)
+        ld = policy_mod.snapshot()
+        payload = {"searched": ["https://platform.uplers.com/x", str(cfg)]}
+
+        rendered = policy_mod.relativise_mapping(payload, ld)
+
+        assert rendered != payload, "nothing was substituted at all"
+        assert rendered["searched"][0] == "https://platform.uplers.com/x"
+        assert list(path_hits(rendered, str(tmp_path))) == [], rendered
+        assert "jobhunt.json" in rendered["searched"][1], rendered
