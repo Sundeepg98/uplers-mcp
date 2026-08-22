@@ -960,8 +960,33 @@ async def test_my_interviews_asks_uplers_for_the_detailed_record(monkeypatch):
 
 
 async def test_filter_options_sends_the_only_company_type_the_bundle_uses(monkeypatch):
+    # The rows below are the live 2026-08-22 company-master payload. They used
+    # to read `{"id": 3, "name": "Google"}`, a shape this route has never sent,
+    # and the test passed while the tool shipped zero options against it.
     calls = wire_talent(
-        monkeypatch, serve({"data": [{"id": 3, "name": "Google"}, {"id": 4, "name": "Meta"}]})
+        monkeypatch,
+        serve(
+            {
+                "data": [
+                    {
+                        "value": 5299,
+                        "label": "Google (370)",
+                        "label_without_count": "Google",
+                        "company_name": "Google",
+                        "total_jobs": 370,
+                        "selected": False,
+                    },
+                    {
+                        "value": 5305,
+                        "label": "Uber (479)",
+                        "label_without_count": "Uber",
+                        "company_name": "Uber",
+                        "total_jobs": 479,
+                        "selected": False,
+                    },
+                ]
+            }
+        ),
     )
 
     result = await server.uplers_filter_options("company")
@@ -971,7 +996,10 @@ async def test_filter_options_sends_the_only_company_type_the_bundle_uses(monkey
     assert calls[0].url.params["company_type"] == "maang"
 
     assert result["kind"] == "company"
-    assert result["options"] == [{"id": 3, "name": "Google"}, {"id": 4, "name": "Meta"}]
+    assert result["options"] == [
+        {"id": 5299, "name": "Google (370)"},
+        {"id": 5305, "name": "Uber (479)"},
+    ]
     assert result["returned"] == 2
     assert result["total_available"] == 2
 
@@ -1114,3 +1142,97 @@ async def test_login_turns_a_missing_browser_into_a_result_not_a_crash(monkeypat
     assert result.authenticated is False
     assert result.error == "browser_unavailable"
     assert "Playwright is not installed" in result.reason
+
+
+# --- filter_options over the shape the master lists ACTUALLY send ----------
+#
+# The fixtures below are the live 2026-08-22 payloads, not invented ones. The
+# pre-existing tests in this file fed `{"id": ..., "name": ...}`, which no
+# master route has ever returned, and passed while the tool emitted zero
+# options against every real call.
+
+LIVE_ROLE_MASTER = {
+    "status": True,
+    "message": "",
+    "data": [
+        {"label": "Backend Development", "value": 1, "category": "Software Engineering"},
+        {"label": "Frontend Development", "value": 2, "category": "Software Engineering"},
+    ],
+}
+LIVE_SKILL_MASTER = {
+    "status": True,
+    "message": "",
+    "data": [
+        {
+            "value": 3890198,
+            "label": "react (1975)",
+            "label_without_count": "react",
+            "skill_name": "react",
+            "hr_count": 1975,
+            "selected": False,
+        }
+    ],
+}
+LIVE_LOCATION_MASTER = {
+    "status": True,
+    "message": "",
+    "data": [
+        {
+            "label": "Bengaluru (Karnataka)",
+            "value": 277,
+            "city": "Bengaluru",
+            "state": "Karnataka",
+            "selected": False,
+        }
+    ],
+}
+
+
+async def test_filter_options_reads_the_id_key_the_master_routes_actually_send(
+    monkeypatch,
+):
+    """The id lives in `value`, never in `id`.
+
+    This tool exists to turn "React" into the numeric id uplers_my_feed()
+    filters need. Reading `row.get("id")` made every id None, and the
+    `id is not None` filter then dropped every option -- so the tool returned
+    an empty list on all four kinds, for every search, always. Measured live
+    2026-08-22 against role/skill/location/company: 0 options returned each
+    time, while `total_available` reported 46/6/2/5.
+    """
+    wire_talent(monkeypatch, serve(LIVE_ROLE_MASTER))
+
+    result = await server.uplers_filter_options("role")
+
+    assert result["options"] == [
+        {"id": 1, "name": "Backend Development"},
+        {"id": 2, "name": "Frontend Development"},
+    ]
+
+
+async def test_filter_options_count_cannot_disagree_with_the_list_it_ships(
+    monkeypatch,
+):
+    """`returned` counted the list BEFORE the drop-nothing filter.
+
+    That is the part that hid the bug: the payload said `returned: 5` beside
+    `options: []`, so a caller reading the count had no reason to look. A
+    count that describes a different list than the one shipped is worse than
+    no count.
+    """
+    wire_talent(monkeypatch, serve(LIVE_SKILL_MASTER))
+
+    result = await server.uplers_filter_options("skill", search="react")
+
+    assert result["returned"] == len(result["options"])
+    assert result["options"] == [{"id": 3890198, "name": "react (1975)"}]
+
+
+async def test_filter_options_names_a_location_from_its_label(monkeypatch):
+    """Locations carry `label`, `city` and `state`; the label is the useful one."""
+    wire_talent(monkeypatch, serve(LIVE_LOCATION_MASTER))
+
+    result = await server.uplers_filter_options("location", search="bang")
+
+    assert result["options"] == [{"id": 277, "name": "Bengaluru (Karnataka)"}]
+    assert result["returned"] == 1

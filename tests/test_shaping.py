@@ -298,3 +298,38 @@ def test_short_description_is_never_truncated():
     assert len(preview.description) == 2272 < config.DESCRIPTION_PREVIEW_CHARS
     assert preview.description_truncated is False
     assert preview.description == shaping.to_detail(raw, full_description=True).description
+
+
+# --- to_opportunity over a `company` that is NOT a dict --------------------
+
+
+def test_to_opportunity_survives_a_string_company():
+    """`talent/hr/tailor-jobs` sends `company` as a STRING, not an object.
+
+    Every other surface nests it (`{"company_name": ...}`), so `industry` was
+    read as `(raw.get("company") or {}).get("industry")`. `or {}` guards a
+    falsy value, not a wrong type, so the string pitch that tailor-jobs sends
+    raised AttributeError and took the whole tool down with it. Captured live
+    2026-08-22: the endpoint answered 200 with five perfectly good rows and
+    uplers_tailored_jobs returned an error on every one of them.
+    """
+    raw = {
+        "HR_Number": "HR280726200209",
+        "title": "Senior Full-Stack Engineer",
+        "company": "Building Autonomous AI for GCCs",
+        "ModeOfWork": "Remote",
+        "experience": "3 - 5 Years of Exp",
+        "id": 302816,
+    }
+
+    opp = shaping.to_opportunity(raw)
+
+    assert opp.hr_number == "HR280726200209"
+    assert opp.mode_of_work == "Remote"
+    assert opp.industry is None  # a pitch string carries no industry
+
+
+def test_to_opportunity_still_reads_industry_out_of_a_dict_company():
+    """The guard must not cost the nested case it was written for."""
+    raw = {"HR_Number": "HR280726200209", "company": {"industry": "Fintech"}}
+    assert shaping.to_opportunity(raw).industry == "Fintech"

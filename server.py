@@ -2885,18 +2885,27 @@ async def uplers_filter_options(kind: str, search: str | None = None, limit: int
     rows = payload["data"][:limit]
     options = []
     for row in rows:
-        if isinstance(row, dict):
-            options.append(
-                {
-                    "id": row.get("id"),
-                    "name": talent_shape._stringify(
-                        talent_shape._first(row, "name", "title", "label", "city", "value")
-                    ),
-                }
-            )
+        if not isinstance(row, dict):
+            continue
+        # Every master route names the id `value`; none of them sends `id`.
+        # Reading `id` first made every option id None, and the drop-nothing
+        # filter below then emptied the list on all four kinds.
+        identifier = talent_shape._first(row, "value", "id")
+        if identifier is None:
+            continue
+        options.append(
+            {
+                "id": identifier,
+                "name": talent_shape._stringify(
+                    talent_shape._first(row, "label", "name", "title", "city")
+                ),
+            }
+        )
     return {
         "kind": kind,
-        "options": [option for option in options if option.get("id") is not None],
+        # `returned` counts what SHIPPED. Counting the pre-filter list is how
+        # `options: []` sat next to `returned: 5` without anyone noticing.
+        "options": options,
         "returned": len(options),
         "total_available": len(payload["data"]),
         "search": search,

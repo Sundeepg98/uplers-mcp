@@ -207,6 +207,12 @@ def _max_yoe(raw: dict) -> float | None:
     return value
 
 
+def _company_obj(raw: dict) -> dict:
+    """The `company` value as a mapping, whatever type the surface sent."""
+    value = raw.get("company")
+    return value if isinstance(value, dict) else {}
+
+
 def to_opportunity(raw: dict) -> Opportunity:
     hr_number = ids.normalise(str(raw.get("HR_Number") or ""))
     detail = raw.get("detail") or {}
@@ -215,7 +221,10 @@ def to_opportunity(raw: dict) -> Opportunity:
         title=raw.get("RequestForTalent") or None,
         role=raw.get("HR_Role") or detail.get("standardized_title") or None,
         company=raw.get("CompanyName") or None,
-        industry=(raw.get("company") or {}).get("industry") or None,
+        # `company` is an object on every surface except `talent/hr/tailor-jobs`,
+        # which sends the pitch as a bare string. `or {}` guards a falsy value,
+        # not a wrong type, so the isinstance check is the load-bearing half.
+        industry=(_company_obj(raw).get("industry") or None),
         mode_of_work=raw.get("ModeOfWork") or None,
         city=_city(raw),
         min_years_experience=to_float(raw.get("YearOfExp")),
