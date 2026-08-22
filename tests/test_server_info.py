@@ -144,8 +144,17 @@ class TestTheStampIsFrozen:
         build = payload["build"]
 
         assert "code" in build and "jobcore" in build
-        assert build["jobcore"]["source"] == "git", build["jobcore"]
-        assert build["jobcore"]["commit"] != build["code"]["commit"]
+        # NOT `== "git"`. That was instahyre's assertion and it went red on a
+        # runner that pip-installs jobcore from a git URL - site-packages is
+        # not a work tree, so `package` is the correct answer there. What must
+        # hold is that jobcore answers SEPARATELY from this checkout, whichever
+        # way it is installed. See TestTheJobcoreStampSurvivesBothInstallations.
+        assert build["jobcore"]["source"] in ("git", "package"), build["jobcore"]
+        assert build["jobcore"].get("commit") or build["jobcore"].get("version"), (
+            build["jobcore"]
+        )
+        if build["jobcore"]["source"] == "git":
+            assert build["jobcore"]["commit"] != build["code"]["commit"]
 
     async def test_the_docstring_says_how_to_detect_a_stale_process(self):
         """The payload is useless to a reader who is not told what to compare."""
@@ -158,3 +167,93 @@ class TestTheStampIsFrozen:
         payload = payload_of(await server.uplers_server_info())
 
         assert payload["irreversible_tools"] == ["uplers_apply"]
+
+
+class TestTheJobcoreStampSurvivesBothInstallations:
+    """The hole instahyre's CI found and neither this box nor this CI can see.
+
+    jobcore is installed two different ways across this family. On the
+    operator's box and on uplers' own runner it is an EDITABLE install from a
+    real checkout, so `git rev-parse` answers and the stamp carries a commit.
+    Elsewhere - a consumer that pip-installs it from a git URL, which is what
+    the hosting plan targets - it lands in site-packages, which is not a work
+    tree, so there is no commit to report and the stamp was correctly and
+    uselessly `unknown`: silent in exactly the deployment where nobody can run
+    `git log` to find out by hand.
+
+    So the assertion cannot be "source == git". That is the assertion instahyre
+    had, and it is what went red. What must hold is weaker and actually true:
+    the stamp ANSWERS - with a commit, or with an installed version - in either
+    installation.
+    """
+
+    def _reload_under(self, monkeypatch, git_present: bool):
+        """Re-run buildinfo's module-level constants with git present or not.
+
+        Removing git from PATH is a faithful stand-in for the site-packages
+        case: jobcore's `resolve` funnels "no git executable" and "not a work
+        tree" into the SAME `unknown()` branch, and that branch is exactly
+        where the distribution fallback lives. Reloading rather than calling a
+        helper means the test exercises the real module-level constant, which
+        is the thing a payload actually carries.
+        """
+        import importlib
+
+        from jobcore import buildinfo as jc
+        from uplers_server import buildinfo as ub
+
+        jc.invalidate_cache()
+        if not git_present:
+            monkeypatch.setattr(jc.shutil, "which", lambda name: None)
+        return importlib.reload(ub)
+
+    def test_the_jobcore_stamp_answers_in_either_installation(self, monkeypatch):
+        """Both halves, so the tolerant assertion is not tolerance for a hole."""
+        import importlib
+
+        from jobcore import buildinfo as jc
+        from uplers_server import buildinfo as ub
+
+        try:
+            # 1. as installed here: an editable install over a real checkout
+            live = self._reload_under(monkeypatch, git_present=True)
+            assert live.JOBCORE_BUILD.source in ("git", "package")
+            assert live.JOBCORE_BUILD.commit or live.JOBCORE_BUILD.version
+
+            # 2. as installed in site-packages: no work tree to interrogate
+            packaged = self._reload_under(monkeypatch, git_present=False)
+            assert packaged.JOBCORE_BUILD.source in ("git", "package"), (
+                packaged.JOBCORE_BUILD
+            )
+            assert packaged.JOBCORE_BUILD.commit or packaged.JOBCORE_BUILD.version, (
+                packaged.JOBCORE_BUILD
+            )
+        finally:
+            monkeypatch.undo()
+            jc.invalidate_cache()
+            importlib.reload(ub)
+
+    def test_the_version_does_not_appear_by_magic(self, monkeypatch):
+        """CONTROL. Proves the fix is load-bearing and the tolerance is earned.
+
+        Without a distribution name there is nothing to fall back TO, so the
+        old derivation stays `unknown` off a work tree - which is precisely the
+        defect. Asking the same question WITH the name is what produces the
+        version. If this control ever passes on the first branch, the tolerant
+        assertion above has stopped meaning anything.
+        """
+        import jobcore
+        from jobcore import buildinfo as jc
+
+        jc.invalidate_cache()
+        monkeypatch.setattr(jc.shutil, "which", lambda name: None)
+        try:
+            old_way = jc.resolve(jobcore.__file__)
+            assert old_way.source == "unknown", old_way
+            assert old_way.version is None, old_way
+
+            new_way = jc.resolve(jobcore.__file__, distribution="jobcore")
+            assert new_way.source == "package", new_way
+            assert new_way.version, new_way
+        finally:
+            jc.invalidate_cache()

@@ -20,11 +20,13 @@ TWO REPOSITORIES ARE STAMPED, DELIBERATELY. This server's scoring IS jobcore's
 - ``policy.py`` binds a ``ScoringEngine`` out of it and ``fit.py`` does nothing
 else - so a stale jobcore moves this server's numbers while this server's own
 commit reads perfectly current. One commit field covering only this checkout
-would hide exactly half the surface that can be stale. jobcore is installed
-editable from a sibling checkout, so it has its own HEAD and its own dirty
-flag, and ``jobcore.__file__`` is the honest way to find that checkout from
-inside this process rather than guessing at a sibling directory that a
-non-editable install would not have.
+would hide exactly half the surface that can be stale. jobcore identifies
+itself through ``jobcore.buildinfo.self_stamp()``, because HOW it is installed
+varies across this family and the right answer differs with it: an editable
+install over a sibling checkout has its own HEAD and its own dirty flag, while
+a pip install from a git URL has no work tree at all and is identified by its
+released VERSION instead. Asking jobcore about itself gets whichever of those
+two is the true one; guessing at a sibling directory gets neither.
 
 Nothing here may break server import: every git call inside jobcore is bounded
 by a timeout and every failure degrades to ``source="unknown"`` with a reason,
@@ -33,7 +35,6 @@ never to a plausible-looking hash nobody measured.
 
 from __future__ import annotations
 
-import jobcore
 from jobcore import buildinfo as _jc
 
 from . import config
@@ -44,10 +45,21 @@ from . import config
 #: debugging is worth doing until it is restarted.
 BUILD = _jc.stamp(config.REPO_ROOT)
 
-#: jobcore's checkout, stamped separately for the reason in the module
-#: docstring. ``jobcore.__file__`` points inside the installed package; jobcore
-#: walks up from it to find the work tree.
-JOBCORE_BUILD = _jc.stamp(jobcore.__file__)
+#: jobcore's own stamp, separate from this server's for the reason in the
+#: module docstring.
+#:
+#: ``self_stamp()`` rather than ``stamp(jobcore.__file__)``, and the difference
+#: is not style. jobcore is installed two ways across this family: EDITABLE
+#: from a sibling checkout here and on this repo's CI, where git answers; and
+#: from a git URL into site-packages elsewhere, which is NOT a work tree. The
+#: old call had no distribution name to fall back on, so in that second case it
+#: returned ``source="unknown"`` with nothing in it - honest and useless at the
+#: same time, and silent in exactly the deployment where nobody can run
+#: ``git log`` by hand. instahyre's CI found it; this repo's cannot, because it
+#: checks jobcore out as a real repo. ``self_stamp()`` asks jobcore to identify
+#: ITSELF, so a work tree yields the commit and site-packages yields
+#: ``source="package"`` and the installed version.
+JOBCORE_BUILD = _jc.self_stamp()
 
 #: When this process came up and how long it has been up. Unlike the two stamps
 #: this is NOT frozen - uptime is derived fresh on every read, because a cached
