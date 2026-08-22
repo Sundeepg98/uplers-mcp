@@ -118,6 +118,62 @@ EP_PROFILE_UPSERT = "talent/profile-upsert"           # POST JSON {field, value}
 EP_CANCEL_OPPORTUNITY = "talent/hr/cancel-opportunity"  # POST JSON, dead code in this build
 EP_UPDATE_SAVED_HR = "talent/hr/update-saved-hr"      # POST JSON {hr_id: enc_id, type}
 
+# --- Recorded, deliberately NOT built -------------------------------------
+# Shapes kept here so the findings are not lost. No tool calls any of these.
+# Recorded 2026-08-22 from the exhaustive route sweep
+# (`_audit/_slices/_slice-uplers-route-inventory.md`, 214 API paths) and its
+# shape follow-up.
+
+#: The SERVER-SIDE saved-jobs view. `uplers_save_job` is a LOCAL shortlist and
+#: says so; this is Uplers' own bookmark, and the two are disjoint today.
+#:
+#: TWO CONTRACT DETAILS THAT PRODUCE A SILENTLY WRONG RESULT RATHER THAN AN
+#: ERROR, both VERIFIED in chunk 8562 (the builder the LIVE jobs board uses -
+#: NOT chunk 2893, which the 2026-08-21 audit read and which never emits this):
+#:
+#:   1. it is sent as the integer ``1``, never ``true``;
+#:   2. it is **EXCLUSIVE** - `1===t.is_saved_filter` short-circuits the
+#:      `Object.keys(t).map(...)` branch, so `roles`, `locations`, `experience`,
+#:      `engagements` and the rest are all DROPPED. Only `search` may ride
+#:      alongside it; `pagination`, `page`, `is_count` and `activeJob` sit
+#:      outside the ternary and are always sent.
+#:
+#: Sending it with filters would therefore return his saved jobs UNFILTERED
+#: while the caller believed the filters applied. Pin both facts with a test
+#: before building on this.
+#:
+#: The in-house board (chunk 2646) does the same, minus `search`, and adds
+#: `&type=inhouse`.
+QP_IS_SAVED_FILTER = "is_saved_filter"                # GET EP_OPPORTUNITIES, value 1
+
+#: Per-JOB estimated salary and company detail. Both `?hr_id=`, both answering
+#: `res.data.status == 200` with `salary_data` / `company_data`.
+#:
+#: The salary service has a dedicated **403 branch** that resolves
+#: ``{data:{salary_data:null}}`` - a client that EXPECTS to be refused, which is
+#: strong evidence the surface is an account entitlement rather than open data.
+#:
+#: WHAT IS NOT ESTABLISHED, recorded so nobody repeats the probes: on 2026-08-22
+#: six live GETs (HR_Number / numeric id / enc_id, against one closed and one
+#: open requisition) every one answered ``{"status":400,"errors":"No HR found.."}``.
+#: **No 403 was ever observed, so the entitlement question is UNTESTED, not
+#: answered** - what is unknown is which identifier space `hr_id` names here. It
+#: is not any of the three this API uses elsewhere. The remaining hypothesis is
+#: that the estimated-salary pill exists only on AGGREGATED postings, which this
+#: server deliberately does not fetch, so it was not testable from here.
+EP_COMPANY_SALARY = "get-company-salary-data"         # GET ?hr_id= (id space UNRESOLVED)
+EP_COMPANY_DETAIL = "get-company-detail"              # GET ?hr_id= (id space UNRESOLVED)
+
+#: Why `uplers_my_interviews` can return an empty diary that is NOT "no
+#: interviews": Uplers builds that list by scanning a connected mailbox, and
+#: MEASURED 2026-08-22 his `meta` read
+#: ``{has_consent: false, consent_interview_email_scan: null, gmail_connected: true}``.
+#: A mailbox is connected; the scan was never consented to. This is the route
+#: that flips it - and it is a WRITE, in the excluded `talent/outreach/*`
+#: namespace, that changes what Uplers reads on his behalf. His call, not this
+#: server's.
+EP_CONSENT_EMAIL_JOB_SCAN = "talent/outreach/consent-email-job-scan"  # POST/DELETE
+
 # --- Enums, verbatim from bundle module 22000 -----------------------------
 
 SORT_FIELDS = ("relevance", "created_at")
