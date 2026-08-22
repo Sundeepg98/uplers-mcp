@@ -54,6 +54,21 @@ EP_TAILOR_JOBS = "talent/hr/tailor-jobs"              # POST JSON {HR_Number}
 EP_PROFILE = "talent/profile"                         # GET (POST upserts)
 EP_ACCOUNT_STATUS = "talent/account/status"           # GET, no params
 
+#: HIS assessment record - which tests he has sat, and how they went.
+#:
+#: The catalogue half of this is already built: every public record carries an
+#: `assessments` array and `Opportunity.assessments_required` counts it. That
+#: says what a REQUISITION demands. This route says what HE has done, and the
+#: two together decide whether a required assessment is an obstacle or an
+#: afternoon already spent. 99 of the 250 records in the index carry a
+#: non-empty assessments array, so this is not a rare edge.
+#:
+#: VERIFIED in the bundle as export `TU`, a GET with no params whose service
+#: resolves `res.data.data` DIRECTLY rather than the axios response:
+#: ``(0,i.Yr)(o.TU).then(function(e){t(e.data.data)})``. Note the ``v2/``
+#: prefix - it is the only versioned route on this API surface.
+EP_ASSESSMENTS = "v2/assessments"                     # GET, no params
+
 EP_ROLE_MASTER = "talent/hr/all-opp-role-master"
 EP_SKILL_MASTER = "talent/hr/all-opp-skill-master"
 EP_LOCATION_MASTER = "talent/hr/all-opp-location-master"

@@ -490,3 +490,37 @@ class WriteResult(Compact):
     reverse_with: str | None = Field(None, description="The call that undoes this, when one exists")
     response: dict = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
+
+
+class SatAssessment(Compact):
+    """One assessment HE has sat, as opposed to one a requisition demands.
+
+    The requisition-side twin is :class:`~uplers_server.models.Assessment`,
+    built by `shaping.build_assessments` off the public record. The two carry
+    almost the same field names for genuinely different facts - that one
+    describes a TEST, this one describes an ATTEMPT - so they are deliberately
+    separate types rather than one reused shape.
+    """
+
+    name: str | None = None
+    tool: str | None = Field(None, description="AiInterview | TestGorilla")
+    duration: str | None = None
+    result: str | None = Field(None, description="Uplers' verdict, e.g. 'Passed'")
+    complete: bool | None = Field(
+        None, description="VERIFIED: their status 4 means complete; below it does not"
+    )
+    enc_id: str | None = Field(None, description="Encrypted id; what a re-test would send")
+
+
+class MyAssessments(Compact):
+    """His assessment record, with the zero disambiguated.
+
+    `taken` counts rows Uplers returned; `cleared` is UPLERS' OWN counter and is
+    passed through rather than recomputed, so a row this reader shapes badly can
+    never silently reduce their number.
+    """
+
+    taken: int = 0
+    cleared: int = Field(0, description="Uplers' own count of assessments cleared")
+    assessments: list[SatAssessment] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)

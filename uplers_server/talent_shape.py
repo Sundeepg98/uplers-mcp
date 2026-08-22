@@ -35,7 +35,9 @@ from .talent_models import (
     FieldDiff,
     FieldReport,
     Interview,
+    MyAssessments,
     ProjectEntry,
+    SatAssessment,
     TalentProfileResult,
     TalentRow,
 )
@@ -880,3 +882,135 @@ def compare_profiles(
         agree.append("skills")
 
     return (agree, differ, only_local, only_remote, contested)
+
+
+#: VERIFIED in the bundle's assign-assessment / re-test call sites: an
+#: assessment row's `status` is numeric and 4 means the attempt is finished
+#: (`h?(0,m.AG)(p.enc_id)...` is gated on it). Anything below 4 is in progress.
+ASSESSMENT_COMPLETE_STATUS = 4
+
+#: Where a human sits one. Named here rather than inline so the empty-record
+#: note and any future caller cannot drift apart.
+ASSESSMENTS_PAGE = "/talent/assessments"
+
+
+def to_sat_assessment(raw: dict) -> SatAssessment:
+    """One attempt. Returns an EMPTY shape rather than raising on a strange row.
+
+    His own list was empty when this route was captured, so unlike every other
+    reader in this module the ROW spelling here could not be pinned against a
+    live example. The field names below come from two VERIFIED places - the
+    master shape carried on every public record's `assessments[]`, and the
+    fields the bundle reads off a row at the assign-assessment and re-test call
+    sites - but a row Uplers spells some third way is a real possibility.
+    Returning an empty shape lets `my_assessments_from` COUNT such a row and
+    say it could not read it, which is the honest rendering. Dropping it would
+    under-report what he has sat.
+    """
+    nested = raw.get("assessment") if isinstance(raw.get("assessment"), dict) else {}
+    status = raw.get("status")
+    complete = None
+    if isinstance(status, (int, float)) and not isinstance(status, bool):
+        complete = int(status) >= ASSESSMENT_COMPLETE_STATUS
+
+    duration = _first(raw, "duration_formatted", "duration")
+    return SatAssessment(
+        name=_first(raw, "name") or nested.get("name"),
+        tool=_first(raw, "assessment_tool", "tool"),
+        duration=duration.strip() if isinstance(duration, str) else duration,
+        result=_first(raw, "result"),
+        complete=complete,
+        enc_id=_first(raw, "enc_id"),
+    )
+
+
+def my_assessments_from(payload: Any) -> MyAssessments:
+    """VERIFIED envelope, and it is not the one the bundle suggests.
+
+    CAPTURED live 2026-08-22 (`tests/fixtures/talent_assessments.json`)::
+
+        {"status": 200,
+         "data": {"assessments": [], "skillMaster": [], "searchedkills": [],
+                  "cleared": 0}}
+
+    The bundle's only call site is
+    ``(0,i.Yr)(o.TU).then(function(e){t(e.data.data)})``, which reads naturally
+    as "``data`` IS the list". It is not - ``data`` is an object and the list is
+    ``data.assessments``. A reader written from the bundle alone would have
+    iterated a dict and produced four rows named after its keys. This is the
+    second time on this API that a captured envelope has contradicted a
+    reasonable reading of the bundle, which is why the capture rule exists.
+
+    ``status`` here is the INTEGER 200 - a third success idiom alongside the
+    string "success" and the numeric 1 that `endpoints.py` already records.
+
+    A ZERO HERE HAS TWO READINGS, as with `interviews_from`, and this one is
+    resolved differently: `cleared` is an independent counter from the same
+    payload, so a genuinely empty record arrives self-confirming. What the
+    payload cannot tell us apart is "he has sat none" from "he has sat some and
+    this route reports something narrower", so the note says what was read
+    rather than asserting the stronger claim.
+    """
+    if not isinstance(payload, dict):
+        raise TalentError(
+            "v2/assessments returned %s, not a JSON object." % type(payload).__name__
+        )
+    data = payload.get("data")
+    if not isinstance(data, dict):
+        raise TalentError(
+            "v2/assessments returned `data` as %s, not an object holding an "
+            "`assessments` array (keys: %s). This is NOT 'no assessments taken'."
+            % (type(data).__name__, sorted(payload)[:12] or "none")
+        )
+    rows = data.get("assessments")
+    if not isinstance(rows, list):
+        raise TalentError(
+            "v2/assessments returned no `data.assessments` array (data keys: %s), "
+            "so his assessment record could not be read. This is NOT "
+            "'no assessments taken'." % (sorted(data)[:12] or "none")
+        )
+
+    notes: list[str] = []
+    status = payload.get("status")
+    if status is not None and status not in (200, "success", 1):
+        notes.append("Uplers reported status %r on this response." % (status,))
+
+    dict_rows = [row for row in rows if isinstance(row, dict)]
+    assessments = [to_sat_assessment(row) for row in dict_rows]
+
+    unreadable = sum(
+        1
+        for row in assessments
+        if not any((row.name, row.tool, row.result, row.enc_id))
+    )
+    if unreadable:
+        notes.append(
+            "%d of %d rows could not be read - Uplers returned a row shape this "
+            "reader does not recognise. They are counted in `taken` but their "
+            "detail is missing; re-run scripts/capture_assessments.py to pin the "
+            "new shape." % (unreadable, len(assessments))
+        )
+
+    cleared = data.get("cleared")
+    cleared = int(cleared) if isinstance(cleared, (int, float)) and not isinstance(cleared, bool) else 0
+
+    if not assessments:
+        notes.append(
+            "Uplers has no assessment on record for you: it returned an empty "
+            "list and its own cleared counter reads %d. That is a read, not a "
+            "failure - the route answered normally." % cleared
+        )
+        notes.append(
+            "This matters on this board: 99 of the 250 indexed requisitions "
+            "require an assessment, so sitting one at %s opens roughly 40%% of "
+            "the work. Uplers assigns them per job, so check a specific "
+            "requisition with uplers_get_opportunity() before assuming which."
+            % ASSESSMENTS_PAGE
+        )
+
+    return MyAssessments(
+        taken=len(assessments),
+        cleared=cleared,
+        assessments=assessments,
+        notes=notes,
+    )

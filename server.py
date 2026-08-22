@@ -101,6 +101,7 @@ from uplers_server.talent_models import (
     FieldDiff,
     FieldReport,
     InterviewList,
+    MyAssessments,
     LoginResult,
     PipelineResult,
     ProfileComparison,
@@ -2942,6 +2943,30 @@ async def uplers_my_interviews(detailed: bool = True) -> InterviewList:
         payload = await client.get_json(endpoints.EP_INTERVIEW_LIST, params)
     interviews, notes = talent_shape.interviews_from(payload)
     return InterviewList(interviews=interviews, count=len(interviews), notes=notes)
+
+
+@mcp.tool()
+async def uplers_my_assessments() -> MyAssessments:
+    """Assessments YOU have sat, and whether Uplers counts them cleared.
+
+    The other half of a story this server only told from one side. Every
+    requisition already reports what it DEMANDS - `uplers_get_opportunity()`
+    lists them and `uplers_assess_fit()` raises a flag - but nothing reported
+    what you have already DONE, so a required assessment always read as an
+    obstacle even when it was an afternoon already spent.
+
+    It is worth asking on this board specifically: 99 of the 250 indexed
+    requisitions carry a non-empty assessments array, so roughly 40% of the
+    reachable work is gated behind an AiInterview or a TestGorilla test.
+
+    Read-only, no arguments. Sitting an assessment is done on Uplers' own site;
+    this server does not start one, and deliberately does not - `assign-assessment`
+    opens a third-party testing tool in a browser and is not a thing to trigger
+    from a tool call.
+    """
+    async with _talent_client() as client:
+        payload = await client.get_json(endpoints.EP_ASSESSMENTS, None)
+    return talent_shape.my_assessments_from(payload)
 
 
 @mcp.tool()

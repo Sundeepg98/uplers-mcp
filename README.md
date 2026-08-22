@@ -720,6 +720,7 @@ filtered out of `sections_present` too - "expected_ctc is populated" is itself a
 | `uplers_restore_profile(snapshot_id=None, confirm=False)` | Sends a snapshot back. Itself a replacement write, so anything added since the snapshot is deleted by it. Previews by default; refuses a traversing id or an empty snapshot. |
 | `uplers_list_profile_snapshots()` | Restore points, newest first. Reads disk only; needs no session. |
 | `uplers_my_interviews(detailed=True)` | Interviews Uplers has arranged for him. Read-only. See the namespace note below. |
+| `uplers_my_assessments()` | Assessments HE has sat, and Uplers' own `cleared` count. The other half of a story the server previously told only from the requisition's side: 99 of the 250 indexed records demand an assessment, but nothing reported which ones he had already done. Read-only, no arguments. |
 | `uplers_filter_options(kind, search=None)` | Turns "React" or "Bangalore" into the internal ids `uplers_my_feed` needs. `kind` is `role` / `skill` / `location` / `company`. |
 | `uplers_apply(hr_number, confirm=False)` | **Applies. Cannot be undone.** Previews by default; sends nothing without `confirm=True`; refuses to apply twice. Read "Applying cannot be undone" first. |
 | `uplers_dismiss(hr_number, confirm=False, undo=False)` | Mark "not interested", or reverse that with `undo=True`. Genuinely reversible - Uplers ships the reset flag. Previews by default. |

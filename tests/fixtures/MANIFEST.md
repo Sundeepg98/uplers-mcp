@@ -141,3 +141,37 @@ exists to pin. The address itself, `gmail_email`, is deleted.
 The JOB's published band (`cost`, `cost_string`, `cost_range`) is KEPT - what the client pays is
 public, what he earns is not. The two `CTC` strings inside `talent_pipeline.json` are in the
 clients' own job descriptions, not his record.
+
+---
+
+## `talent_assessments.json` - HIS assessment record
+
+Captured from `GET /api/v2/assessments` on **2026-08-22** against his live signed-in session by
+`scripts/capture_assessments.py`. Re-run that script to refresh it; do not hand-edit it.
+
+**Why it exists, and why capturing beat reading the bundle.** The only call site in 13.4 MB of
+their JS is `(0,i.Yr)(o.TU).then(function(e){t(e.data.data)})`, which reads naturally as "`data`
+IS the list of assessments". It is not. The live envelope is:
+
+```json
+{"status": 200,
+ "data": {"assessments": [], "skillMaster": [], "searchedkills": [], "cleared": 0}}
+```
+
+`data` is an OBJECT and the list is `data.assessments`. A shaper written from the bundle alone
+would have iterated a dict and produced four rows named after its keys. Their spelling
+`searchedkills` is verbatim.
+
+Two further facts this capture pinned:
+
+- `status` here is the integer **200** - a third success idiom on this API, alongside the string
+  `"success"` (`update-saved-hr`) and the numeric `1` (`talent/recommendations`) that
+  `endpoints.py` already records.
+- **His list is empty and `cleared` is 0.** He has sat none. That is a measurement, not a
+  placeholder, and it is why `to_sat_assessment` is the one reader in `talent_shape` whose ROW
+  spelling could not be pinned against a live example - the field names there come from the
+  requisition-side master shape (`_survey.json` -> `assessment_shape`) and from the fields the
+  bundle reads at the `assign-assessment` / `re-test` call sites. A row Uplers spells some third
+  way is counted and REPORTED as unreadable rather than silently dropped.
+
+Nothing was redacted: the payload carries no private key. `assert_clean` ran over it anyway.

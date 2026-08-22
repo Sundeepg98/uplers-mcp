@@ -85,6 +85,7 @@ AUTH_TOOL_NAMES = {
     "uplers_my_profile",
     "uplers_compare_profiles",
     "uplers_my_interviews",
+    "uplers_my_assessments",
     "uplers_filter_options",
 }
 
@@ -193,7 +194,7 @@ def wire_client(monkeypatch, handler):
 async def test_importing_server_registers_exactly_the_expected_tools():
     tools_listed = await server.mcp.list_tools()
 
-    assert len(tools_listed) == 41
+    assert len(tools_listed) == 42
     assert {tool.name for tool in tools_listed} == TOOL_NAMES
     # The five original board tools must survive every later addition.
     assert BOARD_TOOL_NAMES <= {tool.name for tool in tools_listed}
