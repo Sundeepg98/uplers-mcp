@@ -31,7 +31,7 @@ two placeholder patterns is an offender. Three deliberate choices:
   with no scheme is exactly as much of a route to a named human as the https
   form; a pattern anchored on `https://` waves it through.
 * **The allowlist is tested against the MATCHED SUBSTRING (findall), not the
-  whole field.** This is not decoration: on the `fa22b49` blob, two of the 44
+  whole field.** This is not decoration: on the `7984a3f` blob, two of the 44
   hits sat inside the free text of `message_full` and `reply_summary` - fields
   whose names give no hint they carry an address. A whole-field check happens
   to catch those (the surrounding sentence fails the anchored pattern anyway),
@@ -91,11 +91,11 @@ Controls (10), all marked `__CONTROL` in the docstring per repo convention:
    while the suite stayed green. Pins 7 rows, 35 admitted placeholder emails,
    7 admitted placeholder URLs - i.e. the allowlist is exercised on real data.
 5. `test_the_contact_detector_fires_on_the_committed_leak__CONTROL` - **the
-   headline control.** Loads `fa22b49:tests/fixtures/outreach_missed_followups.json`
+   headline control.** Loads `7984a3f:tests/fixtures/outreach_missed_followups.json`
    via `subprocess` -> `git show` and asserts the exact offender count AND the
    per-field breakdown (section 3).
 6. `test_the_pay_detector_fires_on_the_committed_leak__CONTROL` - same method
-   on `fa22b49:tests/fixtures/talent_preference.json`; asserts the exact four
+   on `7984a3f:tests/fixtures/talent_preference.json`; asserts the exact four
    trails. Calibrates the second detector independently of the first.
 7. `test_the_scrub_actually_cleaned_those_two_blobs__CONTROL` - same detectors,
    same two files, working-tree version, expecting zero. Without this, 5 and 6
@@ -140,7 +140,7 @@ bogus path -> `None`, real specimen -> `dict`. On this box the controls DO run:
 genuinely executed rather than silently opting out.
 
 
-## 3. OFFENDER COUNT ON THE `fa22b49` BLOB - MEASURED 44, NOT 20, NOT 12
+## 3. OFFENDER COUNT ON THE `7984a3f` BLOB - MEASURED 44, NOT 20, NOT 12
 
 **The brief's stated premise was wrong and this is the escalation.** The brief
 said "measured for you: the real-address hit count on that blob is 20". A third
@@ -148,7 +148,7 @@ figure is on the record: `_audit/2026-08-23-build-uplers.md` says the blob
 "matches the real contact strings 12 times". The two do not agree with each
 other, and neither reproduces.
 
-Measured on `git show fa22b49:tests/fixtures/outreach_missed_followups.json`:
+Measured on `git show 7984a3f:tests/fixtures/outreach_missed_followups.json`:
 
     TOTAL contact hits ....................... 44   <- asserted
       of which email ......................... 37
@@ -194,20 +194,20 @@ capture ran and was added afterwards" - is contradicted by git.
 ### Evidence
 
 1. `git log --follow -- scripts/capture_outreach.py` returns exactly TWO
-   commits: `fa22b49` and `b547ad0` ("fix(fixtures): the capture redacts BEFORE
+   commits: `7984a3f` and `d1a9148` ("fix(fixtures): the capture redacts BEFORE
    it writes, and proves it after").
-2. `git show fa22b49 --name-status` shows the script was **added in the same
+2. `git show 7984a3f --name-status` shows the script was **added in the same
    commit as all seven fixtures** (`A scripts/capture_outreach.py` alongside
    `A` for each fixture). So a redaction map DID exist at capture time: the
-   `fa22b49` script carries a `DROP` tuple and a `scrub()` that deletes those
+   `7984a3f` script carries a `DROP` tuple and a `scrub()` that deletes those
    keys at any depth. **It ran, on all seven files.**
-3. `git show b547ad0 --name-status` touches exactly three paths: the script and
+3. `git show d1a9148 --name-status` touches exactly three paths: the script and
    the two contaminated fixtures. Nothing else needed fixing.
 
 ### Why it failed, and it failed differently on each of the two files
 
 **On the contact file - the map was DELETE-ONLY and keyed on EXACT key names
-that Uplers does not use.** The `fa22b49` DROP list was:
+that Uplers does not use.** The `7984a3f` DROP list was:
 
     email, contact_number, contact_number_country_code, address, profile_pic,
     profile_pic_url, resume, resume_url, dob, linkedin_id, token,
@@ -221,13 +221,13 @@ payload is literally named `email` - they are `to_email`, `from_email`,
 `employee_business_email` - and `if key in DROP` is exact membership, not a
 substring test. So every one of them sailed through a filter that was running.
 The concept of MASKING (which is what that file needs, since the shaper reads
-those keys) did not exist in the script at all until `b547ad0` added `MASK`.
+those keys) did not exist in the script at all until `d1a9148` added `MASK`.
 
 **On the pay file - the keys were absent from DROP, and the one instrument that
 DID see them was ADVISORY.** `current_ctc`, `expected_ctc`, `monthly_salary`
-and `ctc_breakdown` were not in the `fa22b49` DROP list; `b547ad0` added them.
-But the `fa22b49` script already had a `SUSPICIOUS` regex containing
-`ctc|salary`, which matches all four. Look at what the `fa22b49` main loop does
+and `ctc_breakdown` were not in the `7984a3f` DROP list; `d1a9148` added them.
+But the `7984a3f` script already had a `SUSPICIOUS` regex containing
+`ctc|salary`, which matches all four. Look at what the `7984a3f` main loop does
 with the result:
 
     clean = scrub(body)
@@ -238,7 +238,7 @@ with the result:
 **The file is written before the warning is printed, and nothing consults
 `flagged`.** No `unlink`, no `continue`, no raise. The detector almost certainly
 fired and printed `SUSPICIOUS=[...]` to the console, and the capture wrote and
-committed the file anyway. `b547ad0` is exactly the fix for this: the write path
+committed the file anyway. `d1a9148` is exactly the fix for this: the write path
 became `write_fixture()`, which re-reads off disk to prove the redaction and
 whose caller does `target.unlink()` on a hit.
 
@@ -246,7 +246,7 @@ whose caller does `target.unlink()` on a hit.
 
 "The other six were clean because they contained no contact data at all, not
 because a filter caught anything" - **CORRECT, and measured.** Running the
-detector over all seven `fa22b49` blobs: `outreach_step`, `outreach_dashboard`,
+detector over all seven `7984a3f` blobs: `outreach_step`, `outreach_dashboard`,
 `outreach_pending_jobs`, `outreach_tailor_activity` and `saved_filter_page` all
 return 0 contact hits and 0 pay keys. Those routes returned no contact or pay
 data in the first place. The scrub caught nothing in them because there was
@@ -254,7 +254,7 @@ nothing there.
 
 ### Consequence for the record
 
-`d35646a`'s claim - "an independent secret sweep over all eight files found
+`9a0481b`'s claim - "an independent secret sweep over all eight files found
 nothing sensitive - build-uplers had built its own scrub map in BEFORE
 capturing" - is a TRUE clause wrapped around a FALSE one. A scrub map did exist
 before capture. It simply did not cover the data that mattered, and the sweep
@@ -274,7 +274,7 @@ thought to name, and this one proves the point twice over.
 ## 5. SUITE COUNTS
 
     tests/test_fixture_hygiene.py alone .......... 12 passed  (0 skipped)
-    FULL SUITE before (baseline given, d5adc8b) .. 1214 passed
+    FULL SUITE before (baseline given, 23af7c5) .. 1214 passed
     FULL SUITE after ............................. 1226 passed in 41.32s
 
 1226 - 1214 = 12, exactly the new tests. Zero breakage, zero skips, zero
@@ -284,7 +284,7 @@ offender count).
 
 ## 6. NOT DONE / FOR THE LEAD
 
-* **The `fa22b49` blob is still in history and still pushed.** This slice adds
+* **The `7984a3f` blob is still in history and still pushed.** This slice adds
   the guard that catches the class going forward; it does NOT remediate the
   existing commit, which needs history surgery on a shared branch and is the
   operator's call. Unchanged from the earlier escalations in

@@ -229,14 +229,14 @@ placeholder space. A hit DELETES the file rather than leaving a half-clean fixtu
 finished.
 
 **Known-bad history, and why the redaction failed.** The raw versions of these files were swept into
-`fa22b49` by a concurrent `git add -A` and are on `origin/master`. On that blob,
+`7984a3f` by a concurrent `git add -A` and are on `origin/master`. On that blob,
 `outreach_missed_followups.json` has **37 lines carrying an email-shaped string and 7 carrying a
 LinkedIn profile URL, across 8 distinct real addresses**, and `talent_preference.json` still reads
 `current_ctc "1650000"`. The repo is PRIVATE with 0 forks and one owner (`gh repo view`), so no
 third party ever had read access; history surgery on a shared branch with live CI is the operator's
 call.
 
-A redaction map **did** exist when those were captured - `git show fa22b49 --name-status` shows
+A redaction map **did** exist when those were captured - `git show 7984a3f --name-status` shows
 `scripts/capture_outreach.py` added in the same commit - and it failed three ways, which is the
 part worth keeping:
 
@@ -249,10 +249,10 @@ part worth keeping:
 An advisory guard is not a guard. The six other fixtures came back clean because those routes carry
 no contact data, not because a filter caught anything - which is exactly what made a broken filter
 look like a working one. `tests/test_fixture_hygiene.py` is the non-advisory version, and it is
-calibrated against the `fa22b49` blob rather than against a mock.
+calibrated against the `7984a3f` blob rather than against a mock.
 
-Two figures in this repo's own record were wrong and are corrected here: `d35646a` reported "an
-independent secret sweep over all eight files found nothing sensitive", and `b547ad0` reported both
+Two figures in this repo's own record were wrong and are corrected here: `9a0481b` reported "an
+independent secret sweep over all eight files found nothing sensitive", and `d1a9148` reported both
 a count of 12 (a line-count over three hand-picked needles, presented as a total) and a diagnosis of
 "the scrub map was built AFTER the first capture". All three are false. A wrong all-clear in the
 record is worse than the untidy commit it describes.

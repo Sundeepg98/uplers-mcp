@@ -255,7 +255,7 @@ journey status is a different value.
 preference fixture "has already had pay and contact fields deleted". That is
 true of the WORKING COPY only. It is NOT true of git.
 
-`tests/fixtures/talent_preference.json` is committed at `fa22b49`
+`tests/fixtures/talent_preference.json` is committed at `7984a3f`
 ("feat(session): declare the renewal mechanism...", 2026-08-23 08:54:30
 +0530) carrying his real data:
 
@@ -271,7 +271,7 @@ true of the WORKING COPY only. It is NOT true of git.
 The scrub exists only as an UNCOMMITTED working-tree deletion of those 8
 lines (` M tests/fixtures/talent_preference.json`), applied after the commit.
 
-`git branch -r --contains fa22b49` returns `origin/master`, and
+`git branch -r --contains 7984a3f` returns `origin/master`, and
 `git log origin/master..HEAD` is EMPTY - **the commit is pushed**. Remote is
 `https://github.com/Sundeepg98/uplers-mcp.git`. I could not check repo
 visibility without a network call, which this slice is forbidden to make;
