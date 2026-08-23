@@ -1,0 +1,31 @@
+{
+  "data": {
+    "best_for_you_breakdown": {
+      "glassdoor": 0,
+      "hirist": 0,
+      "indeed": 0,
+      "linkedin": 51,
+      "naukri": 0,
+      "wellfound": 0
+    },
+    "best_for_you_count": 50,
+    "breakdown": {
+      "glassdoor": 0,
+      "hirist": 0,
+      "indeed": 0,
+      "linkedin": 79,
+      "naukri": 0,
+      "wellfound": 0
+    },
+    "consent_email_job_scan": "2026-08-12 01:32:36",
+    "gmail_connected": true,
+    "gmail_email": "operator1@example.invalid",
+    "has_consent": true,
+    "job_function_id": 3,
+    "job_function_name": "Full Stack Development",
+    "last_job_scan": "2026-08-23 06:58:17",
+    "total_jobs": 79
+  },
+  "message": "Recommended email jobs meta fetched successfully",
+  "status": 200
+}

@@ -1,0 +1,8 @@
+{
+  "data": {
+    "days": 15,
+    "pending": true
+  },
+  "message": "Reply reminders pending flag.",
+  "status": 200
+}

@@ -1,0 +1,13 @@
+{
+  "data": {
+    "disabled_followup_gmail": false,
+    "disabled_followup_linkedin": false,
+    "id": 3044,
+    "interval_days_gmail": 1,
+    "interval_days_linkedin": 1,
+    "message_gmail": "<p>Redacted follow-up message 1.</p>",
+    "message_linkedin": "<p>Redacted follow-up message 1.</p>"
+  },
+  "message": "Follow-up settings fetched successfully",
+  "status": 200
+}

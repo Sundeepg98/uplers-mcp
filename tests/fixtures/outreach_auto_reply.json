@@ -1,0 +1,18 @@
+{
+  "data": {
+    "auto_reply_categories": [
+      "asking_talent_info",
+      "asking_email_source",
+      "direct_apply",
+      "asking_resume",
+      "asking_job_details",
+      "asking_to_connect",
+      "asking_confirmation",
+      "complete_assessment"
+    ],
+    "handle_auto_reply": false,
+    "hours": 2
+  },
+  "message": "Auto reply hours fetched successfully",
+  "status": 200
+}

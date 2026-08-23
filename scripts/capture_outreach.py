@@ -92,6 +92,20 @@ MASK = {
     "message_full": "Redacted reply body %d. The category field carries the meaning.",
     "reply_summary": "Redacted reply summary %d.",
     "gmail_thread_id": "redacted-thread-%d",
+
+    # Added for `capture_agent_surface.py`. These are HIS OWN words and HIS OWN
+    # mailbox rather than a third party's, which is why they are masked and not
+    # dropped: a shaper that reports "a Gmail template exists" or "the follow-up
+    # message is set" needs the KEY to survive, and needs nothing of the value.
+    #
+    # `gmail_email` is the connected mailbox address, echoed by three routes.
+    # The templates and follow-up messages are multi-paragraph self-descriptions
+    # carrying his employer history, his LinkedIn URL and his notice period.
+    "gmail_email": "operator%d@example.invalid",
+    "gmail_template": "<p>Redacted outreach template %d.</p>",
+    "linkedin_template": "<p>Redacted outreach template %d.</p>",
+    "message_gmail": "<p>Redacted follow-up message %d.</p>",
+    "message_linkedin": "<p>Redacted follow-up message %d.</p>",
 }
 
 #: Proof the redaction worked, re-read off disk rather than off the object that
@@ -153,6 +167,23 @@ def suspicious_keys(node, trail="$"):
             yield from suspicious_keys(item, "%s[%d]" % (trail, index))
 
 
+def leak_summary(leaks) -> str:
+    """Name WHERE each leak is, never WHAT it says.
+
+    Two reasons this is not `%r` of the tuples. The obvious one: a leak report
+    that prints the leaked value copies personal data into the console
+    scrollback and every log that captures it, which is the thing the redaction
+    exists to prevent. The measured one: on 2026-08-23 a captured template
+    contained an emoji, and printing it raised `UnicodeEncodeError` on a cp1252
+    console **part-way through the capture run**, so the routes after it were
+    never fetched. A diagnostic that can abort the job it is diagnosing is a
+    defect. The trail is what a human needs to fix `DROP`/`MASK` anyway.
+    """
+    return ", ".join(
+        "%s at %s" % (kind, trail) for kind, trail, _ in sorted(leaks)
+    )
+
+
 def write_fixture(target: Path, body) -> list:
     """Redact, write, then re-read and prove it. Returns the leaks found."""
     clean = redact(body)
@@ -185,7 +216,7 @@ async def main() -> int:
             leaks = write_fixture(target, body)
             print("%-26s %6d bytes%s" % (
                 stem, target.stat().st_size,
-                ("  LEAKED=%r" % leaks) if leaks else "  clean",
+                ("  LEAKED: %s" % leak_summary(leaks)) if leaks else "  clean",
             ))
             if leaks:
                 target.unlink()

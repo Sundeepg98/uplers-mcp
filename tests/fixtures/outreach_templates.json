@@ -1,0 +1,9 @@
+{
+  "data": {
+    "gmail_template": "<p>Redacted outreach template 1.</p>",
+    "gmail_template_subject": "Looking to apply for {{title}} at {{company}}, need referral",
+    "linkedin_template": "",
+    "linkedin_template_subject": ""
+  },
+  "status": "success"
+}

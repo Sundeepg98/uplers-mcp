@@ -1,0 +1,134 @@
+{
+  "data": [
+    {
+      "company_id": 19868,
+      "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_Infosys_Finacle_1779812547_ZtUAvBISpz.jpeg",
+      "company_name": "Infosys Finacle",
+      "created_at": "2026-08-12T02:15:04+05:30",
+      "id": 261,
+      "reason": null
+    },
+    {
+      "company_id": 1092,
+      "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/74321728548016.png",
+      "company_name": "Deloitte",
+      "created_at": "2026-08-12T01:22:46+05:30",
+      "id": 260,
+      "reason": null
+    },
+    {
+      "company_id": 16898,
+      "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_JPMorganChase_1770026750_piTHT8YgoD.jpeg",
+      "company_name": "JPMorganChase",
+      "created_at": "2026-08-12T01:22:29+05:30",
+      "id": 259,
+      "reason": null
+    },
+    {
+      "company_id": 3355,
+      "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_JPMorgan_Chase___Co__1741340696_VHVGsY0SJO.jpeg",
+      "company_name": "JPMorgan Chase & Co.",
+      "created_at": "2026-08-12T01:22:13+05:30",
+      "id": 258,
+      "reason": null
+    },
+    {
+      "company_id": 2720,
+      "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_Capgemini_India_pvt_ltd_1741342050_nBRRNAXv8e.jpeg",
+      "company_name": "Capgemini India pvt ltd",
+      "created_at": "2026-08-12T01:21:51+05:30",
+      "id": 257,
+      "reason": null
+    },
+    {
+      "company_id": 3144,
+      "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_Capgemini_1741341477_RmbUXLNrVX.jpeg",
+      "company_name": "Capgemini",
+      "created_at": "2026-08-12T01:21:34+05:30",
+      "id": 256,
+      "reason": null
+    },
+    {
+      "company_id": 16061,
+      "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/87201757909439.png",
+      "company_name": "HCL Technologies",
+      "created_at": "2026-08-12T01:21:13+05:30",
+      "id": 255,
+      "reason": null
+    },
+    {
+      "company_id": 12275,
+      "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_HCLTech_1747906442_2cVCVW5GLM.jpeg",
+      "company_name": "HCLTech",
+      "created_at": "2026-08-12T01:20:54+05:30",
+      "id": 254,
+      "reason": null
+    },
+    {
+      "company_id": 16882,
+      "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_Cognizant_1769788694_QVbbJQBgcQ.jpeg",
+      "company_name": "Cognizant",
+      "created_at": "2026-08-12T01:20:36+05:30",
+      "id": 253,
+      "reason": null
+    },
+    {
+      "company_id": 16902,
+      "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_Infosys_1770030722_hmttKN3Nw1.jpeg",
+      "company_name": "Infosys",
+      "created_at": "2026-08-12T01:20:18+05:30",
+      "id": 252,
+      "reason": null
+    },
+    {
+      "company_id": 17549,
+      "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_Accenture_services_Pvt_Ltd_1772956089_EplLV2aJd9.jpeg",
+      "company_name": "Accenture services Pvt Ltd",
+      "created_at": "2026-08-12T01:19:58+05:30",
+      "id": 251,
+      "reason": null
+    },
+    {
+      "company_id": 223,
+      "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_Accenture_India_1741344762_bq5Bv4ewOd.jpeg",
+      "company_name": "Accenture India",
+      "created_at": "2026-08-12T01:19:42+05:30",
+      "id": 250,
+      "reason": null
+    },
+    {
+      "company_id": 16954,
+      "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_Accenture_in_India_1770187259_z4x1fqTiYz.jpeg",
+      "company_name": "Accenture in India",
+      "created_at": "2026-08-12T01:19:26+05:30",
+      "id": 249,
+      "reason": null
+    },
+    {
+      "company_id": 17473,
+      "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_CGI_1772528755_dkkTQf24gB.jpeg",
+      "company_name": "CGI",
+      "created_at": "2026-08-12T01:18:54+05:30",
+      "id": 248,
+      "reason": null
+    },
+    {
+      "company_id": 3290,
+      "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_Tata_consultancy_service_1741340987_GvJI3MgSt8.jpeg",
+      "company_name": "Tata consultancy service",
+      "created_at": "2026-08-12T01:18:39+05:30",
+      "id": 247,
+      "reason": null
+    },
+    {
+      "company_id": 16993,
+      "company_logo": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_Wissen_Technology_1770354150_MWx8nCa3ST.jpeg",
+      "company_name": "Wissen Technology",
+      "created_at": "2026-08-12T01:18:12+05:30",
+      "id": 246,
+      "reason": null
+    }
+  ],
+  "message": "Disabled companies fetched successfully",
+  "status": 200
+}
