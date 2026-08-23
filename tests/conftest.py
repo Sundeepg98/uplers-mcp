@@ -23,8 +23,10 @@ from __future__ import annotations
 import asyncio
 import base64
 import json
+import re
 import sys
 from pathlib import Path
+from urllib.parse import quote
 
 import httpx
 import pytest
@@ -32,6 +34,13 @@ import pytest
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+
+# scripts/ carries credential_echo_control, whose TRANSFORMS tuple the leak
+# controls parametrise off. Importing the adversary's own list is the point:
+# a spelling with no control cannot exist if the controls are generated from
+# the list rather than kept by hand beside it.
+if str(ROOT / "scripts") not in sys.path:
+    sys.path.insert(0, str(ROOT / "scripts"))
 
 FIXTURE_DIR = Path(__file__).resolve().parent / "fixtures"
 
@@ -281,8 +290,19 @@ def resume_file(tmp_path):
 # a JWT looks like. A check that matches a constant is not guarding a secret.
 
 #: Below this length a fragment stops being an identifier and starts being a
-#: word, and the detector would report prose.
+#: word, and the detector would report prose. It is also the RUN length: every
+#: window of this size inside a fragment is hunted, not just the whole
+#: fragment, because the two leaks a whole-string hunt cannot see are a
+#: TRUNCATING redaction ("safe" 12-char fingerprints) and a value SPLIT across
+#: two display fields. Both were MEASURED green on 2026-08-23 by
+#: scripts/leak_matrix.py before this was written.
 MIN_FRAGMENT = 12
+
+#: Any three base64url segments. The ONLY rule here that can catch a leak of
+#: his REAL token down a path no test planted a canary into - every other rule
+#: needs to know the value in advance, and by construction no test knows the
+#: live credential.
+JWT_SHAPE = re.compile(r"eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}")
 
 
 def _b64url_json(segment: str):
@@ -292,6 +312,28 @@ def _b64url_json(segment: str):
         return json.loads(raw)
     except Exception:                                    # noqa: BLE001
         return None
+
+
+def _encodings(secret: str) -> set:
+    """The same credential, spelled the ways a leaking build spells it.
+
+    THE ENCODING DOES NOT HAVE TO LIVE IN THE CREDENTIAL - IT CAN LIVE IN THE
+    LEAK PATH. A build that base64s the token on its way out shares no
+    substring with the token, so hunting the token finds nothing while the
+    whole value ships. Measured, not argued: before these four spellings were
+    added, `scripts/leak_matrix.py` reported the b64, b64url and hex rows
+    caught by exactly ONE of eight guarded assertions.
+
+    Kept in step with `scripts/credential_echo_control.py::render`, which is
+    the adversary these exist to answer.
+    """
+    raw = secret.encode("utf-8")
+    return {
+        base64.b64encode(raw).decode("ascii"),
+        base64.urlsafe_b64encode(raw).decode("ascii").rstrip("="),
+        raw.hex(),
+        quote(secret, safe=""),
+    }
 
 
 def _raw_fragments(secret: str) -> set:
@@ -309,27 +351,54 @@ def _raw_fragments(secret: str) -> set:
         tail = secret.split("|", 1)[1]
         if len(tail) >= MIN_FRAGMENT:
             found.add(tail)
-    return found
+    found |= _encodings(secret)
+    return {piece for piece in found if len(piece) >= MIN_FRAGMENT}
+
+
+def _runs(piece: str) -> set:
+    """Every MIN_FRAGMENT-length window of a fragment.
+
+    A truncated fingerprint and a value split across two fields are both
+    SUBSTRINGS of the credential rather than the whole of it, so a whole-string
+    hunt is structurally unable to see either.
+    """
+    if len(piece) <= MIN_FRAGMENT:
+        return {piece}
+    return {piece[i:i + MIN_FRAGMENT] for i in range(len(piece) - MIN_FRAGMENT + 1)}
 
 
 def secret_fragments(secrets, format_decoys=()) -> dict:
-    """Map each secret to the fragments whose appearance would disclose it.
+    """Map each secret to the RUNS whose appearance would disclose it.
 
     `format_decoys` are credentials of the SAME FORMAT but a different value.
-    Any fragment a secret shares with a decoy is derivable from the format
-    alone - a JWT's header segment is the whole reason this argument exists -
-    and is therefore NOT evidence that this credential leaked. Subtracting
-    them is what keeps the detector from reporting prose, and it is a
-    measurement rather than a judgement: two unrelated credentials sharing a
-    string is exactly what "not identifying" means.
+    Anything a secret shares with a decoy is derivable from the format alone -
+    a JWT's header segment is the whole reason this argument exists - and is
+    therefore NOT evidence that this credential leaked. Subtracting them keeps
+    the detector from reporting prose, and it is a measurement rather than a
+    judgement: two unrelated credentials sharing a string is exactly what "not
+    identifying" means.
+
+    THE SUBTRACTION HAPPENS AT RUN LEVEL, NOT FRAGMENT LEVEL, and that is not
+    a detail. Subtracting whole fragments removes the header segment but
+    leaves every 12-character window INSIDE it, so the moment run-hunting was
+    added the generic-header false positive came straight back - measured on
+    2026-08-23, two controls red. A rule and its exception have to be written
+    at the same granularity or the exception does not apply.
+
+    Runs are expanded once, here, rather than per-payload in `leaks_of`.
     """
     generic = set()
     for decoy in format_decoys:
-        generic |= _raw_fragments(decoy)
-    return {
-        secret: frozenset(f for f in _raw_fragments(secret) if f not in generic)
-        for secret in secrets
-    }
+        for piece in _raw_fragments(decoy):
+            generic |= _runs(piece)
+
+    hunted = {}
+    for secret in secrets:
+        runs = set()
+        for piece in _raw_fragments(secret):
+            runs |= _runs(piece)
+        hunted[secret] = frozenset(runs - generic)
+    return hunted
 
 
 def leaks_of(payload, fragments) -> list:
@@ -337,13 +406,23 @@ def leaks_of(payload, fragments) -> list:
 
     `fragments` is a mapping from :func:`secret_fragments`. Returns a list so a
     failing assertion prints WHAT leaked and WHERE, not just that it did.
+
+    Three rules, and they fail in different directions on purpose:
+      * every RUN of every fragment, which covers truncation and splitting;
+      * the encoded spellings, which cover a leak path that re-encodes;
+      * JWT_SHAPE, which needs no canary at all and is therefore the only rule
+        that could catch his real token escaping down an unplanted path.
     """
     found = []
     for trail, text in walk_strings(payload):
-        for secret, pieces in fragments.items():
-            for piece in pieces:
-                if piece in text:
-                    found.append((trail, secret, piece))
+        shaped = JWT_SHAPE.search(text)
+        if shaped:
+            found.append((trail, "<jwt-shape>", shaped.group()[:16]))
+        for secret, runs in fragments.items():
+            for run in runs:
+                if run in text:
+                    found.append((trail, secret, run))
+                    break
     return found
 
 

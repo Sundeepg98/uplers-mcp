@@ -67,6 +67,14 @@ def make_jwt(**claims) -> str:
     return header + "." + _segment(claims) + ".signature-is-never-verified-here"
 
 
+#: TOKEN, and the spellings a leaking build would give it. The decoy is a
+#: Sanctum token of the same shape that is never stored, so anything the two
+#: share is a property of the format rather than of this credential.
+SANCTUM_FRAGMENTS = secret_fragments(
+    (TOKEN,), format_decoys=("99|decoy-value-never-stored-anywhere-at-all",)
+)
+
+
 def make_probe_client(handler, token=TOKEN):
     """A TalentClient over MockTransport, for driving check_auth."""
     transport, calls = make_transport(handler)
@@ -436,6 +444,13 @@ async def test_check_auth_never_returns_the_token(tmp_path):
     assert TOKEN not in blob
     for size in range(4, len(TOKEN) + 1):
         assert TOKEN[:size] not in blob, "a %d-char prefix of the token leaked" % size
+
+    # And through the fragment detector, which sees the spellings the two
+    # lines above cannot: a base64, hex or percent-encoded echo shares no
+    # substring with the token. Measured on scripts/leak_matrix.py - before
+    # this line, this test was GREEN under b64, b64url, hex and percent,
+    # meaning a build echoing the whole credential passed it.
+    assert leaks_of(result, SANCTUM_FRAGMENTS) == []
 
 
 async def test_check_auth_never_returns_a_jwt(tmp_path):

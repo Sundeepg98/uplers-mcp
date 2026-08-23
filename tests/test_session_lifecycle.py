@@ -55,6 +55,7 @@ from uplers_server.session import SessionStore
 from uplers_server.talent import TalentClient
 
 from conftest import leaks_of, make_transport, secret_fragments
+from credential_echo_control import TRANSFORMS, render
 
 #: A Sanctum-shaped token: `<id>|<plaintext>`. No expiry is knowable from it.
 SANCTUM = "42|bearer-token-that-must-never-be-printed"
@@ -776,15 +777,43 @@ class TestTheTokenNeverAppearsAnywhere:
         `make_jwt` grew a per-token tag - the fragment set would shrink to
         nothing and every leak test in this file would pass vacuously.
         """
-        for secret, pieces in FRAGMENTS.items():
-            assert secret in pieces, "the whole value must always be hunted"
-            assert all(len(piece) >= 12 for piece in pieces), sorted(pieces)
+        # Asserted BEHAVIOURALLY rather than by inspecting the set, because
+        # the set holds 12-character runs now and "is the whole value in it"
+        # stopped being the right question the moment runs arrived. What has
+        # to stay true is that hunting runs SUBSUMES hunting the whole value.
+        for secret in SECRETS:
+            assert leaks_of({"planted": secret}, FRAGMENTS), secret[:12]
+            assert FRAGMENTS[secret], "empty fragment set = a vacuous pass"
+            assert all(len(run) == 12 for run in FRAGMENTS[secret])
 
-        jwt_pieces = FRAGMENTS[JWT_SIX_MONTHS]
-        assert JWT_SIX_MONTHS.split(".")[1] in jwt_pieces      # claims segment kept
-        assert "talent-six-must-never-be-printed" in jwt_pieces  # decoded sub kept
-        assert "signature-six-must-never-be-printed" in jwt_pieces
-        assert JWT_SIX_MONTHS.split(".")[0] not in jwt_pieces   # shared header dropped
+        jwt_runs = FRAGMENTS[JWT_SIX_MONTHS]
+
+        def survives(text):
+            """SOME window of `text` is still hunted."""
+            return any(text[i:i + 12] in jwt_runs for i in range(len(text) - 11))
+
+        # Asserted as "some window survives", never as "this exact window",
+        # and the difference is a real finding rather than a convenience.
+        # `claims_segment[:12]` is "eyJzdWIiOiJ0", which decodes to `{"sub":"t`
+        # - shared with the decoy and correctly subtracted. A witness chosen
+        # by position rather than by uniqueness tests the decoy, not the rule.
+        assert survives(JWT_SIX_MONTHS.split(".")[1])           # claims kept
+        assert "talent-six-m" in jwt_runs                       # decoded sub kept
+        assert "signature-si" in jwt_runs
+
+        # The shared header is gone RUN BY RUN, not merely as a whole string.
+        header = JWT_SIX_MONTHS.split(".")[0]
+        header_runs = {header[i:i + 12] for i in range(len(header) - 11)}
+        assert header_runs & jwt_runs == set(), sorted(header_runs & jwt_runs)
+
+        # The encoded spellings are hunted too - the leak path can encode even
+        # when the credential does not. Their shared PREFIXES are subtracted
+        # for the same reason the header is, so again: some window, not the
+        # first one.
+        raw = JWT_SIX_MONTHS.encode()
+        assert survives(base64.b64encode(raw).decode())
+        assert survives(base64.urlsafe_b64encode(raw).decode().rstrip("="))
+        assert survives(raw.hex())
 
         # And the decoy really is a different credential, never a stored one.
         assert FORMAT_DECOY not in SECRETS
@@ -905,3 +934,98 @@ class TestLogout:
         await server.uplers_logout()
 
         assert (profile / "Cookies").read_text(encoding="utf-8") == "pretend jar"
+
+
+# --- the transform grid, as controls rather than as a script ---------------
+#
+# `scripts/leak_matrix.py` runs the full 8-test x 9-transform grid and is the
+# instrument of record; it takes a couple of minutes and is not something the
+# suite should run on every commit. These parametrised controls are the part
+# that MUST run every time: they are generated from the adversary's own
+# TRANSFORMS tuple, so a transform added there without a decision about it
+# fails here immediately rather than sitting unexamined.
+#
+# MEASURED PROGRESSION, all on 2026-08-23 (see _audit/2026-08-23-build-uplers.md):
+#   52/72 green -> hook corrected (four columns were never injected at all)
+#   42/72 green -> encoded spellings + 12-char runs + JWT shape added
+#   27/72 green -> the last two hand-rolled substring assertions routed
+#                  through the detector
+#   18/72 green -> every remaining green explained below and correct
+
+#: The only (transform, shape) pairs a PAYLOAD detector cannot fire on, each
+#: with its reason. This is an exemption list, not a skip list: every entry is
+#: a claim that firing would be WRONG, and each one is asserted below.
+EXEMPT = {
+    ("in_log", "sanctum"):
+        "not a payload rendering at all - the credential goes to a log record "
+        "and nowhere else. Caught by test_no_token_reaches_a_log_line, which "
+        "is the one assertion in this file that reads caplog.",
+    ("in_log", "jwt"):
+        "same: the log is the leak path, so the log test is the instrument.",
+    ("prefix12", "jwt"):
+        "the first twelve characters of a JWT are 'eyJhbGciOiJI' - the base64 "
+        "of a standard HS256 header, identical across every token of this "
+        "format. Firing here would be the exact false positive removed "
+        "earlier today, and it would report prose describing a JWT. The "
+        "SANCTUM half of this pair IS caught, because '42|bearer-to' does "
+        "identify a credential.",
+}
+
+
+@pytest.mark.parametrize("transform", TRANSFORMS)
+@pytest.mark.parametrize("shape", ("sanctum", "jwt"))
+def test_the_detector_sees_every_transform__CONTROL(transform, shape):
+    """__CONTROL, one cell per (transform, credential shape).
+
+    Generated from `credential_echo_control.TRANSFORMS` rather than from a
+    hand-kept list beside it. That is the whole design: the failure mode being
+    fixed is not "nine transforms were missed", it is "the enumeration and the
+    controls were maintained separately and drifted".
+    """
+    secret = SANCTUM if shape == "sanctum" else JWT_SIX_MONTHS
+    reason = EXEMPT.get((transform, shape))
+
+    if transform == "in_log":
+        # The defining property of this transform is that the credential is
+        # NOT in the result. Planting it there anyway would test nothing and
+        # would make the exemption below look false - which is exactly what
+        # the first version of this test did.
+        planted = {"credential": {}}
+        assert not leaks_of(planted, FRAGMENTS)
+        # ...and the SAME detector, pointed at the log text, does see it.
+        # That is what test_no_token_reaches_a_log_line does, and it is why
+        # this cell being green on the payload tests is coverage rather than
+        # a hole.
+        assert leaks_of({"log": "bearer token is %s" % secret}, FRAGMENTS)
+    else:
+        planted = {"credential": {"fingerprint": render(secret, transform)}}
+
+    fired = bool(leaks_of(planted, FRAGMENTS))
+
+    if reason:
+        assert not fired, (
+            "%s/%s is on the exemption list saying it CANNOT fire, and it "
+            "did. Either the detector improved and the exemption is stale, "
+            "or the reason was wrong: %s" % (transform, shape, reason)
+        )
+    else:
+        assert fired, (
+            "a build echoing the credential under %r (%s) shipped clean. "
+            "Add it to EXEMPT with a reason, or teach the detector to see it."
+            % (transform, shape)
+        )
+
+
+def test_the_exemption_list_names_only_real_transforms__CONTROL():
+    """__CONTROL for the exemption list itself, which is the one place a
+    genuine hole could be parked and forgotten.
+
+    A stale entry naming a transform that no longer exists would sit here
+    looking like due diligence forever.
+    """
+    for transform, shape in EXEMPT:
+        assert transform in TRANSFORMS, transform
+        assert shape in ("sanctum", "jwt"), shape
+    # And it must stay small. Three is the measured number; a fourth is a
+    # decision somebody has to defend, not a line to slip in.
+    assert len(EXEMPT) == 3, sorted(EXEMPT)

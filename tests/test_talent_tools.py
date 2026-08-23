@@ -1071,6 +1071,17 @@ async def test_auth_status_reports_false_on_401_and_never_prints_the_token(
     assert "Bearer" not in serialised
     assert "token" not in result.model_dump()   # only token_present / token_format
 
+    # And through the fragment detector. The four assertions above are exact
+    # substring hunts, and MEASURED on scripts/leak_matrix.py they were GREEN
+    # under b64, b64url, hex, percent and split - a build echoing the entire
+    # credential in any of those spellings passed every one of them.
+    assert leaks_of(result.model_dump(), SANCTUM_FRAGMENTS) == []
+
+
+#: TOKEN, and the spellings a leaking build would give it.
+SANCTUM_FRAGMENTS = secret_fragments(
+    (TOKEN,), format_decoys=("99|decoy-value-never-stored-anywhere-at-all",)
+)
 
 #: TOKEN above is Sanctum-shaped, and a Sanctum token wears its secret half in
 #: the clear - which means the three plaintext assertions in the test above are
