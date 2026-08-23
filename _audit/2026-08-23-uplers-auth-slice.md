@@ -4,7 +4,7 @@ Slice: ADD `uplers_session_info`, RESHAPE `uplers_logout` to section 2 of
 `_audit/2026-08-23-auth-contract.md`. NO `uplers_reauth` (ruled out by the
 contract's table with evidence).
 
-Commit: **`e9165d44bc311d27f22ad37b368f11968e3cd416`** on `master`. NOT pushed -
+Commit: **`c75bd6fbba0b899964fd4609c84f13e9e90e2815`** on `master`. NOT pushed -
 the wave lead pushes after review. Working tree clean.
 
 ## Tools and where they live
@@ -151,7 +151,7 @@ the lead. Documented in `_iso_z`'s docstring.
 
 **4. README heading was already stale, and I corrected it.** The auth-tier
 heading read "The 17 tools" over a table of **18** rows -
-`uplers_my_assessments` landed in `aa150d6` without the count being bumped. I
+`uplers_my_assessments` landed in `10d2dbc` without the count being bumped. I
 added my row and set it to 19, with a one-line note in the README saying why the
 number jumped by two. Correcting an existing drift, not introducing one.
 
@@ -284,7 +284,7 @@ RE-MEASURED block, per the house form.
 
 README's `uplers_session_info` row extended with the field.
 
-Commit: **`cf1e005a3451d7426a1dd5cb7cffcca740d47bd5`** on `master`, PUSHED.
+Commit: **`e71b866421be0f4a89fd45faffa7a88e9f9860dc`** on `master`, PUSHED.
 
 Constraints held again: `uplers_apply` never called; real `data/session.json`
 untouched (mtime still `Aug 21 11:06`); no browser; strict ASCII; no AI trailer.
@@ -367,17 +367,17 @@ presence-based build cannot reach them. Recorded in the control's docstring.
 
 README's `uplers_session_info` row extended with both fields.
 
-Commit: **`fa22b49926327349bed520e6a79bc88ffea5f0ac`** on `master`, PUSHED.
+Commit: **`7984a3fca6ab5d1bbeba81eb57c5a68fc39a2a7b`** on `master`, PUSHED.
 CI run 32615270470: success.
 
 ---
 
-# ATTRIBUTION - `fa22b49` is NOT all my work
+# ATTRIBUTION - `7984a3f` is NOT all my work
 
 Recorded because a commit whose message describes one change and whose diff
 contains 6,289 lines of another is a trap for whoever reads this history next.
 
-`fa22b49` was committed with `git add -A` in a tree I do not exclusively own.
+`7984a3f` was committed with `git add -A` in a tree I do not exclusively own.
 It swept in EIGHT files belonging to **`build-uplers`**, which was mid-slice at
 the time. I did not author them, did not review them, and had no part in them:
 
@@ -398,7 +398,7 @@ Timeline, from mtimes:
     08:53:26  ... and finish
     08:54:30  my commit, `git add -A`, sweeping all eight
 
-MY part of `fa22b49` is exactly five files: `uplers_server/session.py`,
+MY part of `7984a3f` is exactly five files: `uplers_server/session.py`,
 `tests/test_session_lifecycle.py`, `scripts/presence_is_auth_control.py`,
 `README.md`, and this document.
 
