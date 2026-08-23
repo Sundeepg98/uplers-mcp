@@ -1,0 +1,20 @@
+{
+  "data": {
+    "agent_pref_fields_submitted": true,
+    "auto_run_consent": false,
+    "consent_email_job_scan": true,
+    "has_submitted_happpy_feedback": false,
+    "interview_count": 0,
+    "jobs_in_queue": 0,
+    "max_limit": 8,
+    "pending_interview_feedback_count": 0,
+    "reminder_count": 7,
+    "today_agent_runs": 0,
+    "total_jobs_run": 48,
+    "total_positive_replies": 8,
+    "total_tailored_resumes": 0,
+    "total_unseen_replies": 7
+  },
+  "message": "Outreach dashboard data fetched successfully",
+  "status": 200
+}

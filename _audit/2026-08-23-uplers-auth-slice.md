@@ -288,3 +288,83 @@ Commit: **`cf1e005a3451d7426a1dd5cb7cffcca740d47bd5`** on `master`, PUSHED.
 
 Constraints held again: `uplers_apply` never called; real `data/session.json`
 untouched (mtime still `Aug 21 11:06`); no browser; strict ASCII; no AI trailer.
+
+---
+
+# Addendum 2 - `renewal.uses_browser` / `renewal.mechanism` (2026-08-23)
+
+Late contract amendment, all four servers. Both keys land on
+`session_info.renewal`.
+
+    "uses_browser": bool|null,
+    "mechanism": str
+
+The defect they close: the two servers that DO ship a reauth both drive a
+browser - naukri navigates a pooled page, instahyre launches a headless
+Chromium - and neither said so, which let "silent renew" read as "free". It is
+not free, so the mechanism and its cost are now declared everywhere, including
+where the answer is "there isn't one".
+
+## What it does on uplers
+
+`uses_browser` is **null, not false**, and the reason ships in the payload
+rather than only in a code comment: there is no renewal mechanism here to
+characterise, so a `false` would assert that a silent renew exists and merely
+happens not to use a browser - a claim about a thing that does not exist. Same
+three-valued discipline as `authenticated`.
+
+`mechanism` is a STRAIGHT ANSWER, not a pointer at `renewal.why`. A caller
+reading `mechanism` across four servers should not have to chase a
+cross-reference on this one. It says: no silent renew exists, nothing runs in
+the background, recovery is `uplers_login()` opening a browser window at
+Uplers' login page and waiting for the OPERATOR to complete the Google sign-in
+BY HAND - a human action, not an automated one - and this server never handles
+a password. "Budget a person's attention for it, not a retry."
+
+## Locations
+
+| Thing | File:line |
+|---|---|
+| `RENEWAL_MECHANISM` | `uplers/uplers_server/session.py:354` |
+| `uses_browser` / `mechanism` in `_renewal` | `uplers/uplers_server/session.py:523` / `:525` |
+| 2 new tests | `uplers/tests/test_session_lifecycle.py:453`, `:483` |
+
+## Counts
+
+| | count |
+|---|---|
+| Before this addendum | 983 passed |
+| After | **985 passed** (983 + 2) |
+
+## The assertion was SHOWN FAILING before it was believed
+
+The lead asked for `is None` rather than a falsy check, and that distinction is
+only worth anything if it can bite. Measured directly by mutating
+`"uses_browser": None` to `False` in `_renewal` and running the file:
+
+    2 failed, 39 passed
+    FAILED TestRenewalIsRuledOutWithEvidence::test_uses_browser_is_null_not_false_and_mechanism_says_by_hand
+    FAILED TestRenewalIsRuledOutWithEvidence::test_the_mechanism_is_the_same_on_the_live_path
+
+Reverted immediately; 41 passed again. The test asserts identity against `None`
+AND explicitly that a `False` did not arrive, because
+`assert not renewal["uses_browser"]` would pass on `False`, on `0` and on `""` -
+which is exactly the confusion the field exists to stop.
+
+The second failure was not asked for and is the more useful of the two: it pins
+that the live path and the offline path build `renewal` from the same function,
+so a future edit cannot fix one and leave the other.
+
+## Control re-measured, reds unchanged for the third time
+
+    tests/test_session_lifecycle.py   4 failed, 37 passed   (was 4/35, 4/28)
+    tests/ entire                    22 failed, 963 passed  (was 22/961, 22/954)
+    tests/ entire, control OFF                 985 passed
+
+The same four die every time. The new tests stay green under it structurally:
+`_renewal` is handed the credential block and never the verdict, so a
+presence-based build cannot reach them. Recorded in the control's docstring.
+
+README's `uplers_session_info` row extended with both fields.
+
+Commit: PENDING (filled in below after the commit lands).

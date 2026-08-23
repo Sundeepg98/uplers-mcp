@@ -1,0 +1,29 @@
+{
+  "data": {
+    "all_over_status": true,
+    "auto_run": 1,
+    "conversion_offer": null,
+    "credit_added": 0,
+    "credit_left": 0,
+    "credit_plan": 0,
+    "has_plan_expired": false,
+    "outreach_mode": "auto",
+    "plan": 2,
+    "plan_end_date": "2026-09-10",
+    "status": {
+      "step1": true,
+      "step2": true,
+      "step_job_recommendation": true,
+      "step_template": true
+    },
+    "step1": {
+      "gmail_connected": true,
+      "linkedin_connected": false
+    },
+    "step2": {
+      "gmail_template": true,
+      "linkedin_template": false
+    }
+  },
+  "status": "success"
+}

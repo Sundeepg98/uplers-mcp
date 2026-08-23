@@ -341,6 +341,29 @@ RENEWAL_WHY = (
     "uplers_login() and the Google sign-in, done by hand."
 )
 
+#: `renewal.mechanism` and `renewal.uses_browser` were added by a late contract
+#: amendment, and the defect they close is worth stating: the two servers that
+#: DO ship a reauth both drive a browser - naukri navigates a pooled page,
+#: instahyre launches a headless Chromium - and neither said so, which let
+#: "silent renew" read as "free". It is not free. So the mechanism and its cost
+#: are declared everywhere, including here where the answer is "there isn't one".
+#:
+#: Written as a STRAIGHT ANSWER rather than a pointer at `renewal.why`. A
+#: caller reading `mechanism` across four servers should not have to follow a
+#: cross-reference on one of them to learn what recovery costs.
+RENEWAL_MECHANISM = (
+    "none - there is no silent renew on this platform, so nothing runs in the "
+    "background to get the session back. Recovery is uplers_login(), which "
+    "opens a browser window at Uplers' login page and waits for the OPERATOR "
+    "to complete the Google sign-in BY HAND. That is a human action, not an "
+    "automated one, and this server never handles a password: budget a "
+    "person's attention for it, not a retry. `uses_browser` is null rather "
+    "than false for the same reason there is no `uplers_reauth` - there is no "
+    "renewal mechanism here to characterise, and false would assert that a "
+    "silent renew exists and merely happens not to use a browser, which is a "
+    "claim about a thing that does not exist."
+)
+
 #: `renewal.session_lapses_at` answers a DIFFERENT question from
 #: `credential.expires_at`, and the difference is why it is a separate field:
 #: "when must he sign in BY HAND" rather than "when does this credential die".
@@ -494,7 +517,12 @@ def _renewal(credential: dict) -> dict:
     lapses_at = credential.get("expires_at")
     return {
         "silent_renew_available": False,
+        # NULL, not False. Same three-valued discipline as `authenticated`:
+        # there is no mechanism here to characterise, so a False would be a
+        # claim about something that does not exist.
+        "uses_browser": None,
         "tool": None,
+        "mechanism": RENEWAL_MECHANISM,
         "why": RENEWAL_WHY,
         "session_lapses_at": lapses_at,
         "session_lapses_in_days": credential.get("expires_in_days"),

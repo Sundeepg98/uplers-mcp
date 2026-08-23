@@ -1,0 +1,17 @@
+{
+  "bookmarkedCount": 0,
+  "hrs": {
+    "current_page": 1,
+    "data": [],
+    "first_page_url": "https://platform.uplers.com/api/talent/hr/opportunities?page=1",
+    "from": null,
+    "next_page_url": null,
+    "path": "https://platform.uplers.com/api/talent/hr/opportunities",
+    "per_page": "20",
+    "prev_page_url": null,
+    "to": null
+  },
+  "loosen_needed": false,
+  "non_matching_jobs": false,
+  "search": ""
+}

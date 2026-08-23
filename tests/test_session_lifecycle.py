@@ -450,6 +450,48 @@ class TestRenewalIsRuledOutWithEvidence:
         assert "214-route sweep" in why
         assert "uplers_login()" in why
 
+    async def test_uses_browser_is_null_not_false_and_mechanism_says_by_hand(
+            self, session_file):
+        """`is None`, deliberately - a `False` passes a falsy check.
+
+        That is not pedantry, it is the exact confusion the field exists to
+        stop. The two servers that DO ship a reauth both drive a browser and
+        neither said so, which let "silent renew" read as "free". Here there
+        is no mechanism at all, so `false` would assert that a silent renew
+        exists and merely happens not to use a browser - a claim about a thing
+        that does not exist. Same three-valued discipline as `authenticated`.
+
+        `assert not renewal["uses_browser"]` would pass on False, on 0 and on
+        "", which is why the assertion below is identity against None and why
+        the second half checks a False is not what arrived.
+        """
+        renewal = (await server.uplers_session_info(verify_live=False))["renewal"]
+
+        assert renewal["uses_browser"] is None
+        assert renewal["uses_browser"] is not False
+
+        mechanism = renewal["mechanism"]
+        assert mechanism
+        # A straight answer, not a pointer at renewal.why - a caller reading
+        # `mechanism` across four servers should not have to chase a
+        # cross-reference on this one.
+        assert "BY HAND" in mechanism
+        assert "uplers_login()" in mechanism
+        assert "never handles a password" in mechanism
+        assert "null rather than false" in mechanism
+
+    async def test_the_mechanism_is_the_same_on_the_live_path(
+            self, monkeypatch, session_file):
+        """Both paths build `renewal` from one function; this pins that."""
+        SessionStore(session_file).save(JWT_SIX_MONTHS, method="test")
+        wire(monkeypatch, probe_ok, token=JWT_SIX_MONTHS)
+
+        live = await server.uplers_session_info()
+        offline = await server.uplers_session_info(verify_live=False)
+
+        assert live["renewal"]["uses_browser"] is None
+        assert live["renewal"]["mechanism"] == offline["renewal"]["mechanism"]
+
     async def test_session_lapses_at_tracks_the_credential_exactly(
             self, session_file):
         """`session_lapses_at` answers a different question and here matches.
@@ -526,8 +568,8 @@ class TestRenewalIsRuledOutWithEvidence:
 
         assert result["authenticated"] is True
         assert set(result["renewal"]) == {
-            "silent_renew_available", "tool", "why",
-            "session_lapses_at", "session_lapses_in_days",
+            "silent_renew_available", "uses_browser", "tool", "mechanism",
+            "why", "session_lapses_at", "session_lapses_in_days",
             "session_lapses_source",
         }
         assert result["renewal"]["session_lapses_at"] == result["credential"]["expires_at"]

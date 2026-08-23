@@ -98,6 +98,13 @@ property worth reading: the new seven pin what a NO-RENEWAL platform reports
 about when the operator must sign in by hand, and a broken verdict cannot move
 that -- `_renewal` is handed the credential block, never the verdict.
 
+RE-MEASURED AGAIN 2026-08-23 after `renewal.uses_browser` / `renewal.mechanism`
+added two more. Still the same four, for the same structural reason::
+
+    tests/test_session_lifecycle.py   4 failed, 37 passed
+    tests/ entire                    22 failed, 963 passed
+    tests/ entire, control OFF                 985 passed
+
 WHAT THIS FILE IS NOT
 ---------------------
 It is not a fixture and nothing imports it. It is loaded only by ``-p`` on an

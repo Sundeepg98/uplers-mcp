@@ -1,0 +1,4333 @@
+{
+  "masters": {
+    "activelyApplyingJobBoardsMaster": [
+      {
+        "label": "LinkedIn",
+        "value": 1
+      },
+      {
+        "label": "Naukri",
+        "value": 2
+      },
+      {
+        "label": "Indeed",
+        "value": 3
+      },
+      {
+        "label": "Instahyre",
+        "value": 4
+      },
+      {
+        "label": "Wellfound",
+        "value": 5
+      },
+      {
+        "label": "Company Career Sites",
+        "value": 6
+      }
+    ],
+    "availabilityMaster": [
+      {
+        "label": "Full Time",
+        "value": "Full Time"
+      },
+      {
+        "label": "Part Time",
+        "value": "Part Time"
+      }
+    ],
+    "cities": [
+      {
+        "id": 602,
+        "label": "Adilabad",
+        "value": "Adilabad"
+      },
+      {
+        "id": 6364,
+        "label": "Agar-Malwa",
+        "value": "Agar-Malwa"
+      },
+      {
+        "id": 643,
+        "label": "Agra",
+        "value": "Agra"
+      },
+      {
+        "id": 165,
+        "label": "Ahmedabad",
+        "value": "Ahmedabad"
+      },
+      {
+        "id": 378,
+        "label": "Ahmednagar",
+        "value": "Ahmednagar"
+      },
+      {
+        "id": 441,
+        "label": "Aizawl",
+        "value": "Aizawl"
+      },
+      {
+        "id": 525,
+        "label": "Ajmer",
+        "value": "Ajmer"
+      },
+      {
+        "id": 379,
+        "label": "Akola",
+        "value": "Akola"
+      },
+      {
+        "id": 306,
+        "label": "Alappuzha",
+        "value": "Alappuzha"
+      },
+      {
+        "id": 644,
+        "label": "Aligarh",
+        "value": "Aligarh"
+      },
+      {
+        "id": 731,
+        "label": "Alipurduar",
+        "value": "Alipurduar"
+      },
+      {
+        "id": 324,
+        "label": "Alirajpur",
+        "value": "Alirajpur"
+      },
+      {
+        "id": 6040,
+        "label": "Alluri Sitharama Raju",
+        "value": "Alluri Sitharama Raju"
+      },
+      {
+        "id": 718,
+        "label": "Almora",
+        "value": "Almora"
+      },
+      {
+        "id": 526,
+        "label": "Alwar",
+        "value": "Alwar"
+      },
+      {
+        "id": 198,
+        "label": "Ambala",
+        "value": "Ambala"
+      },
+      {
+        "id": 645,
+        "label": "Ambedkar Nagar",
+        "value": "Ambedkar Nagar"
+      },
+      {
+        "id": 646,
+        "label": "Amethi",
+        "value": "Amethi"
+      },
+      {
+        "id": 380,
+        "label": "Amravati",
+        "value": "Amravati"
+      },
+      {
+        "id": 166,
+        "label": "Amreli",
+        "value": "Amreli"
+      },
+      {
+        "id": 502,
+        "label": "Amritsar",
+        "value": "Amritsar"
+      },
+      {
+        "id": 647,
+        "label": "Amroha",
+        "value": "Amroha"
+      },
+      {
+        "id": 8,
+        "label": "Anakapalli",
+        "value": "Anakapalli"
+      },
+      {
+        "id": 167,
+        "label": "Anand",
+        "value": "Anand"
+      },
+      {
+        "id": 4,
+        "label": "Anantapur",
+        "value": "Anantapur"
+      },
+      {
+        "id": 6042,
+        "label": "Ananthapuramu",
+        "value": "Ananthapuramu"
+      },
+      {
+        "id": 232,
+        "label": "Anantnag",
+        "value": "Anantnag"
+      },
+      {
+        "id": 30,
+        "label": "Anjaw",
+        "value": "Anjaw"
+      },
+      {
+        "id": 6043,
+        "label": "Annamayya",
+        "value": "Annamayya"
+      },
+      {
+        "id": 6501,
+        "label": "Anugul",
+        "value": "Anugul"
+      },
+      {
+        "id": 4024,
+        "label": "Anupgarh",
+        "value": "Anupgarh"
+      },
+      {
+        "id": 325,
+        "label": "Anuppur",
+        "value": "Anuppur"
+      },
+      {
+        "id": 86,
+        "label": "Araria",
+        "value": "Araria"
+      },
+      {
+        "id": 564,
+        "label": "Ariyalur",
+        "value": "Ariyalur"
+      },
+      {
+        "id": 6208,
+        "label": "Arvalli",
+        "value": "Arvalli"
+      },
+      {
+        "id": 87,
+        "label": "Arwal",
+        "value": "Arwal"
+      },
+      {
+        "id": 326,
+        "label": "Ashoknagar",
+        "value": "Ashoknagar"
+      },
+      {
+        "id": 648,
+        "label": "Auraiya",
+        "value": "Auraiya"
+      },
+      {
+        "id": 88,
+        "label": "Aurangabad",
+        "value": "Aurangabad"
+      },
+      {
+        "id": 649,
+        "label": "Ayodhya",
+        "value": "Ayodhya"
+      },
+      {
+        "id": 650,
+        "label": "Azamgarh",
+        "value": "Azamgarh"
+      },
+      {
+        "id": 5765,
+        "label": "Bagalkote",
+        "value": "Bagalkote"
+      },
+      {
+        "id": 719,
+        "label": "Bageshwar",
+        "value": "Bageshwar"
+      },
+      {
+        "id": 651,
+        "label": "Baghpat",
+        "value": "Baghpat"
+      },
+      {
+        "id": 652,
+        "label": "Bahraich",
+        "value": "Bahraich"
+      },
+      {
+        "id": 6087,
+        "label": "Bajali",
+        "value": "Bajali"
+      },
+      {
+        "id": 55,
+        "label": "Baksa",
+        "value": "Baksa"
+      },
+      {
+        "id": 327,
+        "label": "Balaghat",
+        "value": "Balaghat"
+      },
+      {
+        "id": 469,
+        "label": "Balangir",
+        "value": "Balangir"
+      },
+      {
+        "id": 470,
+        "label": "Balasore",
+        "value": "Balasore"
+      },
+      {
+        "id": 6503,
+        "label": "Baleshwar",
+        "value": "Baleshwar"
+      },
+      {
+        "id": 980,
+        "label": "Ballari",
+        "value": "Ballari"
+      },
+      {
+        "id": 653,
+        "label": "Ballia",
+        "value": "Ballia"
+      },
+      {
+        "id": 125,
+        "label": "Balod",
+        "value": "Balod"
+      },
+      {
+        "id": 6161,
+        "label": "Balodabazar-Bhatapara",
+        "value": "Balodabazar-Bhatapara"
+      },
+      {
+        "id": 2183,
+        "label": "Balotra",
+        "value": "Balotra"
+      },
+      {
+        "id": 127,
+        "label": "Balrampur",
+        "value": "Balrampur"
+      },
+      {
+        "id": 6162,
+        "label": "Balrampur-Ramanujganj",
+        "value": "Balrampur-Ramanujganj"
+      },
+      {
+        "id": 6209,
+        "label": "Banas Kantha",
+        "value": "Banas Kantha"
+      },
+      {
+        "id": 655,
+        "label": "Banda",
+        "value": "Banda"
+      },
+      {
+        "id": 233,
+        "label": "Bandipora",
+        "value": "Bandipora"
+      },
+      {
+        "id": 89,
+        "label": "Banka",
+        "value": "Banka"
+      },
+      {
+        "id": 732,
+        "label": "Bankura",
+        "value": "Bankura"
+      },
+      {
+        "id": 527,
+        "label": "Banswara",
+        "value": "Banswara"
+      },
+      {
+        "id": 10,
+        "label": "Bapatla",
+        "value": "Bapatla"
+      },
+      {
+        "id": 6698,
+        "label": "Bara Banki",
+        "value": "Bara Banki"
+      },
+      {
+        "id": 234,
+        "label": "Baramulla",
+        "value": "Baramulla"
+      },
+      {
+        "id": 528,
+        "label": "Baran",
+        "value": "Baran"
+      },
+      {
+        "id": 657,
+        "label": "Bareilly",
+        "value": "Bareilly"
+      },
+      {
+        "id": 471,
+        "label": "Bargarh",
+        "value": "Bargarh"
+      },
+      {
+        "id": 529,
+        "label": "Barmer",
+        "value": "Barmer"
+      },
+      {
+        "id": 503,
+        "label": "Barnala",
+        "value": "Barnala"
+      },
+      {
+        "id": 56,
+        "label": "Barpeta",
+        "value": "Barpeta"
+      },
+      {
+        "id": 328,
+        "label": "Barwani",
+        "value": "Barwani"
+      },
+      {
+        "id": 128,
+        "label": "Bastar",
+        "value": "Bastar"
+      },
+      {
+        "id": 658,
+        "label": "Basti",
+        "value": "Basti"
+      },
+      {
+        "id": 504,
+        "label": "Bathinda",
+        "value": "Bathinda"
+      },
+      {
+        "id": 2126,
+        "label": "Beawar",
+        "value": "Beawar"
+      },
+      {
+        "id": 382,
+        "label": "Beed",
+        "value": "Beed"
+      },
+      {
+        "id": 90,
+        "label": "Begusarai",
+        "value": "Begusarai"
+      },
+      {
+        "id": 1008,
+        "label": "Belagavi",
+        "value": "Belagavi"
+      },
+      {
+        "id": 129,
+        "label": "Bemetara",
+        "value": "Bemetara"
+      },
+      {
+        "id": 277,
+        "label": "Bengaluru",
+        "value": "Bengaluru"
+      },
+      {
+        "id": 329,
+        "label": "Betul",
+        "value": "Betul"
+      },
+      {
+        "id": 659,
+        "label": "Bhadohi",
+        "value": "Bhadohi"
+      },
+      {
+        "id": 603,
+        "label": "Bhadradri Kothagudem",
+        "value": "Bhadradri Kothagudem"
+      },
+      {
+        "id": 472,
+        "label": "Bhadrak",
+        "value": "Bhadrak"
+      },
+      {
+        "id": 91,
+        "label": "Bhagalpur",
+        "value": "Bhagalpur"
+      },
+      {
+        "id": 383,
+        "label": "Bhandara",
+        "value": "Bhandara"
+      },
+      {
+        "id": 530,
+        "label": "Bharatpur",
+        "value": "Bharatpur"
+      },
+      {
+        "id": 170,
+        "label": "Bharuch",
+        "value": "Bharuch"
+      },
+      {
+        "id": 171,
+        "label": "Bhavnagar",
+        "value": "Bhavnagar"
+      },
+      {
+        "id": 531,
+        "label": "Bhilwara",
+        "value": "Bhilwara"
+      },
+      {
+        "id": 330,
+        "label": "Bhind",
+        "value": "Bhind"
+      },
+      {
+        "id": 199,
+        "label": "Bhiwani",
+        "value": "Bhiwani"
+      },
+      {
+        "id": 92,
+        "label": "Bhojpur",
+        "value": "Bhojpur"
+      },
+      {
+        "id": 331,
+        "label": "Bhopal",
+        "value": "Bhopal"
+      },
+      {
+        "id": 754,
+        "label": "Bhubaneswar",
+        "value": "Bhubaneswar"
+      },
+      {
+        "id": 280,
+        "label": "Bidar",
+        "value": "Bidar"
+      },
+      {
+        "id": 130,
+        "label": "Bijapur",
+        "value": "Bijapur"
+      },
+      {
+        "id": 660,
+        "label": "Bijnor",
+        "value": "Bijnor"
+      },
+      {
+        "id": 532,
+        "label": "Bikaner",
+        "value": "Bikaner"
+      },
+      {
+        "id": 131,
+        "label": "Bilaspur",
+        "value": "Bilaspur"
+      },
+      {
+        "id": 733,
+        "label": "Birbhum",
+        "value": "Birbhum"
+      },
+      {
+        "id": 413,
+        "label": "Bishnupur",
+        "value": "Bishnupur"
+      },
+      {
+        "id": 6090,
+        "label": "Biswanath",
+        "value": "Biswanath"
+      },
+      {
+        "id": 6851,
+        "label": "Bodinayakanur",
+        "value": "Bodinayakanur"
+      },
+      {
+        "id": 252,
+        "label": "Bokaro",
+        "value": "Bokaro"
+      },
+      {
+        "id": 57,
+        "label": "Bongaigaon",
+        "value": "Bongaigaon"
+      },
+      {
+        "id": 172,
+        "label": "Botad",
+        "value": "Botad"
+      },
+      {
+        "id": 473,
+        "label": "Boudh",
+        "value": "Boudh"
+      },
+      {
+        "id": 661,
+        "label": "Budaun",
+        "value": "Budaun"
+      },
+      {
+        "id": 235,
+        "label": "Budgam",
+        "value": "Budgam"
+      },
+      {
+        "id": 662,
+        "label": "Bulandshahr",
+        "value": "Bulandshahr"
+      },
+      {
+        "id": 384,
+        "label": "Buldhana",
+        "value": "Buldhana"
+      },
+      {
+        "id": 533,
+        "label": "Bundi",
+        "value": "Bundi"
+      },
+      {
+        "id": 332,
+        "label": "Burhanpur",
+        "value": "Burhanpur"
+      },
+      {
+        "id": 93,
+        "label": "Buxar",
+        "value": "Buxar"
+      },
+      {
+        "id": 58,
+        "label": "Cachar",
+        "value": "Cachar"
+      },
+      {
+        "id": 6192,
+        "label": "Central",
+        "value": "Central"
+      },
+      {
+        "id": 2129,
+        "label": "Chamarajanagara",
+        "value": "Chamarajanagara"
+      },
+      {
+        "id": 221,
+        "label": "Chamba",
+        "value": "Chamba"
+      },
+      {
+        "id": 720,
+        "label": "Chamoli",
+        "value": "Chamoli"
+      },
+      {
+        "id": 721,
+        "label": "Champawat",
+        "value": "Champawat"
+      },
+      {
+        "id": 442,
+        "label": "Champhai",
+        "value": "Champhai"
+      },
+      {
+        "id": 663,
+        "label": "Chandauli",
+        "value": "Chandauli"
+      },
+      {
+        "id": 414,
+        "label": "Chandel",
+        "value": "Chandel"
+      },
+      {
+        "id": 124,
+        "label": "Chandigarh",
+        "value": "Chandigarh"
+      },
+      {
+        "id": 385,
+        "label": "Chandrapur",
+        "value": "Chandrapur"
+      },
+      {
+        "id": 32,
+        "label": "Changlang",
+        "value": "Changlang"
+      },
+      {
+        "id": 59,
+        "label": "Charaideo",
+        "value": "Charaideo"
+      },
+      {
+        "id": 6240,
+        "label": "Charki Dadri",
+        "value": "Charki Dadri"
+      },
+      {
+        "id": 253,
+        "label": "Chatra",
+        "value": "Chatra"
+      },
+      {
+        "id": 565,
+        "label": "Chengalpattu",
+        "value": "Chengalpattu"
+      },
+      {
+        "id": 566,
+        "label": "Chennai",
+        "value": "Chennai"
+      },
+      {
+        "id": 334,
+        "label": "Chhatarpur",
+        "value": "Chhatarpur"
+      },
+      {
+        "id": 1506,
+        "label": "Chhatrapati Sambhajinagar",
+        "value": "Chhatrapati Sambhajinagar"
+      },
+      {
+        "id": 335,
+        "label": "Chhindwara",
+        "value": "Chhindwara"
+      },
+      {
+        "id": 173,
+        "label": "Chhota Udaipur",
+        "value": "Chhota Udaipur"
+      },
+      {
+        "id": 5882,
+        "label": "Chhotaudepur",
+        "value": "Chhotaudepur"
+      },
+      {
+        "id": 6323,
+        "label": "Chikkaballapura",
+        "value": "Chikkaballapura"
+      },
+      {
+        "id": 283,
+        "label": "Chikkamagaluru",
+        "value": "Chikkamagaluru"
+      },
+      {
+        "id": 60,
+        "label": "Chirang",
+        "value": "Chirang"
+      },
+      {
+        "id": 284,
+        "label": "Chitradurga",
+        "value": "Chitradurga"
+      },
+      {
+        "id": 664,
+        "label": "Chitrakoot",
+        "value": "Chitrakoot"
+      },
+      {
+        "id": 5,
+        "label": "Chittoor",
+        "value": "Chittoor"
+      },
+      {
+        "id": 534,
+        "label": "Chittorgarh",
+        "value": "Chittorgarh"
+      },
+      {
+        "id": 6486,
+        "label": "Chumoukedima",
+        "value": "Chumoukedima"
+      },
+      {
+        "id": 415,
+        "label": "Churachandpur",
+        "value": "Churachandpur"
+      },
+      {
+        "id": 535,
+        "label": "Churu",
+        "value": "Churu"
+      },
+      {
+        "id": 567,
+        "label": "Coimbatore",
+        "value": "Coimbatore"
+      },
+      {
+        "id": 734,
+        "label": "Cooch Behar",
+        "value": "Cooch Behar"
+      },
+      {
+        "id": 568,
+        "label": "Cuddalore",
+        "value": "Cuddalore"
+      },
+      {
+        "id": 474,
+        "label": "Cuttack",
+        "value": "Cuttack"
+      },
+      {
+        "id": 158,
+        "label": "Dadra and Nagar Haveli",
+        "value": "Dadra and Nagar Haveli"
+      },
+      {
+        "id": 174,
+        "label": "Dahod",
+        "value": "Dahod"
+      },
+      {
+        "id": 6167,
+        "label": "Dakshin Bastar Dantewada",
+        "value": "Dakshin Bastar Dantewada"
+      },
+      {
+        "id": 735,
+        "label": "Dakshin Dinajpur",
+        "value": "Dakshin Dinajpur"
+      },
+      {
+        "id": 159,
+        "label": "Daman",
+        "value": "Daman"
+      },
+      {
+        "id": 336,
+        "label": "Damoh",
+        "value": "Damoh"
+      },
+      {
+        "id": 5880,
+        "label": "DANGS",
+        "value": "DANGS"
+      },
+      {
+        "id": 94,
+        "label": "Darbhanga",
+        "value": "Darbhanga"
+      },
+      {
+        "id": 736,
+        "label": "Darjeeling",
+        "value": "Darjeeling"
+      },
+      {
+        "id": 61,
+        "label": "Darrang",
+        "value": "Darrang"
+      },
+      {
+        "id": 337,
+        "label": "Datia",
+        "value": "Datia"
+      },
+      {
+        "id": 536,
+        "label": "Dausa",
+        "value": "Dausa"
+      },
+      {
+        "id": 6327,
+        "label": "Davangere",
+        "value": "Davangere"
+      },
+      {
+        "id": 6573,
+        "label": "Deeg",
+        "value": "Deeg"
+      },
+      {
+        "id": 722,
+        "label": "Dehradun",
+        "value": "Dehradun"
+      },
+      {
+        "id": 162,
+        "label": "Delhi",
+        "value": "Delhi"
+      },
+      {
+        "id": 2362,
+        "label": "Deogarh",
+        "value": "Deogarh"
+      },
+      {
+        "id": 254,
+        "label": "Deoghar",
+        "value": "Deoghar"
+      },
+      {
+        "id": 665,
+        "label": "Deoria",
+        "value": "Deoria"
+      },
+      {
+        "id": 1162,
+        "label": "Devbhumi Dwarka",
+        "value": "Devbhumi Dwarka"
+      },
+      {
+        "id": 338,
+        "label": "Dewas",
+        "value": "Dewas"
+      },
+      {
+        "id": 635,
+        "label": "Dhalai",
+        "value": "Dhalai"
+      },
+      {
+        "id": 133,
+        "label": "Dhamtari",
+        "value": "Dhamtari"
+      },
+      {
+        "id": 255,
+        "label": "Dhanbad",
+        "value": "Dhanbad"
+      },
+      {
+        "id": 339,
+        "label": "Dhar",
+        "value": "Dhar"
+      },
+      {
+        "id": 6425,
+        "label": "Dharashiv",
+        "value": "Dharashiv"
+      },
+      {
+        "id": 569,
+        "label": "Dharmapuri",
+        "value": "Dharmapuri"
+      },
+      {
+        "id": 287,
+        "label": "Dharwad",
+        "value": "Dharwad"
+      },
+      {
+        "id": 62,
+        "label": "Dhemaji",
+        "value": "Dhemaji"
+      },
+      {
+        "id": 476,
+        "label": "Dhenkanal",
+        "value": "Dhenkanal"
+      },
+      {
+        "id": 537,
+        "label": "Dholpur",
+        "value": "Dholpur"
+      },
+      {
+        "id": 63,
+        "label": "Dhubri",
+        "value": "Dhubri"
+      },
+      {
+        "id": 386,
+        "label": "Dhule",
+        "value": "Dhule"
+      },
+      {
+        "id": 33,
+        "label": "Dibang Valley",
+        "value": "Dibang Valley"
+      },
+      {
+        "id": 64,
+        "label": "Dibrugarh",
+        "value": "Dibrugarh"
+      },
+      {
+        "id": 65,
+        "label": "Dima Hasao",
+        "value": "Dima Hasao"
+      },
+      {
+        "id": 453,
+        "label": "Dimapur",
+        "value": "Dimapur"
+      },
+      {
+        "id": 570,
+        "label": "Dindigul",
+        "value": "Dindigul"
+      },
+      {
+        "id": 340,
+        "label": "Dindori",
+        "value": "Dindori"
+      },
+      {
+        "id": 160,
+        "label": "Diu",
+        "value": "Diu"
+      },
+      {
+        "id": 236,
+        "label": "Doda",
+        "value": "Doda"
+      },
+      {
+        "id": 6046,
+        "label": "Dr. B.R. Ambedkar Konaseema",
+        "value": "Dr. B.R. Ambedkar Konaseema"
+      },
+      {
+        "id": 5475,
+        "label": "Dudu",
+        "value": "Dudu"
+      },
+      {
+        "id": 256,
+        "label": "Dumka",
+        "value": "Dumka"
+      },
+      {
+        "id": 538,
+        "label": "Dungarpur",
+        "value": "Dungarpur"
+      },
+      {
+        "id": 134,
+        "label": "Durg",
+        "value": "Durg"
+      },
+      {
+        "id": 6193,
+        "label": "East",
+        "value": "East"
+      },
+      {
+        "id": 429,
+        "label": "East Garo Hills",
+        "value": "East Garo Hills"
+      },
+      {
+        "id": 6,
+        "label": "East Godavari",
+        "value": "East Godavari"
+      },
+      {
+        "id": 430,
+        "label": "East Jaintia Hills",
+        "value": "East Jaintia Hills"
+      },
+      {
+        "id": 34,
+        "label": "East Kameng",
+        "value": "East Kameng"
+      },
+      {
+        "id": 431,
+        "label": "East Khasi Hills",
+        "value": "East Khasi Hills"
+      },
+      {
+        "id": 35,
+        "label": "East Siang",
+        "value": "East Siang"
+      },
+      {
+        "id": 257,
+        "label": "East Singhbhum",
+        "value": "East Singhbhum"
+      },
+      {
+        "id": 6297,
+        "label": "East Singhbum",
+        "value": "East Singhbum"
+      },
+      {
+        "id": 11,
+        "label": "Eluru",
+        "value": "Eluru"
+      },
+      {
+        "id": 307,
+        "label": "Ernakulam",
+        "value": "Ernakulam"
+      },
+      {
+        "id": 571,
+        "label": "Erode",
+        "value": "Erode"
+      },
+      {
+        "id": 666,
+        "label": "Etah",
+        "value": "Etah"
+      },
+      {
+        "id": 667,
+        "label": "Etawah",
+        "value": "Etawah"
+      },
+      {
+        "id": 201,
+        "label": "Faridabad",
+        "value": "Faridabad"
+      },
+      {
+        "id": 505,
+        "label": "Faridkot",
+        "value": "Faridkot"
+      },
+      {
+        "id": 668,
+        "label": "Farrukhabad",
+        "value": "Farrukhabad"
+      },
+      {
+        "id": 202,
+        "label": "Fatehabad",
+        "value": "Fatehabad"
+      },
+      {
+        "id": 506,
+        "label": "Fatehgarh Sahib",
+        "value": "Fatehgarh Sahib"
+      },
+      {
+        "id": 669,
+        "label": "Fatehpur",
+        "value": "Fatehpur"
+      },
+      {
+        "id": 507,
+        "label": "Fazilka",
+        "value": "Fazilka"
+      },
+      {
+        "id": 5939,
+        "label": "Ferozepur",
+        "value": "Ferozepur"
+      },
+      {
+        "id": 670,
+        "label": "Firozabad",
+        "value": "Firozabad"
+      },
+      {
+        "id": 288,
+        "label": "Gadag",
+        "value": "Gadag"
+      },
+      {
+        "id": 387,
+        "label": "Gadchiroli",
+        "value": "Gadchiroli"
+      },
+      {
+        "id": 477,
+        "label": "Gajapati",
+        "value": "Gajapati"
+      },
+      {
+        "id": 237,
+        "label": "Ganderbal",
+        "value": "Ganderbal"
+      },
+      {
+        "id": 177,
+        "label": "Gandhinagar",
+        "value": "Gandhinagar"
+      },
+      {
+        "id": 6577,
+        "label": "Ganganagar",
+        "value": "Ganganagar"
+      },
+      {
+        "id": 6578,
+        "label": "Gangapurcity",
+        "value": "Gangapurcity"
+      },
+      {
+        "id": 2082,
+        "label": "Gangtok",
+        "value": "Gangtok"
+      },
+      {
+        "id": 478,
+        "label": "Ganjam",
+        "value": "Ganjam"
+      },
+      {
+        "id": 258,
+        "label": "Garhwa",
+        "value": "Garhwa"
+      },
+      {
+        "id": 6170,
+        "label": "Gariyaband",
+        "value": "Gariyaband"
+      },
+      {
+        "id": 6171,
+        "label": "Gaurela-Pendra-Marwahi",
+        "value": "Gaurela-Pendra-Marwahi"
+      },
+      {
+        "id": 671,
+        "label": "Gautam Buddha Nagar",
+        "value": "Gautam Buddha Nagar"
+      },
+      {
+        "id": 96,
+        "label": "Gaya",
+        "value": "Gaya"
+      },
+      {
+        "id": 672,
+        "label": "Ghaziabad",
+        "value": "Ghaziabad"
+      },
+      {
+        "id": 673,
+        "label": "Ghazipur",
+        "value": "Ghazipur"
+      },
+      {
+        "id": 178,
+        "label": "Gir Somnath",
+        "value": "Gir Somnath"
+      },
+      {
+        "id": 259,
+        "label": "Giridih",
+        "value": "Giridih"
+      },
+      {
+        "id": 66,
+        "label": "Goalpara",
+        "value": "Goalpara"
+      },
+      {
+        "id": 260,
+        "label": "Godda",
+        "value": "Godda"
+      },
+      {
+        "id": 67,
+        "label": "Golaghat",
+        "value": "Golaghat"
+      },
+      {
+        "id": 636,
+        "label": "Gomati",
+        "value": "Gomati"
+      },
+      {
+        "id": 674,
+        "label": "Gonda",
+        "value": "Gonda"
+      },
+      {
+        "id": 388,
+        "label": "Gondia",
+        "value": "Gondia"
+      },
+      {
+        "id": 97,
+        "label": "Gopalganj",
+        "value": "Gopalganj"
+      },
+      {
+        "id": 675,
+        "label": "Gorakhpur",
+        "value": "Gorakhpur"
+      },
+      {
+        "id": 261,
+        "label": "Gumla",
+        "value": "Gumla"
+      },
+      {
+        "id": 341,
+        "label": "Guna",
+        "value": "Guna"
+      },
+      {
+        "id": 12,
+        "label": "Guntur",
+        "value": "Guntur"
+      },
+      {
+        "id": 509,
+        "label": "Gurdaspur",
+        "value": "Gurdaspur"
+      },
+      {
+        "id": 203,
+        "label": "Gurugram",
+        "value": "Gurugram"
+      },
+      {
+        "id": 893,
+        "label": "Guwahati",
+        "value": "Guwahati"
+      },
+      {
+        "id": 342,
+        "label": "Gwalior",
+        "value": "Gwalior"
+      },
+      {
+        "id": 68,
+        "label": "Hailakandi",
+        "value": "Hailakandi"
+      },
+      {
+        "id": 222,
+        "label": "Hamirpur",
+        "value": "Hamirpur"
+      },
+      {
+        "id": 6646,
+        "label": "Hanumakonda",
+        "value": "Hanumakonda"
+      },
+      {
+        "id": 539,
+        "label": "Hanumangarh",
+        "value": "Hanumangarh"
+      },
+      {
+        "id": 677,
+        "label": "Hapur",
+        "value": "Hapur"
+      },
+      {
+        "id": 343,
+        "label": "Harda",
+        "value": "Harda"
+      },
+      {
+        "id": 678,
+        "label": "Hardoi",
+        "value": "Hardoi"
+      },
+      {
+        "id": 723,
+        "label": "Haridwar",
+        "value": "Haridwar"
+      },
+      {
+        "id": 290,
+        "label": "Hassan",
+        "value": "Hassan"
+      },
+      {
+        "id": 679,
+        "label": "Hathras",
+        "value": "Hathras"
+      },
+      {
+        "id": 291,
+        "label": "Haveri",
+        "value": "Haveri"
+      },
+      {
+        "id": 262,
+        "label": "Hazaribagh",
+        "value": "Hazaribagh"
+      },
+      {
+        "id": 389,
+        "label": "Hingoli",
+        "value": "Hingoli"
+      },
+      {
+        "id": 204,
+        "label": "Hisar",
+        "value": "Hisar"
+      },
+      {
+        "id": 3159,
+        "label": "Hojai",
+        "value": "Hojai"
+      },
+      {
+        "id": 737,
+        "label": "Hooghly",
+        "value": "Hooghly"
+      },
+      {
+        "id": 510,
+        "label": "Hoshiarpur",
+        "value": "Hoshiarpur"
+      },
+      {
+        "id": 738,
+        "label": "Howrah",
+        "value": "Howrah"
+      },
+      {
+        "id": 604,
+        "label": "Hyderabad",
+        "value": "Hyderabad"
+      },
+      {
+        "id": 308,
+        "label": "Idukki",
+        "value": "Idukki"
+      },
+      {
+        "id": 416,
+        "label": "Imphal East",
+        "value": "Imphal East"
+      },
+      {
+        "id": 417,
+        "label": "Imphal West",
+        "value": "Imphal West"
+      },
+      {
+        "id": 345,
+        "label": "Indore",
+        "value": "Indore"
+      },
+      {
+        "id": 2524,
+        "label": "Itanagar",
+        "value": "Itanagar"
+      },
+      {
+        "id": 346,
+        "label": "Jabalpur",
+        "value": "Jabalpur"
+      },
+      {
+        "id": 5935,
+        "label": "JAGATSINGHAPUR",
+        "value": "JAGATSINGHAPUR"
+      },
+      {
+        "id": 6648,
+        "label": "Jagitial",
+        "value": "Jagitial"
+      },
+      {
+        "id": 540,
+        "label": "Jaipur",
+        "value": "Jaipur"
+      },
+      {
+        "id": 541,
+        "label": "Jaisalmer",
+        "value": "Jaisalmer"
+      },
+      {
+        "id": 5934,
+        "label": "JAJAPUR",
+        "value": "JAJAPUR"
+      },
+      {
+        "id": 511,
+        "label": "Jalandhar",
+        "value": "Jalandhar"
+      },
+      {
+        "id": 680,
+        "label": "Jalaun",
+        "value": "Jalaun"
+      },
+      {
+        "id": 390,
+        "label": "Jalgaon",
+        "value": "Jalgaon"
+      },
+      {
+        "id": 391,
+        "label": "Jalna",
+        "value": "Jalna"
+      },
+      {
+        "id": 542,
+        "label": "Jalore",
+        "value": "Jalore"
+      },
+      {
+        "id": 739,
+        "label": "Jalpaiguri",
+        "value": "Jalpaiguri"
+      },
+      {
+        "id": 238,
+        "label": "Jammu",
+        "value": "Jammu"
+      },
+      {
+        "id": 179,
+        "label": "Jamnagar",
+        "value": "Jamnagar"
+      },
+      {
+        "id": 263,
+        "label": "Jamtara",
+        "value": "Jamtara"
+      },
+      {
+        "id": 98,
+        "label": "Jamui",
+        "value": "Jamui"
+      },
+      {
+        "id": 6649,
+        "label": "Jangoan",
+        "value": "Jangoan"
+      },
+      {
+        "id": 5866,
+        "label": "Janjgir-Champa",
+        "value": "Janjgir-Champa"
+      },
+      {
+        "id": 138,
+        "label": "Jashpur",
+        "value": "Jashpur"
+      },
+      {
+        "id": 681,
+        "label": "Jaunpur",
+        "value": "Jaunpur"
+      },
+      {
+        "id": 6650,
+        "label": "Jayashankar Bhupalapally",
+        "value": "Jayashankar Bhupalapally"
+      },
+      {
+        "id": 99,
+        "label": "Jehanabad",
+        "value": "Jehanabad"
+      },
+      {
+        "id": 347,
+        "label": "Jhabua",
+        "value": "Jhabua"
+      },
+      {
+        "id": 205,
+        "label": "Jhajjar",
+        "value": "Jhajjar"
+      },
+      {
+        "id": 543,
+        "label": "Jhalawar",
+        "value": "Jhalawar"
+      },
+      {
+        "id": 682,
+        "label": "Jhansi",
+        "value": "Jhansi"
+      },
+      {
+        "id": 740,
+        "label": "Jhargram",
+        "value": "Jhargram"
+      },
+      {
+        "id": 481,
+        "label": "Jharsuguda",
+        "value": "Jharsuguda"
+      },
+      {
+        "id": 544,
+        "label": "Jhunjhunu",
+        "value": "Jhunjhunu"
+      },
+      {
+        "id": 206,
+        "label": "Jind",
+        "value": "Jind"
+      },
+      {
+        "id": 545,
+        "label": "Jodhpur",
+        "value": "Jodhpur"
+      },
+      {
+        "id": 6651,
+        "label": "Jogulamba Gadwal",
+        "value": "Jogulamba Gadwal"
+      },
+      {
+        "id": 69,
+        "label": "Jorhat",
+        "value": "Jorhat"
+      },
+      {
+        "id": 180,
+        "label": "Junagadh",
+        "value": "Junagadh"
+      },
+      {
+        "id": 6174,
+        "label": "Kabeerdham",
+        "value": "Kabeerdham"
+      },
+      {
+        "id": 5878,
+        "label": "KACHCHH",
+        "value": "KACHCHH"
+      },
+      {
+        "id": 6134,
+        "label": "Kaimur (Bhabua)",
+        "value": "Kaimur (Bhabua)"
+      },
+      {
+        "id": 207,
+        "label": "Kaithal",
+        "value": "Kaithal"
+      },
+      {
+        "id": 419,
+        "label": "Kakching",
+        "value": "Kakching"
+      },
+      {
+        "id": 14,
+        "label": "Kakinada ",
+        "value": "Kakinada "
+      },
+      {
+        "id": 2254,
+        "label": "Kalaburagi",
+        "value": "Kalaburagi"
+      },
+      {
+        "id": 482,
+        "label": "Kalahandi",
+        "value": "Kalahandi"
+      },
+      {
+        "id": 741,
+        "label": "Kalimpong",
+        "value": "Kalimpong"
+      },
+      {
+        "id": 572,
+        "label": "Kallakurichi",
+        "value": "Kallakurichi"
+      },
+      {
+        "id": 609,
+        "label": "Kamareddy",
+        "value": "Kamareddy"
+      },
+      {
+        "id": 420,
+        "label": "Kamjong",
+        "value": "Kamjong"
+      },
+      {
+        "id": 70,
+        "label": "Kamrup",
+        "value": "Kamrup"
+      },
+      {
+        "id": 6106,
+        "label": "Kamrup Metro",
+        "value": "Kamrup Metro"
+      },
+      {
+        "id": 6616,
+        "label": "Kancheepuram",
+        "value": "Kancheepuram"
+      },
+      {
+        "id": 483,
+        "label": "Kandhamal",
+        "value": "Kandhamal"
+      },
+      {
+        "id": 421,
+        "label": "Kangpokpi",
+        "value": "Kangpokpi"
+      },
+      {
+        "id": 223,
+        "label": "Kangra",
+        "value": "Kangra"
+      },
+      {
+        "id": 683,
+        "label": "Kannauj",
+        "value": "Kannauj"
+      },
+      {
+        "id": 6617,
+        "label": "Kanniyakumari",
+        "value": "Kanniyakumari"
+      },
+      {
+        "id": 309,
+        "label": "Kannur",
+        "value": "Kannur"
+      },
+      {
+        "id": 684,
+        "label": "Kanpur Dehat",
+        "value": "Kanpur Dehat"
+      },
+      {
+        "id": 685,
+        "label": "Kanpur Nagar",
+        "value": "Kanpur Nagar"
+      },
+      {
+        "id": 574,
+        "label": "Kanyakumari",
+        "value": "Kanyakumari"
+      },
+      {
+        "id": 512,
+        "label": "Kapurthala",
+        "value": "Kapurthala"
+      },
+      {
+        "id": 498,
+        "label": "Karaikal",
+        "value": "Karaikal"
+      },
+      {
+        "id": 546,
+        "label": "Karauli",
+        "value": "Karauli"
+      },
+      {
+        "id": 72,
+        "label": "Karbi Anglong",
+        "value": "Karbi Anglong"
+      },
+      {
+        "id": 320,
+        "label": "Kargil",
+        "value": "Kargil"
+      },
+      {
+        "id": 73,
+        "label": "Karimganj",
+        "value": "Karimganj"
+      },
+      {
+        "id": 610,
+        "label": "Karimnagar",
+        "value": "Karimnagar"
+      },
+      {
+        "id": 208,
+        "label": "Karnal",
+        "value": "Karnal"
+      },
+      {
+        "id": 575,
+        "label": "Karur",
+        "value": "Karur"
+      },
+      {
+        "id": 310,
+        "label": "Kasaragod",
+        "value": "Kasaragod"
+      },
+      {
+        "id": 686,
+        "label": "Kasganj",
+        "value": "Kasganj"
+      },
+      {
+        "id": 239,
+        "label": "Kathua",
+        "value": "Kathua"
+      },
+      {
+        "id": 101,
+        "label": "Katihar",
+        "value": "Katihar"
+      },
+      {
+        "id": 348,
+        "label": "Katni",
+        "value": "Katni"
+      },
+      {
+        "id": 687,
+        "label": "Kaushambi",
+        "value": "Kaushambi"
+      },
+      {
+        "id": 1920,
+        "label": "Kekri",
+        "value": "Kekri"
+      },
+      {
+        "id": 484,
+        "label": "Kendrapara",
+        "value": "Kendrapara"
+      },
+      {
+        "id": 485,
+        "label": "Kendujhar",
+        "value": "Kendujhar"
+      },
+      {
+        "id": 959,
+        "label": "Kerala",
+        "value": "Kerala"
+      },
+      {
+        "id": 102,
+        "label": "Khagaria",
+        "value": "Khagaria"
+      },
+      {
+        "id": 6588,
+        "label": "Khairthal-Tijara",
+        "value": "Khairthal-Tijara"
+      },
+      {
+        "id": 611,
+        "label": "Khammam",
+        "value": "Khammam"
+      },
+      {
+        "id": 6388,
+        "label": "Khandwa (East Nimar)",
+        "value": "Khandwa (East Nimar)"
+      },
+      {
+        "id": 6389,
+        "label": "Khargone (West Nimar)",
+        "value": "Khargone (West Nimar)"
+      },
+      {
+        "id": 181,
+        "label": "Kheda",
+        "value": "Kheda"
+      },
+      {
+        "id": 688,
+        "label": "Kheri",
+        "value": "Kheri"
+      },
+      {
+        "id": 486,
+        "label": "Khordha",
+        "value": "Khordha"
+      },
+      {
+        "id": 637,
+        "label": "Khowai",
+        "value": "Khowai"
+      },
+      {
+        "id": 264,
+        "label": "Khunti",
+        "value": "Khunti"
+      },
+      {
+        "id": 224,
+        "label": "Kinnaur",
+        "value": "Kinnaur"
+      },
+      {
+        "id": 454,
+        "label": "Kiphire",
+        "value": "Kiphire"
+      },
+      {
+        "id": 103,
+        "label": "Kishanganj",
+        "value": "Kishanganj"
+      },
+      {
+        "id": 240,
+        "label": "Kishtwar",
+        "value": "Kishtwar"
+      },
+      {
+        "id": 292,
+        "label": "Kodagu",
+        "value": "Kodagu"
+      },
+      {
+        "id": 265,
+        "label": "Koderma",
+        "value": "Koderma"
+      },
+      {
+        "id": 455,
+        "label": "Kohima",
+        "value": "Kohima"
+      },
+      {
+        "id": 74,
+        "label": "Kokrajhar",
+        "value": "Kokrajhar"
+      },
+      {
+        "id": 293,
+        "label": "Kolar",
+        "value": "Kolar"
+      },
+      {
+        "id": 444,
+        "label": "Kolasib",
+        "value": "Kolasib"
+      },
+      {
+        "id": 392,
+        "label": "Kolhapur",
+        "value": "Kolhapur"
+      },
+      {
+        "id": 742,
+        "label": "Kolkata",
+        "value": "Kolkata"
+      },
+      {
+        "id": 311,
+        "label": "Kollam",
+        "value": "Kollam"
+      },
+      {
+        "id": 142,
+        "label": "Kondagaon",
+        "value": "Kondagaon"
+      },
+      {
+        "id": 294,
+        "label": "Koppal",
+        "value": "Koppal"
+      },
+      {
+        "id": 487,
+        "label": "Koraput",
+        "value": "Koraput"
+      },
+      {
+        "id": 143,
+        "label": "Korba",
+        "value": "Korba"
+      },
+      {
+        "id": 6177,
+        "label": "Korea",
+        "value": "Korea"
+      },
+      {
+        "id": 547,
+        "label": "Kota",
+        "value": "Kota"
+      },
+      {
+        "id": 6590,
+        "label": "Kotputli-Behror",
+        "value": "Kotputli-Behror"
+      },
+      {
+        "id": 312,
+        "label": "Kottayam",
+        "value": "Kottayam"
+      },
+      {
+        "id": 313,
+        "label": "Kozhikode",
+        "value": "Kozhikode"
+      },
+      {
+        "id": 37,
+        "label": "Kra Daadi",
+        "value": "Kra Daadi"
+      },
+      {
+        "id": 16,
+        "label": "Krishna",
+        "value": "Krishna"
+      },
+      {
+        "id": 576,
+        "label": "Krishnagiri",
+        "value": "Krishnagiri"
+      },
+      {
+        "id": 241,
+        "label": "Kulgam",
+        "value": "Kulgam"
+      },
+      {
+        "id": 225,
+        "label": "Kullu",
+        "value": "Kullu"
+      },
+      {
+        "id": 6655,
+        "label": "Kumuram Bheem Asifabad",
+        "value": "Kumuram Bheem Asifabad"
+      },
+      {
+        "id": 242,
+        "label": "Kupwara",
+        "value": "Kupwara"
+      },
+      {
+        "id": 17,
+        "label": "Kurnool",
+        "value": "Kurnool"
+      },
+      {
+        "id": 209,
+        "label": "Kurukshetra",
+        "value": "Kurukshetra"
+      },
+      {
+        "id": 38,
+        "label": "Kurung Kumey",
+        "value": "Kurung Kumey"
+      },
+      {
+        "id": 689,
+        "label": "Kushinagar",
+        "value": "Kushinagar"
+      },
+      {
+        "id": 6266,
+        "label": "Lahaul And Spiti",
+        "value": "Lahaul And Spiti"
+      },
+      {
+        "id": 75,
+        "label": "Lakhimpur",
+        "value": "Lakhimpur"
+      },
+      {
+        "id": 104,
+        "label": "Lakhisarai",
+        "value": "Lakhisarai"
+      },
+      {
+        "id": 6363,
+        "label": "Lakshadweep District",
+        "value": "Lakshadweep District"
+      },
+      {
+        "id": 690,
+        "label": "Lalitpur",
+        "value": "Lalitpur"
+      },
+      {
+        "id": 266,
+        "label": "Latehar",
+        "value": "Latehar"
+      },
+      {
+        "id": 393,
+        "label": "Latur",
+        "value": "Latur"
+      },
+      {
+        "id": 446,
+        "label": "Lawngtlai",
+        "value": "Lawngtlai"
+      },
+      {
+        "id": 6362,
+        "label": "Leh Ladakh",
+        "value": "Leh Ladakh"
+      },
+      {
+        "id": 267,
+        "label": "Lohardaga",
+        "value": "Lohardaga"
+      },
+      {
+        "id": 40,
+        "label": "Lohit",
+        "value": "Lohit"
+      },
+      {
+        "id": 41,
+        "label": "Longding",
+        "value": "Longding"
+      },
+      {
+        "id": 456,
+        "label": "Longleng",
+        "value": "Longleng"
+      },
+      {
+        "id": 42,
+        "label": "Lower Dibang Valley",
+        "value": "Lower Dibang Valley"
+      },
+      {
+        "id": 44,
+        "label": "Lower Subansiri",
+        "value": "Lower Subansiri"
+      },
+      {
+        "id": 691,
+        "label": "Lucknow",
+        "value": "Lucknow"
+      },
+      {
+        "id": 513,
+        "label": "Ludhiana",
+        "value": "Ludhiana"
+      },
+      {
+        "id": 447,
+        "label": "Lunglei",
+        "value": "Lunglei"
+      },
+      {
+        "id": 105,
+        "label": "Madhepura",
+        "value": "Madhepura"
+      },
+      {
+        "id": 106,
+        "label": "Madhubani",
+        "value": "Madhubani"
+      },
+      {
+        "id": 577,
+        "label": "Madurai",
+        "value": "Madurai"
+      },
+      {
+        "id": 613,
+        "label": "Mahabubabad",
+        "value": "Mahabubabad"
+      },
+      {
+        "id": 6657,
+        "label": "Mahabubnagar",
+        "value": "Mahabubnagar"
+      },
+      {
+        "id": 145,
+        "label": "Mahasamund",
+        "value": "Mahasamund"
+      },
+      {
+        "id": 499,
+        "label": "Mahe",
+        "value": "Mahe"
+      },
+      {
+        "id": 210,
+        "label": "Mahendragarh",
+        "value": "Mahendragarh"
+      },
+      {
+        "id": 3981,
+        "label": "Mahesana",
+        "value": "Mahesana"
+      },
+      {
+        "id": 183,
+        "label": "Mahisagar",
+        "value": "Mahisagar"
+      },
+      {
+        "id": 693,
+        "label": "Mahoba",
+        "value": "Mahoba"
+      },
+      {
+        "id": 5964,
+        "label": "MAHRAJGANJ",
+        "value": "MAHRAJGANJ"
+      },
+      {
+        "id": 694,
+        "label": "Mainpuri",
+        "value": "Mainpuri"
+      },
+      {
+        "id": 76,
+        "label": "Majuli",
+        "value": "Majuli"
+      },
+      {
+        "id": 314,
+        "label": "Malappuram",
+        "value": "Malappuram"
+      },
+      {
+        "id": 743,
+        "label": "Malda",
+        "value": "Malda"
+      },
+      {
+        "id": 514,
+        "label": "Malerkotla",
+        "value": "Malerkotla"
+      },
+      {
+        "id": 488,
+        "label": "Malkangiri",
+        "value": "Malkangiri"
+      },
+      {
+        "id": 448,
+        "label": "Mamit",
+        "value": "Mamit"
+      },
+      {
+        "id": 615,
+        "label": "Mancherial",
+        "value": "Mancherial"
+      },
+      {
+        "id": 227,
+        "label": "Mandi",
+        "value": "Mandi"
+      },
+      {
+        "id": 352,
+        "label": "Mandla",
+        "value": "Mandla"
+      },
+      {
+        "id": 353,
+        "label": "Mandsaur",
+        "value": "Mandsaur"
+      },
+      {
+        "id": 295,
+        "label": "Mandya",
+        "value": "Mandya"
+      },
+      {
+        "id": 285,
+        "label": "Mangalore, Dakshina Kannada",
+        "value": "Mangalore, Dakshina Kannada"
+      },
+      {
+        "id": 6605,
+        "label": "Mangan",
+        "value": "Mangan"
+      },
+      {
+        "id": 515,
+        "label": "Mansa",
+        "value": "Mansa"
+      },
+      {
+        "id": 5861,
+        "label": "MARIGAON",
+        "value": "MARIGAON"
+      },
+      {
+        "id": 695,
+        "label": "Mathura",
+        "value": "Mathura"
+      },
+      {
+        "id": 696,
+        "label": "Mau",
+        "value": "Mau"
+      },
+      {
+        "id": 6390,
+        "label": "MAUGANJ",
+        "value": "MAUGANJ"
+      },
+      {
+        "id": 578,
+        "label": "Mayiladuthurai ",
+        "value": "Mayiladuthurai "
+      },
+      {
+        "id": 489,
+        "label": "Mayurbhanj",
+        "value": "Mayurbhanj"
+      },
+      {
+        "id": 616,
+        "label": "Medak",
+        "value": "Medak"
+      },
+      {
+        "id": 6660,
+        "label": "Medchal Malkajgiri",
+        "value": "Medchal Malkajgiri"
+      },
+      {
+        "id": 697,
+        "label": "Meerut",
+        "value": "Meerut"
+      },
+      {
+        "id": 698,
+        "label": "Mirzapur",
+        "value": "Mirzapur"
+      },
+      {
+        "id": 516,
+        "label": "Moga",
+        "value": "Moga"
+      },
+      {
+        "id": 517,
+        "label": "Mohali",
+        "value": "Mohali"
+      },
+      {
+        "id": 6179,
+        "label": "Mohla-Manpur-Ambagarh Chouki",
+        "value": "Mohla-Manpur-Ambagarh Chouki"
+      },
+      {
+        "id": 457,
+        "label": "Mokokchung",
+        "value": "Mokokchung"
+      },
+      {
+        "id": 458,
+        "label": "Mon",
+        "value": "Mon"
+      },
+      {
+        "id": 699,
+        "label": "Moradabad",
+        "value": "Moradabad"
+      },
+      {
+        "id": 185,
+        "label": "Morbi",
+        "value": "Morbi"
+      },
+      {
+        "id": 354,
+        "label": "Morena",
+        "value": "Morena"
+      },
+      {
+        "id": 618,
+        "label": "Mulugu",
+        "value": "Mulugu"
+      },
+      {
+        "id": 394,
+        "label": "Mumbai",
+        "value": "Mumbai"
+      },
+      {
+        "id": 148,
+        "label": "Mungeli",
+        "value": "Mungeli"
+      },
+      {
+        "id": 107,
+        "label": "Munger",
+        "value": "Munger"
+      },
+      {
+        "id": 744,
+        "label": "Murshidabad",
+        "value": "Murshidabad"
+      },
+      {
+        "id": 700,
+        "label": "Muzaffarnagar",
+        "value": "Muzaffarnagar"
+      },
+      {
+        "id": 108,
+        "label": "Muzaffarpur",
+        "value": "Muzaffarpur"
+      },
+      {
+        "id": 849,
+        "label": "Mysuru",
+        "value": "Mysuru"
+      },
+      {
+        "id": 490,
+        "label": "Nabarangpur",
+        "value": "Nabarangpur"
+      },
+      {
+        "id": 745,
+        "label": "Nadia",
+        "value": "Nadia"
+      },
+      {
+        "id": 78,
+        "label": "Nagaon",
+        "value": "Nagaon"
+      },
+      {
+        "id": 579,
+        "label": "Nagapattinam",
+        "value": "Nagapattinam"
+      },
+      {
+        "id": 619,
+        "label": "Nagarkurnool",
+        "value": "Nagarkurnool"
+      },
+      {
+        "id": 548,
+        "label": "Nagaur",
+        "value": "Nagaur"
+      },
+      {
+        "id": 395,
+        "label": "Nagpur",
+        "value": "Nagpur"
+      },
+      {
+        "id": 724,
+        "label": "Nainital",
+        "value": "Nainital"
+      },
+      {
+        "id": 109,
+        "label": "Nalanda",
+        "value": "Nalanda"
+      },
+      {
+        "id": 79,
+        "label": "Nalbari",
+        "value": "Nalbari"
+      },
+      {
+        "id": 620,
+        "label": "Nalgonda",
+        "value": "Nalgonda"
+      },
+      {
+        "id": 580,
+        "label": "Namakkal",
+        "value": "Namakkal"
+      },
+      {
+        "id": 45,
+        "label": "Namsai",
+        "value": "Namsai"
+      },
+      {
+        "id": 396,
+        "label": "Nanded",
+        "value": "Nanded"
+      },
+      {
+        "id": 397,
+        "label": "Nandurbar",
+        "value": "Nandurbar"
+      },
+      {
+        "id": 20,
+        "label": "Nandyal",
+        "value": "Nandyal"
+      },
+      {
+        "id": 621,
+        "label": "Narayanpet",
+        "value": "Narayanpet"
+      },
+      {
+        "id": 149,
+        "label": "Narayanpur",
+        "value": "Narayanpur"
+      },
+      {
+        "id": 186,
+        "label": "Narmada",
+        "value": "Narmada"
+      },
+      {
+        "id": 6394,
+        "label": "Narmadapuram",
+        "value": "Narmadapuram"
+      },
+      {
+        "id": 6395,
+        "label": "Narsimhapur",
+        "value": "Narsimhapur"
+      },
+      {
+        "id": 398,
+        "label": "Nashik",
+        "value": "Nashik"
+      },
+      {
+        "id": 187,
+        "label": "Navsari",
+        "value": "Navsari"
+      },
+      {
+        "id": 110,
+        "label": "Nawada",
+        "value": "Nawada"
+      },
+      {
+        "id": 491,
+        "label": "Nayagarh",
+        "value": "Nayagarh"
+      },
+      {
+        "id": 6592,
+        "label": "Neem Ka Thana",
+        "value": "Neem Ka Thana"
+      },
+      {
+        "id": 357,
+        "label": "Neemuch",
+        "value": "Neemuch"
+      },
+      {
+        "id": 21,
+        "label": "Nellore",
+        "value": "Nellore"
+      },
+      {
+        "id": 6194,
+        "label": "New Delhi",
+        "value": "New Delhi"
+      },
+      {
+        "id": 6037,
+        "label": "Nicobars",
+        "value": "Nicobars"
+      },
+      {
+        "id": 622,
+        "label": "Nirmal",
+        "value": "Nirmal"
+      },
+      {
+        "id": 358,
+        "label": "Niwari",
+        "value": "Niwari"
+      },
+      {
+        "id": 623,
+        "label": "Nizamabad",
+        "value": "Nizamabad"
+      },
+      {
+        "id": 762,
+        "label": "Noida",
+        "value": "Noida"
+      },
+      {
+        "id": 460,
+        "label": "Noklak",
+        "value": "Noklak"
+      },
+      {
+        "id": 6195,
+        "label": "North",
+        "value": "North"
+      },
+      {
+        "id": 746,
+        "label": "North 24 Parganas",
+        "value": "North 24 Parganas"
+      },
+      {
+        "id": 6038,
+        "label": "North And Middle Andaman",
+        "value": "North And Middle Andaman"
+      },
+      {
+        "id": 6196,
+        "label": "North East",
+        "value": "North East"
+      },
+      {
+        "id": 433,
+        "label": "North Garo Hills",
+        "value": "North Garo Hills"
+      },
+      {
+        "id": 5916,
+        "label": "NORTH GOA",
+        "value": "NORTH GOA"
+      },
+      {
+        "id": 638,
+        "label": "North Tripura",
+        "value": "North Tripura"
+      },
+      {
+        "id": 6197,
+        "label": "North West",
+        "value": "North West"
+      },
+      {
+        "id": 6054,
+        "label": "NTR Krishna Guntur",
+        "value": "NTR Krishna Guntur"
+      },
+      {
+        "id": 492,
+        "label": "Nuapada",
+        "value": "Nuapada"
+      },
+      {
+        "id": 3857,
+        "label": "Nuh",
+        "value": "Nuh"
+      },
+      {
+        "id": 268,
+        "label": "Pakur",
+        "value": "Pakur"
+      },
+      {
+        "id": 315,
+        "label": "Palakkad",
+        "value": "Palakkad"
+      },
+      {
+        "id": 269,
+        "label": "Palamu",
+        "value": "Palamu"
+      },
+      {
+        "id": 400,
+        "label": "Palghar",
+        "value": "Palghar"
+      },
+      {
+        "id": 549,
+        "label": "Pali",
+        "value": "Pali"
+      },
+      {
+        "id": 22,
+        "label": "Palnadu",
+        "value": "Palnadu"
+      },
+      {
+        "id": 212,
+        "label": "Palwal",
+        "value": "Palwal"
+      },
+      {
+        "id": 5881,
+        "label": "PANCH MAHALS",
+        "value": "PANCH MAHALS"
+      },
+      {
+        "id": 213,
+        "label": "Panchkula",
+        "value": "Panchkula"
+      },
+      {
+        "id": 214,
+        "label": "Panipat",
+        "value": "Panipat"
+      },
+      {
+        "id": 359,
+        "label": "Panna",
+        "value": "Panna"
+      },
+      {
+        "id": 47,
+        "label": "Papum Pare",
+        "value": "Papum Pare"
+      },
+      {
+        "id": 401,
+        "label": "Parbhani",
+        "value": "Parbhani"
+      },
+      {
+        "id": 6056,
+        "label": "Parvathipuram Manyam",
+        "value": "Parvathipuram Manyam"
+      },
+      {
+        "id": 747,
+        "label": "Paschim Bardhaman",
+        "value": "Paschim Bardhaman"
+      },
+      {
+        "id": 748,
+        "label": "Paschim Medinipur",
+        "value": "Paschim Medinipur"
+      },
+      {
+        "id": 6145,
+        "label": "Pashchim Champaran",
+        "value": "Pashchim Champaran"
+      },
+      {
+        "id": 189,
+        "label": "Patan",
+        "value": "Patan"
+      },
+      {
+        "id": 316,
+        "label": "Pathanamthitta",
+        "value": "Pathanamthitta"
+      },
+      {
+        "id": 519,
+        "label": "Pathankot",
+        "value": "Pathankot"
+      },
+      {
+        "id": 520,
+        "label": "Patiala",
+        "value": "Patiala"
+      },
+      {
+        "id": 111,
+        "label": "Patna",
+        "value": "Patna"
+      },
+      {
+        "id": 5965,
+        "label": "PAURI GARHWAL",
+        "value": "PAURI GARHWAL"
+      },
+      {
+        "id": 624,
+        "label": "Peddapalli",
+        "value": "Peddapalli"
+      },
+      {
+        "id": 582,
+        "label": "Perambalur",
+        "value": "Perambalur"
+      },
+      {
+        "id": 461,
+        "label": "Peren",
+        "value": "Peren"
+      },
+      {
+        "id": 3256,
+        "label": "Phalodi",
+        "value": "Phalodi"
+      },
+      {
+        "id": 462,
+        "label": "Phek",
+        "value": "Phek"
+      },
+      {
+        "id": 423,
+        "label": "Pherzawl",
+        "value": "Pherzawl"
+      },
+      {
+        "id": 701,
+        "label": "Pilibhit",
+        "value": "Pilibhit"
+      },
+      {
+        "id": 726,
+        "label": "Pithoragarh",
+        "value": "Pithoragarh"
+      },
+      {
+        "id": 5944,
+        "label": "PONDICHERRY",
+        "value": "PONDICHERRY"
+      },
+      {
+        "id": 243,
+        "label": "Poonch",
+        "value": "Poonch"
+      },
+      {
+        "id": 190,
+        "label": "Porbandar",
+        "value": "Porbandar"
+      },
+      {
+        "id": 23,
+        "label": "Prakasam",
+        "value": "Prakasam"
+      },
+      {
+        "id": 550,
+        "label": "Pratapgarh",
+        "value": "Pratapgarh"
+      },
+      {
+        "id": 703,
+        "label": "Prayagraj",
+        "value": "Prayagraj"
+      },
+      {
+        "id": 500,
+        "label": "Puducherry",
+        "value": "Puducherry"
+      },
+      {
+        "id": 583,
+        "label": "Pudukkottai",
+        "value": "Pudukkottai"
+      },
+      {
+        "id": 244,
+        "label": "Pulwama",
+        "value": "Pulwama"
+      },
+      {
+        "id": 402,
+        "label": "Pune",
+        "value": "Pune"
+      },
+      {
+        "id": 749,
+        "label": "Purba Bardhaman",
+        "value": "Purba Bardhaman"
+      },
+      {
+        "id": 750,
+        "label": "Purba Medinipur",
+        "value": "Purba Medinipur"
+      },
+      {
+        "id": 6147,
+        "label": "Purbi Champaran",
+        "value": "Purbi Champaran"
+      },
+      {
+        "id": 493,
+        "label": "Puri",
+        "value": "Puri"
+      },
+      {
+        "id": 112,
+        "label": "Purnia",
+        "value": "Purnia"
+      },
+      {
+        "id": 751,
+        "label": "Purulia",
+        "value": "Purulia"
+      },
+      {
+        "id": 6746,
+        "label": "Rae Bareli",
+        "value": "Rae Bareli"
+      },
+      {
+        "id": 297,
+        "label": "Raichur",
+        "value": "Raichur"
+      },
+      {
+        "id": 403,
+        "label": "Raigad",
+        "value": "Raigad"
+      },
+      {
+        "id": 150,
+        "label": "Raigarh",
+        "value": "Raigarh"
+      },
+      {
+        "id": 151,
+        "label": "Raipur",
+        "value": "Raipur"
+      },
+      {
+        "id": 360,
+        "label": "Raisen",
+        "value": "Raisen"
+      },
+      {
+        "id": 625,
+        "label": "Rajanna Sircilla",
+        "value": "Rajanna Sircilla"
+      },
+      {
+        "id": 361,
+        "label": "Rajgarh",
+        "value": "Rajgarh"
+      },
+      {
+        "id": 191,
+        "label": "Rajkot",
+        "value": "Rajkot"
+      },
+      {
+        "id": 152,
+        "label": "Rajnandgaon",
+        "value": "Rajnandgaon"
+      },
+      {
+        "id": 245,
+        "label": "Rajouri",
+        "value": "Rajouri"
+      },
+      {
+        "id": 551,
+        "label": "Rajsamand",
+        "value": "Rajsamand"
+      },
+      {
+        "id": 298,
+        "label": "Ramanagara",
+        "value": "Ramanagara"
+      },
+      {
+        "id": 584,
+        "label": "Ramanathapuram",
+        "value": "Ramanathapuram"
+      },
+      {
+        "id": 246,
+        "label": "Ramban",
+        "value": "Ramban"
+      },
+      {
+        "id": 270,
+        "label": "Ramgarh",
+        "value": "Ramgarh"
+      },
+      {
+        "id": 705,
+        "label": "Rampur",
+        "value": "Rampur"
+      },
+      {
+        "id": 271,
+        "label": "Ranchi",
+        "value": "Ranchi"
+      },
+      {
+        "id": 626,
+        "label": "Ranga Reddy",
+        "value": "Ranga Reddy"
+      },
+      {
+        "id": 362,
+        "label": "Ratlam",
+        "value": "Ratlam"
+      },
+      {
+        "id": 404,
+        "label": "Ratnagiri",
+        "value": "Ratnagiri"
+      },
+      {
+        "id": 494,
+        "label": "Rayagada",
+        "value": "Rayagada"
+      },
+      {
+        "id": 247,
+        "label": "Reasi",
+        "value": "Reasi"
+      },
+      {
+        "id": 363,
+        "label": "Rewa",
+        "value": "Rewa"
+      },
+      {
+        "id": 215,
+        "label": "Rewari",
+        "value": "Rewari"
+      },
+      {
+        "id": 434,
+        "label": "Ri Bhoi",
+        "value": "Ri Bhoi"
+      },
+      {
+        "id": 216,
+        "label": "Rohtak",
+        "value": "Rohtak"
+      },
+      {
+        "id": 113,
+        "label": "Rohtas",
+        "value": "Rohtas"
+      },
+      {
+        "id": 6769,
+        "label": "Rudra Prayag",
+        "value": "Rudra Prayag"
+      },
+      {
+        "id": 521,
+        "label": "Rupnagar",
+        "value": "Rupnagar"
+      },
+      {
+        "id": 6553,
+        "label": "S.A.S Nagar",
+        "value": "S.A.S Nagar"
+      },
+      {
+        "id": 6232,
+        "label": "Sabar Kantha",
+        "value": "Sabar Kantha"
+      },
+      {
+        "id": 364,
+        "label": "Sagar",
+        "value": "Sagar"
+      },
+      {
+        "id": 706,
+        "label": "Saharanpur",
+        "value": "Saharanpur"
+      },
+      {
+        "id": 114,
+        "label": "Saharsa",
+        "value": "Saharsa"
+      },
+      {
+        "id": 272,
+        "label": "Sahebganj",
+        "value": "Sahebganj"
+      },
+      {
+        "id": 586,
+        "label": "Salem",
+        "value": "Salem"
+      },
+      {
+        "id": 5170,
+        "label": "Salumbar",
+        "value": "Salumbar"
+      },
+      {
+        "id": 115,
+        "label": "Samastipur",
+        "value": "Samastipur"
+      },
+      {
+        "id": 248,
+        "label": "Samba",
+        "value": "Samba"
+      },
+      {
+        "id": 495,
+        "label": "Sambalpur",
+        "value": "Sambalpur"
+      },
+      {
+        "id": 707,
+        "label": "Sambhal",
+        "value": "Sambhal"
+      },
+      {
+        "id": 6598,
+        "label": "Sanchore",
+        "value": "Sanchore"
+      },
+      {
+        "id": 627,
+        "label": "Sangareddy",
+        "value": "Sangareddy"
+      },
+      {
+        "id": 405,
+        "label": "Sangli",
+        "value": "Sangli"
+      },
+      {
+        "id": 522,
+        "label": "Sangrur",
+        "value": "Sangrur"
+      },
+      {
+        "id": 708,
+        "label": "Sant Kabir Nagar",
+        "value": "Sant Kabir Nagar"
+      },
+      {
+        "id": 6313,
+        "label": "Saraikela Kharsawan",
+        "value": "Saraikela Kharsawan"
+      },
+      {
+        "id": 116,
+        "label": "Saran",
+        "value": "Saran"
+      },
+      {
+        "id": 406,
+        "label": "Satara",
+        "value": "Satara"
+      },
+      {
+        "id": 365,
+        "label": "Satna",
+        "value": "Satna"
+      },
+      {
+        "id": 552,
+        "label": "Sawai Madhopur",
+        "value": "Sawai Madhopur"
+      },
+      {
+        "id": 366,
+        "label": "Sehore",
+        "value": "Sehore"
+      },
+      {
+        "id": 424,
+        "label": "Senapati",
+        "value": "Senapati"
+      },
+      {
+        "id": 367,
+        "label": "Seoni",
+        "value": "Seoni"
+      },
+      {
+        "id": 639,
+        "label": "Sepahijala",
+        "value": "Sepahijala"
+      },
+      {
+        "id": 450,
+        "label": "Serchhip",
+        "value": "Serchhip"
+      },
+      {
+        "id": 163,
+        "label": "Shahdara",
+        "value": "Shahdara"
+      },
+      {
+        "id": 368,
+        "label": "Shahdol",
+        "value": "Shahdol"
+      },
+      {
+        "id": 6555,
+        "label": "Shahid Bhagat Singh Nagar",
+        "value": "Shahid Bhagat Singh Nagar"
+      },
+      {
+        "id": 709,
+        "label": "Shahjahanpur",
+        "value": "Shahjahanpur"
+      },
+      {
+        "id": 6600,
+        "label": "Shahpura",
+        "value": "Shahpura"
+      },
+      {
+        "id": 369,
+        "label": "Shajapur",
+        "value": "Shajapur"
+      },
+      {
+        "id": 463,
+        "label": "Shamator",
+        "value": "Shamator"
+      },
+      {
+        "id": 710,
+        "label": "Shamli",
+        "value": "Shamli"
+      },
+      {
+        "id": 117,
+        "label": "Sheikhpura",
+        "value": "Sheikhpura"
+      },
+      {
+        "id": 118,
+        "label": "Sheohar",
+        "value": "Sheohar"
+      },
+      {
+        "id": 370,
+        "label": "Sheopur",
+        "value": "Sheopur"
+      },
+      {
+        "id": 48,
+        "label": "Shi Yomi",
+        "value": "Shi Yomi"
+      },
+      {
+        "id": 228,
+        "label": "Shimla",
+        "value": "Shimla"
+      },
+      {
+        "id": 1515,
+        "label": "Shivamogga",
+        "value": "Shivamogga"
+      },
+      {
+        "id": 371,
+        "label": "Shivpuri",
+        "value": "Shivpuri"
+      },
+      {
+        "id": 249,
+        "label": "Shopian",
+        "value": "Shopian"
+      },
+      {
+        "id": 5963,
+        "label": "SHRAWASTI",
+        "value": "SHRAWASTI"
+      },
+      {
+        "id": 6485,
+        "label": "Siaha",
+        "value": "Siaha"
+      },
+      {
+        "id": 6080,
+        "label": "Siang",
+        "value": "Siang"
+      },
+      {
+        "id": 712,
+        "label": "Siddharthnagar",
+        "value": "Siddharthnagar"
+      },
+      {
+        "id": 628,
+        "label": "Siddipet",
+        "value": "Siddipet"
+      },
+      {
+        "id": 372,
+        "label": "Sidhi",
+        "value": "Sidhi"
+      },
+      {
+        "id": 553,
+        "label": "Sikar",
+        "value": "Sikar"
+      },
+      {
+        "id": 274,
+        "label": "Simdega",
+        "value": "Simdega"
+      },
+      {
+        "id": 407,
+        "label": "Sindhudurg",
+        "value": "Sindhudurg"
+      },
+      {
+        "id": 373,
+        "label": "Singrauli",
+        "value": "Singrauli"
+      },
+      {
+        "id": 229,
+        "label": "Sirmaur",
+        "value": "Sirmaur"
+      },
+      {
+        "id": 554,
+        "label": "Sirohi",
+        "value": "Sirohi"
+      },
+      {
+        "id": 217,
+        "label": "Sirsa",
+        "value": "Sirsa"
+      },
+      {
+        "id": 119,
+        "label": "Sitamarhi",
+        "value": "Sitamarhi"
+      },
+      {
+        "id": 713,
+        "label": "Sitapur",
+        "value": "Sitapur"
+      },
+      {
+        "id": 587,
+        "label": "Sivaganga",
+        "value": "Sivaganga"
+      },
+      {
+        "id": 80,
+        "label": "Sivasagar",
+        "value": "Sivasagar"
+      },
+      {
+        "id": 120,
+        "label": "Siwan",
+        "value": "Siwan"
+      },
+      {
+        "id": 230,
+        "label": "Solan",
+        "value": "Solan"
+      },
+      {
+        "id": 408,
+        "label": "Solapur",
+        "value": "Solapur"
+      },
+      {
+        "id": 714,
+        "label": "Sonbhadra",
+        "value": "Sonbhadra"
+      },
+      {
+        "id": 4356,
+        "label": "Sonepur",
+        "value": "Sonepur"
+      },
+      {
+        "id": 218,
+        "label": "Sonipat",
+        "value": "Sonipat"
+      },
+      {
+        "id": 81,
+        "label": "Sonitpur",
+        "value": "Sonitpur"
+      },
+      {
+        "id": 561,
+        "label": "Soreng",
+        "value": "Soreng"
+      },
+      {
+        "id": 6199,
+        "label": "South",
+        "value": "South"
+      },
+      {
+        "id": 752,
+        "label": "South 24 Parganas",
+        "value": "South 24 Parganas"
+      },
+      {
+        "id": 6039,
+        "label": "South Andamans",
+        "value": "South Andamans"
+      },
+      {
+        "id": 6200,
+        "label": "South East",
+        "value": "South East"
+      },
+      {
+        "id": 435,
+        "label": "South Garo Hills",
+        "value": "South Garo Hills"
+      },
+      {
+        "id": 164,
+        "label": "South Goa",
+        "value": "South Goa"
+      },
+      {
+        "id": 6117,
+        "label": "South Salmara Mancachar",
+        "value": "South Salmara Mancachar"
+      },
+      {
+        "id": 640,
+        "label": "South Tripura",
+        "value": "South Tripura"
+      },
+      {
+        "id": 6201,
+        "label": "South West",
+        "value": "South West"
+      },
+      {
+        "id": 436,
+        "label": "South West Garo Hills",
+        "value": "South West Garo Hills"
+      },
+      {
+        "id": 437,
+        "label": "South West Khasi Hills",
+        "value": "South West Khasi Hills"
+      },
+      {
+        "id": 6556,
+        "label": "Sri Muktsar Sahib",
+        "value": "Sri Muktsar Sahib"
+      },
+      {
+        "id": 6058,
+        "label": "Sri Potti Sriramulu Nellore",
+        "value": "Sri Potti Sriramulu Nellore"
+      },
+      {
+        "id": 6059,
+        "label": "Sri Sathya Sai",
+        "value": "Sri Sathya Sai"
+      },
+      {
+        "id": 26,
+        "label": "Srikakulam",
+        "value": "Srikakulam"
+      },
+      {
+        "id": 250,
+        "label": "Srinagar",
+        "value": "Srinagar"
+      },
+      {
+        "id": 155,
+        "label": "Sukma",
+        "value": "Sukma"
+      },
+      {
+        "id": 715,
+        "label": "Sultanpur",
+        "value": "Sultanpur"
+      },
+      {
+        "id": 2596,
+        "label": "Sundargarh",
+        "value": "Sundargarh"
+      },
+      {
+        "id": 497,
+        "label": "Sundergarh",
+        "value": "Sundergarh"
+      },
+      {
+        "id": 121,
+        "label": "Supaul",
+        "value": "Supaul"
+      },
+      {
+        "id": 156,
+        "label": "Surajpur",
+        "value": "Surajpur"
+      },
+      {
+        "id": 193,
+        "label": "Surat",
+        "value": "Surat"
+      },
+      {
+        "id": 194,
+        "label": "Surendranagar",
+        "value": "Surendranagar"
+      },
+      {
+        "id": 157,
+        "label": "Surguja",
+        "value": "Surguja"
+      },
+      {
+        "id": 629,
+        "label": "Suryapet",
+        "value": "Suryapet"
+      },
+      {
+        "id": 425,
+        "label": "Tamenglong",
+        "value": "Tamenglong"
+      },
+      {
+        "id": 195,
+        "label": "Tapi",
+        "value": "Tapi"
+      },
+      {
+        "id": 524,
+        "label": "Tarn Taran",
+        "value": "Tarn Taran"
+      },
+      {
+        "id": 49,
+        "label": "Tawang",
+        "value": "Tawang"
+      },
+      {
+        "id": 5966,
+        "label": "TEHRI GARHWAL",
+        "value": "TEHRI GARHWAL"
+      },
+      {
+        "id": 426,
+        "label": "Tengnoupal",
+        "value": "Tengnoupal"
+      },
+      {
+        "id": 588,
+        "label": "Tenkasi",
+        "value": "Tenkasi"
+      },
+      {
+        "id": 409,
+        "label": "Thane",
+        "value": "Thane"
+      },
+      {
+        "id": 589,
+        "label": "Thanjavur",
+        "value": "Thanjavur"
+      },
+      {
+        "id": 6631,
+        "label": "The Nilgiris",
+        "value": "The Nilgiris"
+      },
+      {
+        "id": 590,
+        "label": "Theni",
+        "value": "Theni"
+      },
+      {
+        "id": 6633,
+        "label": "Thiruvallur",
+        "value": "Thiruvallur"
+      },
+      {
+        "id": 317,
+        "label": "Thiruvananthapuram",
+        "value": "Thiruvananthapuram"
+      },
+      {
+        "id": 6634,
+        "label": "Thiruvarur",
+        "value": "Thiruvarur"
+      },
+      {
+        "id": 6635,
+        "label": "Thoothukkudi",
+        "value": "Thoothukkudi"
+      },
+      {
+        "id": 591,
+        "label": "Thoothukudi",
+        "value": "Thoothukudi"
+      },
+      {
+        "id": 427,
+        "label": "Thoubal",
+        "value": "Thoubal"
+      },
+      {
+        "id": 318,
+        "label": "Thrissur",
+        "value": "Thrissur"
+      },
+      {
+        "id": 374,
+        "label": "Tikamgarh",
+        "value": "Tikamgarh"
+      },
+      {
+        "id": 83,
+        "label": "Tinsukia",
+        "value": "Tinsukia"
+      },
+      {
+        "id": 50,
+        "label": "Tirap",
+        "value": "Tirap"
+      },
+      {
+        "id": 592,
+        "label": "Tiruchirappalli",
+        "value": "Tiruchirappalli"
+      },
+      {
+        "id": 593,
+        "label": "Tirunelveli",
+        "value": "Tirunelveli"
+      },
+      {
+        "id": 6638,
+        "label": "Tirupathur",
+        "value": "Tirupathur"
+      },
+      {
+        "id": 775,
+        "label": "Tirupati",
+        "value": "Tirupati"
+      },
+      {
+        "id": 595,
+        "label": "Tiruppur",
+        "value": "Tiruppur"
+      },
+      {
+        "id": 597,
+        "label": "Tiruvannamalai",
+        "value": "Tiruvannamalai"
+      },
+      {
+        "id": 556,
+        "label": "Tonk",
+        "value": "Tonk"
+      },
+      {
+        "id": 464,
+        "label": "Tseminyu",
+        "value": "Tseminyu"
+      },
+      {
+        "id": 465,
+        "label": "Tuensang",
+        "value": "Tuensang"
+      },
+      {
+        "id": 2962,
+        "label": "Tumakuru",
+        "value": "Tumakuru"
+      },
+      {
+        "id": 300,
+        "label": "Tumkur",
+        "value": "Tumkur"
+      },
+      {
+        "id": 557,
+        "label": "Udaipur",
+        "value": "Udaipur"
+      },
+      {
+        "id": 84,
+        "label": "Udalguri",
+        "value": "Udalguri"
+      },
+      {
+        "id": 6771,
+        "label": "Udam Singh Nagar",
+        "value": "Udam Singh Nagar"
+      },
+      {
+        "id": 251,
+        "label": "Udhampur",
+        "value": "Udhampur"
+      },
+      {
+        "id": 301,
+        "label": "Udupi",
+        "value": "Udupi"
+      },
+      {
+        "id": 375,
+        "label": "Ujjain",
+        "value": "Ujjain"
+      },
+      {
+        "id": 428,
+        "label": "Ukhrul",
+        "value": "Ukhrul"
+      },
+      {
+        "id": 376,
+        "label": "Umaria",
+        "value": "Umaria"
+      },
+      {
+        "id": 231,
+        "label": "Una",
+        "value": "Una"
+      },
+      {
+        "id": 641,
+        "label": "Unakoti",
+        "value": "Unakoti"
+      },
+      {
+        "id": 716,
+        "label": "Unnao",
+        "value": "Unnao"
+      },
+      {
+        "id": 51,
+        "label": "Upper Siang",
+        "value": "Upper Siang"
+      },
+      {
+        "id": 52,
+        "label": "Upper Subansiri",
+        "value": "Upper Subansiri"
+      },
+      {
+        "id": 6188,
+        "label": "Uttar Bastar Kanker",
+        "value": "Uttar Bastar Kanker"
+      },
+      {
+        "id": 753,
+        "label": "Uttar Dinajpur",
+        "value": "Uttar Dinajpur"
+      },
+      {
+        "id": 6772,
+        "label": "Uttar Kashi",
+        "value": "Uttar Kashi"
+      },
+      {
+        "id": 302,
+        "label": "Uttara Kannada",
+        "value": "Uttara Kannada"
+      },
+      {
+        "id": 196,
+        "label": "Vadodara",
+        "value": "Vadodara"
+      },
+      {
+        "id": 122,
+        "label": "Vaishali",
+        "value": "Vaishali"
+      },
+      {
+        "id": 197,
+        "label": "Valsad",
+        "value": "Valsad"
+      },
+      {
+        "id": 717,
+        "label": "Varanasi",
+        "value": "Varanasi"
+      },
+      {
+        "id": 599,
+        "label": "Vellore",
+        "value": "Vellore"
+      },
+      {
+        "id": 377,
+        "label": "Vidisha",
+        "value": "Vidisha"
+      },
+      {
+        "id": 6344,
+        "label": "Vijayanagar",
+        "value": "Vijayanagar"
+      },
+      {
+        "id": 304,
+        "label": "Vijayapura ",
+        "value": "Vijayapura "
+      },
+      {
+        "id": 630,
+        "label": "Vikarabad",
+        "value": "Vikarabad"
+      },
+      {
+        "id": 600,
+        "label": "Viluppuram",
+        "value": "Viluppuram"
+      },
+      {
+        "id": 601,
+        "label": "Virudhunagar",
+        "value": "Virudhunagar"
+      },
+      {
+        "id": 27,
+        "label": "Visakhapatnam",
+        "value": "Visakhapatnam"
+      },
+      {
+        "id": 28,
+        "label": "Vizianagaram",
+        "value": "Vizianagaram"
+      },
+      {
+        "id": 631,
+        "label": "Wanaparthy",
+        "value": "Wanaparthy"
+      },
+      {
+        "id": 632,
+        "label": "Warangal",
+        "value": "Warangal"
+      },
+      {
+        "id": 410,
+        "label": "Wardha",
+        "value": "Wardha"
+      },
+      {
+        "id": 411,
+        "label": "Washim",
+        "value": "Washim"
+      },
+      {
+        "id": 319,
+        "label": "Wayanad",
+        "value": "Wayanad"
+      },
+      {
+        "id": 6202,
+        "label": "West",
+        "value": "West"
+      },
+      {
+        "id": 438,
+        "label": "West Garo Hills",
+        "value": "West Garo Hills"
+      },
+      {
+        "id": 29,
+        "label": "West Godavari",
+        "value": "West Godavari"
+      },
+      {
+        "id": 439,
+        "label": "West Jaintia Hills",
+        "value": "West Jaintia Hills"
+      },
+      {
+        "id": 53,
+        "label": "West Kameng",
+        "value": "West Kameng"
+      },
+      {
+        "id": 85,
+        "label": "West Karbi Anglong",
+        "value": "West Karbi Anglong"
+      },
+      {
+        "id": 440,
+        "label": "West Khasi Hills",
+        "value": "West Khasi Hills"
+      },
+      {
+        "id": 54,
+        "label": "West Siang",
+        "value": "West Siang"
+      },
+      {
+        "id": 275,
+        "label": "West Singhbhum",
+        "value": "West Singhbhum"
+      },
+      {
+        "id": 642,
+        "label": "West Tripura",
+        "value": "West Tripura"
+      },
+      {
+        "id": 466,
+        "label": "Wokha",
+        "value": "Wokha"
+      },
+      {
+        "id": 6065,
+        "label": "Y.S.R.",
+        "value": "Y.S.R."
+      },
+      {
+        "id": 634,
+        "label": "Yadadri Bhuvanagiri",
+        "value": "Yadadri Bhuvanagiri"
+      },
+      {
+        "id": 305,
+        "label": "Yadgir",
+        "value": "Yadgir"
+      },
+      {
+        "id": 219,
+        "label": "Yamunanagar",
+        "value": "Yamunanagar"
+      },
+      {
+        "id": 501,
+        "label": "Yanam",
+        "value": "Yanam"
+      },
+      {
+        "id": 412,
+        "label": "Yavatmal",
+        "value": "Yavatmal"
+      },
+      {
+        "id": 467,
+        "label": "Zunheboto",
+        "value": "Zunheboto"
+      }
+    ],
+    "haveAnOfferConcernsMaster": [
+      {
+        "label": "Low Compensation",
+        "value": 1
+      },
+      {
+        "label": "Role/Scope",
+        "value": 2
+      },
+      {
+        "label": "Stability",
+        "value": 3
+      },
+      {
+        "label": "Location",
+        "value": 4
+      },
+      {
+        "label": "Work Life Balance",
+        "value": 5
+      },
+      {
+        "label": "Growth Path",
+        "value": 6
+      }
+    ],
+    "jobSearchPreferenceMaster": [
+      {
+        "label": "Actively Looking",
+        "value": 1
+      },
+      {
+        "label": "Passively Looking",
+        "value": 3
+      },
+      {
+        "label": "Not looking for job change",
+        "value": 2
+      }
+    ],
+    "joiningMaster": [
+      {
+        "label": "Immediately",
+        "value": "Immediately"
+      },
+      {
+        "label": "15 Days",
+        "value": "15 Days"
+      },
+      {
+        "label": "30 Days",
+        "value": "30 Days"
+      },
+      {
+        "label": "45 Days",
+        "value": "45 Days"
+      },
+      {
+        "label": "60 Days",
+        "value": "60 Days"
+      },
+      {
+        "label": "More than 60 Days",
+        "value": "More than 60 Days"
+      }
+    ],
+    "justExploringMotivationsMaster": [
+      {
+        "label": "Better Pay",
+        "value": 1
+      },
+      {
+        "label": "Bigger Scope",
+        "value": 2
+      },
+      {
+        "label": "Stronger Brand",
+        "value": 3
+      },
+      {
+        "label": "Better Work Life Balance",
+        "value": 4
+      },
+      {
+        "label": "More Ownership",
+        "value": 5
+      }
+    ],
+    "laidOffDaysSinceLayoffMaster": [
+      {
+        "label": "< 15 days",
+        "value": 1
+      },
+      {
+        "label": "15-30 days",
+        "value": 2
+      },
+      {
+        "label": "30-60 days",
+        "value": 3
+      },
+      {
+        "label": "60+ days",
+        "value": 4
+      }
+    ],
+    "preferredCompanyTypesMaster": [
+      {
+        "label": "MAANG",
+        "value": 1
+      },
+      {
+        "label": "Product",
+        "value": 2
+      },
+      {
+        "label": "Startup",
+        "value": 3
+      },
+      {
+        "label": "Service",
+        "value": 4
+      },
+      {
+        "label": "Enterprise",
+        "value": 5
+      },
+      {
+        "label": "First I need a job — company type doesn't matter",
+        "value": 6
+      }
+    ],
+    "preferredMethodMaster": [
+      {
+        "label": "Remote Only",
+        "value": 1
+      },
+      {
+        "label": "Remote or Office",
+        "value": 2
+      }
+    ],
+    "userJourneyStatusMaster": [
+      {
+        "label": "just_exploring",
+        "value": 1
+      },
+      {
+        "label": "actively_applying",
+        "value": 2
+      },
+      {
+        "label": "interviewing",
+        "value": 3
+      },
+      {
+        "label": "have_an_offer",
+        "value": 4
+      },
+      {
+        "label": "laid_off",
+        "value": 5
+      }
+    ]
+  },
+  "snooze": [],
+  "talent": {
+    "availability": null,
+    "current_location": {
+      "label": "Bengaluru, Karnataka",
+      "value": 277
+    },
+    "enc_id": "E0I1SUhJKoGHtWxvDqqqLy2cAYTeOM77",
+    "enc_id_nda": "HNQTPs2UnoSyK8kwTaCRMpnlZIYfcf55",
+    "enc_id_org": "BxrRJCPfZvLIHQjLGZlOv7ygCu7dBw53",
+    "id": 9440850,
+    "interested_job_functions": [
+      {
+        "created_at": "2026-08-01T07:13:39.000000Z",
+        "id": 1331,
+        "job_function": {
+          "category": "Software Engineering",
+          "created_at": "2025-05-09T14:17:51.000000Z",
+          "id": 3,
+          "name": "Full Stack Development",
+          "updated_at": "2025-05-09T14:17:51.000000Z"
+        },
+        "job_function_id": 3,
+        "talent_id": 9440850,
+        "updated_at": "2026-08-01T07:13:39.000000Z"
+      },
+      {
+        "created_at": "2026-08-11T19:56:45.000000Z",
+        "id": 1817,
+        "job_function": {
+          "category": "Software Engineering",
+          "created_at": "2025-05-09T14:17:51.000000Z",
+          "id": 1,
+          "name": "Backend Development",
+          "updated_at": "2025-05-09T14:17:51.000000Z"
+        },
+        "job_function_id": 1,
+        "talent_id": 9440850,
+        "updated_at": "2026-08-11T19:56:45.000000Z"
+      }
+    ],
+    "job_function_id": 3,
+    "job_function_source": 1,
+    "job_search_preference": 1,
+    "job_search_unavailable_until": null,
+    "job_title": "Software Engineer",
+    "joining_period": "Immediately",
+    "last_working_day": null,
+    "name_extration": {
+      "first_name": "",
+      "last_name": null
+    },
+    "preferred_cities": [
+      {
+        "label": "Bengaluru, Karnataka",
+        "value": 277
+      }
+    ],
+    "preferred_method": [
+      {
+        "preferred_method": "2"
+      }
+    ],
+    "preferred_modes": [
+      1,
+      3
+    ],
+    "resme_last_update": "2026-08-12T08:44:47.000000Z",
+    "serving_notice_period": "No",
+    "short_created_at": "1970-01-01",
+    "status_text": [
+      "Registration Pending",
+      "In Network",
+      "AI Assessed",
+      "Tech Assessed",
+      "Offered",
+      "Hired",
+      "Joined",
+      "In Notice"
+    ],
+    "talent_top_skills": [
+      {
+        "created_at": "2026-08-01T07:13:39.000000Z",
+        "id": 3616,
+        "skill": {
+          "alternative_skills": "Amazon Web Services,AWS Cloud,AWS Services,AWS Solution Architect,AWS DevOps",
+          "created_at": "2025-05-22T08:09:09.000000Z",
+          "created_by": 0,
+          "deleted_at": null,
+          "id": 3890028,
+          "image": "https://platform.uplers.com/images/placeholders/assessmentPlaceholder.png",
+          "name": "AWS",
+          "role_id": 3890028,
+          "short_created_at": "2025-05-22",
+          "status": 1,
+          "status_text": "Active",
+          "updated_at": "2025-06-18T16:55:55.000000Z"
+        },
+        "skill_id": 3890028,
+        "talent_id": 9440850,
+        "updated_at": "2026-08-01T07:13:39.000000Z"
+      },
+      {
+        "created_at": "2026-08-01T07:13:39.000000Z",
+        "id": 3618,
+        "skill": {
+          "alternative_skills": "Microservice",
+          "created_at": "2025-05-27T23:21:03.000000Z",
+          "created_by": 0,
+          "deleted_at": null,
+          "id": 3898922,
+          "image": "https://platform.uplers.com/images/placeholders/assessmentPlaceholder.png",
+          "name": "Microservices",
+          "role_id": 0,
+          "short_created_at": "2025-05-28",
+          "status": 1,
+          "status_text": "Active",
+          "updated_at": "2025-06-18T17:04:51.000000Z"
+        },
+        "skill_id": 3898922,
+        "talent_id": 9440850,
+        "updated_at": "2026-08-01T07:13:39.000000Z"
+      },
+      {
+        "created_at": "2026-08-01T07:13:39.000000Z",
+        "id": 3619,
+        "skill": {
+          "alternative_skills": "Node,node js,nodejs",
+          "created_at": "2025-05-27T07:16:55.000000Z",
+          "created_by": 0,
+          "deleted_at": null,
+          "id": 3898076,
+          "image": "https://platform.uplers.com/images/placeholders/assessmentPlaceholder.png",
+          "name": "Node.js",
+          "role_id": 0,
+          "short_created_at": "2025-05-27",
+          "status": 1,
+          "status_text": "Active",
+          "updated_at": "2025-06-18T17:05:47.000000Z"
+        },
+        "skill_id": 3898076,
+        "talent_id": 9440850,
+        "updated_at": "2026-08-01T07:13:39.000000Z"
+      },
+      {
+        "created_at": "2026-08-11T11:28:01.000000Z",
+        "id": 4828,
+        "skill": {
+          "alternative_skills": "",
+          "created_at": "2025-05-28T10:27:28.000000Z",
+          "created_by": 0,
+          "deleted_at": null,
+          "id": 3901097,
+          "image": "https://platform.uplers.com/images/placeholders/assessmentPlaceholder.png",
+          "name": "TypeScript",
+          "role_id": 0,
+          "short_created_at": "2025-05-28",
+          "status": 1,
+          "status_text": "Active",
+          "updated_at": "2025-06-18T17:12:19.000000Z"
+        },
+        "skill_id": 3901097,
+        "talent_id": 9440850,
+        "updated_at": "2026-08-11T11:28:01.000000Z"
+      },
+      {
+        "created_at": "2026-08-11T11:28:01.000000Z",
+        "id": 4829,
+        "skill": {
+          "alternative_skills": "Postgres,Psql,postresq",
+          "created_at": "2025-05-28T10:27:28.000000Z",
+          "created_by": 0,
+          "deleted_at": null,
+          "id": 3901096,
+          "image": "https://platform.uplers.com/images/placeholders/assessmentPlaceholder.png",
+          "name": "PostgreSQL",
+          "role_id": 0,
+          "short_created_at": "2025-05-28",
+          "status": 1,
+          "status_text": "Active",
+          "updated_at": "2025-06-18T17:07:33.000000Z"
+        },
+        "skill_id": 3901096,
+        "talent_id": 9440850,
+        "updated_at": "2026-08-11T11:28:01.000000Z"
+      },
+      {
+        "created_at": "2026-08-11T11:55:55.000000Z",
+        "id": 4850,
+        "skill": {
+          "alternative_skills": "",
+          "created_at": "2022-05-09T01:45:44.000000Z",
+          "created_by": 0,
+          "deleted_at": null,
+          "id": 302,
+          "image": "https://d1h53oncnz25tl.cloudfront.net/talent/images/masters/skills/f1jFk1jBKWdqThmGYinwQ05oJn0a2FlebWNmuNe0.png",
+          "name": "Redis",
+          "role_id": 302,
+          "short_created_at": "2022-05-09",
+          "status": 1,
+          "status_text": "Active",
+          "updated_at": "2025-06-18T17:08:30.000000Z"
+        },
+        "skill_id": 302,
+        "talent_id": 9440850,
+        "updated_at": "2026-08-11T11:55:55.000000Z"
+      },
+      {
+        "created_at": "2026-08-11T12:34:18.000000Z",
+        "id": 4858,
+        "skill": {
+          "alternative_skills": "Mongo,MangoDB,mongo db",
+          "created_at": "2025-05-28T07:57:57.000000Z",
+          "created_by": 0,
+          "deleted_at": null,
+          "id": 3900084,
+          "image": "https://platform.uplers.com/images/placeholders/assessmentPlaceholder.png",
+          "name": "MongoDB",
+          "role_id": 0,
+          "short_created_at": "2025-05-28",
+          "status": 1,
+          "status_text": "Active",
+          "updated_at": "2025-06-18T17:05:09.000000Z"
+        },
+        "skill_id": 3900084,
+        "talent_id": 9440850,
+        "updated_at": "2026-08-11T12:34:18.000000Z"
+      }
+    ],
+    "target_company_types": [
+      {
+        "company_type": "6",
+        "company_type_text": "First I need a job — company type doesn't matter",
+        "created_at": "2026-08-01T07:13:39.000000Z",
+        "id": 1274,
+        "talent_id": 9440850,
+        "updated_at": "2026-08-01T07:13:39.000000Z"
+      }
+    ],
+    "total_experience": "5.2",
+    "user_id": 6318906,
+    "user_journey_status": {
+      "applications_per_day": 1,
+      "created_at": "2026-08-01T07:13:39.000000Z",
+      "days_since_layoff": null,
+      "id": 525,
+      "interviews_per_week": null,
+      "status": 2,
+      "sub_statuses": [
+        {
+          "journey_status_id": 525,
+          "sub_status": 2
+        },
+        {
+          "journey_status_id": 525,
+          "sub_status": 6
+        }
+      ],
+      "talent_id": 9440850,
+      "updated_at": "2026-08-13T06:29:08.000000Z"
+    }
+  }
+}
