@@ -85,6 +85,7 @@ from uplers_server.models import (
     TrackResult,
 )
 from uplers_server import (
+    agent_surface,
     assessment_flags,
     auth as auth_mod,
     endpoints,
@@ -3079,6 +3080,154 @@ async def uplers_agent_readthrough() -> dict:
         pending=outreach_mod.shape_pending_jobs(pending_raw),
         missed=outreach_mod.shape_missed_followups(missed_raw, now=now.isoformat()),
         activity=outreach_mod.shape_activity(activity_raw),
+    )
+
+
+@mcp.tool()
+async def uplers_email_scan() -> dict:
+    """Whether Uplers is scanning your Gmail for jobs, and what it found.
+
+    THE AUTHORITATIVE ANSWER, which this server did not have until now. Uplers
+    reports something called a mailbox-scan consent on three different routes
+    and they do not agree, so "is the scan on" had no single answer here. It
+    does now: `has_consent` on `recommended-jobs-meta-email` is the platform's
+    own state, established by static analysis of Uplers' frontend bundle
+    (`_audit/_slices/_slice-consent-semantics.md`) - this is the route their UI
+    re-reads the instant the consent write lands, and the whole Recommended-jobs
+    screen switches on it. `get-outreach-dashboard-data -> consent_email_job_scan`
+    is a downstream copy of the same fact, and `interview-list -> meta.has_consent`
+    is a DIFFERENT consent entirely - the interview scan, whose UI Uplers designed
+    and never shipped - despite carrying the identical field name.
+
+    TWO THINGS THIS TOOL WILL NOT DO, both of them measured rather than assumed:
+
+    It does not flatten the grant TIME into a yes/no. `consent_email_job_scan`
+    on this route is a timestamp string, not the boolean the dashboard sends
+    under the same key, and it is reported as `consent_granted_at` - the only
+    record the account holds of when the scan was switched on.
+
+    It does not pick a winner between Uplers' own two counters.
+    `best_for_you_count` and the sum of `best_for_you_breakdown` disagree by one
+    on the captured payload. Both are reported and `counters_agree` says
+    plainly that they do not. Averaging them would invent a third number nobody
+    sent.
+
+    The mailbox ADDRESS is in the payload and is deliberately not returned;
+    whether a mailbox is connected is the fact worth having, and the address
+    would only ever be printed into a transcript.
+
+    Read-only, no arguments, one request. This tool reads the consent; it
+    cannot grant or revoke one. `consent-email-job-scan` is a POST/DELETE
+    sibling one path segment away and is not built anywhere in this server.
+    """
+    async with _talent_client() as client:
+        payload = await client.get_json(endpoints.EP_OUTREACH_META_EMAIL, None)
+    return agent_surface.shape_email_scan(payload)
+
+
+@mcp.tool()
+async def uplers_scanned_jobs(
+    best_for_you: bool | None = None, limit: int = 25
+) -> dict:
+    """The jobs Uplers' Gmail scan actually found, listed.
+
+    `uplers_email_scan()` says the scan ran and holds 79 jobs; this is the list
+    itself, and no tool in this server could reach it. Every captured row came
+    off LinkedIn job alerts sitting in his mailbox, which is why the rows look
+    the way they do.
+
+    NO FIT SCORE IS COMPUTED FOR THESE ROWS, and that is a promise being kept
+    rather than a feature missing. Fit scores in this server come from jobcore
+    and mean the same thing as they do on the Naukri server. MEASURED across
+    all 79 captured rows: `skills` is the empty list on every one, `city` is
+    empty on every one, and `description` is the same placeholder telling you
+    to open the link. Scoring that would produce a number with nothing behind
+    it - and nothing on the surface of a number says which kind it is, which is
+    exactly how a shared scale stops meaning anything. Open the `apply_url`, or
+    score the same role off the Uplers board where the requisition has real
+    fields. The row counts this rests on are re-derived on every call and
+    reported in `scoring`, so a route that starts sending real fields will say
+    so itself.
+
+    `limit` TRUNCATES THIS TOOL'S OUTPUT, NOT THE REQUEST. The route has no
+    working limit of its own - a `limit=3` against its sibling
+    `get-recommended-jobs` returned all 97 rows - so the full list arrives and
+    is counted either way, and `total_rows` always reports the real size.
+    Raising `limit` costs no extra request.
+
+    Read-only, one request.
+
+    Args:
+        best_for_you: unset fetches the whole list (79 rows measured);
+            True fetches Uplers' "best for you" subset (51 measured). False is
+            REFUSED rather than sent, because it was never measured on this
+            route - fetch the whole list, which carries the 28 non-best rows
+            too, and filter them where you can see the filtering happen.
+        limit: how many rows to return. Truncates output only.
+    """
+    params = agent_surface.scanned_jobs_params(best_for_you)
+    async with _talent_client() as client:
+        payload = await client.get_json(endpoints.EP_OUTREACH_SCANNED_JOBS, params)
+    result = agent_surface.shape_scanned_jobs(payload, limit=limit)
+    result["best_for_you_filter"] = best_for_you
+    return result
+
+
+@mcp.tool()
+async def uplers_agent_settings() -> dict:
+    """The four switches that decide what your paid agent actually does.
+
+    `uplers_agent_readthrough()` reports what the agent DID. This reports the
+    machinery deciding what it does next, and the point of reading it is that
+    every one of these can be off without leaving a mark in the activity log:
+
+    FOLLOW-UP, per channel, with its interval. Uplers stores this INVERTED as
+    `disabled_followup_<channel>`, so a reader that passed the field through
+    unchanged would report every live channel as dead and every dead one as
+    live. The negation is done once, in the shaper, and each channel carries
+    the raw field name so the two can be checked against each other.
+
+    TEMPLATES, per channel: whether one exists and what its subject line says.
+    THE BODY IS NEVER RETURNED, on any channel. The gmail template is a
+    multi-paragraph self-description carrying employer history, a LinkedIn URL
+    and a notice period; the fact that it exists and the subject it sends under
+    are what a reader needs, and the rest does not belong in a transcript. The
+    linkedin template measured as the EMPTY STRING, which corroborates from a
+    second route what `outreach-step` already said with `linkedin_connected:
+    false` - that channel is dead at both ends.
+
+    AUTO-REPLY: whether it handles replies at all, the delay in hours, and the
+    categories it would answer. It is OFF, and one of its eight categories is
+    `asking_resume`, which is the category his oldest unanswered reply falls
+    into. That is stated as a fact about the account and carries no
+    recommendation - whether software should answer somebody who asked him for
+    his resume is his call.
+
+    BLOCKED COMPANIES: the real blocklist, and what Uplers means when an agent
+    run fails with "You blocked this company for outreach". It is NOT
+    `settings/companies`, which is an alphabetical company picker paginated at
+    20 rows; reading a blocklist off that route would report the first twenty
+    companies in the alphabet as blocked.
+
+    Read-only, no arguments, four requests. Nothing here writes, and the write
+    half of this namespace - `consent-email-job-scan`, `consent-auto-run`,
+    `interview-feedback` - is not built anywhere in this server.
+    """
+    async with _talent_client() as client:
+        followup_raw = await client.get_json(
+            endpoints.EP_OUTREACH_SETTINGS_FOLLOWUP, None
+        )
+        blocked_raw = await client.get_json(
+            endpoints.EP_OUTREACH_DISABLED_COMPANIES, None
+        )
+        auto_reply_raw = await client.get_json(endpoints.EP_OUTREACH_AUTO_REPLY, None)
+        templates_raw = await client.get_json(endpoints.EP_OUTREACH_TEMPLATES, None)
+
+    return agent_surface.agent_settings(
+        followup=agent_surface.shape_followup_settings(followup_raw),
+        templates=agent_surface.shape_templates(templates_raw),
+        auto_reply=agent_surface.shape_auto_reply(auto_reply_raw),
+        blocked=agent_surface.shape_disabled_companies(blocked_raw),
     )
 
 

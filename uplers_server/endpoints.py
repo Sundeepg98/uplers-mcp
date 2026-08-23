@@ -111,6 +111,61 @@ EP_OUTREACH_PENDING = "talent/outreach/pending-jobs"
 EP_OUTREACH_MISSED_FOLLOWUPS = "talent/outreach/missed-positive-reply-followups"
 EP_OUTREACH_ACTIVITY = "talent/outreach/agent-tailor-activity"
 
+#: THE NEXT RING OF THE SAME NAMESPACE, and the same hard line: READS ONLY.
+#: All six VERIFIED LIVE 2026-08-23 and captured as fixtures by
+#: `scripts/capture_agent_surface.py`; every one answered a real 200 with real
+#: data on his live session, and each fixture is named beside its route below.
+#:
+#: THE ENVELOPE TRAP BITES AGAIN, and differently than the five above did.
+#: `get-message-templates` answers `{"status": "success"}` - the STRING - while
+#: the other five answer the INTEGER 200, so the split does NOT run along
+#: "old routes vs new routes" or along any other line a reader could guess.
+#: `outreach.unwrap` already accepts exactly those two idioms and refuses
+#: everything else, which is why nothing here grows a second unwrapper.
+
+#: The AUTHORITATIVE Gmail-job-scan consent, and the reason this ring exists.
+#: Established by static analysis of Uplers' own bundle
+#: (`_audit/_slices/_slice-consent-semantics.md`, chunk 3474): this is the route
+#: the UI RE-READS immediately after the consent write lands, and its
+#: `has_consent` is what the whole Recommended-jobs screen switches on.
+#: `get-outreach-dashboard-data -> consent_email_job_scan` is a downstream copy,
+#: and `EP_INTERVIEW_LIST -> meta.has_consent` is a DIFFERENT consent entirely
+#: (the interview scan, whose UI Uplers designed but never shipped) despite the
+#: identical field name.
+EP_OUTREACH_META_EMAIL = "talent/outreach/recommended-jobs-meta-email"
+
+#: The jobs that scan actually found. Takes `best_for_you`; MEASURED 2026-08-23
+#: as unset -> 79 rows and `true` -> 51. It has no working `limit`: a `limit=3`
+#: on its sibling `get-recommended-jobs` returned all 97 rows, so any
+#: truncation of this route is the CALLER's, never the server's.
+EP_OUTREACH_SCANNED_JOBS = "talent/outreach/recommended-jobs-email"
+
+#: Whether an unanswered reply gets chased at all, per channel. Its
+#: `disabled_followup_*` flags are INVERTED - false means the channel is ON.
+EP_OUTREACH_SETTINGS_FOLLOWUP = "talent/outreach/settings/followup"
+
+#: The real blocklist, 16 rows on 2026-08-23, and what Uplers means when an
+#: agent run fails with "You blocked this company for outreach".
+#:
+#: NOT `talent/outreach/settings/companies`. That one is the alphabetical
+#: company PICKER, paginated at 20, where `IsActive` marks a chosen row - a
+#: different list with a confusingly similar path. Reading the blocklist off it
+#: would report the first 20 companies in the alphabet as blocked. It is
+#: captured as `tests/fixtures/outreach_settings_companies.json` and
+#: deliberately has no constant here, because a name is an invitation to call
+#: it and no tool in this server should.
+EP_OUTREACH_DISABLED_COMPANIES = "talent/outreach/settings/disabled-companies"
+
+#: The auto-reply switch, its delay, and the 8 categories it can answer.
+#: MEASURED `handle_auto_reply: false` - the feature exists and is off.
+EP_OUTREACH_AUTO_REPLY = "talent/outreach/get-auto-reply"
+
+#: The outreach message templates. The one route in this ring whose body is
+#: PERSONAL: `gmail_template` is a multi-paragraph self-description carrying
+#: employer history, a LinkedIn URL and a notice period. Whatever reads this
+#: reports that a template EXISTS and what its SUBJECT is, never the body.
+EP_OUTREACH_TEMPLATES = "talent/outreach/get-message-templates"
+
 #: What UPLERS thinks he wants, which is not what this server's profile says.
 #: Fit scores here come from our own profile; Uplers ranks him against these.
 #: Seeing both is how a disagreement between the two becomes visible at all.
