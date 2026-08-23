@@ -54,7 +54,7 @@ from uplers_server import session as session_mod
 from uplers_server.session import SessionStore
 from uplers_server.talent import TalentClient
 
-from conftest import make_transport
+from conftest import leaks_of, make_transport, secret_fragments
 
 #: A Sanctum-shaped token: `<id>|<plaintext>`. No expiry is knowable from it.
 SANCTUM = "42|bearer-token-that-must-never-be-printed"
@@ -63,35 +63,52 @@ SANCTUM = "42|bearer-token-that-must-never-be-printed"
 OPAQUE = "opaque-secret-that-must-never-be-printed"
 
 
-def make_jwt(exp: float | None) -> str:
+def make_jwt(exp: float | None, tag: str = "shared") -> str:
     """A structurally real JWT. The signature is not checked by anything here.
 
     Built rather than captured because a captured one would be the operator's
     actual credential, and a fixture file is the wrong place for that.
+
+    `tag` makes the SUBJECT and the SIGNATURE differ between tokens, which
+    real JWTs do and this helper originally did not. That mattered: with a
+    constant signature, two different credentials shared a fragment, and the
+    detector below cannot tell "this string identifies one credential" from
+    "this string is a property of the format" except by asking whether an
+    unrelated credential of the same format also contains it.
     """
 
     def seg(payload: dict) -> str:
         raw = json.dumps(payload, separators=(",", ":")).encode()
         return base64.urlsafe_b64encode(raw).decode().rstrip("=")
 
-    claims: dict = {"sub": "talent-must-never-be-printed"}
+    claims: dict = {"sub": "talent-%s-must-never-be-printed" % tag}
     if exp is not None:
         claims["exp"] = exp
     return "%s.%s.%s" % (
         seg({"alg": "HS256", "typ": "JWT"}),
         seg(claims),
-        "signature-that-must-never-be-printed",
+        "signature-%s-must-never-be-printed" % tag,
     )
 
 
 #: Six months out, which is the real token's shape and the whole reason
 #: `expiry_is_authoritative` exists.
-JWT_SIX_MONTHS = make_jwt(time.time() + 180 * 86400)
-JWT_PAST = make_jwt(time.time() - 3 * 86400)
-JWT_NO_EXP = make_jwt(None)
+JWT_SIX_MONTHS = make_jwt(time.time() + 180 * 86400, "six")
+JWT_PAST = make_jwt(time.time() - 3 * 86400, "past")
+JWT_NO_EXP = make_jwt(None, "noexp")
 
 #: Every secret string above, so the leak sweep has one list to walk.
 SECRETS = (SANCTUM, OPAQUE, JWT_SIX_MONTHS, JWT_PAST, JWT_NO_EXP)
+
+#: A JWT this suite never stores, used ONLY to subtract the parts of a JWT that
+#: are true of every JWT. Without it the detector treats "eyJhbGciOiJI" - the
+#: base64 of a standard HS256 header - as though it identified a credential.
+FORMAT_DECOY = make_jwt(1, "decoy-never-stored-anywhere")
+
+#: secret -> the fragments whose appearance in a payload discloses it. See the
+#: long note in tests/conftest.py for why a substring hunt on the whole value
+#: is not enough when the credential is a JWT.
+FRAGMENTS = secret_fragments(SECRETS, format_decoys=(FORMAT_DECOY,))
 
 
 # --- isolation ------------------------------------------------------------
@@ -666,29 +683,111 @@ class TestTheTokenNeverAppearsAnywhere:
         payloads["logout"] = await server.uplers_logout()
 
         leaks = [
-            "%s %s = %r" % (name, trail, text)
+            "%s %s disclosed %r via %r" % (name, trail, secret[:8] + "...", piece)
             for name, payload in payloads.items()
-            for trail, text in strings(payload)
-            for secret in SECRETS
-            if secret in text or (len(secret) > 12 and secret[:12] in text)
+            for trail, secret, piece in leaks_of(payload, FRAGMENTS)
         ]
         assert leaks == [], leaks
         # And the sweep must have had something to sweep.
         assert len(payloads) >= 20
 
-    async def test_the_leak_sweep_can_actually_fail(self, session_file):
+    def test_the_leak_sweep_can_actually_fail(self, session_file):
         """__CONTROL for the sweep above. An instrument never shown failing
-        certifies nothing, and this file's whole claim rests on that one."""
+        certifies nothing, and this file's whole claim rests on that one.
+
+        This is the PLAINTEXT arm, and on its own it is the arm that lulled
+        the sibling naukri server: a Sanctum token wears its secret half in
+        the clear, so any detector at all catches it. The four controls after
+        this one are the arms that plaintext proves nothing about.
+        """
         planted = {"credential": {"expiry_source": "token was " + SANCTUM}}
 
-        leaks = [
-            trail
-            for trail, text in strings(planted)
-            for secret in SECRETS
-            if secret in text
+        assert sorted({t for t, _, _ in leaks_of(planted, FRAGMENTS)}) == [
+            "$.credential.expiry_source"
         ]
 
-        assert leaks == [".credential.expiry_source"]
+    def test_the_sweep_fires_on_a_whole_jwt(self, session_file):
+        """__CONTROL. The credential this server really holds is a JWT, and
+        the suite's own canaries are Sanctum-shaped. Without this, the JWT arm
+        of every leak assertion in the file is certified by nothing."""
+        planted = {"credential": {"raw": JWT_SIX_MONTHS}}
+
+        assert sorted({t for t, _, _ in leaks_of(planted, FRAGMENTS)}) == [
+            "$.credential.raw"
+        ]
+
+    def test_the_sweep_fires_on_one_base64url_segment(self, session_file):
+        """__CONTROL, and the first of the two shapes MEASURED BLIND on
+        2026-08-23 under the rule this replaced.
+
+        A JWT's claims segment is not a superstring of the JWT, so
+        `secret in text` cannot see it - yet that segment decodes to the whole
+        identity half of the credential. A payload echoing only this would
+        have passed every "the token never leaks" test in this repo.
+        """
+        claims_segment = JWT_SIX_MONTHS.split(".")[1]
+        planted = {"credential": {"claims_b64": claims_segment}}
+
+        assert sorted({t for t, _, _ in leaks_of(planted, FRAGMENTS)}) == [
+            "$.credential.claims_b64"
+        ]
+        assert JWT_SIX_MONTHS not in claims_segment    # the old rule's blindness
+
+    def test_the_sweep_fires_on_decoded_claims(self, session_file):
+        """__CONTROL, and the second measured-blind shape. This one is not
+        hypothetical: `session.token_expiry` ALREADY decodes that segment, so
+        the decoded form is one careless `return` away in production code.
+
+        The decoded claims share no substring with the encoded token, which is
+        exactly the naukri failure transposed - there, a walker hunted a
+        plaintext marker that never appears inside a base64url JWT.
+        """
+        payload = json.loads(
+            base64.urlsafe_b64decode(JWT_SIX_MONTHS.split(".")[1] + "==")
+        )
+        planted = {"credential": {"claims": payload}}
+
+        assert sorted({t for t, _, _ in leaks_of(planted, FRAGMENTS)}) == [
+            "$.credential.claims.sub"
+        ]
+        assert payload["sub"] not in JWT_SIX_MONTHS    # no substring relation at all
+
+    def test_the_sweep_does_not_fire_on_a_generic_jwt_header(self, session_file):
+        """__CONTROL for the OTHER failure direction, which the replaced rule
+        had: it hunted `secret[:12]`, and for a JWT that is "eyJhbGciOiJI" -
+        the base64 of a standard HS256 header, MEASURED IDENTICAL across all
+        three JWTs here. It matched a constant, not a credential: zero signal
+        on the shape that matters, and a false report on prose describing one.
+
+        A detector that fires on documentation gets disabled by whoever is
+        next debugging at 2am, which is how the real one stops running.
+        """
+        prose = {"note": "Uplers tokens look like eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.<claims>.<sig>"}
+
+        assert leaks_of(prose, FRAGMENTS) == []
+        assert JWT_SIX_MONTHS[:12] == JWT_PAST[:12] == "eyJhbGciOiJI"
+
+    def test_the_format_decoy_removes_only_format_and_not_credential(self):
+        """__CONTROL for the subtraction itself, which is the one step that
+        could silently empty the detector.
+
+        If `format_decoys` were ever handed a real credential - or if two
+        credentials came to share their signature, as they did before
+        `make_jwt` grew a per-token tag - the fragment set would shrink to
+        nothing and every leak test in this file would pass vacuously.
+        """
+        for secret, pieces in FRAGMENTS.items():
+            assert secret in pieces, "the whole value must always be hunted"
+            assert all(len(piece) >= 12 for piece in pieces), sorted(pieces)
+
+        jwt_pieces = FRAGMENTS[JWT_SIX_MONTHS]
+        assert JWT_SIX_MONTHS.split(".")[1] in jwt_pieces      # claims segment kept
+        assert "talent-six-must-never-be-printed" in jwt_pieces  # decoded sub kept
+        assert "signature-six-must-never-be-printed" in jwt_pieces
+        assert JWT_SIX_MONTHS.split(".")[0] not in jwt_pieces   # shared header dropped
+
+        # And the decoy really is a different credential, never a stored one.
+        assert FORMAT_DECOY not in SECRETS
 
     async def test_no_token_reaches_a_log_line(
             self, monkeypatch, session_file, caplog):
@@ -700,8 +799,7 @@ class TestTheTokenNeverAppearsAnywhere:
             await server.uplers_session_info()
             await server.uplers_logout()
 
-        assert SANCTUM not in caplog.text
-        assert SANCTUM[:12] not in caplog.text
+        assert leaks_of({"log": caplog.text}, FRAGMENTS) == []
 
 
 # --- logout ----------------------------------------------------------------

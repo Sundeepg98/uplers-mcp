@@ -21,6 +21,7 @@ Five invariants hold in every test file here:
 from __future__ import annotations
 
 import asyncio
+import base64
 import json
 import sys
 from pathlib import Path
@@ -246,3 +247,113 @@ def resume_file(tmp_path):
     path = tmp_path / "Resume.md"
     path.write_text(RESUME_MARKDOWN, encoding="utf-8")
     return path
+
+
+# --- the credential leak detector ------------------------------------------
+#
+# Every "the token never leaks" assertion in this suite runs through the two
+# functions below, so the detector is written ONCE and its controls live in
+# tests/test_session_lifecycle.py rather than being re-improvised per file.
+#
+# WHY IT IS NOT JUST `secret in text`. The credential this server actually
+# holds is a JWT: three base64url segments. That shape defeats a substring
+# hunt in two directions at once, and BOTH were MEASURED blind on this suite
+# on 2026-08-23 before this was written:
+#
+#   * a payload echoing only the CLAIMS SEGMENT (`token.split(".")[1]`) is not
+#     a superstring of the token, so `secret in text` never fires - yet that
+#     one segment carries the whole identity half of the credential;
+#   * a payload echoing the DECODED claims (which `session.token_expiry` already
+#     parses, so the decoded form is one line away in production code) shares no
+#     substring with the token at all, because the marker inside a base64url
+#     segment is not present in the encoded form.
+#
+# The sibling naukri server was bitten by the second shape directly: its walker
+# hunted a plaintext marker that never appears inside a base64url JWT, so every
+# leak test there would have passed a result echoing the entire credential.
+#
+# WHY THE OLD PREFIX RULE WAS WORSE THAN NOTHING. The rule it replaces was
+# `secret in text or secret[:12] in text`. For a JWT, `secret[:12]` is
+# "eyJhbGciOiJI" - the base64 of a standard HS256 header, IDENTICAL across
+# every token of that format and MEASURED identical across all three JWTs in
+# this suite. It therefore contributed zero credential-specific signal on the
+# one shape that matters, while firing on any prose that merely describes what
+# a JWT looks like. A check that matches a constant is not guarding a secret.
+
+#: Below this length a fragment stops being an identifier and starts being a
+#: word, and the detector would report prose.
+MIN_FRAGMENT = 12
+
+
+def _b64url_json(segment: str):
+    """One base64url segment decoded as JSON, or None if it is not that."""
+    try:
+        raw = base64.urlsafe_b64decode(segment + "=" * (-len(segment) % 4))
+        return json.loads(raw)
+    except Exception:                                    # noqa: BLE001
+        return None
+
+
+def _raw_fragments(secret: str) -> set:
+    """Every string derivable FROM this credential that would disclose it."""
+    found = {secret}
+    for segment in secret.split("."):
+        if len(segment) >= MIN_FRAGMENT:
+            found.add(segment)
+        claims = _b64url_json(segment)
+        if isinstance(claims, dict):
+            for value in claims.values():
+                if isinstance(value, str) and len(value) >= MIN_FRAGMENT:
+                    found.add(value)
+    if "|" in secret:
+        tail = secret.split("|", 1)[1]
+        if len(tail) >= MIN_FRAGMENT:
+            found.add(tail)
+    return found
+
+
+def secret_fragments(secrets, format_decoys=()) -> dict:
+    """Map each secret to the fragments whose appearance would disclose it.
+
+    `format_decoys` are credentials of the SAME FORMAT but a different value.
+    Any fragment a secret shares with a decoy is derivable from the format
+    alone - a JWT's header segment is the whole reason this argument exists -
+    and is therefore NOT evidence that this credential leaked. Subtracting
+    them is what keeps the detector from reporting prose, and it is a
+    measurement rather than a judgement: two unrelated credentials sharing a
+    string is exactly what "not identifying" means.
+    """
+    generic = set()
+    for decoy in format_decoys:
+        generic |= _raw_fragments(decoy)
+    return {
+        secret: frozenset(f for f in _raw_fragments(secret) if f not in generic)
+        for secret in secrets
+    }
+
+
+def leaks_of(payload, fragments) -> list:
+    """Every (trail, secret, fragment) where a credential surfaced in a payload.
+
+    `fragments` is a mapping from :func:`secret_fragments`. Returns a list so a
+    failing assertion prints WHAT leaked and WHERE, not just that it did.
+    """
+    found = []
+    for trail, text in walk_strings(payload):
+        for secret, pieces in fragments.items():
+            for piece in pieces:
+                if piece in text:
+                    found.append((trail, secret, piece))
+    return found
+
+
+def walk_strings(node, trail="$"):
+    """Every string in a payload, with the path that reached it."""
+    if isinstance(node, dict):
+        for key, value in node.items():
+            yield from walk_strings(value, "%s.%s" % (trail, key))
+    elif isinstance(node, (list, tuple)):
+        for index, item in enumerate(node):
+            yield from walk_strings(item, "%s[%d]" % (trail, index))
+    elif isinstance(node, str):
+        yield (trail, node)

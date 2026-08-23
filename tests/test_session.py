@@ -40,7 +40,7 @@ from uplers_server import endpoints, session as sess
 from uplers_server.session import SessionStore, check_auth, token_expiry, token_format
 from uplers_server.talent import TalentClient
 
-from conftest import make_transport
+from conftest import leaks_of, make_transport, secret_fragments
 
 TOKEN = "77|leakcanary-do-not-print-this-value"
 
@@ -172,6 +172,59 @@ def test_describe_never_leaks_the_token(tmp_path):
 
     # And the same again through describe() itself, not just save()'s return.
     assert TOKEN not in json.dumps(store.describe())
+
+
+#: The credential this server really holds is a JWT, and TOKEN above is
+#: Sanctum-shaped - a format that wears its secret half in the clear, so any
+#: detector at all catches it. The two tests below run the SAME disclosure
+#: claims against the JWT arm, through the fragment detector in conftest.
+#: Without them, "the token never leaks" was proven only for the shape this
+#: server does not use. See tests/conftest.py for the two blind spots that
+#: were MEASURED on 2026-08-23.
+JWT_TOKEN = make_jwt(sub="talent-identity-must-never-be-printed", exp=2000000000)
+JWT_DECOY = make_jwt(sub="decoy-subject-never-stored-anywhere", exp=1)
+JWT_FRAGMENTS = secret_fragments((JWT_TOKEN,), format_decoys=(JWT_DECOY,))
+
+
+def test_describe_never_leaks_a_jwt(tmp_path):
+    """The JWT arm of test_describe_never_leaks_the_token.
+
+    A JWT defeats a plain substring hunt twice over: one base64url segment is
+    not a superstring of the token, and the decoded claims share no substring
+    with it at all. Both are checked here, and the second is not hypothetical -
+    `token_expiry` already decodes that segment.
+    """
+    store = make_store(tmp_path)
+    described = store.save(JWT_TOKEN, method="browser")
+
+    assert described["token_format"] == "jwt"
+    assert leaks_of(described, JWT_FRAGMENTS) == []
+    assert leaks_of(store.describe(), JWT_FRAGMENTS) == []
+
+    # An expiry IS disclosed, deliberately, and it is not a leak: it is a
+    # timestamp derived from the claims, not any string out of the credential.
+    assert described["expires_at"] is not None
+
+
+def test_the_jwt_detector_can_actually_fail(tmp_path):
+    """__CONTROL for the two tests above. Three plantings, three fires: the
+    whole token, one base64url segment of it, and the decoded subject."""
+    whole = {"credential": JWT_TOKEN}
+    segment = {"credential": JWT_TOKEN.split(".")[1]}
+    decoded = {"credential": json.loads(_b64url(JWT_TOKEN.split(".")[1]))}
+
+    assert leaks_of(whole, JWT_FRAGMENTS)
+    assert leaks_of(segment, JWT_FRAGMENTS)
+    assert leaks_of(decoded, JWT_FRAGMENTS)
+
+    # And the two shapes a substring hunt cannot see really have no substring
+    # relation to the token - which is why the control is worth writing.
+    assert JWT_TOKEN not in segment["credential"]
+    assert decoded["credential"]["sub"] not in JWT_TOKEN
+
+
+def _b64url(segment: str) -> bytes:
+    return base64.urlsafe_b64decode(segment + "=" * (-len(segment) % 4))
 
 
 def test_describe_on_a_missing_file_reports_absence(tmp_path):
@@ -383,6 +436,21 @@ async def test_check_auth_never_returns_the_token(tmp_path):
     assert TOKEN not in blob
     for size in range(4, len(TOKEN) + 1):
         assert TOKEN[:size] not in blob, "a %d-char prefix of the token leaked" % size
+
+
+async def test_check_auth_never_returns_a_jwt(tmp_path):
+    """The JWT arm of the test above, and the one that matters in production:
+    his real credential is a JWT, not a Sanctum token."""
+    store = make_store(tmp_path)
+    store.save(JWT_TOKEN, method="browser")
+
+    transport, calls = make_transport(lambda request: httpx.Response(200, json=PROFILE_PAYLOAD))
+    client = TalentClient(store.token, delay=0, transport=transport)
+    async with client:
+        result = await check_auth(client)
+
+    assert calls[0].headers["authorization"] == "Bearer " + JWT_TOKEN  # it did travel
+    assert leaks_of(result, JWT_FRAGMENTS) == []
 
 
 def test_the_guest_token_key_is_known_and_never_used_to_authenticate():

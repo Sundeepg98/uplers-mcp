@@ -66,7 +66,14 @@ from uplers_server.talent_models import (
     WriteResult,
 )
 
-from conftest import AGENTAI, load_fixture, make_transport, put_fixtures
+from conftest import (
+    AGENTAI,
+    leaks_of,
+    load_fixture,
+    make_transport,
+    put_fixtures,
+    secret_fragments,
+)
 
 #: The numeric id Uplers' own record for AGENTAI carries. Read from the captured
 #: response rather than typed, because `hr_id` is the field an apply sends and a
@@ -1063,6 +1070,52 @@ async def test_auth_status_reports_false_on_401_and_never_prints_the_token(
     assert TOKEN.split("|", 1)[1] not in serialised
     assert "Bearer" not in serialised
     assert "token" not in result.model_dump()   # only token_present / token_format
+
+
+#: TOKEN above is Sanctum-shaped, and a Sanctum token wears its secret half in
+#: the clear - which means the three plaintext assertions in the test above are
+#: satisfied by any detector at all. His REAL credential is a JWT, and a JWT
+#: defeats a substring hunt in two directions that were MEASURED blind on
+#: 2026-08-23: one base64url segment is not a superstring of the token, and the
+#: decoded claims share no substring with it whatsoever. The sibling naukri
+#: server was bitten by exactly the second shape. So the same disclosure claim
+#: is re-run below against the JWT arm, through the fragment detector.
+JWT_TOKEN = (
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+    "eyJzdWIiOiJ0YWxlbnQtaWRlbnRpdHktbXVzdC1uZXZlci1iZS1wcmludGVkIn0."
+    "signature-live-must-never-be-printed"
+)
+JWT_DECOY = (
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+    "eyJzdWIiOiJkZWNveS1zdWJqZWN0LW5ldmVyLXN0b3JlZCJ9."
+    "signature-decoy-never-stored-anywhere"
+)
+JWT_FRAGMENTS = secret_fragments((JWT_TOKEN,), format_decoys=(JWT_DECOY,))
+
+
+async def test_auth_status_never_prints_a_jwt(monkeypatch, session_file):
+    """The JWT arm of the test above. Same tool, same 401, real credential shape."""
+    SessionStore(session_file).save(JWT_TOKEN, method="test")
+    calls = wire_talent(monkeypatch, reject, token=JWT_TOKEN)
+
+    result = await server.uplers_auth_status()
+
+    assert result.authenticated is False
+    assert result.token_format == "jwt"
+    assert calls[0].headers["authorization"] == "Bearer " + JWT_TOKEN   # it did travel
+    assert leaks_of(result.model_dump(), JWT_FRAGMENTS) == []
+
+
+async def test_the_jwt_disclosure_detector_can_actually_fail(session_file):
+    """__CONTROL. Without this, the test above is a check that cannot fail:
+    an empty result and a leaking one both produce an empty leak list if the
+    fragment set is empty. Three plantings, three fires."""
+    assert leaks_of({"c": JWT_TOKEN}, JWT_FRAGMENTS)
+    assert leaks_of({"c": JWT_TOKEN.split(".")[1]}, JWT_FRAGMENTS)
+    assert leaks_of({"c": {"sub": "talent-identity-must-never-be-printed"}}, JWT_FRAGMENTS)
+
+    # The generic HS256 header is subtracted, so describing a JWT is not a leak.
+    assert leaks_of({"note": JWT_TOKEN.split(".")[0]}, JWT_FRAGMENTS) == []
 
 
 async def test_auth_status_reports_true_only_when_the_profile_comes_back(
