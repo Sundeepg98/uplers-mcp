@@ -659,6 +659,19 @@ def interviews_from(payload: Any) -> tuple[list[Interview], list[str]]:
     IS connected and the scan has never been consented to. So the zero was a
     feature that was never turned on, and the tool reported it as an empty
     diary.
+
+    CORRECTED 2026-08-24, because the fix above was right about the zero and
+    WRONG about what to do next. It told him to go and switch the scan on in
+    Uplers' settings. He cannot: static analysis of their whole production
+    bundle (`_audit/_slices/_slice-consent-semantics.md`) found that
+    `consent_interview_email_scan` has no client reader anywhere, that this
+    `meta` block is read by nothing in their frontend, and that the consent UI
+    for it - enable button, revoke button, checkbox - ships as CSS with no JSX
+    behind it. The advice sent him hunting for a control that does not exist,
+    and the only switch he WOULD have found is the Gmail JOB scan: a different
+    consent, currently ON and producing 79 jobs, which he might well have
+    turned off. A note that can cause the harm it warns about is worse than no
+    note. The diagnosis now stops at what was measured.
     """
     if not isinstance(payload, dict):
         raise TalentError(
@@ -701,16 +714,28 @@ def _empty_diary_diagnosis(meta: Any) -> list[str]:
     if consent is False:
         return [
             "No interviews, and this is NOT evidence that none are scheduled: "
-            "Uplers reports has_consent=false, meaning the interview email scan "
-            "that populates this list has never been consented to. A mailbox %s. "
-            "Turn the scan on in Uplers' own settings before reading this zero "
-            "as an empty diary."
+            "Uplers reports has_consent=false for the INTERVIEW email scan that "
+            "populates this list. A mailbox %s."
             % (
-                "IS connected (gmail_connected=true), so consent is the only "
-                "thing missing"
+                "IS connected (gmail_connected=true)"
                 if connected
                 else "is not connected either (gmail_connected=false)"
-            )
+            ),
+            "There is nothing for you to switch on, so do not go looking. "
+            "MEASURED 2026-08-24 across Uplers' entire production bundle: the "
+            "consent this flag names (consent_interview_email_scan) appears "
+            "ZERO times in their frontend, and the UI for granting it is styled "
+            "but never rendered - the enable button, the revoke button and the "
+            "checkbox exist only as CSS. Uplers' own code also never reads this "
+            "meta block at all. Whether their SERVER still gates the list on the "
+            "flag is UNRESOLVED; a client bundle cannot settle what a server "
+            "does. Read the zero as 'unproven', not as 'you forgot to opt in'.",
+            "Do NOT confuse this with the Gmail JOB scan, which is a DIFFERENT "
+            "consent that happens to share the field name has_consent on another "
+            "route. That one is ON. Call uplers_email_scan() for its real state "
+            "- and note that the only control you will actually find in Uplers' "
+            "settings belongs to that scan, so acting on this note by hunting "
+            "for a switch risks revoking a working one.",
         ]
     if connected is False:
         return [

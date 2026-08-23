@@ -777,51 +777,98 @@ class TestTheReadThroughCrossChecks:
             )
 
 
-class TestDisagreementsAreReportedNotResolved:
+class TestTheTwoMisPairingsAreResolvedNotReported:
+    """Both "disagreements" turned out to be mis-pairings, settled 2026-08-24.
 
-    def test_both_measured_disagreements_are_reported(self, report):
+    These tests replaced four that pinned the OLD behaviour - both pairs
+    emitted as unresolved disagreements. Those four went red the moment the
+    resolution landed, which is what they were for.
+    """
+
+    def test_neither_mis_pairing_is_reported_as_a_disagreement_any_more(self, report):
         fields = [entry["field"] for entry in report["disagreements"]]
 
-        assert sorted(fields) == ["auto_run", "consent_email_job_scan"]
+        assert "consent_email_job_scan" not in fields
+        assert "auto_run" not in fields
 
-    def test_the_auto_run_disagreement_prints_both_sides(self, report):
-        entry = next(
-            item for item in report["disagreements"] if item["field"] == "auto_run"
-        )
+    def test_both_are_reported_as_resolved_instead(self, report):
+        fields = sorted(entry["field"] for entry in report["resolved"])
 
-        assert entry["this_value"] is True
-        assert entry["this_raw"] == 1
-        assert entry["other_value"] is False
-        assert "neither is picked" in entry["note"]
+        assert fields == ["auto_run", "consent_email_job_scan"]
 
-    def test_the_consent_disagreement_carries_its_receipt(self, report):
+    def test_the_consent_resolution_names_the_authoritative_route(self, report):
         entry = next(
             item
-            for item in report["disagreements"]
+            for item in report["resolved"]
             if item["field"] == "consent_email_job_scan"
         )
 
-        assert entry["this_value"] is True
-        assert entry["other_value"] is False
-        assert entry["receipt"] == outreach.CONSENT_COUNTER_EVIDENCE["receipt"]
-        assert (FIXTURE_DIR / "talent_interviews.json").is_file()
+        assert entry["authoritative_route"] == (
+            "talent/outreach/recommended-jobs-meta-email"
+        )
+        assert entry["authoritative_value"] is True
+        assert entry["agrees_with_this_route"] is True
+        assert entry["this_route_value"] is True
+        # The mis-paired side is kept, so the record says what was ruled out.
+        assert entry["mis_paired_value"] is False
+        assert "consent_interview_email_scan" in entry["why_different"]
+        # The receipt is a file on disk, not a recollection.
+        assert (FIXTURE_DIR / "outreach_meta_email.json").is_file()
 
-    def test_the_counter_evidence_is_a_real_fixture_not_a_recollection(self):
-        """The other half of the consent disagreement, read off disk."""
-        interviews = load_talent_fixture("talent_interviews")
+    def test_the_authoritative_fixture_actually_says_what_is_claimed(self):
+        """The resolution rests on a captured payload; read it off disk."""
+        meta = load_talent_fixture("outreach_meta_email")["data"]
 
-        assert interviews["meta"]["has_consent"] is False
+        assert meta["has_consent"] is True
+        assert meta["consent_email_job_scan"] == "2026-08-12 01:32:36"
+        assert meta["last_job_scan"] == "2026-08-23 06:58:17"
+        assert meta["total_jobs"] == 79
+        # And the dashboard copy agrees with it, which is why it is `resolved`.
         assert load_talent_fixture(DASHBOARD)["data"]["consent_email_job_scan"] is True
 
-    def test_a_consenting_capture_would_drop_the_line(self):
-        """__CONTROL. The disagreement is emitted because the values differ,
-        not because it is hardcoded: flip the captured value and it goes."""
+    def test_the_auto_run_resolution_admits_what_it_did_not_settle(self, report):
+        """A mode and a permission, not two readings of one thing - but what
+        the permission GATES was never measured, and the record says so."""
+        entry = next(
+            item for item in report["resolved"] if item["field"] == "auto_run"
+        )
+
+        assert entry["mode_value"] is True
+        assert entry["mode_raw"] == 1
+        assert entry["permission_value"] is False
+        assert "MODE" in entry["verdict"] and "PERMISSION" in entry["verdict"]
+        assert entry["still_unresolved"]
+        assert "48" in entry["still_unresolved"]
+
+    def test_a_dashboard_that_stops_agreeing_becomes_a_real_disagreement(self):
+        """__CONTROL, and its meaning is INVERTED from the test it replaced.
+
+        The old control flipped this field and expected the disagreement to
+        vanish. Now the captured value AGREES with the authoritative route, so
+        flipping it is a route going stale against a measured answer - a new
+        fact, and reported as one rather than absorbed by the old ruling.
+        """
         payload = copy.deepcopy(load_talent_fixture(DASHBOARD))
         payload["data"]["consent_email_job_scan"] = False
 
         shaped = outreach.shape_agent_dashboard(payload)
 
+        assert shaped["resolved"] == []
+        assert len(shaped["disagreements"]) == 1
+        entry = shaped["disagreements"][0]
+        assert entry["field"] == "consent_email_job_scan"
+        assert entry["other_source"] == outreach.CONSENT_RESOLUTION[
+            "authoritative_route"
+        ]
+        assert "stale" in entry["note"]
+
+    def test_an_agreeing_capture_emits_no_disagreement(self):
+        """__CONTROL, the other arm: the resolved line is emitted because the
+        values MATCH, not because it is hardcoded."""
+        shaped = outreach.shape_agent_dashboard(load_talent_fixture(DASHBOARD))
+
         assert shaped["disagreements"] == []
+        assert len(shaped["resolved"]) == 1
 
 
 class TestTheReportSaysNothingItCannotDerive:

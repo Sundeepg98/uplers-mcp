@@ -64,13 +64,32 @@ WHAT THE CAPTURE MEASURED, AND WHAT IT REFUSES TO CLAIM
     Completed row that field is a placeholder, not a diagnosis, and it is not
     reported as one - a canned "contact support" line presented as a cause is
     exactly the kind of confident nonsense this codebase refuses to print.
-*   Two pairs of fields DISAGREE across the captures. ``auto_run: 1`` (step)
-    against ``auto_run_consent: false`` (dashboard); and
+*   Two pairs of fields LOOKED like they disagreed, and neither pair did.
+    RESOLVED 2026-08-24; both now surface under ``resolved`` rather than
+    ``disagreements``, and the module keeps the receipts so the question cannot
+    be silently re-opened.
+
     ``consent_email_job_scan: true`` (dashboard) against ``has_consent: false``
-    measured on ``talent/outreach/interview-list`` and preserved in
-    ``tests/fixtures/talent_interviews.json``. Neither pair is resolved here.
-    Both are reported AS disagreements, because picking a side would be a
-    fabricated answer about his own account.
+    (``talent/outreach/interview-list``) was a MIS-PAIRING of two different
+    consents that share a field name. A third route,
+    ``recommended-jobs-meta-email``, is the authoritative one - Uplers' own UI
+    re-reads it the moment the consent write lands - and it AGREES with the
+    dashboard: the job scan is on, granted 2026-08-12, last run 2026-08-23,
+    79 jobs held. The interview-list flag belongs to the INTERVIEW scan, which
+    has no reader and no shipped control anywhere in Uplers' frontend. See
+    :data:`CONSENT_RESOLUTION`.
+
+    ``auto_run: 1`` (step) against ``auto_run_consent: false`` (dashboard) was
+    a MODE read against a PERMISSION. ``auto_run`` is write-only on Uplers'
+    side - every occurrence in their bundle is an outbound request body,
+    nothing reads it back - so what ``outreach-step`` returns is the last
+    stored mode, which is why it agrees with ``outreach_mode: "auto"`` beside
+    it. WHAT THE PERMISSION GATES REMAINS UNRESOLVED and is reported as such:
+    it reads false while 48 runs are logged, so it plainly does not gate
+    whether the agent runs, and the only route that would settle it is a write.
+
+    A pair that measured as agreeing and later stops agreeing is raised as a
+    NEW disagreement rather than absorbed by the old answer.
 
 CONTACT DATA
 ------------
@@ -129,13 +148,47 @@ WITHHELD_CONTACT_KEYS = (
     "to_email",
 )
 
-#: The other half of the consent disagreement, measured on a different route on
-#: the same account and preserved as a fixture so this is a receipt, not a
-#: recollection.
-CONSENT_COUNTER_EVIDENCE = {
-    "source": "talent/outreach/interview-list meta.has_consent",
-    "value": False,
-    "receipt": "tests/fixtures/talent_interviews.json, measured 2026-08-22",
+#: RESOLVED 2026-08-24. This was reported for two days as a live contradiction
+#: - `consent_email_job_scan: true` here against `meta.has_consent: false` on
+#: `talent/outreach/interview-list` - and it was never one. The two fields are
+#: DIFFERENT CONSENTS that happen to share a name, so the pairing was the bug,
+#: not either value.
+#:
+#: How it was settled, without writing anything to his account. Static analysis
+#: of Uplers' whole production bundle (`_audit/_slices/_slice-consent-semantics.md`)
+#: found a THIRD route, `talent/outreach/recommended-jobs-meta-email`, which the
+#: UI re-reads the instant the consent write lands and on which the whole
+#: Recommended-jobs screen switches - which makes its `has_consent` the
+#: platform's own state and this route's field a downstream copy. Reading it
+#: live agreed with this route and added the receipts a boolean cannot carry:
+#: consent granted 2026-08-12 01:32:36, scan last ran 2026-08-23 06:58:17,
+#: 79 jobs held. **The scan is on, and behaving like it.**
+#:
+#: The interview-list flag is a different consent entirely - the INTERVIEW
+#: scan, named `consent_interview_email_scan` in the same meta block, which has
+#: zero readers anywhere in Uplers' frontend and whose enable/revoke UI ships
+#: as CSS with no JSX behind it.
+#:
+#: Kept as a constant rather than deleted so a future capture cannot quietly
+#: re-open a question that has been answered. `uplers_email_scan()` reads the
+#: authoritative route directly.
+CONSENT_RESOLUTION = {
+    "field": "consent_email_job_scan",
+    "verdict": "not a disagreement - two different consents, paired by mistake",
+    "authoritative_route": "talent/outreach/recommended-jobs-meta-email",
+    "authoritative_value": True,
+    "agrees_with_this_route": True,
+    "mis_paired_against": "talent/outreach/interview-list meta.has_consent",
+    "mis_paired_value": False,
+    "why_different": (
+        "interview-list's flag is the INTERVIEW email scan "
+        "(consent_interview_email_scan in the same meta block), not the job "
+        "scan. It has no reader and no shipped control in Uplers' product."
+    ),
+    "receipt": (
+        "tests/fixtures/outreach_meta_email.json, measured live 2026-08-23; "
+        "_audit/_slices/_slice-consent-semantics.md"
+    ),
 }
 
 
@@ -478,11 +531,14 @@ def shape_agent_dashboard(payload: dict) -> dict:
     server has not measured what, so it is reported as Uplers' own number
     rather than described as a daily quota.
 
-    THE CONSENT DISAGREEMENT is emitted here, and only when it actually
-    exists: this payload says ``consent_email_job_scan: true`` while
-    ``talent/outreach/interview-list`` measured ``meta.has_consent: false`` on
-    the same account (see :data:`CONSENT_COUNTER_EVIDENCE`). A future capture
-    that agrees will drop the line by itself.
+    THE CONSENT LINE is emitted here, and which list it lands in depends on
+    what this payload says. ``consent_email_job_scan`` was measured AGREEING
+    with the authoritative route (``recommended-jobs-meta-email``), so it
+    normally reports under ``resolved`` - see :data:`CONSENT_RESOLUTION` for
+    how that was settled without writing anything. If this copy ever flips away
+    from the authoritative value it becomes a real ``disagreement``, because
+    two routes that were measured agreeing and then stopped is a new fact, not
+    the old question coming back.
     """
     data = unwrap(payload, route=ROUTE_DASHBOARD, expect=dict)
 
@@ -491,21 +547,32 @@ def shape_agent_dashboard(payload: dict) -> dict:
     reminders = _int(data.get("reminder_count"))
     consent_scan = _flag(data.get("consent_email_job_scan"))
 
+    # No disagreement is emitted for the consent any more - see
+    # :data:`CONSENT_RESOLUTION` for how it was settled. What IS emitted is the
+    # resolution itself, and only when this route still agrees with the
+    # authoritative one. If this field ever flips away from it, that is a NEW
+    # and genuine disagreement between two routes that were measured agreeing,
+    # so it is raised as one rather than being absorbed by the old answer.
     disagreements: list[dict] = []
-    if consent_scan is not None and consent_scan != CONSENT_COUNTER_EVIDENCE["value"]:
+    resolved: list[dict] = []
+    if consent_scan is None:
+        pass
+    elif consent_scan == CONSENT_RESOLUTION["authoritative_value"]:
+        resolved.append(dict(CONSENT_RESOLUTION, this_route_value=consent_scan))
+    else:
         disagreements.append(
             {
                 "field": "consent_email_job_scan",
                 "this_route": ROUTE_DASHBOARD,
                 "this_value": consent_scan,
-                "other_source": CONSENT_COUNTER_EVIDENCE["source"],
-                "other_value": CONSENT_COUNTER_EVIDENCE["value"],
-                "receipt": CONSENT_COUNTER_EVIDENCE["receipt"],
+                "other_source": CONSENT_RESOLUTION["authoritative_route"],
+                "other_value": CONSENT_RESOLUTION["authoritative_value"],
+                "receipt": CONSENT_RESOLUTION["receipt"],
                 "note": (
-                    "Two routes on the same account report opposite consent "
-                    "states for a mailbox scan. Both are reported; neither is "
-                    "picked, because which one is authoritative has not been "
-                    "measured."
+                    "This route now disagrees with the AUTHORITATIVE consent "
+                    "route, which is new: on 2026-08-23 they agreed. Trust "
+                    "uplers_email_scan(), which reads the authoritative one "
+                    "directly, and treat this copy as stale."
                 ),
             }
         )
@@ -561,6 +628,7 @@ def shape_agent_dashboard(payload: dict) -> dict:
             ),
         },
         "disagreements": disagreements,
+        "resolved": resolved,
         "notes": notes,
     }
 
@@ -1036,25 +1104,51 @@ def agent_readthrough(*, plan, dashboard, pending, missed, activity) -> dict:
 
     # --- disagreements ---------------------------------------------------
     disagreements = list(dashboard.get("disagreements", []))
+    resolved = list(dashboard.get("resolved", []))
     auto_run = plan.get("auto_run")
     auto_consent = dashboard.get("flags", {}).get("auto_run_consent")
     if auto_run is not None and auto_consent is not None and auto_run != auto_consent:
-        disagreements.append(
+        # ALSO A MIS-PAIRING, resolved 2026-08-24 by the same bundle analysis,
+        # but resolved LESS COMPLETELY than the consent one, and the difference
+        # is stated rather than smoothed over.
+        #
+        # What was settled: these are not two readings of one quantity.
+        # `auto_run` is WRITE-ONLY on Uplers' side - all eight of its
+        # occurrences in their bundle are the same `store-recommended-jobs`
+        # request body, and nothing reads it back - so what `outreach-step`
+        # returns is the MODE last stored, which is why it agrees with
+        # `outreach_mode: "auto"` sitting beside it. `auto_run_consent` is the
+        # PERMISSION, and it is the field their Configure-screen toggle binds
+        # its checked state to. A mode and a permission can differ without
+        # either being wrong.
+        #
+        # What was NOT settled, and is not claimed: what the permission
+        # actually gates. The agent has 48 logged runs while the permission
+        # reads false, so it plainly does not gate "does the agent run at all".
+        # A client bundle cannot show what a server enforces, and the only
+        # route that would answer it is a WRITE. So this stays reported.
+        resolved.append(
             {
                 "field": "auto_run",
-                "this_route": ROUTE_STEP,
-                "this_value": auto_run,
-                "this_raw": plan.get("auto_run_raw"),
-                "other_source": "%s auto_run_consent" % ROUTE_DASHBOARD,
-                "other_value": auto_consent,
-                "receipt": (
-                    "tests/fixtures/outreach_step.json and "
-                    "tests/fixtures/outreach_dashboard.json"
+                "verdict": (
+                    "not a disagreement - a stored MODE and a PERMISSION, "
+                    "paired by mistake"
                 ),
-                "note": (
-                    "One route says the agent is set to run automatically and "
-                    "the other says automatic running has not been consented "
-                    "to. Both are printed; neither is picked."
+                "mode_route": ROUTE_STEP,
+                "mode_value": auto_run,
+                "mode_raw": plan.get("auto_run_raw"),
+                "permission_source": "%s auto_run_consent" % ROUTE_DASHBOARD,
+                "permission_value": auto_consent,
+                "still_unresolved": (
+                    "What auto_run_consent gates. It reads false while 48 runs "
+                    "are logged, so it does not gate whether the agent runs. "
+                    "Settling it needs a write to his account, which is not "
+                    "worth doing to answer a question nothing depends on."
+                ),
+                "receipt": (
+                    "tests/fixtures/outreach_step.json, "
+                    "tests/fixtures/outreach_dashboard.json; "
+                    "_audit/_slices/_slice-consent-semantics.md"
                 ),
             }
         )
@@ -1150,6 +1244,7 @@ def agent_readthrough(*, plan, dashboard, pending, missed, activity) -> dict:
         "actions": actions,
         "cross_checks": cross_checks,
         "disagreements": disagreements,
+        "resolved": resolved,
         "notes": (
             list(plan.get("notes", []))
             + list(dashboard.get("notes", []))

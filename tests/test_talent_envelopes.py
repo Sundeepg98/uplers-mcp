@@ -290,6 +290,43 @@ def test_an_empty_interview_list_reports_why_it_is_empty():
     assert any("interviews" in note.lower() for note in notes)
 
 
+def test_the_empty_diary_never_tells_him_to_go_and_switch_the_scan_on():
+    """The note used to end "Turn the scan on in Uplers' own settings", and
+    that instruction could cause the harm it was warning about.
+
+    MEASURED 2026-08-24 (`_audit/_slices/_slice-consent-semantics.md`): the
+    consent this flag names has no control anywhere in Uplers' shipped product
+    - `consent_interview_email_scan` has zero readers in their whole bundle and
+    the enable/revoke UI exists only as CSS. So the switch he would actually
+    have found in settings is the Gmail JOB scan, a DIFFERENT consent that is
+    currently ON and producing 79 jobs. Following the old advice meant hunting
+    for a missing control and plausibly revoking a working, paid-for one.
+
+    This is a regression guard, not a style check: it fails on the imperative,
+    which is the part that moved him to act.
+    """
+    payload = load_talent_fixture(TALENT_INTERVIEWS)
+    _, notes = talent_shape.interviews_from(payload)
+    joined = " ".join(notes).lower()
+
+    for instruction in (
+        "turn the scan on",
+        "turn it on",
+        "switch the scan on",
+        "enable the scan",
+        "consent to the scan",
+    ):
+        assert instruction not in joined, (
+            "the empty-diary note tells him to enable a scan that has no "
+            "control in Uplers' product: %r" % instruction
+        )
+
+    # And it must still say the two things that ARE true, so the fix cannot be
+    # "delete the note".
+    assert "unresolved" in joined
+    assert "uplers_email_scan" in joined
+
+
 def test_the_mailbox_address_is_never_surfaced():
     """`meta.gmail_email` is his email. Reporting whether a mailbox is
     connected is diagnostic; reporting which one is a disclosure."""
