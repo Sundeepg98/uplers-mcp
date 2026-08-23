@@ -33,7 +33,7 @@ HOW TO RUN IT
 
 MEASURED 2026-08-23, against the commit that introduced the two tools::
 
-    4 failed, 28 passed
+    4 failed, 35 passed
 
     FAILED TestTheVerdictComesFromTheProbe::test_a_guest_200_is_null_not_false_and_not_true
     FAILED TestTheVerdictComesFromTheProbe::test_a_transport_failure_is_null_with_the_reason_attached
@@ -58,7 +58,7 @@ dies is the point:
   build that cannot produce the evidence cannot fake the verdict past this
   line either.
 
-The 28 that survive are supposed to survive, and the asymmetry is the property
+The 35 that survive are supposed to survive, and the asymmetry is the property
 worth having:
 
 * every ``verify_live=False`` test stays green, because that path never asks
@@ -79,7 +79,7 @@ server, so a permissive build of it should bite everywhere the verdict is
 claimed. MEASURED 2026-08-23::
 
     PYTHONPATH=scripts pytest tests -p presence_is_auth_control
-    -> 22 failed, 954 passed
+    -> 22 failed, 961 passed
 
     8  tests/test_auth.py            the login handshake and its refresh path,
                                      whose completion condition IS check_auth
@@ -88,9 +88,15 @@ claimed. MEASURED 2026-08-23::
     4  tests/test_session_lifecycle.py   the four listed above
     3  tests/test_talent_tools.py    uplers_auth_status's three honesty tests
 
-The clean run of the same suite is 976 passed. The 954 above is not a
+The clean run of the same suite is 983 passed. The 961 above is not a
 different suite; it is this one with 22 of its assertions correctly refusing a
 verdict that was never measured.
+
+RE-MEASURED 2026-08-23 after `renewal.session_lapses_at` added seven tests to
+the file. The SAME four fail and the count of reds does not move, which is the
+property worth reading: the new seven pin what a NO-RENEWAL platform reports
+about when the operator must sign in by hand, and a broken verdict cannot move
+that -- `_renewal` is handed the credential block, never the verdict.
 
 WHAT THIS FILE IS NOT
 ---------------------

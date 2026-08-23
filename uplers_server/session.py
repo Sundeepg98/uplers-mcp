@@ -341,6 +341,37 @@ RENEWAL_WHY = (
     "uplers_login() and the Google sign-in, done by hand."
 )
 
+#: `renewal.session_lapses_at` answers a DIFFERENT question from
+#: `credential.expires_at`, and the difference is why it is a separate field:
+#: "when must he sign in BY HAND" rather than "when does this credential die".
+#: On the sibling naukri server those two answers differ by 188 days - its
+#: `nauk_at` measures half an hour out while the session behind it does not
+#: lapse for six months - so a client comparing `expires_at` across the four
+#: servers would read naukri as nearly dead. On Uplers the two coincide, and
+#: WHY they coincide is the entire content of this field.
+SESSION_LAPSES_SOURCE = (
+    "the `token` credential above, and the two dates are IDENTICAL here "
+    "because there is no silent renew on this platform. With nothing to renew "
+    "from, the session cannot outlive the credential that carries it. READ "
+    "THE SAME WARNING INTO THIS FIELD AS INTO `expiry_is_authoritative`, "
+    "because this is the field most likely to be mistaken for a deadline: the "
+    "date is the token's own `exp` claim, which is the LATEST the session "
+    "could possibly still be good and NOT how long it will last. Uplers "
+    "revokes server-side far sooner - expect to sign in again roughly daily. "
+    "A caller who plans against this number as a runway will be wrong in the "
+    "expensive direction."
+)
+
+#: The null case. Both dates go null together and this says which fact was
+#: missing - never a zero, never a false.
+SESSION_LAPSES_UNKNOWN = (
+    "the `token` credential above, whose expiry is not knowable from here "
+    "(%s), so this date is null rather than guessed. The two fields would "
+    "still coincide if it were readable: there is no silent renew on this "
+    "platform, so the session cannot outlive the credential that carries it. "
+    "Only the live check establishes whether the session is alive today."
+)
+
 #: What the tools do about an expiry, and the way back, named.
 ON_EXPIRY = (
     "authenticated tools raise with the session-expired reason; not one of "
@@ -443,8 +474,38 @@ def _durability(store: "SessionStore") -> dict:
     }
 
 
-def _renewal() -> dict:
-    return {"silent_renew_available": False, "tool": None, "why": RENEWAL_WHY}
+def _lapse_unknown_reason(fmt: str) -> str:
+    """Which missing fact left `session_lapses_at` null. Never a bare 'unknown'."""
+    if fmt == "absent":
+        return "no token is stored"
+    if fmt == "jwt":
+        return "the stored JWT carries no readable `exp` claim"
+    return "a %s token keeps its expiry on Uplers' servers" % fmt
+
+
+def _renewal(credential: dict) -> dict:
+    """Renewal, plus the date the operator must sign in by hand.
+
+    Takes the ALREADY BUILT credential block rather than rebuilding it, so
+    `session_lapses_at` and `credential.expires_at` are the same values by
+    construction. Computing them twice would let a rounding tick put a tenth
+    of a day between two fields that are defined to be equal here.
+    """
+    lapses_at = credential.get("expires_at")
+    return {
+        "silent_renew_available": False,
+        "tool": None,
+        "why": RENEWAL_WHY,
+        "session_lapses_at": lapses_at,
+        "session_lapses_in_days": credential.get("expires_in_days"),
+        "session_lapses_source": (
+            SESSION_LAPSES_SOURCE
+            if lapses_at
+            else SESSION_LAPSES_UNKNOWN % _lapse_unknown_reason(
+                credential.get("format") or "absent"
+            )
+        ),
+    }
 
 
 def _what_it_means(authenticated: bool | None) -> str:
@@ -486,6 +547,7 @@ def session_info_offline(
     asked me not to try" and "I tried and could not". The operator acts
     differently on each, so they do not share a field.
     """
+    credential = credential_report(store)
     return {
         "server": "uplers",
         "authenticated": None,
@@ -497,11 +559,11 @@ def session_info_offline(
             "why_not": why_no_live_check,
             "what_it_means": _what_it_means(None),
         },
-        "credential": credential_report(store),
+        "credential": credential,
         "supporting": [],
         "credential_source": CREDENTIAL_SOURCE,
         "durability": _durability(store),
-        "renewal": _renewal(),
+        "renewal": _renewal(credential),
         "on_expiry": ON_EXPIRY,
     }
 
@@ -515,6 +577,7 @@ async def session_info(store: "SessionStore", client) -> dict:
     """
     status = await check_auth(client)
     authenticated = status.get("authenticated")
+    credential = credential_report(store)
 
     live = {
         "attempted": True,
@@ -532,11 +595,11 @@ async def session_info(store: "SessionStore", client) -> dict:
         "authenticated": authenticated,
         "checked_against": status.get("checked_against") or endpoints.AUTH_PROBE_NOTE,
         "live_check": live,
-        "credential": credential_report(store),
+        "credential": credential,
         "supporting": [],
         "credential_source": CREDENTIAL_SOURCE,
         "durability": _durability(store),
-        "renewal": _renewal(),
+        "renewal": _renewal(credential),
         "on_expiry": ON_EXPIRY,
     }
     if status.get("signed_in_as"):

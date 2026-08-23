@@ -190,3 +190,101 @@ number jumped by two. Correcting an existing drift, not introducing one.
 Nothing in the brief was blocked. The three open items above (2, 3, 4) are
 decisions surfaced for the lead, not failures - each is implemented in the way I
 judged most honest, and each is cheap to reverse.
+
+---
+
+# Addendum - `renewal.session_lapses_at` (2026-08-23, wave-lead follow-up)
+
+Wave lead ruled on all four flagged items (dicts KEEP, `removal_failed` KEEP and
+now the family rule, two ISO spellings LEAVE as a known wart, README fix
+accepted) and added one uniform field group to `renewal` across all four
+servers.
+
+## What was added
+
+    "session_lapses_at": str|null,        # ISO8601, ...Z spelling
+    "session_lapses_in_days": float|null, # round(seconds/86400, 1)
+    "session_lapses_source": str          # which credential governs, BY NAME
+
+Definition: the date past which NO SILENT RENEW CAN HELP and the operator must
+sign in by hand. It is a different question from `credential.expires_at` ("when
+does this CREDENTIAL die"), and on naukri the two answers differ by 188 days -
+its `nauk_at` measures +0.02 days while the server re-mints it silently, so a
+client comparing `expires_at` across four servers would read naukri as half an
+hour from death.
+
+## What it does on uplers
+
+There is no silent renew here, so the session lapses exactly when the bearer
+token does: `session_lapses_at` / `session_lapses_in_days` take the SAME values
+as `credential.expires_at` / `expires_in_days`, and go null together whenever
+those are null.
+
+The equality is **by construction, not by coincidence**: `_renewal` now takes
+the already-built `credential` dict rather than rebuilding it, so a rounding
+tick cannot put a tenth of a day between two fields defined to be equal. Both
+call sites (`session_info` and `session_info_offline`) build the credential once
+and hand the same object to both blocks.
+
+`session_lapses_source` carries two things:
+1. that the two dates coincide **because no renewal path exists** - with nothing
+   to renew from, the session cannot outlive the credential that carries it;
+2. **the ceiling warning, repeated here** rather than left to
+   `expiry_is_authoritative`. This is the field most likely to be read as a
+   deadline, so it says outright that the date is the token's own `exp` claim,
+   that it is the LATEST the session could possibly still be good and not how
+   long it will last, that Uplers revokes server-side far sooner, and that
+   planning against it as a runway is wrong in the expensive direction.
+
+Null handling unchanged: both dates null together, with the missing fact NAMED -
+`no token is stored` / `a sanctum token keeps its expiry on Uplers' servers` /
+`the stored JWT carries no readable exp claim`. Never a `0.0`, which would read
+as "today", and never a `false`.
+
+## Locations
+
+| Thing | File:line |
+|---|---|
+| `SESSION_LAPSES_SOURCE` / `SESSION_LAPSES_UNKNOWN` | `uplers/uplers_server/session.py:352` / `:367` |
+| `_lapse_unknown_reason(fmt)` | `uplers/uplers_server/session.py:477` |
+| `_renewal(credential)` | `uplers/uplers_server/session.py:486` |
+| 7 new tests | `uplers/tests/test_session_lifecycle.py` (4 named + one 4-case parametrize) |
+
+## Counts
+
+| | count |
+|---|---|
+| Before this addendum | 976 passed |
+| After | **983 passed** (976 + 7) |
+
+Control re-measured, and the number of reds does NOT move - which is the point:
+
+    PYTHONPATH=scripts venv/Scripts/python -m pytest tests/test_session_lifecycle.py -q -p presence_is_auth_control
+    4 failed, 35 passed in 2.48s        (was 4 failed, 28 passed)
+
+    PYTHONPATH=scripts venv/Scripts/python -m pytest tests -q -p presence_is_auth_control
+    22 failed, 961 passed in 32.08s     (was 22 failed, 954 passed)
+
+The same four fail. The seven new tests stay GREEN under the control by design:
+they pin what a no-renewal platform reports about when the operator must sign in
+by hand, and `_renewal` is handed the credential block, never the verdict, so a
+broken verdict cannot reach them. Recorded in the control's docstring as a
+RE-MEASURED block, per the house form.
+
+## Tests added
+
+* `test_session_lapses_at_tracks_the_credential_exactly` - both dates equal to
+  the credential's, `...Z` spelling.
+* `test_the_lapse_source_names_the_no_renewal_reason_and_the_ceiling` - asserts
+  the no-renewal clause AND the forwarded ceiling warning, clause by clause.
+* `test_an_unknowable_lapse_is_null_and_never_zero` - parametrized over no
+  token / sanctum / opaque / JWT-without-exp; null dates, named reason.
+* `test_the_lapse_keys_are_present_on_the_live_path_too` - exact key set on
+  `renewal`, pinning that both paths build it identically.
+
+README's `uplers_session_info` row extended with the field.
+
+Commit: PENDING (filled in below after the commit lands).
+
+Constraints held again: `uplers_apply` never called; real `data/session.json`
+untouched (mtime still `Aug 21 11:06`); no browser; strict ASCII; no AI trailer.

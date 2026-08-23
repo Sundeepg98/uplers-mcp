@@ -450,6 +450,88 @@ class TestRenewalIsRuledOutWithEvidence:
         assert "214-route sweep" in why
         assert "uplers_login()" in why
 
+    async def test_session_lapses_at_tracks_the_credential_exactly(
+            self, session_file):
+        """`session_lapses_at` answers a different question and here matches.
+
+        The two are NOT the same field in general - on the sibling naukri
+        server `nauk_at` measures half an hour out while the session behind it
+        runs 188 days, so a client comparing `credential.expires_at` across
+        four servers would read naukri as nearly dead. Here they coincide, and
+        the equality is by CONSTRUCTION rather than by luck: `_renewal` is
+        handed the already-built credential block, so a rounding tick cannot
+        put a tenth of a day between two fields defined to be equal.
+        """
+        SessionStore(session_file).save(JWT_SIX_MONTHS, method="test")
+
+        result = await server.uplers_session_info(verify_live=False)
+        renewal, credential = result["renewal"], result["credential"]
+
+        assert renewal["session_lapses_at"] == credential["expires_at"]
+        assert renewal["session_lapses_in_days"] == credential["expires_in_days"]
+        assert renewal["session_lapses_at"].endswith("Z")
+        assert renewal["session_lapses_in_days"] > 170
+
+    async def test_the_lapse_source_names_the_no_renewal_reason_and_the_ceiling(
+            self, session_file):
+        """Why they coincide is the whole content of the field.
+
+        And the ceiling warning is repeated HERE rather than left to
+        `expiry_is_authoritative`, because this is the field most likely to be
+        read as a deadline - a caller who plans against it as a runway is
+        wrong in the expensive direction.
+        """
+        SessionStore(session_file).save(JWT_SIX_MONTHS, method="test")
+
+        source = (
+            await server.uplers_session_info(verify_live=False)
+        )["renewal"]["session_lapses_source"]
+
+        assert "no silent renew" in source
+        assert "cannot outlive the credential" in source
+        assert "LATEST the session" in source
+        assert "roughly daily" in source
+
+    @pytest.mark.parametrize("token,fragment", [
+        (None, "no token is stored"),
+        (SANCTUM, "a sanctum token keeps its expiry on Uplers' servers"),
+        (OPAQUE, "a opaque token keeps its expiry on Uplers' servers"),
+        (JWT_NO_EXP, "carries no readable `exp` claim"),
+    ])
+    async def test_an_unknowable_lapse_is_null_and_never_zero(
+            self, session_file, token, fragment):
+        """Null, with the missing fact NAMED. A 0.0 here would read as "today".
+
+        Same rule as `expired`: the absence of a date is reported as an
+        absence, not filled in with the falsiest number to hand.
+        """
+        if token:
+            SessionStore(session_file).save(token, method="test")
+
+        renewal = (await server.uplers_session_info(verify_live=False))["renewal"]
+
+        assert renewal["session_lapses_at"] is None
+        assert renewal["session_lapses_in_days"] is None
+        assert fragment in renewal["session_lapses_source"]
+        assert "null rather than guessed" in renewal["session_lapses_source"]
+        assert "no silent renew" in renewal["session_lapses_source"]
+
+    async def test_the_lapse_keys_are_present_on_the_live_path_too(
+            self, monkeypatch, session_file):
+        """Both paths build `renewal` the same way; this pins that they do."""
+        SessionStore(session_file).save(JWT_SIX_MONTHS, method="test")
+        wire(monkeypatch, probe_ok, token=JWT_SIX_MONTHS)
+
+        result = await server.uplers_session_info()
+
+        assert result["authenticated"] is True
+        assert set(result["renewal"]) == {
+            "silent_renew_available", "tool", "why",
+            "session_lapses_at", "session_lapses_in_days",
+            "session_lapses_source",
+        }
+        assert result["renewal"]["session_lapses_at"] == result["credential"]["expires_at"]
+
     async def test_the_server_ships_no_reauth_tool(self):
         """The rule, enforced where it can actually be broken.
 
