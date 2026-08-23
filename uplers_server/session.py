@@ -272,3 +272,356 @@ async def check_auth(client) -> dict:
     if payload.get("profile_completion_percentage") is not None:
         out["profile_completion_percentage"] = payload["profile_completion_percentage"]
     return out
+
+
+# --- the lifecycle report -------------------------------------------------
+#
+# `uplers_session_info` and `uplers_logout` are built here rather than inline
+# in server.py so that the sentences below have ONE home. Most of what those
+# two tools return is prose, and prose that says how long a credential lasts
+# is load-bearing: it is what the operator plans his day around. A second copy
+# of it in a docstring is a second copy to get wrong.
+
+
+#: The sentence this whole module exists to enforce, said in every path.
+TOKEN_IS_NOT_A_SESSION = (
+    "a token in the store is NOT a session. Its presence means a sign-in "
+    "happened once; it does not mean Uplers still honours it. Their bundle "
+    "also hands anonymous visitors a `guest_token`, so even a well-formed "
+    "token can belong to nobody. Only the live check establishes a session."
+)
+
+#: Uplers' stored JWT carries an `exp` roughly six months out. That number is
+#: TRUE and it is also USELESS on its own, and the gap between those two facts
+#: is the most dangerous thing this tool could get wrong: reporting it flatly
+#: would tell the operator he has half a year when he has about a day.
+EXPIRY_IS_A_CEILING = (
+    "the JWT's own `exp` claim, read from the token this server stores. It is "
+    "a CEILING THE TOKEN CLAIMS, not a promise Uplers keeps. Uplers revokes "
+    "server-side far sooner: this server's own login docstring and its MCP "
+    "instructions both say sessions here are SHORT-LIVED and that a re-login "
+    "is needed roughly daily. Read the date as the latest the token could "
+    "possibly still be good, never as how long it will last. Only the live "
+    "check settles which of those it is today."
+)
+
+#: A Sanctum or opaque token keeps its expiry on Uplers' servers and never
+#: sends it here. `expired` is null in that case and MUST NOT be false: "I
+#: cannot tell" and "it is fine" are different answers to the same question.
+NO_KNOWABLE_EXPIRY = (
+    "not knowable from here. A %s token is a bare string whose expiry lives "
+    "on Uplers' servers and is never sent to this client, so there is no date "
+    "to read. `expired` is null rather than false, because 'I cannot tell' "
+    "and 'it is fine' are different answers. Only the live check settles it."
+)
+
+#: The fourth case, and the reason the branch below is not an if/else: a token
+#: can parse as a JWT and still carry no `exp` claim.
+JWT_WITHOUT_EXP = (
+    "the stored token parses as a JWT but carries no readable `exp` claim, so "
+    "there is no date to read and `expired` is null rather than false. Only "
+    "the live check settles it."
+)
+
+#: There is no `uplers_reauth` and there is not going to be one. Ruled with
+#: evidence 2026-08-23; the reasoning is kept here because the operator will
+#: eventually ask why this server has one fewer tool than its siblings.
+RENEWAL_WHY = (
+    "there is nothing here to renew FROM. On the sibling servers a durable "
+    "store outlives the credential in use, and that is what a silent renew "
+    "spends. On Uplers it is the other way round: the BEARER TOKEN is the "
+    "long-lived layer and the BROWSER PROFILE is the short one. That "
+    "profile's `uplers_session` cookie has already lapsed, and its `talent`, "
+    "`l` and `source` cookies are session-only rows that die with the "
+    "browser, so nothing durable survives to mint a fresh token from. The "
+    "exhaustive 214-route sweep recorded in endpoints.py found no refresh "
+    "route, and the SPA simply reads localStorage['token'] with no renew flow "
+    "at all. A `uplers_reauth` here would therefore be `uplers_login` wearing "
+    "a different name, so it is deliberately not shipped. Recovery is "
+    "uplers_login() and the Google sign-in, done by hand."
+)
+
+#: What the tools do about an expiry, and the way back, named.
+ON_EXPIRY = (
+    "authenticated tools raise with the session-expired reason; not one of "
+    "them returns an empty list in place of a refusal, because a quiet day "
+    "and a dead session must never look alike. The public tier is unaffected "
+    "and keeps serving from the local index. Recover by calling "
+    "uplers_login(), which opens a browser window for the Google sign-in - "
+    "this server never handles a password."
+)
+
+#: Where the facts came from, and why `supporting` is empty rather than absent.
+CREDENTIAL_SOURCE = (
+    "the on-disk store, read without a browser. `supporting` is empty because "
+    "there is genuinely nothing to put in it: Uplers authenticates with the "
+    "bearer token alone, and this server holds no csrf token and no refresh "
+    "token beside it. That empty list is a measured absence, not an unfilled "
+    "field."
+)
+
+#: Uplers is the one server in this family where the credential's own stated
+#: expiry is NOT authoritative, so this is a module constant rather than
+#: something computed per call. Nothing this server can read would justify
+#: flipping it to true; only Uplers changing how they revoke would.
+EXPIRY_IS_AUTHORITATIVE = False
+
+
+def _iso_z(stamp: float | None) -> str | None:
+    """ISO8601 in the auth contract's exact spelling, ``YYYY-MM-DDTHH:MM:SSZ``.
+
+    Deliberately NOT :func:`_iso`, which renders ``+00:00`` and is already
+    published by ``uplers_auth_status``. Same instant, two spellings, and the
+    contract names this one. Unifying them would move an existing tool's
+    output, which is a separate decision from adding this one.
+    """
+    if stamp is None:
+        return None
+    return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(stamp))
+
+
+def credential_report(store: "SessionStore") -> dict:
+    """The stored credential's shape. Never its value, its length or a prefix.
+
+    ``format`` is derived from the token itself rather than from the metadata
+    field written beside it at save time, because the token is the thing that
+    is actually going to be sent.
+    """
+    described = store.describe()
+    token = store.token()
+    fmt = token_format(token)
+    expires = token_expiry(token)
+
+    out = {
+        "kind": "bearer_token",
+        "name": TOKEN_KEY,
+        "present": bool(described.get("token_present")),
+        "format": fmt,
+        "expires_at": None,
+        "expires_in_days": None,
+        "expired": None,
+        "expiry_source": "",
+        "expiry_is_authoritative": EXPIRY_IS_AUTHORITATIVE,
+    }
+
+    if expires is not None:
+        remaining = expires - time.time()
+        out["expires_at"] = _iso_z(expires)
+        out["expires_in_days"] = round(remaining / 86400.0, 1)
+        out["expired"] = remaining <= 0
+        out["expiry_source"] = EXPIRY_IS_A_CEILING
+    elif fmt == "absent":
+        out["expiry_source"] = (
+            "no token is stored, so there is no expiry to read. `expired` is "
+            "null rather than true: nothing expired, there is simply nothing."
+        )
+    elif fmt == "jwt":
+        out["expiry_source"] = JWT_WITHOUT_EXP
+    else:
+        out["expiry_source"] = NO_KNOWABLE_EXPIRY % fmt
+
+    return out
+
+
+def _durability(store: "SessionStore") -> dict:
+    """Where the token lives and what it survives. Path relativised, not deleted."""
+    from . import policy
+
+    return {
+        "stored_in": policy.display_path(str(store.path)),
+        "survives_server_restart": True,
+        "survives_machine_reboot": True,
+        "why": (
+            "the token is a FILE on disk, not state held in this process, so "
+            "stopping the server or rebooting the machine leaves it exactly "
+            "where it was. What ends it is Uplers revoking it server-side, "
+            "uplers_logout() deleting the file, or the data directory going "
+            "away. Note which way round that is: the FILE outlives the "
+            "process comfortably, while the SESSION it names usually does not "
+            "outlive the day."
+        ),
+    }
+
+
+def _renewal() -> dict:
+    return {"silent_renew_available": False, "tool": None, "why": RENEWAL_WHY}
+
+
+def _what_it_means(authenticated: bool | None) -> str:
+    if authenticated is True:
+        return (
+            "the probe route was asked and answered with his profile in the "
+            "body, so 'authenticated' above is a measurement. It was not "
+            "inferred from the token being on disk."
+        )
+    if authenticated is False:
+        return (
+            "Uplers was asked and REFUSED the stored token. That is a real "
+            "no, not an unknown, and the way back is uplers_login()."
+        )
+    return (
+        "'authenticated' is null because the live check produced no verdict, "
+        "NOT because Uplers said no. A null is not a refusal and is not a "
+        "reason to sign in again yet. Everything else here is read from this "
+        "machine, and " + TOKEN_IS_NOT_A_SESSION
+    )
+
+
+def session_info_offline(
+    store: "SessionStore",
+    *,
+    why_no_live_check: str,
+    attempted: bool = False,
+) -> dict:
+    """Store facts only, with no network and no browser touched at all.
+
+    ``authenticated`` is null here and STAYS null. The token's presence is
+    reported under its own label, next to a live_check block that says in
+    plain words that no verdict was obtained and why. Deriving a verdict from
+    presence is the exact bug ``scripts/presence_is_auth_control.py``
+    re-creates, and the tests in ``tests/test_session_lifecycle.py`` go red
+    under it.
+
+    ``attempted`` separates two different facts that share one null: "you
+    asked me not to try" and "I tried and could not". The operator acts
+    differently on each, so they do not share a field.
+    """
+    return {
+        "server": "uplers",
+        "authenticated": None,
+        "checked_against": endpoints.AUTH_PROBE_NOTE,
+        "live_check": {
+            "attempted": attempted,
+            "completed": False,
+            "endpoint": endpoints.AUTH_PROBE_NOTE,
+            "why_not": why_no_live_check,
+            "what_it_means": _what_it_means(None),
+        },
+        "credential": credential_report(store),
+        "supporting": [],
+        "credential_source": CREDENTIAL_SOURCE,
+        "durability": _durability(store),
+        "renewal": _renewal(),
+        "on_expiry": ON_EXPIRY,
+    }
+
+
+async def session_info(store: "SessionStore", client) -> dict:
+    """Measure the session, then report what the store says about it.
+
+    :func:`check_auth` is the ONLY source of the ``authenticated`` verdict and
+    it already returns True / False / None correctly. Nothing here re-derives
+    it, softens it, or fills a null in from the credential block below.
+    """
+    status = await check_auth(client)
+    authenticated = status.get("authenticated")
+
+    live = {
+        "attempted": True,
+        "completed": authenticated is not None,
+        "endpoint": endpoints.AUTH_PROBE_NOTE,
+        "what_it_means": _what_it_means(authenticated),
+    }
+    if authenticated is None:
+        live["why_not"] = status.get("reason") or (
+            "the probe ran and returned no usable verdict."
+        )
+
+    out = {
+        "server": "uplers",
+        "authenticated": authenticated,
+        "checked_against": status.get("checked_against") or endpoints.AUTH_PROBE_NOTE,
+        "live_check": live,
+        "credential": credential_report(store),
+        "supporting": [],
+        "credential_source": CREDENTIAL_SOURCE,
+        "durability": _durability(store),
+        "renewal": _renewal(),
+        "on_expiry": ON_EXPIRY,
+    }
+    if status.get("signed_in_as"):
+        out["signed_in_as"] = status["signed_in_as"]
+    if authenticated is False and status.get("reason"):
+        out["reason"] = status["reason"]
+    return out
+
+
+def logout_report(store: "SessionStore") -> dict:
+    """Delete the local token and say exactly what that cost. Never raises.
+
+    The ``authenticated: false`` here is the one false in this server that is
+    not a measurement, and it is legitimate for a reason worth stating: with
+    no credential left there is no authenticated request that CAN be made from
+    here, so the false is provable rather than observed.
+
+    That reasoning collapses if the file is still on disk afterwards, which is
+    possible on Windows where a lock can survive an unlink that did not raise.
+    The removal is therefore CONFIRMED, and a removal that did not happen
+    reports ``authenticated`` null under a named ``removal_failed`` flag
+    rather than claiming a signed-out state it never reached. That branch is
+    the only place this tool departs from the contract's fixed ``false``, and
+    it departs in the direction the contract exists to protect.
+    """
+    from . import policy
+
+    cleared = store.clear()
+    where = policy.display_path(str(store.path))
+    scope = (
+        "the stored bearer token at %s, and nothing else. The persistent "
+        "browser profile is untouched, and NOTHING was signed out on Uplers' "
+        "side - this server can delete its own copy of the credential and "
+        "cannot reach their session record." % where
+    )
+    recover_by = (
+        "uplers_login(), which opens a browser window for the Google sign-in. "
+        "The persistent browser profile was NOT cleared, so this is usually a "
+        "few seconds and no password."
+    )
+
+    if store.path.is_file():
+        # The unlink did not raise and the file is still there. Saying "signed
+        # out" now would be a guess dressed as a fact, which is the one thing
+        # this contract forbids everywhere else.
+        return {
+            "cleared": False,
+            "removal_failed": True,
+            "scope": scope,
+            "authenticated": None,
+            "reason": (
+                "the session file could not be removed and is STILL ON DISK, "
+                "so the credential may well still work. Signed out is not "
+                "established here and is not being claimed. Check whether "
+                "another process is holding the file, then try again."
+            ),
+            "what_is_lost": "nothing. The removal did not take effect.",
+            "recover_by": recover_by,
+        }
+
+    return {
+        "cleared": cleared,
+        "scope": scope,
+        "authenticated": False,
+        "reason": (
+            "provable rather than measured: there is no credential left to "
+            "send, so no authenticated request can be made from here at all. "
+            "This is the one false in this server that needs no live check "
+            "behind it."
+            if cleared
+            else
+            "provable rather than measured: there was no stored token to "
+            "delete, so there was nothing to send before this call either. "
+            "Already signed out locally is not an error, it is a different "
+            "sentence."
+        ),
+        "what_is_lost": (
+            "the authenticated tier only. uplers_my_feed, uplers_my_pipeline, "
+            "uplers_my_profile and the rest will report an expired session "
+            "until you sign in again. Nothing local is deleted: the cached "
+            "index, the tracked applications, the saved shortlist and the "
+            "profile snapshots all survive, and the whole public tier keeps "
+            "working at no cost."
+            if cleared
+            else "nothing. There was no token stored."
+        ),
+        "recover_by": recover_by,
+    }

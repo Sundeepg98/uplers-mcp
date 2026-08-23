@@ -1103,22 +1103,37 @@ async def test_auth_status_says_unknown_rather_than_logged_out_on_a_200_with_no_
 
 
 async def test_logout_clears_the_store_and_reports_what_it_found(session_file):
+    """Reshaped 2026-08-23 to the four-server auth contract's section 2.
+
+    The SEMANTICS did not change - it clears the token and leaves the browser
+    profile alone, exactly as before - but it now returns a plain dict rather
+    than an ``AuthStatus``. Two reasons, and the second is the real one:
+    ``AuthStatus`` has no field for ``scope`` / ``what_is_lost`` /
+    ``recover_by``, and it inherits ``Compact``, whose serializer PRUNES any
+    field equal to None - which would silently delete the very nulls this
+    contract exists to preserve.
+
+    The full behaviour lives in ``tests/test_session_lifecycle.py``; what is
+    kept here is the pair of sentences this file already owned, so that the
+    reshape cannot quietly drop the second-call case.
+    """
     store = SessionStore(session_file)
     store.save(TOKEN, method="test")
     assert session_file.is_file()
 
     first = await server.uplers_logout()
 
-    assert first.authenticated is False
-    assert first.token_present is False
-    assert "Token deleted" in first.reason
+    assert first["authenticated"] is False
+    assert first["cleared"] is True
+    assert "no credential left to send" in first["reason"]
     assert not session_file.exists()
     assert store.token() is None
 
     # A second logout is not an error - it is a different sentence.
     second = await server.uplers_logout()
-    assert second.authenticated is False
-    assert "no stored token to delete" in second.reason
+    assert second["authenticated"] is False
+    assert second["cleared"] is False
+    assert "no stored token to delete" in second["reason"]
 
 
 async def test_login_turns_a_missing_browser_into_a_result_not_a_crash(monkeypatch):

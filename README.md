@@ -702,13 +702,17 @@ capture time and their absence is asserted, in both the committed fixture and th
 because a shaped profile ends up in transcripts, logs and reports. The private key names are
 filtered out of `sections_present` too - "expected_ctc is populated" is itself a disclosure.
 
-### The 17 tools
+### The 19 tools
+
+(The heading read "17" while the table held 18 rows, from `uplers_my_assessments`
+landing without it being bumped. Corrected here rather than left to rot.)
 
 | Tool | What it is for |
 |---|---|
 | `uplers_login(wait_seconds=300)` | Opens a real browser window at Uplers' login page; you type, nothing else does. Stays open until Uplers confirms a signed-in session - not until a token appears. Returns in about a second if already signed in. |
 | `uplers_auth_status()` | Are we actually signed in? Measured with one real request, so `false` is a measurement. Three-valued - see the table above. Never returns the token. |
-| `uplers_logout()` | Forget the stored token. Leaves the persistent browser profile alone. |
+| `uplers_session_info(verify_live=True)` | How long the session has left, and what happens when it ends. **Read `credential.expiry_is_authoritative` first: on Uplers it is always `false`.** The stored JWT's `exp` sits about six months out and that date is a ceiling the token *claims*, not a promise Uplers keeps - they revoke server-side within roughly a day. `verify_live=False` is free (no network, no browser) and returns `authenticated: null` with the reason. There is no `uplers_reauth`; `renewal.why` gives the evidence for why one is impossible here. |
+| `uplers_logout()` | Forget the stored token. Local only - nothing is signed out on Uplers' side, and the persistent browser profile is left alone. Says what was lost and names the way back. |
 | `uplers_my_feed(...)` | **The main authenticated read.** His personalised feed as Uplers orders it, each row carrying what he has already done about it (applied / saved / dismissed) and the ids the write tools need. Scored by the same jobcore scorer, so the numbers compare with `uplers_rank_opportunities` and with Naukri. |
 | `uplers_my_pipeline(...)` | His **actual** pipeline - the applications Uplers' recruiters are working, with their own `uplers_status` and `uplers_badge` ("Interviewed", "Slots Given", "Interview Scheduled"). Where this and `uplers_list_tracked` disagree, **this one is right**: the local tracker only holds what he told this server he did. |
 | `uplers_get_opportunity_live(hr_number, compare_public=False)` | One requisition as his account sees it. `compare_public=True` returns a field-level diff against the public record - the honest way to answer "is holding a session actually worth it", including when the answer is *no extra field for this one*. |

@@ -172,6 +172,13 @@ class TestNoToolResultCarriesALocalPath:
         server.uplers_login() drops `profile_dir` from auth's dict - so that
         removing that filter later fails here instead of quietly re-opening the
         leak.
+
+        SEVEN since 2026-08-23. `uplers_session_info(verify_live=False)` and
+        `uplers_logout()` both exist to say WHERE the credential is kept, which
+        makes them the two surfaces in this server most likely to publish an
+        absolute path - `durability.stored_in` and `scope` are each a rendered
+        path by design, not by accident. Both are offline, so they belong in
+        this sweep rather than in the live one.
         """
         make_profile()
         monkeypatch.setattr(server, "_open_store", store_factory)
@@ -217,6 +224,16 @@ class TestNoToolResultCarriesALocalPath:
             "uplers_list_profile_snapshots": payload_of(
                 await server.uplers_list_profile_snapshots()
             ),
+            # `durability.stored_in` renders the session file's path on
+            # purpose - it is the field that answers "where does my session
+            # actually live". Rendered, therefore sweepable.
+            "uplers_session_info": payload_of(
+                await server.uplers_session_info(verify_live=False)
+            ),
+            # `scope` names the file it just deleted, for the same reason.
+            # Safe to call here: session_file above points at tmp_path, so
+            # this deletes a file this test wrote.
+            "uplers_logout": payload_of(await server.uplers_logout()),
             # Carries `url` = "https://platform.uplers.com/...". Here to keep the
             # SWEEP honest in the other direction: an instrument that flags a
             # correct URL manufactures failures, and the fix for a manufactured

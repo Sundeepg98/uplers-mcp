@@ -2347,23 +2347,84 @@ async def uplers_auth_status() -> AuthStatus:
 
 
 @mcp.tool()
-async def uplers_logout() -> AuthStatus:
-    """Forget the stored Uplers token. The browser profile is left alone.
+async def uplers_session_info(verify_live: bool = True) -> dict:
+    """How long your Uplers session has left, and what happens when it ends.
+
+    The one thing to read carefully is `credential.expiry_is_authoritative`,
+    which on Uplers is always FALSE. The stored token is a JWT and its `exp`
+    claim sits about six months out - and that date is a CEILING THE TOKEN
+    CLAIMS, not a promise Uplers keeps. They revoke server-side far sooner;
+    expect to sign in again roughly daily. Reading that date as a runway is
+    the single way to be badly wrong about this server.
+
+    `authenticated` is measured, never inferred, and it can honestly be null:
+
+      true   - the probe route answered with your profile.
+      false  - Uplers refused the stored token. Run uplers_login().
+      null   - no verdict was obtained. NOT a refusal, and not a reason to
+               sign in again yet; `live_check.why_not` says what happened.
+
+    `expired` is null too when the expiry is not knowable - a Sanctum or
+    opaque token keeps its expiry on Uplers' servers, and "I cannot tell" is
+    not "it is fine".
+
+    There is no uplers_reauth, on purpose: this platform has nothing durable
+    to renew FROM, and `renewal.why` gives the evidence. Never returns the
+    token, a prefix of it, or its length.
+
+    Args:
+        verify_live: True spends one real request for a measured verdict.
+            False is free - no network, no browser - and `authenticated` comes
+            back null with the reason recorded.
+    """
+    store = _session_store()
+    if not verify_live:
+        return session_mod.session_info_offline(
+            store,
+            why_no_live_check=(
+                "not attempted: this call asked for the offline answer, so no "
+                "request was made and no verdict exists to report."
+            ),
+            attempted=False,
+        )
+    try:
+        async with _talent_client() as client:
+            return await session_mod.session_info(store, client)
+    except Exception as exc:  # pragma: no cover - defensive
+        # check_auth already turns a network failure into authenticated=None,
+        # so reaching here means the client could not even be built. The
+        # offline facts are still worth having, and they are what the operator
+        # asked for underneath the question.
+        return session_mod.session_info_offline(
+            store,
+            why_no_live_check=(
+                "the live check could not be run at all: %s"
+                % policy_mod.relativise_paths(
+                    "%s: %s" % (type(exc).__name__, exc), [str(store.path)]
+                )
+            ),
+            attempted=True,
+        )
+
+
+@mcp.tool()
+async def uplers_logout() -> dict:
+    """Delete the stored Uplers token from this machine. Cannot fail loudly.
+
+    LOCAL ONLY. It removes this server's copy of the bearer token and nothing
+    else: you are NOT signed out on Uplers' side, and the persistent browser
+    profile is left exactly as it is, so uplers_login() usually signs back in
+    within seconds and without a password.
+
+    The `authenticated: false` it returns is the one false in this server that
+    is not a measurement, and it is honest for a specific reason: with no
+    credential left there is no authenticated request that CAN be made from
+    here. `reason` says so rather than leaving you to assume it.
 
     Use it when handing the machine over, or to force the next call to
-    re-authenticate. The persistent browser profile is NOT cleared, so
-    uplers_login() will usually sign back in without a password.
+    re-authenticate. The public tier is untouched and keeps working.
     """
-    removed = _session_store().clear()
-    return AuthStatus(
-        authenticated=False,
-        token_present=False,
-        reason=(
-            "Token deleted. Run uplers_login() to sign in again."
-            if removed
-            else "There was no stored token to delete."
-        ),
-    )
+    return session_mod.logout_report(_session_store())
 
 
 # --------------------------------------------------------------- reads ----

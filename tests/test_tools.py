@@ -77,6 +77,12 @@ TIER2_TOOL_NAMES = {
 AUTH_TOOL_NAMES = {
     "uplers_login",
     "uplers_auth_status",
+    # The session-lifecycle pair, added 2026-08-23 under the four-server auth
+    # contract. `uplers_session_info` also answers with verify_live=False, at
+    # which point it needs no session at all - it is filed here anyway,
+    # because what it REPORTS ON is this tier and grouping it with the public
+    # readers would hide that.
+    "uplers_session_info",
     "uplers_logout",
     "uplers_my_feed",
     "uplers_my_pipeline",
@@ -194,7 +200,7 @@ def wire_client(monkeypatch, handler):
 async def test_importing_server_registers_exactly_the_expected_tools():
     tools_listed = await server.mcp.list_tools()
 
-    assert len(tools_listed) == 42
+    assert len(tools_listed) == 43
     assert {tool.name for tool in tools_listed} == TOOL_NAMES
     # The five original board tools must survive every later addition.
     assert BOARD_TOOL_NAMES <= {tool.name for tool in tools_listed}
@@ -207,6 +213,13 @@ async def test_importing_server_registers_exactly_the_expected_tools():
     # And the surface that can change HIM stays exactly two: the write and its
     # undo. Nothing else may ever POST to his profile.
     assert len(PROFILE_WRITE_TOOL_NAMES) == 2
+    # No `uplers_reauth`, and the absence is deliberate rather than pending.
+    # Ruled 2026-08-23 with evidence: Uplers' durable layer is the token and
+    # its SHORT layer is the browser profile - backwards from the siblings -
+    # so there is nothing to renew from and a reauth here would be
+    # `uplers_login` under another name. The reasoning ships to the operator
+    # in uplers_session_info().renewal.why; this line is the tripwire.
+    assert "uplers_reauth" not in {tool.name for tool in tools_listed}
 
 
 async def test_every_tool_description_carries_its_docstring():
