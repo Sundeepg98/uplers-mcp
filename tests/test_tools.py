@@ -139,6 +139,9 @@ WRITE_TOOL_NAMES = {
 LOCAL_WRITE_TOOL_NAMES = {
     "uplers_sync_profile_from_uplers",
     "uplers_list_profile_snapshots",
+    # A pure disk read, filed beside its exact sibling above rather than in a
+    # set of its own: it lists resume restore points and cannot reach Uplers.
+    "uplers_list_resume_snapshots",
 }
 
 #: The tools that can change HIM on Uplers, as opposed to acting on a
@@ -146,11 +149,21 @@ LOCAL_WRITE_TOOL_NAMES = {
 #: kind of act with a different worst case: `uplers_apply` sends an
 #: application that cannot be withdrawn, which is irreversible but bounded -
 #: one job. These replace a whole field on his profile, and the worst case is
-#: losing data he typed in by hand. Both are confirm-gated; only these two
-#: snapshot first, because only these two can destroy something.
+#: losing data he typed in by hand. All four are confirm-gated and all four
+#: snapshot before they send, because all four can destroy something.
+#:
+#: The resume pair is the newest and the sharpest. The profile pair overwrites
+#: JSON this server also holds a copy of; the resume pair overwrites a FILE
+#: that Uplers keeps no previous copy of - no history, no versions, no revert
+#: route, and a download route that takes no "which resume" parameter. So for
+#: those two the pre-flight snapshot is not a safety margin on top of a
+#: recoverable act, it IS the only rollback in existence, which is why
+#: `resume_write` refuses to send at all when the snapshot cannot be taken.
 PROFILE_WRITE_TOOL_NAMES = {
     "uplers_update_profile",
     "uplers_restore_profile",
+    "uplers_replace_resume",
+    "uplers_restore_resume",
 }
 
 #: The shared-config surface, kept apart from every other set because its
@@ -229,7 +242,7 @@ def wire_client(monkeypatch, handler):
 async def test_importing_server_registers_exactly_the_expected_tools():
     tools_listed = await server.mcp.list_tools()
 
-    assert len(tools_listed) == 50
+    assert len(tools_listed) == 53
     assert {tool.name for tool in tools_listed} == TOOL_NAMES
     # The seven agent-read tools are READS. The counts below are what stops
     # that sentence from quietly becoming untrue: none of them may appear in
@@ -246,9 +259,19 @@ async def test_importing_server_registers_exactly_the_expected_tools():
     assert len(WRITE_TOOL_NAMES) == 2
     # And exactly one tool may write the SHARED config other servers read.
     assert len(CONFIG_TOOL_NAMES) == 1
-    # And the surface that can change HIM stays exactly two: the write and its
-    # undo. Nothing else may ever POST to his profile.
-    assert len(PROFILE_WRITE_TOOL_NAMES) == 2
+    # And the surface that can change HIM stays exactly four: two writes and
+    # the undo each one ships with. Nothing else may ever POST to his profile.
+    # Moved 2 -> 4 on 2026-08-24 for the resume pair, as a typed decision -
+    # which is the whole point of this line being here to be edited.
+    assert len(PROFILE_WRITE_TOOL_NAMES) == 4
+    # An "every write pairs with an undo" assertion was written here and then
+    # DELETED, because planting a control proved it could not fail: the set is
+    # already pinned exactly by the TOOL_NAMES equality above and by this len,
+    # so every mutation that would have violated the pairing was caught two
+    # lines earlier and the pairing line was never reached. A check that cannot
+    # go red certifies nothing and reads as though it does. The pairing is
+    # enforced where it can actually fail - tests/test_resume_write.py, where
+    # removing the snapshot guard makes the write tests go red.
     # No `uplers_reauth`, and the absence is deliberate rather than pending.
     # Ruled 2026-08-23 with evidence: Uplers' durable layer is the token and
     # its SHORT layer is the browser profile - backwards from the siblings -

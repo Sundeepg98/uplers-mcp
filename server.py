@@ -48,6 +48,7 @@ from uplers_server import (
     policy as policy_mod,
     profile as prof,
     profile_write,
+    resume_write,
     scheduler as sched_mod,
     search as search_mod,
     sync as sync_mod,
@@ -3229,6 +3230,111 @@ async def uplers_agent_settings() -> dict:
         auto_reply=agent_surface.shape_auto_reply(auto_reply_raw),
         blocked=agent_surface.shape_disabled_companies(blocked_raw),
     )
+
+
+# --------------------------------------------------------------- tool 51 ---
+#
+# The resume write. Read `uplers_server/resume_write.py` before touching any of
+# the three tools below. Uplers keeps NO previous copy of a resume - VERIFIED
+# absences across their whole production bundle, and their download route takes
+# no "which resume" parameter - so the pre-flight snapshot is not a convenience,
+# it is the entire rollback story. Everything in that module is a guard around
+# taking it BEFORE the write, or around the restore being turned into a delete.
+
+
+@mcp.tool()
+async def uplers_replace_resume(file_path: str, confirm: bool = False) -> dict:
+    """Replace the resume Uplers recruiters see. Previews by default.
+
+    This changes who you are on Uplers rather than acting on a job, and it is
+    the only write here that acts on a FILE. Whether it SHOULD run is not this
+    server's call.
+
+    READ THIS BEFORE CONFIRMING. Uplers keeps no previous copy: no history, no
+    version list, no archive, and no revert route anywhere in their product.
+    The only rollback that exists is the snapshot this tool takes BEFORE the
+    write - their own download route has no "which resume" parameter, so once
+    the replacement lands it returns the new file and the old one is
+    unreachable. If the snapshot cannot be taken, or cannot be written to disk,
+    or comes back in a form that cannot be re-uploaded, THE WRITE DOES NOT
+    HAPPEN. That is a precondition, not a warning.
+
+    The snapshot restores the FILE, not the RECORD. Anything Uplers derived
+    from the old resume - parsed profile fields, a health score, a tailored
+    variant - is not put back by re-uploading bytes.
+
+    And the blast radius is UNRESOLVED. The bundle names a profile-completion
+    recompute and nothing else, but whether Uplers re-parses, re-scores,
+    notifies a recruiter or touches already-submitted applications could not be
+    determined from a client bundle, and absence of evidence there is not
+    evidence of absence on their server. Do not read this write as contained.
+
+    With confirm=False it returns the exact request it would send, tells you
+    whether a restore point can be taken, and changes nothing.
+
+    Args:
+        file_path: the new resume. pdf or docx, 2 MB maximum - Uplers' own
+            gate, mirrored to the byte.
+        confirm: False previews. True snapshots, then sends.
+    """
+    async with _talent_client() as client:
+        return await resume_write.replace_resume(
+            client,
+            file_path,
+            confirm=confirm,
+            send=resume_write.sender_for(client, endpoints.EP_PROFILE_UPSERT),
+        )
+
+
+@mcp.tool()
+async def uplers_restore_resume(
+    snapshot_id: str | None = None, confirm: bool = False
+) -> dict:
+    """Put a snapshotted resume back on your profile. Previews by default.
+
+    Snapshots are written automatically before every uplers_replace_resume()
+    write. This uploads one of them again.
+
+    It is a fresh upload through the same replacement route, not a revert, so
+    it is exactly as destructive as the thing it undoes: whatever is on the
+    profile now is replaced by what the snapshot holds. That state is itself
+    snapshotted first. Preview before confirming.
+
+    Args:
+        snapshot_id: which restore point. Omit for the most recent.
+        confirm: False previews. True sends the write.
+    """
+    async with _talent_client() as client:
+        return await resume_write.restore_resume(
+            client,
+            snapshot_id,
+            confirm=confirm,
+            send=resume_write.sender_for(client, endpoints.EP_PROFILE_UPSERT),
+        )
+
+
+@mcp.tool()
+async def uplers_list_resume_snapshots() -> dict:
+    """Resume restore points, newest first. Reads disk only, needs no session.
+
+    One is written before every uplers_replace_resume() write and one before
+    every restore. Each entry names the file, its size and its sha256, and says
+    whether it can be re-uploaded. An empty list means this server has never
+    replaced your Uplers resume.
+    """
+    entries = resume_write.list_snapshots()
+    return {
+        "snapshots": entries,
+        "directory": policy_mod.display_path(str(resume_write.snapshots_dir())),
+        "notes": (
+            []
+            if entries
+            else [
+                "No resume snapshots. This server has never replaced your Uplers "
+                "resume."
+            ]
+        ),
+    }
 
 
 @mcp.tool()
