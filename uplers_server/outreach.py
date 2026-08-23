@@ -123,6 +123,7 @@ ROUTE_DASHBOARD = endpoints.EP_OUTREACH_DASHBOARD
 ROUTE_PENDING = endpoints.EP_OUTREACH_PENDING
 ROUTE_MISSED = endpoints.EP_OUTREACH_MISSED_FOLLOWUPS
 ROUTE_ACTIVITY = endpoints.EP_OUTREACH_ACTIVITY
+ROUTE_AGENT_META = endpoints.EP_OUTREACH_AGENT_META
 
 #: The ONLY two success idioms MEASURED on the five routes above. The string
 #: belongs to outreach-step alone; the integer to the other four. Read at call
@@ -991,7 +992,65 @@ def _cross_check(claim: str, **values: Any) -> dict:
     }
 
 
-def agent_readthrough(*, plan, dashboard, pending, missed, activity) -> dict:
+def shape_agent_meta(payload: dict) -> dict:
+    """Reply totals from ``talent/outreach/get-outreach-agent-meta``.
+
+    THE ONLY ROUTE IN THIS RING THAT COUNTS THE ANSWERS THAT SAID NO. Every
+    other counter here is about positives - the dashboard's
+    ``total_positive_replies`` and ``total_unseen_replies``, and
+    ``missed-positive-reply-followups``, which returns the positive threads by
+    name. So the report could say "8 positive replies came back" and leave the
+    impression that eight was what came back. MEASURED LIVE 2026-08-23:
+    ``{total_positive_replies: 8, total_negative_replies: 2}``. Ten people
+    answered.
+
+    The negatives are NOT actionable in the way the positives are, and this
+    does not pretend otherwise: no rows, no names, no threads - Uplers returns
+    counts here and nothing else. What it changes is the denominator, which is
+    the difference between "8 replies" and "8 of 10 replies".
+
+    ``total_positive_replies`` also appears on the dashboard, on a different
+    route, so :func:`agent_readthrough` holds the two against each other rather
+    than assuming a shared source.
+    """
+    data = unwrap(payload, route=ROUTE_AGENT_META, expect=dict)
+    positive = _int(data.get("total_positive_replies"))
+    negative = _int(data.get("total_negative_replies"))
+
+    answered = None
+    if positive is not None and negative is not None:
+        answered = positive + negative
+
+    notes: list[str] = []
+    if negative:
+        notes.append(
+            "%d repl%s came back NEGATIVE. Uplers returns a count here and "
+            "nothing else - no company, no thread, no wording - so this says "
+            "how many said no and cannot say which. It is reported because "
+            "every other reply counter in this report is a positive one, and "
+            "%s is a different fact from %s."
+            % (
+                negative,
+                "y" if negative == 1 else "ies",
+                "%d of %d answered" % (positive, answered)
+                if answered
+                else "the positive count",
+                "the positive count alone",
+            )
+        )
+
+    return {
+        "route": ROUTE_AGENT_META,
+        "positive": positive,
+        "negative": negative,
+        "answered": answered,
+        "notes": notes,
+    }
+
+
+def agent_readthrough(
+    *, plan, dashboard, pending, missed, activity, agent_meta=None
+) -> dict:
     """The one report a human reads. Takes the five ALREADY-SHAPED dicts.
 
     Pure, and assembles nothing it was not given: every number below comes out
@@ -1017,6 +1076,14 @@ def agent_readthrough(*, plan, dashboard, pending, missed, activity) -> dict:
     pending = _require_shape(pending, name="pending", route=ROUTE_PENDING)
     missed = _require_shape(missed, name="missed", route=ROUTE_MISSED)
     activity = _require_shape(activity, name="activity", route=ROUTE_ACTIVITY)
+    # OPTIONAL, unlike the five above, and deliberately so: it was added after
+    # this report shipped, so a caller written against the old signature must
+    # keep working. Absent means the negative count is simply not reported -
+    # never a zero, which would be a claim that nobody said no.
+    if agent_meta is not None:
+        agent_meta = _require_shape(
+            agent_meta, name="agent_meta", route=ROUTE_AGENT_META
+        )
 
     replies = dashboard.get("replies", {})
     runs = dashboard.get("runs", {})
@@ -1101,6 +1168,16 @@ def agent_readthrough(*, plan, dashboard, pending, missed, activity) -> dict:
             pending_rows=pending.get("count"),
         ),
     ]
+    # Two DIFFERENT routes count the positive replies. They agreed on capture,
+    # which is worth checking rather than assuming they share a source.
+    if agent_meta is not None:
+        cross_checks.append(
+            _cross_check(
+                "positive replies",
+                dashboard_total=positive,
+                agent_meta_total=agent_meta.get("positive"),
+            )
+        )
 
     # --- disagreements ---------------------------------------------------
     disagreements = list(dashboard.get("disagreements", []))
@@ -1206,6 +1283,15 @@ def agent_readthrough(*, plan, dashboard, pending, missed, activity) -> dict:
             "waiting": len(rows),
             "window_days": missed.get("window_days"),
             "oldest_age_days": oldest.get("age_days") if oldest else None,
+            # The answers that said NO, from the one route that counts them.
+            # None when that route was not read - never 0, because "not asked"
+            # and "nobody said no" are opposite facts.
+            "negative_replies": (
+                agent_meta.get("negative") if agent_meta is not None else None
+            ),
+            "total_answered": (
+                agent_meta.get("answered") if agent_meta is not None else None
+            ),
             "rows": rows,
         },
         "channels": {
@@ -1248,6 +1334,7 @@ def agent_readthrough(*, plan, dashboard, pending, missed, activity) -> dict:
         "notes": (
             list(plan.get("notes", []))
             + list(dashboard.get("notes", []))
+            + list(agent_meta.get("notes", []) if agent_meta is not None else [])
             + list(pending.get("notes", []))
             + list(missed.get("notes", []))
             + list(activity.get("notes", []))

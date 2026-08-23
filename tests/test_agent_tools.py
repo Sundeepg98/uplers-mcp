@@ -31,6 +31,7 @@ import pytest
 
 import server
 from uplers_server import endpoints
+from uplers_server import outreach
 from uplers_server import session as session_mod
 from uplers_server import saved_filter
 from uplers_server.saved_filter import SavedFilterRefused
@@ -124,6 +125,17 @@ OUTREACH_BODIES = {
             }],
         },
     },
+    # The sixth route, added 2026-08-24. It is the ONLY one that counts the
+    # replies that said no, which is why the readthrough grew a request for it.
+    # The positive total is deliberately the SAME number the dashboard body
+    # above carries, because the report cross-checks the two against each other
+    # and a fixture that made them differ would be testing a disagreement that
+    # was never measured.
+    endpoints.EP_OUTREACH_AGENT_META: {
+        "status": 200,
+        "message": "ok",
+        "data": {"total_positive_replies": 8, "total_negative_replies": 2},
+    },
 }
 
 
@@ -187,14 +199,72 @@ class TestNothingHereWrites:
         await server.uplers_agent_readthrough()
 
         assert writes(calls) == []
-        assert len(calls) == 5
+        assert len(calls) == 6
         assert sorted(call.url.path.split("/api/")[-1] for call in calls) == sorted([
             endpoints.EP_OUTREACH_STEP,
             endpoints.EP_OUTREACH_DASHBOARD,
             endpoints.EP_OUTREACH_PENDING,
             endpoints.EP_OUTREACH_MISSED_FOLLOWUPS,
             endpoints.EP_OUTREACH_ACTIVITY,
+            endpoints.EP_OUTREACH_AGENT_META,
         ])
+
+    async def test_it_reports_the_replies_that_said_no(self, monkeypatch):
+        """Every other reply counter in this report is a POSITIVE one.
+
+        The dashboard counts positive and unseen; missed-positive-reply-followups
+        returns the positive threads by name. So "8 positive replies came back"
+        read as the whole of what came back, and it was not - two more people
+        answered and said no. That changes the denominator, which is the
+        difference between "8 replies" and "8 of 10".
+        """
+        wire(monkeypatch, by_route(OUTREACH_BODIES))
+
+        report = await server.uplers_agent_readthrough()
+
+        assert report["needs_reply"]["negative_replies"] == 2
+        assert report["needs_reply"]["total_answered"] == 10
+        assert report["needs_reply"]["positive_replies"] == 8
+        # And the two routes that both count positives are held against each
+        # other rather than assumed to share a source.
+        check = next(
+            item for item in report["cross_checks"]
+            if item["claim"] == "positive replies"
+        )
+        assert check["agree"] is True
+
+    async def test_an_unread_meta_route_reports_none_and_never_zero(self):
+        """__CONTROL, and the distinction it guards is the whole point.
+
+        `agent_meta` is optional, so a caller on the old five-request signature
+        still works. What must never happen is that absence rendering as 0:
+        "nobody said no" and "we did not ask" are opposite facts, and a zero
+        would assert the first while meaning the second.
+        """
+        shaped = outreach.agent_readthrough(
+            plan=outreach.shape_agent_plan(
+                OUTREACH_BODIES[endpoints.EP_OUTREACH_STEP], today="2026-08-24"
+            ),
+            dashboard=outreach.shape_agent_dashboard(
+                OUTREACH_BODIES[endpoints.EP_OUTREACH_DASHBOARD]
+            ),
+            pending=outreach.shape_pending_jobs(
+                OUTREACH_BODIES[endpoints.EP_OUTREACH_PENDING]
+            ),
+            missed=outreach.shape_missed_followups(
+                OUTREACH_BODIES[endpoints.EP_OUTREACH_MISSED_FOLLOWUPS],
+                now="2026-08-24T00:00:00+05:30",
+            ),
+            activity=outreach.shape_activity(
+                OUTREACH_BODIES[endpoints.EP_OUTREACH_ACTIVITY]
+            ),
+        )
+
+        assert shaped["needs_reply"]["negative_replies"] is None
+        assert shaped["needs_reply"]["total_answered"] is None
+        assert not any(
+            item["claim"] == "positive replies" for item in shaped["cross_checks"]
+        )
 
     async def test_no_tool_added_today_reaches_a_write_route(self, monkeypatch):
         """All four together, against one transport, one census at the end."""

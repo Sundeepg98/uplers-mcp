@@ -3426,7 +3426,7 @@ async def uplers_agent_readthrough() -> dict:
     address and the verbatim body of their message do not need to be printed
     into a transcript to answer them. Open the thread.
 
-    Read-only, no arguments. Costs five requests.
+    Read-only, no arguments. Costs six requests.
     """
     async with _talent_client() as client:
         plan_raw = await client.get_json(endpoints.EP_OUTREACH_STEP, None)
@@ -3434,6 +3434,7 @@ async def uplers_agent_readthrough() -> dict:
         pending_raw = await client.get_json(endpoints.EP_OUTREACH_PENDING, None)
         missed_raw = await client.get_json(endpoints.EP_OUTREACH_MISSED_FOLLOWUPS, None)
         activity_raw = await client.get_json(endpoints.EP_OUTREACH_ACTIVITY, None)
+        meta_raw = await client.get_json(endpoints.EP_OUTREACH_AGENT_META, None)
 
     now = datetime.now().astimezone()
     return outreach_mod.agent_readthrough(
@@ -3442,6 +3443,7 @@ async def uplers_agent_readthrough() -> dict:
         pending=outreach_mod.shape_pending_jobs(pending_raw),
         missed=outreach_mod.shape_missed_followups(missed_raw, now=now.isoformat()),
         activity=outreach_mod.shape_activity(activity_raw),
+        agent_meta=outreach_mod.shape_agent_meta(meta_raw),
     )
 
 

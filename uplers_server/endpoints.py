@@ -166,6 +166,20 @@ EP_OUTREACH_AUTO_REPLY = "talent/outreach/get-auto-reply"
 #: reports that a template EXISTS and what its SUBJECT is, never the body.
 EP_OUTREACH_TEMPLATES = "talent/outreach/get-message-templates"
 
+#: THE ONLY ROUTE THAT COUNTS THE REPLIES THAT SAID NO. Everything else in
+#: this ring counts positives: the dashboard reports `total_positive_replies`
+#: and `total_unseen_replies`, `missed-positive-reply-followups` returns the
+#: positive threads by name. So "8 positive replies" read as the whole story of
+#: what came back, and it was not - MEASURED LIVE 2026-08-23:
+#: ``{total_positive_replies: 8, total_negative_replies: 2}``. Ten people
+#: answered, not eight.
+#:
+#: It is also a genuine CROSS-CHECK rather than just an addition: it reports
+#: `total_positive_replies` on a different route from the dashboard, so the two
+#: can be held against each other. They agreed on capture, which is a fact
+#: worth having rather than an assumption worth making.
+EP_OUTREACH_AGENT_META = "talent/outreach/get-outreach-agent-meta"
+
 #: What UPLERS thinks he wants, which is not what this server's profile says.
 #: Fit scores here come from our own profile; Uplers ranks him against these.
 #: Seeing both is how a disagreement between the two becomes visible at all.
