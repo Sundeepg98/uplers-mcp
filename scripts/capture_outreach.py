@@ -56,21 +56,90 @@ SUSPICIOUS = re.compile(
     re.IGNORECASE,
 )
 
-#: Deleted outright wherever they appear, at any depth.
+#: DELETED outright at any depth, so a test can assert their ABSENCE and a
+#: future recapture cannot quietly reintroduce one. Pay, identity documents,
+#: and every URL that resolves to a personal file.
 DROP = (
-    "email", "contact_number", "contact_number_country_code", "address",
-    "profile_pic", "profile_pic_url", "resume", "resume_url", "dob",
-    "linkedin_id", "token", "guest_token", "access_token",
+    "current_ctc", "expected_ctc", "monthly_salary", "ctc_breakdown",
+    "dob", "contact_number", "contact_number_country_code", "address",
+    "email", "profile_pic", "profile_pic_url", "resume", "resume_url",
+    "original_resume", "ra_resume_url", "ra_profile_pic_url",
+    "ra_repository_url", "linkedin_id",
+    "token", "guest_token", "access_token",
 )
 
+#: MASKED rather than dropped, and the difference is deliberate.
+#:
+#: `missed-positive-reply-followups` is the only route here that returns OTHER
+#: PEOPLE - named humans at named companies, their business email, their
+#: LinkedIn profile, and the words they wrote back. Deleting those keys would
+#: make the fixture unable to test the shaper that exists to surface them, so
+#: the KEY survives and the VALUE is replaced by a synthetic of the same shape.
+#: Placeholders use the RFC 2606 reserved `.invalid` TLD, which can never
+#: resolve, so a fixture that leaks into a request cannot reach anybody.
+#:
+#: `reply_category` is NOT masked: it is a platform-generated enum, not a
+#: person's words, and it is the field the shaper actually reads.
+#: `thread_subject` is likewise Uplers' own template output, not correspondence.
+MASK = {
+    "contact_display": "contact%d@example.invalid",
+    "contact_value": "contact%d@example.invalid",
+    "employee_business_email": "contact%d@example.invalid",
+    "to_email": "contact%d@example.invalid",
+    "from_email": "operator%d@example.invalid",
+    "employee_linkedin_url": "https://www.linkedin.com/in/redacted-contact-%d",
+    "employee_name": "Redacted Contact %d",
+    "message_full": "Redacted reply body %d. The category field carries the meaning.",
+    "reply_summary": "Redacted reply summary %d.",
+    "gmail_thread_id": "redacted-thread-%d",
+}
 
-def scrub(node):
-    """Delete DROP keys at every depth. Returns a new structure."""
+#: Proof the redaction worked, re-read off disk rather than off the object that
+#: was written. Anything matching these outside the placeholder space is a leak.
+EMAIL = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
+LINKEDIN_PROFILE = re.compile(r"linkedin\.com/in/", re.IGNORECASE)
+PLACEHOLDER_EMAIL = re.compile(r"^[a-z]+\d+@example\.invalid$")
+PLACEHOLDER_LINKEDIN = re.compile(r"^https://www\.linkedin\.com/in/redacted-contact-\d+$")
+
+
+def redact(node, counter=None):
+    """Delete DROP keys and mask MASK keys, at any depth. Returns a new tree."""
+    if counter is None:
+        counter = {}
     if isinstance(node, dict):
-        return {k: scrub(v) for k, v in node.items() if k not in DROP}
+        out = {}
+        for key, value in node.items():
+            if key in DROP:
+                continue
+            if key in MASK and isinstance(value, str) and value:
+                counter[key] = counter.get(key, 0) + 1
+                out[key] = MASK[key] % counter[key]
+            else:
+                out[key] = redact(value, counter)
+        return out
     if isinstance(node, list):
-        return [scrub(item) for item in node]
+        return [redact(item, counter) for item in node]
     return node
+
+
+def strings(node, trail="$"):
+    if isinstance(node, dict):
+        for key, value in node.items():
+            yield from strings(value, "%s.%s" % (trail, key))
+    elif isinstance(node, list):
+        for index, item in enumerate(node):
+            yield from strings(item, "%s[%d]" % (trail, index))
+    elif isinstance(node, str):
+        yield (trail, node)
+
+
+def contact_leaks(node):
+    """Every string that still looks like a real contact route."""
+    for trail, text in strings(node):
+        if EMAIL.search(text) and not PLACEHOLDER_EMAIL.match(text):
+            yield ("email", trail, text)
+        elif LINKEDIN_PROFILE.search(text) and not PLACEHOLDER_LINKEDIN.match(text):
+            yield ("linkedin", trail, text)
 
 
 def suspicious_keys(node, trail="$"):
@@ -82,6 +151,16 @@ def suspicious_keys(node, trail="$"):
     elif isinstance(node, list):
         for index, item in enumerate(node):
             yield from suspicious_keys(item, "%s[%d]" % (trail, index))
+
+
+def write_fixture(target: Path, body) -> list:
+    """Redact, write, then re-read and prove it. Returns the leaks found."""
+    clean = redact(body)
+    target.write_text(json.dumps(clean, indent=2, sort_keys=True), encoding="utf-8")
+    reread = json.loads(target.read_text(encoding="utf-8"))
+    return sorted(set(contact_leaks(reread))) + [
+        ("suspicious-key", trail, "") for trail in sorted(set(suspicious_keys(reread)))
+    ]
 
 
 async def main() -> int:
@@ -103,15 +182,14 @@ async def main() -> int:
                 print("%-26s FAILED  %s: %s" % (stem, type(exc).__name__, exc))
                 continue
 
-            clean = scrub(body)
-            flagged = sorted(set(suspicious_keys(clean)))
-            target.write_text(json.dumps(clean, indent=2, sort_keys=True), encoding="utf-8")
-            print("%-26s %6d bytes  top=%s%s" % (
-                stem,
-                target.stat().st_size,
-                sorted(clean)[:6] if isinstance(clean, dict) else type(clean).__name__,
-                ("  SUSPICIOUS=%s" % flagged) if flagged else "",
+            leaks = write_fixture(target, body)
+            print("%-26s %6d bytes%s" % (
+                stem, target.stat().st_size,
+                ("  LEAKED=%r" % leaks) if leaks else "  clean",
             ))
+            if leaks:
+                target.unlink()
+                print("  ^ deleted; fix DROP/MASK before re-running")
     print("requests made: %d" % client.requests_made)
     return 0
 
