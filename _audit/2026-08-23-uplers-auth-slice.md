@@ -367,4 +367,82 @@ presence-based build cannot reach them. Recorded in the control's docstring.
 
 README's `uplers_session_info` row extended with both fields.
 
-Commit: PENDING (filled in below after the commit lands).
+Commit: **`fa22b49926327349bed520e6a79bc88ffea5f0ac`** on `master`, PUSHED.
+CI run 32615270470: success.
+
+---
+
+# ATTRIBUTION - `fa22b49` is NOT all my work
+
+Recorded because a commit whose message describes one change and whose diff
+contains 6,289 lines of another is a trap for whoever reads this history next.
+
+`fa22b49` was committed with `git add -A` in a tree I do not exclusively own.
+It swept in EIGHT files belonging to **`build-uplers`**, which was mid-slice at
+the time. I did not author them, did not review them, and had no part in them:
+
+    scripts/capture_outreach.py
+    tests/fixtures/outreach_dashboard.json
+    tests/fixtures/outreach_missed_followups.json
+    tests/fixtures/outreach_pending_jobs.json
+    tests/fixtures/outreach_step.json
+    tests/fixtures/outreach_tailor_activity.json
+    tests/fixtures/saved_filter_page.json
+    tests/fixtures/talent_preference.json
+
+Timeline, from mtimes:
+
+    08:48:35  my test file, last edit
+    08:49:08  my session.py, last edit
+    08:53:15  the eight alien files begin appearing
+    08:53:26  ... and finish
+    08:54:30  my commit, `git add -A`, sweeping all eight
+
+MY part of `fa22b49` is exactly five files: `uplers_server/session.py`,
+`tests/test_session_lifecycle.py`, `scripts/presence_is_auth_control.py`,
+`README.md`, and this document.
+
+WHAT WAS ADJUDICATED (wave lead, 2026-08-23):
+
+* **No history rewrite, permanently.** A shared branch with live CI is not
+  somewhere to relitigate a commit boundary, and a force-push would have
+  destroyed another agent's only committed copy of its work. Committed-and-
+  pushed is the RECOVERABLE state; interleaved uncommitted edits are the one
+  that cannot be got back.
+* **The eight files are not mine to move, delete or fix.** `build-uplers`
+  belongs to the team lead, who was given this timeline.
+* **This note is the remedy.** Attribution in the record, not surgery on the
+  history.
+
+TWO CORRECTIONS TO WHAT I FIRST REPORTED, both against me:
+
+1. I called this "a public repo". It is not. `gh repo view --json visibility`
+   returns **PRIVATE** for `Sundeepg98/uplers-mcp`, and the wave lead confirmed
+   all four servers in the family are private. I inferred visibility from a
+   push succeeding, which establishes nothing. The distinction is the whole
+   difference between a disclosure incident and an untidy commit, so it decides
+   who has to be woken up. **State visibility from `gh repo view --json
+   visibility`, never from a successful push.**
+2. The lead's independent secret sweep over all eight files found no JWTs, no
+   `Bearer` tokens, no `sessionid`, no passwords, no API keys. The only
+   email-shaped strings are `contact%d@example.invalid` /
+   `operator%d@example.invalid`, and `capture_outreach.py` carries its own
+   scrub map that also rewrites LinkedIn URLs. `build-uplers` built redaction
+   in BEFORE capturing. Scrubbed fixtures in a private repo: untidy history,
+   not exposed data.
+
+THE LESSON, which is the part worth keeping:
+
+**`git add -A` in a tree you do not exclusively own is the entire defect.** My
+own files were known to me by name at every moment; staging them explicitly
+would have made this impossible and cost nothing. Standing rule from here, in
+any shared tree: **stage by path, never by wildcard, and run `git status`
+IMMEDIATELY BEFORE committing rather than immediately after finishing.**
+
+That rule is already load-bearing rather than theoretical. At 09:12 on the same
+day, while preparing THIS commit, `git status` showed `build-uplers` live in the
+tree again with uncommitted modifications to three of the eight files above plus
+a new untracked `uplers_server/assessment_flags.py` written 52 seconds earlier.
+A second `git add -A` would have swept genuinely uncommitted in-flight work -
+the unrecoverable case, not the recoverable one this note describes. This commit
+stages one path explicitly: this file.
