@@ -20,4 +20,17 @@
 
 **Bounded by measurement:** `gh repo view` gives **PRIVATE, forkCount 0**, one owner, one remote - no third party ever had read access. Working tree and HEAD are clean. History surgery on a shared branch with live CI is his call. Capture now deletes pay keys, masks contact values, and **re-reads off disk to prove it**, deleting the file on a hit rather than printing a flag nobody reads.
 
-**Gate: 1214 passed locally; CI `32618031825` SUCCESS on all four legs** (ubuntu/windows x 3.11/3.13) at `b98b330`. Pushed to `master`. No AI co-author trailer.
+**THE TRANSFORM GRID - the clearance was wrong and so was my fix.** I was told to skip item zero because "uplers walks the whole assembled JWT strings plus a 12-character prefix"; that was retracted, and the retraction was right for a reason neither version stated: **the encoding does not have to live in the credential, it can live in the LEAK PATH.** `scripts/credential_echo_control.py` + `scripts/leak_matrix.py` (adapted from linkedin's, transform list kept identical so results compare) echo the test's OWN planted credential back out of eight guarded assertions under nine transforms. **72 cells, four runs:**
+
+| run | green | what it found |
+|---|---|---|
+| 1 | **52/72** | Not honest. Four columns green even under `verbatim` - impossible for a real detector. The plugin hooked `SessionStore.token`, but `describe()` calls `self.read()` and never goes through `token()`, so those tests had **no credential to echo**. THE INSTRUMENT WAS WRONG BEFORE THE SUBJECT WAS. |
+| 2 | **42/72** | The real baseline. `b64`, `b64url`, `hex` each caught by exactly ONE of eight assertions - and that one caught by STRUCTURE (an exact key-set assertion refusing an unknown key), not by value. **Every value-hunting assertion in the repo was blind to all three.** |
+| 3 | **27/72** | Detector given the encoded spellings, 12-character RUNS rather than whole strings, and a `JWT_SHAPE` regex needing no canary - the only rule that could catch his REAL token down a path no test planted into. |
+| 4 | **18/72** | The last two hand-rolled substring assertions routed through the detector. They were green under b64, b64url, hex, percent and split. |
+
+**Every remaining green is correct.** Fifteen are the log row and log column - a caplog test cannot see a payload leak and payload tests cannot see a log line; each catches what the other cannot. Three are `prefix12` on the JWT columns, where the first twelve characters are `eyJhbGciOiJI`, the base64 of a standard HS256 header, identifying nothing; the SANCTUM columns ARE red there because `42|bearer-to` does identify a credential. That discrimination is the detector working. Controls are **generated from the adversary's `TRANSFORMS` tuple**, so a spelling with no decision about it fails immediately; the three exemptions each assert that firing would be WRONG, and the list is pinned at three.
+
+Two things the grid taught that the fix would not have: the subtraction had to move to **run level** (removing whole shared fragments leaves every window inside them, so run-hunting brought the generic-header false positive straight back), and one of my own witnesses was invalid - `claims_segment[:12]` is `eyJzdWIiOiJ0`, which decodes to `{"sub":"t`, shared with the decoy and correctly subtracted. A witness chosen by position rather than uniqueness tests the decoy, not the rule.
+
+**Gate: 1245 passed locally; CI `32618031825` SUCCESS on all four legs** (ubuntu/windows x 3.11/3.13) at `b98b330`. Pushed to `master`. No AI co-author trailer.
