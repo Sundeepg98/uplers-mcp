@@ -284,7 +284,7 @@ RE-MEASURED block, per the house form.
 
 README's `uplers_session_info` row extended with the field.
 
-Commit: PENDING (filled in below after the commit lands).
+Commit: **`cf1e005a3451d7426a1dd5cb7cffcca740d47bd5`** on `master`, PUSHED.
 
 Constraints held again: `uplers_apply` never called; real `data/session.json`
 untouched (mtime still `Aug 21 11:06`); no browser; strict ASCII; no AI trailer.
