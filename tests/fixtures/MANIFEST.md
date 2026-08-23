@@ -228,10 +228,31 @@ file it just wrote and hunts every string for an email or a `linkedin.com/in/` U
 placeholder space. A hit DELETES the file rather than leaving a half-clean fixture looking
 finished.
 
-**Known-bad history.** The raw, pre-redaction versions of these files were swept into `fa22b49` by
-a concurrent `git add -A` and are on `origin/master`. `git show fa22b49:tests/fixtures/outreach_missed_followups.json`
-still matches the real contact strings. The repo is PRIVATE with 0 forks and one owner (`gh repo
-view`), so no third party ever had read access; history surgery on a shared branch with live CI is
-the operator's call. Recorded here because `d35646a` reported the opposite - "an independent secret
-sweep over all eight files found nothing sensitive" - and a false all-clear left in the record is
-worse than the untidy commit it describes.
+**Known-bad history, and why the redaction failed.** The raw versions of these files were swept into
+`fa22b49` by a concurrent `git add -A` and are on `origin/master`. On that blob,
+`outreach_missed_followups.json` has **37 lines carrying an email-shaped string and 7 carrying a
+LinkedIn profile URL, across 8 distinct real addresses**, and `talent_preference.json` still reads
+`current_ctc "1650000"`. The repo is PRIVATE with 0 forks and one owner (`gh repo view`), so no
+third party ever had read access; history surgery on a shared branch with live CI is the operator's
+call.
+
+A redaction map **did** exist when those were captured - `git show fa22b49 --name-status` shows
+`scripts/capture_outreach.py` added in the same commit - and it failed three ways, which is the
+part worth keeping:
+
+1. `DROP` tested EXACT key membership and held `email`. The real keys are `to_email`, `from_email`,
+   `employee_business_email`, `contact_value`, `contact_display`. Not one matched.
+2. The pay keys were not in `DROP` at all.
+3. **`SUSPICIOUS` saw the pay keys, printed them, and the write happened anyway.** The detector
+   fired and nothing consulted it.
+
+An advisory guard is not a guard. The six other fixtures came back clean because those routes carry
+no contact data, not because a filter caught anything - which is exactly what made a broken filter
+look like a working one. `tests/test_fixture_hygiene.py` is the non-advisory version, and it is
+calibrated against the `fa22b49` blob rather than against a mock.
+
+Two figures in this repo's own record were wrong and are corrected here: `d35646a` reported "an
+independent secret sweep over all eight files found nothing sensitive", and `b547ad0` reported both
+a count of 12 (a line-count over three hand-picked needles, presented as a total) and a diagnosis of
+"the scrub map was built AFTER the first capture". All three are false. A wrong all-clear in the
+record is worse than the untidy commit it describes.
