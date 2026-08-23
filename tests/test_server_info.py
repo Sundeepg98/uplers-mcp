@@ -257,3 +257,199 @@ class TestTheJobcoreStampSurvivesBothInstallations:
             assert new_way.version, new_way
         finally:
             jc.invalidate_cache()
+
+
+class TestTheDeclaredSurfaceMatchesReality:
+    """The payload's self-description is DECLARED, so this is where it is checked.
+
+    `uplers_server_info` reads module constants and reaches for nothing - no
+    `list_tools()`, no file, no git, no network - because it is the tool you
+    call when the server's behaviour is already under suspicion. The price of
+    that is a hand-maintained declaration, and a hand-maintained declaration
+    goes stale silently. So the derivation that the TOOL must not do, this
+    class does: every declared name is checked against the live registry, and
+    every declared count against the sets pinned in tests/test_tools.py.
+
+    THE ONE THAT MATTERS is
+    test_every_declared_write_name_is_a_registered_tool together with
+    test_the_declared_counts_match_the_pinned_sets. A new write landing without
+    a line in the declaration is exactly the staleness this tool exists to
+    catch, and a guard for it that could not go red would be worse than none -
+    it would manufacture confidence at the one point the operator is relying on
+    the server to tell the truth about its own blast radius. Both were planted
+    -controlled on 2026-08-24: adding a fake name to PROFILE_WRITE_TOOL_NAMES
+    reddens the first, and removing a real one from the declaration reddens the
+    second.
+    """
+
+    @staticmethod
+    async def _registered() -> set:
+        return {tool.name for tool in await server.mcp.list_tools()}
+
+    async def test_every_declared_write_name_is_a_registered_tool(self):
+        """A declaration naming a tool that does not exist is a lie in the
+        other direction, and it fails the same way: the reader trusts a census
+        that no longer describes the server."""
+        registered = await self._registered()
+
+        declared = (
+            list(server.REQUISITION_WRITE_TOOLS)
+            + list(server.PROFILE_WRITE_TOOLS)
+            + list(server.SHARED_CONFIG_WRITE_TOOLS)
+            + list(server.LOCAL_STATE_ONLY_TOOLS)
+            + list(server.IRREVERSIBLE_TOOLS)
+            + list(server.ONE_WAY_DOOR_TOOLS)
+        )
+
+        missing = sorted(name for name in declared if name not in registered)
+        assert missing == [], (
+            "declared in uplers_server_info but NOT a registered tool: %s" % missing
+        )
+
+    async def test_the_declared_counts_match_the_pinned_sets(self):
+        """The pinned sets in test_tools.py are the other end of the same rope.
+
+        They are what an operator edits by hand when a write lands - the count
+        assertions there exist to force that edit. This test makes the SAME
+        edit fall due here, so a write cannot land in the server, be admitted
+        to the pinned set, and still be invisible to the tool whose job is to
+        report it.
+        """
+        from test_tools import (
+            CONFIG_TOOL_NAMES,
+            LOCAL_WRITE_TOOL_NAMES,
+            PROFILE_WRITE_TOOL_NAMES,
+            WRITE_TOOL_NAMES,
+        )
+
+        assert set(server.REQUISITION_WRITE_TOOLS) == WRITE_TOOL_NAMES
+        assert set(server.PROFILE_WRITE_TOOLS) == PROFILE_WRITE_TOOL_NAMES
+        assert set(server.SHARED_CONFIG_WRITE_TOOLS) == CONFIG_TOOL_NAMES
+        assert set(server.LOCAL_STATE_ONLY_TOOLS) == LOCAL_WRITE_TOOL_NAMES
+
+        # and the counts the PAYLOAD prints, not just the constants behind it
+        payload = payload_of(await server.uplers_server_info())
+        writes = payload["writes"]
+
+        assert writes["reach_uplers"]["requisition"]["count"] == len(WRITE_TOOL_NAMES)
+        assert writes["reach_uplers"]["profile"]["count"] == len(
+            PROFILE_WRITE_TOOL_NAMES
+        )
+        assert writes["reach_the_shared_config"]["count"] == len(CONFIG_TOOL_NAMES)
+        assert set(writes["local_state_only"]["tools"]) == LOCAL_WRITE_TOOL_NAMES
+
+    async def test_the_resume_write_is_declared_a_one_way_door(self):
+        """uplers_replace_resume must appear, and NOT in the apply list.
+
+        Uplers keeps no previous copy of a resume, so the write is a one-way
+        door on THEIR side; this server makes it recoverable only by taking a
+        pre-flight snapshot to local disk. That is a different safety class
+        from uplers_apply, which nothing anywhere can undo. Reporting them as
+        one list would have to lie in one direction or the other, so this
+        asserts BOTH the presence and the separation.
+        """
+        payload = payload_of(await server.uplers_server_info())
+        block = payload["irreversible"]
+
+        one_way = block["one_way_door_on_uplers_recoverable_only_locally"]
+        assert "uplers_replace_resume" in one_way["tools"], block
+
+        # and it is NOT flattened into the no-undo-anywhere list, whose
+        # contract with every existing caller is `irreversible_tools`
+        no_undo = block["no_undo_anywhere_in_uplers"]
+        assert no_undo["tools"] == ["uplers_apply"], no_undo
+        assert "uplers_replace_resume" not in no_undo["tools"], no_undo
+        assert payload["irreversible_tools"] == ["uplers_apply"]
+
+        # the local snapshot is the whole difference, so it has to be stated
+        assert one_way["recoverable_by"] != no_undo["recoverable_by"]
+        assert "snapshot" in one_way["recoverable_by"].lower()
+
+    async def test_the_tool_counts_match_the_registry_and_the_banner(self):
+        """53, and the public/authenticated split, both derived rather than believed.
+
+        The split has exactly one definition: the `# THE AUTHENTICATED TIER`
+        banner in server.py. Which side of that physical line a tool is defined
+        on IS whether it needs an account, so the banner is parsed here rather
+        than the tiers prose being trusted.
+        """
+        import re
+        from pathlib import Path
+
+        registered = await self._registered()
+        counts = server.TOOL_COUNTS
+
+        assert counts["total"] == len(registered)
+
+        source = Path(server.__file__).read_text(encoding="utf-8").splitlines()
+        banners = [
+            index
+            for index, line in enumerate(source)
+            if line.startswith("# THE AUTHENTICATED TIER")
+        ]
+        assert len(banners) == 1, "the banner defines the split; there must be one"
+        banner = banners[0]
+
+        defined = re.compile(r"^async def (uplers_\w+)")
+        above, below = set(), set()
+        for index, line in enumerate(source):
+            match = defined.match(line)
+            if match:
+                (above if index < banner else below).add(match.group(1))
+
+        # every `async def uplers_*` in this module is a registered tool, so a
+        # helper sneaking into the count would fail here rather than skew it
+        assert above | below == registered, sorted(
+            (above | below) ^ registered
+        )
+        assert counts["public"] == len(above), sorted(above)
+        assert counts["authenticated"] == len(below), sorted(below)
+
+        # and the payload prints the same numbers it was built from
+        payload = payload_of(await server.uplers_server_info())
+        headline = payload["capabilities"][0]
+        assert "%d tools" % counts["total"] in headline, headline
+
+    async def test_the_declaration_is_not_derived_from_the_registry(self, monkeypatch):
+        """CONTROL for the property the whole design rests on.
+
+        The instrument is a `list_tools` that RAISES. A tool reading module
+        constants cannot notice; one that built its census by asking the
+        registry - which is the obvious implementation, and the one that would
+        make every assertion above tautological - dies on it. Without this,
+        "reads module constants and nothing else" is a docstring claim with no
+        measurement behind it.
+        """
+
+        async def explode():
+            raise RuntimeError("uplers_server_info must not call list_tools()")
+
+        monkeypatch.setattr(server.mcp, "list_tools", explode)
+
+        payload = payload_of(await server.uplers_server_info())
+
+        assert payload["writes"]["reach_uplers"]["requisition"]["count"] == 2
+        assert payload["capabilities"]
+        assert payload["out_of_scope_by_design"]
+        assert payload["known_limits"]
+
+    async def test_the_known_limits_carry_the_measured_404_routes(self):
+        """Recorded so nobody re-runs the probes that established them.
+
+        Both routes answered 404 on a live session with a good id, so the open
+        question is the parameter space and NOT the session - which is the one
+        thing a future session would otherwise get wrong, by assuming a fresh
+        login is the retry that changes the answer.
+        """
+        from uplers_server import endpoints
+
+        payload = payload_of(await server.uplers_server_info())
+        limits = payload["known_limits"]["measured_404"]
+
+        assert limits["routes"] == list(endpoints.MEASURED_404)
+        assert "talent/outreach/outreached-people" in limits["routes"]
+        assert "talent/outreach/get-employee-requests" in limits["routes"]
+        assert "PARAMETER SPACE" in limits["the_open_question"]
+
+        unresolved = payload["known_limits"]["unresolved_identifier_space"]
+        assert "UNTESTED" in unresolved["entitlement_is_untested_not_answered"]

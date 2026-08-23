@@ -381,6 +381,38 @@ class ServerInfo(Compact):
         default_factory=list,
         description="Tools whose effect CANNOT be undone from anywhere in Uplers' product",
     )
+    capabilities: list[str] = Field(
+        default_factory=list,
+        description="What this server can actually do, grouped rather than listed tool by tool",
+    )
+    writes: dict = Field(
+        default_factory=dict,
+        description=(
+            "The write census, counted by EFFECT and not by HTTP verb: what can "
+            "change on Uplers, what can change the shared config other servers "
+            "read, and what never leaves this disk. Pinned against the sets in "
+            "tests/test_tools.py."
+        ),
+    )
+    irreversible: dict = Field(
+        default_factory=dict,
+        description=(
+            "Two DIFFERENT safety classes, kept apart on purpose: what cannot be "
+            "undone anywhere in Uplers' product, and what is a one-way door on "
+            "Uplers' side that only a local pre-flight snapshot can reverse."
+        ),
+    )
+    out_of_scope_by_design: list[dict] = Field(
+        default_factory=list,
+        description="Standing refusals, each with the reason already recorded in the repo",
+    )
+    known_limits: dict = Field(
+        default_factory=dict,
+        description=(
+            "Measured dead ends, recorded so a future session does not re-run "
+            "the probes that established them."
+        ),
+    )
 
 
 class FitAssessment(Compact):

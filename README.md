@@ -11,18 +11,21 @@ unresearchable staffing listing into something you can target.
 
 There are two tiers, and the line between them is the first thing to read.
 
-**The public tier** - 23 tools - needs no login, no account and no browser. One public JSON
+**The public tier** - 24 tools - needs no login, no account and no browser. One public JSON
 endpoint plus the public sitemap. It never applies to anything and never mutates Uplers:
 `uplers_track` records what you already did by hand.
 
-**The authenticated tier** - 17 tools, added 2026-08-21 - reads *his account*, and the difference
-is the whole reason it exists: the public board shows what Uplers is hiring for, his account shows
-what Uplers is doing about **him** - which requisitions he has been matched to, what their
-recruiters have moved to interview, and what his profile looks like to the people making that
-call. Three of the seventeen manage the session, nine read, one syncs his Uplers profile down into
-the local one, two write to a requisition and two write to his PROFILE - and those are three
-different kinds of act: `uplers_apply` **cannot be undone**, `uplers_dismiss` can. See "Applying
-cannot be undone" before using either.
+**The authenticated tier** - 29 tools, first added 2026-08-21 - reads *his account*, and the
+difference is the whole reason it exists: the public board shows what Uplers is hiring for, his
+account shows what Uplers is doing about **him** - which requisitions he has been matched to, what
+their recruiters have moved to interview, and what his profile looks like to the people making
+that call. Of the twenty-nine: four manage the session, twelve read his account, four read the
+output of the paid outreach agent he already owns, one syncs his Uplers profile down into the
+local one, two list local restore points, two write to a requisition and four write to his
+PROFILE. Those write groups are three different kinds of act: `uplers_apply` **cannot be undone**,
+`uplers_dismiss` can, and `uplers_replace_resume` is a one-way door on *Uplers'* side that only
+this server's local pre-flight snapshot can reverse. See "Applying cannot be undone" before using
+any of them.
 
 ---
 
@@ -31,13 +34,13 @@ cannot be undone" before using either.
 | | |
 |---|---|
 | Stack | Python 3.11+, FastMCP (`mcp`), `httpx`, stdlib `sqlite3`, [`jobcore`](../jobcore) |
-| Tools | **39** - 22 public (5 board readers, 17 profile-aware) + 17 authenticated |
-| Size | 8,120 lines of server code, 8,577 lines of tests |
-| Tests | **727**, all offline |
-| Network surface | 2 public GET endpoints needing no auth; 12 `talent/*` routes behind a bearer token |
+| Tools | **53** - 24 public (5 board readers, 18 profile-aware, 1 introspection) + 29 authenticated |
+| Size | 17,124 lines of server code, 21,282 lines of tests |
+| Tests | **1,352**, all offline |
+| Network surface | 2 public GET endpoints needing no auth; 26 `talent/*` routes plus `v2/assessments` behind a bearer token |
 | Browser | Playwright, in exactly one module, for login only. The public tier needs none. |
 | Maintenance estimate | 1-3 hours/month |
-| Verified live | 2026-08-20 - 235 native requisitions indexed; every public tool called over stdio |
+| Verified live | 2026-08-24 - the Gmail job scan read on its authoritative route (consent granted 2026-08-12, last run 2026-08-23) and 79 scanned jobs fetched; 14 agent-surface GETs captured as fixtures; 2 of them measured 404 and recorded as such |
 
 ---
 
@@ -68,11 +71,13 @@ answer, because **the record's own `is_aggregator_job` field is authoritative, n
 
 ---
 
-## The public tier: 23 tools
+## The public tier: 24 tools
 
-Five read the board. Seventeen answer "what is on it **for me**, and what have I done about it".
-Everything in the second group runs against the local index and costs **no network at all**.
-None of the twenty-two needs an account; the seventeen that do are documented under "The
+Five read the board. Eighteen answer "what is on it **for me**, and what have I done about it".
+Everything in the second group runs against the local index and costs **no network at all**. The
+twenty-fourth is `uplers_server_info`, which describes the server itself - what it can do, what it
+deliberately cannot, and which commit it is running - and reaches for nothing at all to do it.
+None of the twenty-four needs an account; the twenty-nine that do are documented under "The
 authenticated tier" below.
 
 ### `uplers_sync_index(hydrate=True, fetch_budget=300, refresh_stale=True)`
@@ -702,12 +707,17 @@ capture time and their absence is asserted, in both the committed fixture and th
 because a shaped profile ends up in transcripts, logs and reports. The private key names are
 filtered out of `sections_present` too - "expected_ctc is populated" is itself a disclosure.
 
-### The 23 tools
+### The 29 tools
 
-(The heading read "17" while the table held 18 rows, from `uplers_my_assessments`
-landing without it being bumped. Corrected then, and the count is now pinned by
-`test_importing_server_registers_exactly_the_expected_tools`, so a tool cannot
-land again without a human editing the number.)
+(This heading has now drifted twice, the same way both times. It read "17" over an
+18-row table when `uplers_my_assessments` landed; it read "23" over a 23-row table
+on 2026-08-24, by which point six more tools had landed - the three Gmail-scan
+readers and the whole resume-write trio - and none of them had a row. Both were
+corrected by counting, not by memory. What is pinned by
+`test_importing_server_registers_exactly_the_expected_tools` is the TOTAL of 53;
+this per-tier heading and the rows beneath it are prose, and prose is what goes
+stale. `uplers_server_info().capabilities` carries the split as a checked number
+if you want one that cannot drift.)
 
 | Tool | What it is for |
 |---|---|
@@ -725,9 +735,15 @@ land again without a human editing the number.)
 | `uplers_update_profile(add_skills, remove_skills, confirm=False)` | **Changes the skills on his real Uplers profile.** REPLACEMENT semantics - sends the complete rebuilt list, because an omitted skill is deleted. Previews the exact request body by default; snapshots first; verifies by re-reading. Read "Writing to his profile" first. |
 | `uplers_restore_profile(snapshot_id=None, confirm=False)` | Sends a snapshot back. Itself a replacement write, so anything added since the snapshot is deleted by it. Previews by default; refuses a traversing id or an empty snapshot. |
 | `uplers_list_profile_snapshots()` | Restore points, newest first. Reads disk only; needs no session. |
+| `uplers_replace_resume(file_path, confirm=False)` | **Replaces the resume Uplers recruiters see, and Uplers keeps no previous copy of the old one.** No history, no versions, no revert route on their side - verified as absences across their whole bundle - and their download route takes no "which resume" parameter, so it always returns the current file. The pre-flight snapshot this takes to local disk is therefore not a safety margin on top of a recoverable act, it **is** the only rollback in existence, which is why the write refuses to send at all when the snapshot cannot be taken. Previews by default. |
+| `uplers_restore_resume(snapshot_id=None, confirm=False)` | Puts a snapshotted resume back. It restores the **file**, not the record: the undo is a fresh upload, so server-side identity is new, and whether Uplers re-parses, re-scores, notifies a recruiter or touches an already-submitted application is unresolved - the preview prints that verbatim rather than summarising it. Previews by default. |
+| `uplers_list_resume_snapshots()` | Resume restore points, newest first. Reads disk only; needs no session. |
 | `uplers_my_interviews(detailed=True)` | Interviews Uplers has arranged for him. Read-only. See the namespace note below. |
 | `uplers_my_assessments()` | Assessments HE has sat, and Uplers' own `cleared` count. The other half of a story the server previously told only from the requisition's side: 99 of the 250 indexed records demand an assessment, but nothing reported which ones he had already done. Read-only, no arguments. |
 | `uplers_agent_readthrough()` | **What Uplers' own paid agent has done for him, and what it missed.** He is paying for their autonomous applier (plan 2, `outreach_mode: "auto"`) and until now none of its output was visible here. Reads five GETs and assembles them: unanswered positive replies ranked oldest-first, which of the agent's two channels is actually connected, 48 runs broken down by outcome, and a `disagreements` block where two Uplers routes report different numbers. Read-only; no write path exists in the tool or the module behind it. |
+| `uplers_email_scan()` | Whether Uplers is scanning his Gmail for jobs, and what that scan found. Reads the **authoritative** consent route rather than the copy carried on the outreach dashboard, and neither of those is the `has_consent` on the interview list - that is a third consent entirely, for an interview scan whose UI Uplers designed but never shipped, wearing the identical field name. Read-only. |
+| `uplers_scanned_jobs(best_for_you=None, limit=25)` | The jobs that Gmail scan actually found, listed. `best_for_you` is Uplers' own narrowing: measured 2026-08-23 as 79 rows unset and 51 with it. The route accepts no working `limit` of its own - a `limit=3` on its sibling returned all 97 rows - so any truncation here is this server's and is reported as this server's. |
+| `uplers_agent_settings()` | The four switches that decide what his paid agent actually does: whether an unanswered reply gets chased, per channel, where the `disabled_followup_*` flags are **inverted** and `false` means the channel is ON; the auto-reply switch and the eight categories it would answer; the real 16-row blocklist, which is *not* the alphabetical company picker a similarly-named route returns; and whether message templates exist. Reports that a template exists and what its subject is, never the body - that body is a multi-paragraph self-description carrying employer history and a notice period. Four GETs, no writes. |
 | `uplers_platform_saved_jobs(search=None, ...)` | Jobs he bookmarked on **Uplers' own site**, which is a different list from `uplers_save_job`'s local shortlist and always has been. Takes `search` and nothing else: Uplers' code drops every other filter when the saved flag is set, so a filtered request would return his saved jobs *unfiltered while looking filtered*. This refuses instead of sending it. |
 | `uplers_my_preferences()` | What **Uplers** thinks he wants, as opposed to what the local profile says. Fit scores here are computed against the local profile; Uplers ranks him against these, and the two had never been compared because one was invisible. Ids are resolved to labels against the lookup tables shipped in the same response; an id with no matching row is marked `UNRESOLVED` rather than dropped or guessed. |
 | `uplers_assessment_gates(page_size=50)` | Which feed rows demand an assessment **before** he can apply. No new endpoint - `ai_needed` and `custom_screening_needed` already rode on rows this server reads. **Pre-apply signal only:** all 9 of his existing applications read `ai_needed: false`, so nothing here explains why they stall. Absent is reported as `unknown` and never folded into `false`. |
@@ -755,7 +771,8 @@ throughout.
 ### The namespace exception, stated plainly - and why it grew
 
 `talent/outreach/*` is where Uplers' **paid outreach-agent product** lives, and this server
-otherwise excludes the whole prefix. Six routes under it are now read, and none is written.
+otherwise excludes the whole prefix. Twelve routes under it are now read, and none is
+written - six on 2026-08-23 and six more in the ring after it.
 
 `uplers_my_interviews` was the first, admitted because it is a plain GET of his **own** interview
 schedule: reading your own calendar is using the platform normally, not reimplementing a SKU.
@@ -839,7 +856,7 @@ venv\Scripts\python.exe -m playwright install chromium
 
 **Only `uplers_login` needs this.** Playwright is an optional dependency, deliberately not in
 `requirements.txt`, and it is not needed to run the suite - which is entirely offline and never
-launches a real browser. All 22 public tools work without it, and so do the other sixteen
+launches a real browser. All 24 public tools work without it, and so do the other twenty-eight
 authenticated tools once a token exists: Playwright opens the sign-in window and does nothing
 else. Without it, `uplers_login` returns `error: "browser_unavailable"` carrying that install
 line, rather than failing obscurely.

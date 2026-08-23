@@ -178,18 +178,77 @@ EP_OUTREACH_TEMPLATES = "talent/outreach/get-message-templates"
 #: appears to recruiters. Not built, and not to be confused with this.
 EP_GET_PREFERENCE = "talent/get-preference"                  # GET, no params
 
+# --- Read query parameters ------------------------------------------------
+
+#: The SERVER-SIDE saved-jobs view. `uplers_save_job` is a LOCAL shortlist and
+#: says so; this is Uplers' own bookmark, and the two are disjoint today.
+#:
+#: BUILT, and it lives BELOW this line rather than under "recorded, deliberately
+#: NOT built" because it is called: `uplers_platform_saved_jobs` sends it, via
+#: `saved_filter.saved_jobs_params()`, which is the only builder allowed to
+#: construct this query. It sat under the not-built banner - the one that reads
+#: "No tool calls any of these" - until 2026-08-24, which made that banner false
+#: for the whole section it governs.
+#:
+#: TWO CONTRACT DETAILS THAT PRODUCE A SILENTLY WRONG RESULT RATHER THAN AN
+#: ERROR, both VERIFIED in chunk 8562 (the builder the LIVE jobs board uses -
+#: NOT chunk 2893, which the 2026-08-21 audit read and which never emits this):
+#:
+#:   1. it is sent as the integer ``1``, never ``true``;
+#:   2. it is **EXCLUSIVE** - `1===t.is_saved_filter` short-circuits the
+#:      `Object.keys(t).map(...)` branch, so `roles`, `locations`, `experience`,
+#:      `engagements` and the rest are all DROPPED. Only `search` may ride
+#:      alongside it; `pagination`, `page`, `is_count` and `activeJob` sit
+#:      outside the ternary and are always sent.
+#:
+#: Sending it with filters would therefore return his saved jobs UNFILTERED
+#: while the caller believed the filters applied. Both facts are now PINNED
+#: rather than merely recorded: `saved_filter.assert_integer_one` rejects the
+#: bool and the string `"1"`, the module refuses any filter outside
+#: COMPATIBLE_FILTERS, and `tests/test_saved_filter.py` carries the controls -
+#: including one proving `json.dumps` renders `True` as `true`, which is the
+#: exact wire shape detail 1 forbids.
+#:
+#: The in-house board (chunk 2646) does the same, minus `search`, and adds
+#: `&type=inhouse`.
+QP_IS_SAVED_FILTER = "is_saved_filter"                # GET EP_OPPORTUNITIES, value 1
+
 # The route used to prove a session is real. Chosen because its 401-when-logged-out
 # behaviour was MEASURED live on 2026-08-21, not assumed.
 EP_AUTH_PROBE = EP_PROFILE
 AUTH_PROBE_NOTE = 'GET /api/talent/profile (401 {"message":"Unauthenticated."} when logged out)'
 
-# --- Writes (shapes recorded; only job-not-interested is built) ------------
+# --- Writes ---------------------------------------------------------------
+# BUILT: EP_INTRESTED (uplers_apply), EP_NOT_INTERESTED (uplers_dismiss) and
+# EP_PROFILE_UPSERT (uplers_update_profile / uplers_restore_profile and
+# uplers_replace_resume / uplers_restore_resume).
+# RECORDED ONLY, no caller anywhere in this server: EP_CANCEL_OPPORTUNITY and
+# EP_UPDATE_SAVED_HR.
+#
+# The header here read "shapes recorded; only job-not-interested is built"
+# until 2026-08-24. It was written when that was true and was never revisited
+# as the other two landed, so it under-reported the write surface by two
+# routes - in the one file whose job is to say what this server can reach.
 
 EP_INTRESTED = "talent/hr/intrested"                  # POST multipart - THIS IS APPLY
 EP_NOT_INTERESTED = "talent/hr/job-not-interested"    # POST JSON, reversible
 
 #: THE ONLY ROUTE IN THIS SERVER THAT CHANGES WHO HE IS. Everything else writes
 #: to a requisition; this writes to him.
+#:
+#: TWO USERS, not one, and they send DIFFERENT BODIES down the same route:
+#:
+#:   * `field="skills"` - a POST of JSON, the skills write described below.
+#:     `uplers_update_profile` / `uplers_restore_profile`.
+#:   * `field="resume"` - a POST of MULTIPART carrying raw file bytes as
+#:     `value`. `uplers_replace_resume` / `uplers_restore_resume`, orchestrated
+#:     by `uplers_server.resume_write`, which is handed this constant by
+#:     `server.py` and never names it itself. Its shape and the reason it is a
+#:     one-way door on Uplers' side are in that module's docstring.
+#:
+#: The second user landed after this comment was written and the comment went
+#: on describing only the first until 2026-08-24. Both are replacements; only
+#: the skills half is described in detail below.
 #:
 #: **REPLACEMENT SEMANTICS - an omitted skill is DELETED.** Body is
 #: ``{"field": "skills", "value": [<EVERY skill>], "tid"?}`` and the response
@@ -217,28 +276,6 @@ EP_UPDATE_SAVED_HR = "talent/hr/update-saved-hr"      # POST JSON {hr_id: enc_id
 # Recorded 2026-08-22 from the exhaustive route sweep
 # (`_audit/_slices/_slice-uplers-route-inventory.md`, 214 API paths) and its
 # shape follow-up.
-
-#: The SERVER-SIDE saved-jobs view. `uplers_save_job` is a LOCAL shortlist and
-#: says so; this is Uplers' own bookmark, and the two are disjoint today.
-#:
-#: TWO CONTRACT DETAILS THAT PRODUCE A SILENTLY WRONG RESULT RATHER THAN AN
-#: ERROR, both VERIFIED in chunk 8562 (the builder the LIVE jobs board uses -
-#: NOT chunk 2893, which the 2026-08-21 audit read and which never emits this):
-#:
-#:   1. it is sent as the integer ``1``, never ``true``;
-#:   2. it is **EXCLUSIVE** - `1===t.is_saved_filter` short-circuits the
-#:      `Object.keys(t).map(...)` branch, so `roles`, `locations`, `experience`,
-#:      `engagements` and the rest are all DROPPED. Only `search` may ride
-#:      alongside it; `pagination`, `page`, `is_count` and `activeJob` sit
-#:      outside the ternary and are always sent.
-#:
-#: Sending it with filters would therefore return his saved jobs UNFILTERED
-#: while the caller believed the filters applied. Pin both facts with a test
-#: before building on this.
-#:
-#: The in-house board (chunk 2646) does the same, minus `search`, and adds
-#: `&type=inhouse`.
-QP_IS_SAVED_FILTER = "is_saved_filter"                # GET EP_OPPORTUNITIES, value 1
 
 #: Per-JOB estimated salary and company detail. Both `?hr_id=`, both answering
 #: `res.data.status == 200` with `salary_data` / `company_data`.
@@ -268,18 +305,28 @@ EP_COMPANY_DETAIL = "get-company-detail"              # GET ?hr_id= (id space UN
 #: `res.data.data` and it is a list.
 #:
 #: Read-SHAPED, since the bundle only ever spreads the result into redux, but
-#: read-shaped is not read. Three reasons it stays unbuilt:
+#: read-shaped is not read. TWO reasons it stays unbuilt, and both are about
+#: this route rather than about POSTs in general:
 #:
-#:   1. It would put the FIRST non-write POST into a server whose write-surface
-#:      census (2 requisition writes, 2 profile writes, 1 config write) is a
-#:      load-bearing safety artefact. A census that starts admitting POSTs
-#:      "because that one is really a read" stops being a census.
-#:   2. It sends HIS EMAIL ADDRESS in the body to get back a list.
-#:   3. The payoff is near zero here. This server already indexes all 250
+#:   1. It sends HIS EMAIL ADDRESS in the body to get back a list.
+#:   2. The payoff is near zero here. This server already indexes all 250
 #:      requisitions locally, so "similar to this one" is answerable offline by
 #:      `uplers_rank_opportunities()` against a record we already hold - with
 #:      jobcore's scoring, which is comparable across servers, rather than
 #:      Uplers' opaque one.
+#:
+#: A THIRD REASON WAS WITHDRAWN ON 2026-08-24 BECAUSE IT WAS FALSE. It read:
+#: building this "would put the FIRST non-write POST into a server whose
+#: write-surface census is a load-bearing safety artefact". It would not. That
+#: POST already exists and predates the claim: `EP_TAILOR_JOBS` sits under
+#: "Reads" above, is documented there as `POST JSON {HR_Number}`, and
+#: `uplers_tailored_jobs` reaches it through `post_json`. The census that
+#: matters counts writes by EFFECT - what changes on Uplers - and never by HTTP
+#: verb, which is why a read-shaped POST has always been countable as a read
+#: and why `tailor-jobs` never inflated it. The withdrawn reason is recorded
+#: rather than deleted so a later session does not re-derive it from the same
+#: mistaken premise. The refusal stands on the two reasons above; it is worth
+#: more resting on two true ones than on three with a false one among them.
 #:
 #: Not probed live either: a POST to an unbuilt route on his live account, for
 #: a feature already decided against, is a spend with no payoff.
@@ -295,6 +342,31 @@ EP_TALENT_MATCHMAKE = "talent-matchmake"          # POST {hr_id: HR_Number}, sam
 #: namespace, that changes what Uplers reads on his behalf. His call, not this
 #: server's.
 EP_CONSENT_EMAIL_JOB_SCAN = "talent/outreach/consent-email-job-scan"  # POST/DELETE
+
+# --- Measured unreachable -------------------------------------------------
+# A DIFFERENT CLASS from the block above. Everything above this line is a route
+# that WORKS and is deliberately not called. These two were CALLED and did not
+# answer, so no decision is being recorded here - a measurement is.
+
+#: MEASURED **HTTP 404** on 2026-08-23, on a LIVE session, with a real
+#: `outreach_hr_id` taken off an `agent-tailor-activity` row - the same id that
+#: answered 200 on every other route in that ring. Both had been listed as
+#: buildable GET reads by the browser-parity census, off the bundle inventory;
+#: a path that appears in the bundle is not a path the API serves.
+#:
+#: THE OPEN QUESTION IS THE PARAMETER SPACE, NOT THE SESSION. The session was
+#: good and the id was good, so "re-probe after logging in" is not the retry
+#: that could change this answer; finding the identifier or query these two
+#: actually want is. They are not retried here.
+#:
+#: The measurement is executable at `scripts/capture_agent_surface.py`, whose
+#: `MEASURED_404` tuple carries the same two paths and keeps them out of the
+#: capture set. Written down twice on purpose: the script is where the probe
+#: lives, this file is where a reader looks for what a route does.
+MEASURED_404 = (
+    "talent/outreach/outreached-people",      # ?outreach_hr_id= -> 404
+    "talent/outreach/get-employee-requests",  # ?outreach_hr_id= -> 404
+)
 
 # --- Enums, verbatim from bundle module 22000 -----------------------------
 

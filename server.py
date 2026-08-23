@@ -2084,6 +2084,342 @@ async def uplers_config(write_candidate: bool = False,
     )
 
 
+# --- what this server says about itself -----------------------------------
+#
+# EVERY VALUE BELOW IS A HAND-MAINTAINED DECLARATION, and that is a trade made
+# on purpose rather than an oversight. `uplers_server_info` must reach for
+# NOTHING - no `list_tools()`, no file read, no git, no network, no database -
+# because it is the tool you call when the server's behaviour is ALREADY UNDER
+# SUSPICION, and an introspection tool that runs the machinery under suspicion
+# cannot answer for it. tests/test_tools.py files it under
+# INTROSPECTION_TOOL_NAMES for exactly that property: "its blast radius is zero
+# and it is the one tool that must stay that way".
+#
+# The cost of that choice is that a declaration can go stale, so the check
+# MOVES TO THE SUITE, where it costs nothing at runtime.
+# tests/test_server_info.py asserts that every tool name declared below is a
+# REGISTERED tool and that every census count matches the pinned set in
+# tests/test_tools.py. A new write landing without a line here is precisely the
+# staleness this tool exists to catch, and that guard is planted-control tested
+# rather than assumed.
+
+#: Pinned by TestTheDeclaredSurfaceMatchesReality, against `list_tools()` for
+#: the total and against the `# THE AUTHENTICATED TIER` banner in this file for
+#: the split. That banner is the only definition of the split there is: it is a
+#: physical line in this module, and which side of it a tool is defined on IS
+#: whether that tool needs an account.
+TOOL_COUNTS = {"total": 53, "public": 24, "authenticated": 29}
+
+#: Can change something ON UPLERS, acting on a requisition.
+REQUISITION_WRITE_TOOLS = ("uplers_apply", "uplers_dismiss")
+
+#: Can change something ON UPLERS, acting on HIM. A different kind of act with
+#: a different worst case: an apply is irreversible but bounded to one job;
+#: these replace a whole field on the profile recruiters read.
+PROFILE_WRITE_TOOLS = (
+    "uplers_update_profile",
+    "uplers_restore_profile",
+    "uplers_replace_resume",
+    "uplers_restore_resume",
+)
+
+#: The only tool that can write a file OTHER servers read.
+SHARED_CONFIG_WRITE_TOOLS = ("uplers_config",)
+
+#: `LOCAL_WRITE_TOOL_NAMES` in tests/test_tools.py. The label overstates two of
+#: the three, and WRITE_CENSUS says so rather than letting the grouping imply
+#: otherwise.
+LOCAL_STATE_ONLY_TOOLS = (
+    "uplers_sync_profile_from_uplers",
+    "uplers_list_profile_snapshots",
+    "uplers_list_resume_snapshots",
+)
+
+#: No undo anywhere in Uplers' product. The existing `irreversible_tools` field
+#: is this tuple and stays exactly this tuple.
+IRREVERSIBLE_TOOLS = ("uplers_apply",)
+
+#: A one-way door on UPLERS' side that this server makes recoverable, and only
+#: locally. Deliberately NOT merged into IRREVERSIBLE_TOOLS: flattening the two
+#: would either promise a rollback for `uplers_apply` that does not exist, or
+#: deny the one for `uplers_replace_resume` that does.
+ONE_WAY_DOOR_TOOLS = ("uplers_replace_resume",)
+
+CAPABILITIES = [
+    "%d tools. %d need no account at all; %d read or write his signed-in "
+    "Uplers account."
+    % (TOOL_COUNTS["total"], TOOL_COUNTS["public"], TOOL_COUNTS["authenticated"]),
+    "THE END CLIENT COMPANY NAME on Uplers-native requisitions - the field the "
+    "job boards hide, where LinkedIn shows the same requisition as 'Uplers' and "
+    "stops. This is the reason the server exists.",
+    "Board index and search, served OFFLINE: uplers_sync_index builds a local "
+    "sqlite index from the public sitemap plus one public JSON route, and every "
+    "board read after it costs no network.",
+    "Fit scoring against his profile using jobcore's scoring - the SAME scoring "
+    "the Naukri server uses, so a fit score means the same thing on both. "
+    "config.scoring_hash is stamped on every scored result.",
+    "A local shortlist, application tracker, alert set and scheduler. None of "
+    "it is ever sent to Uplers; uplers_track is the record of what the human "
+    "did elsewhere.",
+    "His account once signed in: personalised feed, real pipeline carrying "
+    "Uplers' OWN authoritative status, the profile recruiters actually see, "
+    "interviews, assessments, and the platform's saved-jobs view.",
+    "READ-THROUGH of the paid outreach agent HE ALREADY OWNS - what it ran, "
+    "what it found, and how it is configured. Reads only. This server does not "
+    "run an agent and will not build one; see out_of_scope_by_design.",
+    "Six writes that reach Uplers, every one confirm-gated and every one "
+    "previewing the exact request first. Enumerated exactly under `writes`.",
+    "Self-description that can be falsified from OUTSIDE the process: `build` "
+    "against `git rev-parse HEAD` on disk, `config.scoring_hash` against the "
+    "stamp on a stored score.",
+]
+
+WRITE_CENSUS = {
+    "counted_by": (
+        "EFFECT, never by HTTP verb. A read-shaped POST is counted as a read - "
+        "talent/hr/tailor-jobs is one, and uplers_tailored_jobs calls it - so "
+        "the numbers below are 'what can change', not 'how many POSTs exist'."
+    ),
+    "reach_uplers": {
+        "requisition": {
+            "count": len(REQUISITION_WRITE_TOOLS),
+            "tools": list(REQUISITION_WRITE_TOOLS),
+            "note": (
+                "uplers_apply expresses interest, which on Uplers IS applying "
+                "and cannot be undone. uplers_dismiss is genuinely reversible - "
+                "Uplers ships an explicit reset_not_interested flag for it - and "
+                "a performed dismissal returns the exact call that reverses it."
+            ),
+        },
+        "profile": {
+            "count": len(PROFILE_WRITE_TOOLS),
+            "tools": list(PROFILE_WRITE_TOOLS),
+            "note": (
+                "Two writes and the undo each one ships with. All four are "
+                "confirm-gated and all four SNAPSHOT BEFORE THEY SEND, because "
+                "all four replace a whole field rather than editing one: an "
+                "omitted skill is deleted, and a replaced resume is gone from "
+                "Uplers. Both pairs go to talent/profile-upsert, the skills half "
+                "as JSON and the resume half as multipart."
+            ),
+        },
+    },
+    "reach_the_shared_config": {
+        "count": len(SHARED_CONFIG_WRITE_TOOLS),
+        "tools": list(SHARED_CONFIG_WRITE_TOOLS),
+        "note": (
+            "The only tool here that writes a file OTHER servers read. It writes "
+            "the `candidate` section of jobhunt.json and nothing else - never "
+            "`scoring`, never a sibling server's block - and jobcore's "
+            "apply_patch enforces that independently of this server."
+        ),
+    },
+    "local_state_only": {
+        "tools": list(LOCAL_STATE_ONLY_TOOLS),
+        "note": (
+            "Filed apart from the sets above so those stay exact. THE LABEL "
+            "OVERSTATES TWO OF THE THREE: only uplers_sync_profile_from_uplers "
+            "writes anything, and it writes local disk FROM Uplers rather than "
+            "the other way - his Uplers profile is the authoritative direction "
+            "and there is no counterpart going back. The two list_*_snapshots "
+            "tools are PURE DISK READS, filed beside their siblings so the "
+            "restore surface reads as one group."
+        ),
+    },
+    "not_a_census_of_local_disk": (
+        "Plenty of tools outside `local_state_only` write local state - "
+        "uplers_sync_index writes the index, save/unsave the shortlist, "
+        "track/update_status the tracker, the alert tools their alerts, "
+        "uplers_set_profile the local profile, uplers_logout the session. None "
+        "of them can reach Uplers, which is why none is counted above. The sets "
+        "above answer 'what can change outside this machine', not 'what touches "
+        "the disk'."
+    ),
+    "gate": (
+        "Every write that reaches Uplers performs NOTHING without confirm=True "
+        "and otherwise returns a preview of the exact request it would send."
+    ),
+}
+
+IRREVERSIBLE = {
+    "no_undo_anywhere_in_uplers": {
+        "tools": list(IRREVERSIBLE_TOOLS),
+        "why": (
+            "Expressing interest on Uplers IS applying: their own analytics "
+            "label the two call sites 'Single Opportunity - Apply' and 'All "
+            "opportunity - Apply', and once it lands the button is disabled and "
+            "reads 'Applied'. THERE IS NO WITHDRAW, NO CANCEL AND NO UN-APPLY "
+            "ANYWHERE IN THEIR PRODUCT - a complete negative search over 13.4 MB "
+            "of their bundle: 'Withdraw' 0 hits, 'Cancel Application' 0, "
+            "'unapply' 0. The only thing that retracts an application on Uplers "
+            "is deactivating the whole account, which is where their own copy "
+            "mentions it. Treat every apply as final."
+        ),
+        "recoverable_by": "nothing",
+    },
+    "one_way_door_on_uplers_recoverable_only_locally": {
+        "tools": list(ONE_WAY_DOOR_TOOLS),
+        "why": (
+            "UPLERS KEEPS NO PREVIOUS COPY OF THE RESUME. Verified as absences "
+            "across their whole corpus - resume_history 0 hits, resume_versions "
+            "0, previous_resume 0, old_resume 0, resume_archive 0 - and the "
+            "download route takes one parameter and no version, so it always "
+            "returns the CURRENT resume. No history, no versions, no revert "
+            "route on their side."
+        ),
+        "recoverable_by": (
+            "A PRE-FLIGHT SNAPSHOT TO LOCAL DISK, taken by this server before "
+            "the write is sent, and it is the only rollback in existence. "
+            "uplers_server.resume_write REFUSES TO SEND AT ALL when the snapshot "
+            "cannot be taken, because after the replacement the old document is "
+            "unreachable forever. uplers_restore_resume replays it."
+        ),
+        "caveat": (
+            "The snapshot restores the FILE, not the RECORD. The undo is a fresh "
+            "upload, so server-side identity is new, and whether Uplers "
+            "re-parses the resume, re-scores him, notifies a recruiter or "
+            "touches an already-submitted application is UNRESOLVED - every "
+            "preview prints that verbatim rather than summarising it."
+        ),
+    },
+    "why_two_lists_and_not_one": (
+        "They are different safety classes, and flattening them would have to "
+        "lie in one direction or the other: promise a rollback for uplers_apply "
+        "that does not exist, or deny the local one for uplers_replace_resume "
+        "that does. `irreversible_tools` stays exactly the first list, which is "
+        "what every existing caller of this tool already reads."
+    ),
+}
+
+OUT_OF_SCOPE_BY_DESIGN = [
+    {
+        "what": (
+            "A second autonomous applier. This server does not have one and "
+            "will not grow one."
+        ),
+        "why": (
+            "He is ALREADY PAYING for Uplers' own autonomous applier - measured, "
+            "not inferred: plan 2, auto_run 1, outreach_mode 'auto'. The reason "
+            "is not 'apply cannot be undone': Naukri has no withdraw either and "
+            "this family shipped an agent there. It is that a second "
+            "UNCOORDINATED agent applying from one account, against a "
+            "250-requisition board, through a single intermediary who gates "
+            "every future match, while the vendor's own agent already holds the "
+            "wheel, is the wrong answer at any quality of implementation."
+        ),
+    },
+    {
+        "what": (
+            "The WRITE half of talent/outreach/* - consent-email-job-scan, "
+            "consent-auto-run, interview-feedback. The READ half is built."
+        ),
+        "why": (
+            "The read half was admitted on a narrow, stated principle: reading "
+            "the output of an agent he already owns is using the platform "
+            "normally, not reimplementing a SKU. Writing is not reading. "
+            "consent-email-job-scan changes WHAT UPLERS READS OUT OF HIS "
+            "MAILBOX, which is his decision and not this server's. "
+            "tests/test_agent_tools.py MEASURES the boundary rather than "
+            "asserting it: every request those tools emit is checked to be a GET "
+            "against an exact route allowlist, with a control proving the census "
+            "records a write when one happens."
+        ),
+    },
+    {
+        "what": (
+            "The paid candidate SKUs: resume tailoring (talent/tailor/*), the "
+            "resume health check (talent/resume-health-check/*) and the referral "
+            "agent (talent/referral-agent/*)."
+        ),
+        "why": (
+            "They are Uplers' own PAID candidate products - "
+            "talent/tailor/order/create, order/capture and refund-request say so "
+            "plainly. Reimplementing a paid product for free against a "
+            "marketplace whose value is a human recruiter advocating for you is "
+            "a bad trade."
+        ),
+    },
+    {
+        "what": (
+            "find-similar-job and talent-matchmake. Recorded, deliberately not "
+            "built."
+        ),
+        "why": (
+            "Two reasons, both about these routes rather than about POSTs in "
+            "general. (1) find-similar-job sends HIS EMAIL ADDRESS in the body "
+            "to get back a list. (2) The payoff is near zero: this server "
+            "already indexes all 250 requisitions locally, so 'similar to this "
+            "one' is answerable offline by uplers_rank_opportunities against a "
+            "record already held - with jobcore's scoring, comparable across "
+            "servers, rather than Uplers' opaque one. A third reason, that it "
+            "would be the first non-write POST here, WAS WITHDRAWN ON 2026-08-24 "
+            "as false: talent/hr/tailor-jobs is already a read-shaped POST and "
+            "predates the claim."
+        ),
+    },
+    {
+        "what": "talent/hr/cancel-opportunity.",
+        "why": (
+            "DEAD CODE in the build that was read - no live call site - so its "
+            "real behaviour is unverified, and it is not the withdraw its name "
+            "suggests. Building an un-apply out of a route nobody has seen fire, "
+            "against a product that has no un-apply, would be inventing a "
+            "promise this server cannot keep."
+        ),
+    },
+    {
+        "what": "talent/recommendations, and the name is the trap.",
+        "why": (
+            "It is NOT a job-recommendations feed. Its body is {key: 'rnr', "
+            "role: '<job title>'} and its single caller in 13.4 MB is the "
+            "PROFILE EXPERIENCE EDITOR: it returns suggested bullet-point text "
+            "for a CV entry. Built as a jobs feed it would have produced a tool "
+            "that silently returned the wrong kind of thing."
+        ),
+    },
+]
+
+KNOWN_LIMITS = {
+    "measured_404": {
+        "routes": list(endpoints.MEASURED_404),
+        "measured_on": "2026-08-23",
+        "detail": (
+            "Both answered HTTP 404 on a LIVE session with a real "
+            "outreach_hr_id taken off an agent-tailor-activity row - the same id "
+            "that answered 200 on every other route in that ring. Both had been "
+            "listed as buildable GET reads off the bundle inventory; a path that "
+            "appears in the bundle is not a path the API serves."
+        ),
+        "the_open_question": (
+            "THE PARAMETER SPACE, NOT THE SESSION. The session was good and the "
+            "id was good, so re-probing after a fresh login is not the retry "
+            "that could change this answer - finding the identifier or query "
+            "these two actually want is. Recorded so nobody re-runs the probes."
+        ),
+    },
+    "unresolved_identifier_space": {
+        "routes": ["get-company-salary-data", "get-company-detail"],
+        "what_is_unresolved": (
+            "Which identifier space their `hr_id` names. It is not any of the "
+            "three this API uses elsewhere (numeric id, enc_id, HR_Number). Six "
+            "live GETs on 2026-08-22 - all three id spellings, against one "
+            "closed and one open requisition - every one answered "
+            "{'status':400,'errors':'No HR found..'}."
+        ),
+        "entitlement_is_untested_not_answered": (
+            "The salary service has a dedicated 403 branch resolving "
+            "{salary_data: null} - a client that EXPECTS to be refused, which is "
+            "strong evidence the surface is an account entitlement rather than "
+            "open data. But NO 403 WAS EVER OBSERVED across those six probes, so "
+            "the entitlement question is UNTESTED rather than answered. The "
+            "remaining hypothesis is that the estimated-salary pill exists only "
+            "on AGGREGATED postings, which this server deliberately does not "
+            "fetch, so it was not testable from here."
+        ),
+    },
+}
+
+
 # ------------------------------------------------------------ tool 17 ---
 
 
@@ -2114,6 +2450,26 @@ async def uplers_server_info() -> ServerInfo:
     stamped on every scored result, so a stored score whose stamp differs was
     produced by arithmetic no longer in force.
 
+    THE OTHER HALF OF THIS PAYLOAD IS WHAT THIS SERVER CAN AND CANNOT DO, and
+    it is here for the same reason the commit is: so a claim about this server
+    can be checked without reading its source. `capabilities` groups the 53
+    tools. `writes` is the exact write census, counted by EFFECT rather than by
+    HTTP verb, and it is the load-bearing one - a new write that reaches Uplers
+    without appearing there is the staleness this tool exists to catch, which
+    is why tests/test_server_info.py pins every name in it against the
+    registered tool list and every count against tests/test_tools.py.
+    `irreversible` splits two safety classes that must not be flattened: what
+    has no undo anywhere in Uplers' product, and what is a one-way door on
+    THEIR side that only a local pre-flight snapshot can reverse.
+    `out_of_scope_by_design` is the standing refusals with their reasons, and
+    `known_limits` is what has been MEASURED unreachable, recorded so nobody
+    re-runs the probes.
+
+    Those five are DECLARATIONS read from module constants, not derived at call
+    time. That is deliberate: this is the tool you call when the server is
+    already under suspicion, so it must not run the machinery under suspicion
+    to answer.
+
     Costs nothing - it reads module constants and touches neither git, the
     network, nor the database.
     """
@@ -2135,7 +2491,12 @@ async def uplers_server_info() -> ServerInfo:
             "first (uplers_my_feed, uplers_my_pipeline, uplers_my_profile, "
             "uplers_apply)."
         ),
-        irreversible_tools=["uplers_apply"],
+        irreversible_tools=list(IRREVERSIBLE_TOOLS),
+        capabilities=list(CAPABILITIES),
+        writes=WRITE_CENSUS,
+        irreversible=IRREVERSIBLE,
+        out_of_scope_by_design=list(OUT_OF_SCOPE_BY_DESIGN),
+        known_limits=KNOWN_LIMITS,
     )
 
 
