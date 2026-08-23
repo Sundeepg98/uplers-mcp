@@ -95,6 +95,27 @@ AUTH_TOOL_NAMES = {
     "uplers_filter_options",
 }
 
+#: Added 2026-08-23. Their own set, not folded into AUTH_TOOL_NAMES, because
+#: three of them read inside `talent/outreach/*` - the namespace of Uplers'
+#: PAID outreach-agent product, which this server otherwise excludes.
+#:
+#: The exception is narrow and deliberate: he is paying for that agent and its
+#: output was invisible here, so this server READS what an agent he already
+#: owns has done. It does not run one, and it will not build one - a second
+#: uncoordinated applier against a 250-requisition board where interest CANNOT
+#: BE WITHDRAWN is the wrong answer. Keeping the set separate means a fifth
+#: name appearing here is a decision somebody had to type, not a drift.
+#:
+#: The write half of that namespace stays unbuilt: `interview-feedback` and
+#: `consent-email-job-scan`, the latter changing what Uplers reads out of his
+#: mailbox. tests/test_agent_tools.py measures that no tool here reaches one.
+AGENT_READ_TOOL_NAMES = {
+    "uplers_agent_readthrough",
+    "uplers_platform_saved_jobs",
+    "uplers_my_preferences",
+    "uplers_assessment_gates",
+}
+
 WRITE_TOOL_NAMES = {
     "uplers_apply",
     "uplers_dismiss",
@@ -147,6 +168,7 @@ TOOL_NAMES = (
     BOARD_TOOL_NAMES
     | TIER2_TOOL_NAMES
     | AUTH_TOOL_NAMES
+    | AGENT_READ_TOOL_NAMES
     | WRITE_TOOL_NAMES
     | LOCAL_WRITE_TOOL_NAMES
     | PROFILE_WRITE_TOOL_NAMES
@@ -200,8 +222,15 @@ def wire_client(monkeypatch, handler):
 async def test_importing_server_registers_exactly_the_expected_tools():
     tools_listed = await server.mcp.list_tools()
 
-    assert len(tools_listed) == 43
+    assert len(tools_listed) == 47
     assert {tool.name for tool in tools_listed} == TOOL_NAMES
+    # The four added 2026-08-23 are READS. The counts below are what stops
+    # that sentence from quietly becoming untrue: none of them may appear in
+    # any write set, and no write set may grow to admit them.
+    assert AGENT_READ_TOOL_NAMES & (
+        WRITE_TOOL_NAMES | PROFILE_WRITE_TOOL_NAMES | CONFIG_TOOL_NAMES
+    ) == set()
+    assert len(AGENT_READ_TOOL_NAMES) == 4
     # The five original board tools must survive every later addition.
     assert BOARD_TOOL_NAMES <= {tool.name for tool in tools_listed}
     # The requisition-write surface stays exactly this size. A third tool that

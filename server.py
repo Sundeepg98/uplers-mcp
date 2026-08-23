@@ -85,8 +85,12 @@ from uplers_server.models import (
     TrackResult,
 )
 from uplers_server import (
+    assessment_flags,
     auth as auth_mod,
     endpoints,
+    outreach as outreach_mod,
+    preference as preference_mod,
+    saved_filter,
     session as session_mod,
     talent_shape,
 )
@@ -3028,6 +3032,161 @@ async def uplers_my_assessments() -> MyAssessments:
     async with _talent_client() as client:
         payload = await client.get_json(endpoints.EP_ASSESSMENTS, None)
     return talent_shape.my_assessments_from(payload)
+
+
+@mcp.tool()
+async def uplers_agent_readthrough() -> dict:
+    """What Uplers' OWN autonomous agent has done for you, and what it missed.
+
+    You are PAYING for that agent - plan 2, `outreach_mode: "auto"`, auto-run
+    on - and until now this server could not see a thing it did. This reads
+    its output. It does not run it, queue it, or apply to anything: five plain
+    GETs, and no write path anywhere in this tool or the module behind it.
+
+    Reading an agent you already own is not the same as building a second one,
+    and this server deliberately does NOT build one. A second uncoordinated
+    applier on one account, against a 250-requisition board where expressing
+    interest CANNOT BE UNDONE, is the wrong answer regardless of how good the
+    applier is.
+
+    WHAT TO LOOK AT FIRST. `needs_reply` is the whole reason this exists:
+    positive replies came back from real people at real companies and are
+    sitting unanswered, ranked oldest-first with how many days each has
+    waited. `channels` is the second: the agent has two channels and one of
+    them was never connected, and Uplers' own failure text on the failed runs
+    names it. `cross_checks` and `disagreements` are the honesty layer - where
+    two of Uplers' own routes report different numbers, both are shown rather
+    than one being quietly picked.
+
+    Contact details ARE withheld on purpose. The reply category, the company,
+    the role and the thread id are enough to act on; the counterparty's email
+    address and the verbatim body of their message do not need to be printed
+    into a transcript to answer them. Open the thread.
+
+    Read-only, no arguments. Costs five requests.
+    """
+    async with _talent_client() as client:
+        plan_raw = await client.get_json(endpoints.EP_OUTREACH_STEP, None)
+        dashboard_raw = await client.get_json(endpoints.EP_OUTREACH_DASHBOARD, None)
+        pending_raw = await client.get_json(endpoints.EP_OUTREACH_PENDING, None)
+        missed_raw = await client.get_json(endpoints.EP_OUTREACH_MISSED_FOLLOWUPS, None)
+        activity_raw = await client.get_json(endpoints.EP_OUTREACH_ACTIVITY, None)
+
+    now = datetime.now().astimezone()
+    return outreach_mod.agent_readthrough(
+        plan=outreach_mod.shape_agent_plan(plan_raw, today=now.date().isoformat()),
+        dashboard=outreach_mod.shape_agent_dashboard(dashboard_raw),
+        pending=outreach_mod.shape_pending_jobs(pending_raw),
+        missed=outreach_mod.shape_missed_followups(missed_raw, now=now.isoformat()),
+        activity=outreach_mod.shape_activity(activity_raw),
+    )
+
+
+@mcp.tool()
+async def uplers_platform_saved_jobs(
+    search: str | None = None, page: int = 1, page_size: int = 20
+) -> dict:
+    """Jobs YOU bookmarked on Uplers' own site. Not this server's shortlist.
+
+    There are two saved lists and they have never been the same list.
+    `uplers_save_job()` writes a LOCAL shortlist in this server's database;
+    this reads the bookmarks Uplers holds, the ones the star on their own
+    board creates. Neither can see the other, so reading both is the only way
+    to know what is actually on your list.
+
+    ONE FILTER AND NO OTHERS, and that is a real trap rather than a
+    limitation. Uplers' own code short-circuits every other filter when the
+    saved flag is set - `roles`, `locations`, `experience` and `engagements`
+    are all DROPPED - so a filtered request comes back as your saved jobs
+    UNFILTERED while looking filtered. `search` is the single exception. Ask
+    for anything else and this refuses rather than sending it; filter the
+    result here instead.
+
+    Args:
+        search: free-text, the only filter this view honours.
+        page: 1-based page.
+        page_size: rows per page.
+    """
+    params = saved_filter.saved_jobs_params(
+        search=search, page=page, pagination=page_size
+    )
+    saved_filter.assert_integer_one(params)
+    async with _talent_client() as client:
+        payload = await client.get_json(endpoints.EP_OPPORTUNITIES, params)
+    result = saved_filter.read_saved_page(payload)
+    result["source"] = endpoints.EP_OPPORTUNITIES
+    return result
+
+
+@mcp.tool()
+async def uplers_my_preferences() -> dict:
+    """What UPLERS thinks you want - which is not what this server thinks.
+
+    Every fit score here is computed against the local profile
+    (`uplers_my_profile()`). Uplers ranks you against THESE, and the two have
+    never been compared because one of them was invisible. Where they part
+    company is where your feed stops making sense.
+
+    Ids are resolved to labels against the lookup tables Uplers ships in the
+    same response. An id with no matching row comes back marked UNRESOLVED
+    rather than dropped or guessed at, and `unresolved` lists them, because a
+    preference silently rendered as nothing reads as a preference you do not
+    have.
+
+    Read-only, no arguments. Changing any of this is done on Uplers' own site:
+    the write route is a DIFFERENT endpoint that alters how recruiters see
+    you, and this server does not call it.
+    """
+    async with _talent_client() as client:
+        payload = await client.get_json(endpoints.EP_GET_PREFERENCE, None)
+    shaped = preference_mod.shape_preference(payload)
+    shaped["source"] = endpoints.EP_GET_PREFERENCE
+    return shaped
+
+
+@mcp.tool()
+async def uplers_assessment_gates(page_size: int = 50) -> dict:
+    """Which jobs in your feed demand an assessment BEFORE you can apply.
+
+    No new endpoint: `ai_needed` and `custom_screening_needed` already ride on
+    the feed rows this server reads, and were simply never surfaced.
+
+    READ THE CAVEAT. These are PRE-APPLY signal - "this requisition will want
+    a test first" - and they are NOT pipeline signal. All 9 of your existing
+    applications read `ai_needed: false`, so nothing here explains why they
+    stall. What it does tell you is which rows cost an assessment to enter.
+
+    For context this tool cannot derive from one page: 99 of the 250 indexed
+    requisitions carry a non-empty assessments array, and
+    `uplers_my_assessments()` reports 0 cleared. Absent is reported as
+    `unknown` and never folded into `false` - a row that never carried the
+    field is not a row that said no.
+
+    Args:
+        page_size: feed rows to read in one request.
+    """
+    params = _feed_params(
+        page=1,
+        page_size=page_size,
+        sort="relevance",
+        experience=None,
+        roles=None,
+        locations=None,
+        modes=None,
+    )
+    async with _talent_client() as client:
+        payload = await client.get_json(endpoints.EP_OPPORTUNITIES, params)
+
+    rows = []
+    if isinstance(payload, dict) and isinstance(payload.get("hrs"), dict):
+        rows = payload["hrs"].get("data") or []
+    summary = assessment_flags.summarise_flags(rows)
+    summary["source"] = endpoints.EP_OPPORTUNITIES
+    summary["scope"] = (
+        "one feed page of %d row(s). Not the whole 250-requisition board."
+        % len(rows)
+    )
+    return summary
 
 
 @mcp.tool()

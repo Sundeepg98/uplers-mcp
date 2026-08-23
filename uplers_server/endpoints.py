@@ -84,6 +84,45 @@ EP_COMPANY_MASTER = "talent/hr/all-opp-company-master"
 #: (``talent/outreach/interview-feedback``) is deliberately NOT built.
 EP_INTERVIEW_LIST = "talent/outreach/interview-list"  # GET, ?detailed=true
 
+#: HIS OWN AGENT'S OUTPUT. Five plain GETs, all VERIFIED LIVE on 2026-08-23 by
+#: `scripts/capture_outreach.py`, whose responses are committed as fixtures.
+#:
+#: NAMESPACE NOTE, the same one EP_INTERVIEW_LIST carries and for the same
+#: reason. `talent/outreach/*` is where Uplers' PAID outreach-agent product
+#: lives and this server excludes it - but he is PAYING for that agent right
+#: now (`plan: 2`, `auto_run: 1`, `outreach_mode: "auto"`, through 2026-09-10)
+#: and its entire output was invisible here. Reading what an agent you already
+#: own has done is using the platform normally; it is not reimplementing the
+#: SKU. Precedent already on record: EP_INTERVIEW_LIST.
+#:
+#: THE LINE IS READS ONLY, and it is a hard one. The write half of this
+#: namespace stays unbuilt: `interview-feedback`, `consent-email-job-scan`,
+#: and anything that would make a SECOND agent apply from one account. He
+#: already has an applier; a second uncoordinated one against a
+#: 250-requisition board where apply is permanent is the wrong answer.
+#:
+#: ENVELOPE TRAP, measured rather than assumed: these five do NOT share one
+#: success idiom. `outreach-step` answers `{"status": "success", ...}` - the
+#: STRING - while the other four answer `{"status": 200, ...}` - the INTEGER.
+#: `outreach.unwrap` accepts both and refuses anything else.
+EP_OUTREACH_STEP = "talent/outreach/outreach-step"
+EP_OUTREACH_DASHBOARD = "talent/outreach/get-outreach-dashboard-data"
+EP_OUTREACH_PENDING = "talent/outreach/pending-jobs"
+EP_OUTREACH_MISSED_FOLLOWUPS = "talent/outreach/missed-positive-reply-followups"
+EP_OUTREACH_ACTIVITY = "talent/outreach/agent-tailor-activity"
+
+#: What UPLERS thinks he wants, which is not what this server's profile says.
+#: Fit scores here come from our own profile; Uplers ranks him against these.
+#: Seeing both is how a disagreement between the two becomes visible at all.
+#:
+#: VERIFIED LIVE 2026-08-23 (a real 200 with real data, not a bundle constant).
+#: Recorded because a prior slice confused two constants: `fJ7` is the
+#: NURTURE-preference route, NOT this one. Nothing here touches nurture.
+#:
+#: Its sibling `user/job-search-preference` is a real WRITE that changes how he
+#: appears to recruiters. Not built, and not to be confused with this.
+EP_GET_PREFERENCE = "talent/get-preference"                  # GET, no params
+
 # The route used to prove a session is real. Chosen because its 401-when-logged-out
 # behaviour was MEASURED live on 2026-08-21, not assumed.
 EP_AUTH_PROBE = EP_PROFILE
@@ -163,6 +202,34 @@ QP_IS_SAVED_FILTER = "is_saved_filter"                # GET EP_OPPORTUNITIES, va
 #: server deliberately does not fetch, so it was not testable from here.
 EP_COMPANY_SALARY = "get-company-salary-data"         # GET ?hr_id= (id space UNRESOLVED)
 EP_COMPANY_DETAIL = "get-company-detail"              # GET ?hr_id= (id space UNRESOLVED)
+
+#: "Jobs like this one." RECORDED, DELIBERATELY NOT BUILT, and the first
+#: reason is a correction: it was handed to this wave as a read. It is not.
+#:
+#: It is a **POST**, body ``{hr_id, user_email}``, VERIFIED in app.js as export
+#: `NuB` (`_slice-uplers-route-inventory.md`, four UI call sites). `hr_id` here
+#: is the HR NUMBER off the pathname - neither `enc_id` nor the numeric id, which
+#: is a third spelling of the same argument on the same API. Response is
+#: `res.data.data` and it is a list.
+#:
+#: Read-SHAPED, since the bundle only ever spreads the result into redux, but
+#: read-shaped is not read. Three reasons it stays unbuilt:
+#:
+#:   1. It would put the FIRST non-write POST into a server whose write-surface
+#:      census (2 requisition writes, 2 profile writes, 1 config write) is a
+#:      load-bearing safety artefact. A census that starts admitting POSTs
+#:      "because that one is really a read" stops being a census.
+#:   2. It sends HIS EMAIL ADDRESS in the body to get back a list.
+#:   3. The payoff is near zero here. This server already indexes all 250
+#:      requisitions locally, so "similar to this one" is answerable offline by
+#:      `uplers_rank_opportunities()` against a record we already hold - with
+#:      jobcore's scoring, which is comparable across servers, rather than
+#:      Uplers' opaque one.
+#:
+#: Not probed live either: a POST to an unbuilt route on his live account, for
+#: a feature already decided against, is a spend with no payoff.
+EP_FIND_SIMILAR_JOB = "find-similar-job"          # POST {hr_id: HR_Number, user_email}
+EP_TALENT_MATCHMAKE = "talent-matchmake"          # POST {hr_id: HR_Number}, same page
 
 #: Why `uplers_my_interviews` can return an empty diary that is NOT "no
 #: interviews": Uplers builds that list by scanning a connected mailbox, and

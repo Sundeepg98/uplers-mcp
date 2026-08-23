@@ -175,3 +175,63 @@ Two further facts this capture pinned:
   way is counted and REPORTED as unreadable rather than silently dropped.
 
 Nothing was redacted: the payload carries no private key. `assert_clean` ran over it anyway.
+
+---
+
+## The seven agent-read-through fixtures - captured 2026-08-23
+
+Captured from his live signed-in session by `scripts/capture_outreach.py`. Re-run that script to
+refresh them; do not hand-edit. Seven GETs, one pass, no retries.
+
+| file | route | what it holds |
+|---|---|---|
+| `outreach_step.json` | `talent/outreach/outreach-step` | plan and setup state |
+| `outreach_dashboard.json` | `talent/outreach/get-outreach-dashboard-data` | the agent's counters |
+| `outreach_pending_jobs.json` | `talent/outreach/pending-jobs` | the queue - EMPTY |
+| `outreach_missed_followups.json` | `talent/outreach/missed-positive-reply-followups` | 7 unanswered positive replies |
+| `outreach_tailor_activity.json` | `talent/outreach/agent-tailor-activity` | 48 runs, 32 completed / 16 failed |
+| `talent_preference.json` | `talent/get-preference` | his preferences + the master lookup tables |
+| `saved_filter_page.json` | `talent/hr/opportunities?is_saved_filter=1` | his platform bookmarks - EMPTY |
+
+**Two envelope idioms, and they do not agree.** `outreach_step.json` answers
+`{"status": "success", ...}` - the STRING. The other four outreach routes answer
+`{"status": 200, ...}` - the INTEGER. `outreach.unwrap` accepts both and refuses anything else.
+`saved_filter_page.json` has no `status` field at all: it is the ordinary paginator envelope.
+
+**Two EMPTY results that are answers, not failures.** `pending-jobs` returns `data: []` (his agent
+has nothing queued) and the saved page returns `bookmarkedCount: 0` with zero rows (he has saved
+nothing on Uplers' own site). Both are pinned by tests, because a shaper that renders either as an
+error is telling him something untrue.
+
+### Redaction - and why it is not one rule but two
+
+`missed-positive-reply-followups` is the only route in this suite that returns **other people**:
+named humans at named companies, their business email, their LinkedIn profile and the words they
+wrote back. `talent/get-preference` returns his pay.
+
+- **DELETED outright**, so a test can assert absence and a recapture cannot quietly reintroduce
+  one: `current_ctc`, `expected_ctc`, `monthly_salary`, `ctc_breakdown`, `dob`, `contact_number`,
+  `address`, `email`, `profile_pic*`, `resume*`, `original_resume`, `ra_*_url`, `linkedin_id`,
+  `token`, `guest_token`, `access_token`.
+- **MASKED, key kept and value replaced** by a synthetic of the same shape: `contact_display`,
+  `contact_value`, `employee_business_email`, `to_email`, `from_email`, `employee_linkedin_url`,
+  `employee_name`, `message_full`, `reply_summary`, `gmail_thread_id`. Deleting these would leave
+  the fixture unable to test the shaper that exists to surface those very rows. Placeholders use
+  the RFC 2606 reserved `.invalid` TLD, which can never resolve.
+- **NOT masked, deliberately:** `reply_category` is a platform-generated enum rather than a
+  person's words, and it is the field the shaper actually reads. `thread_subject` is Uplers' own
+  template output. `company_name` follows the same rule as the six public fixtures above, which
+  keep company names verbatim.
+
+The proof is **re-read off disk**, not off the object that was written: `write_fixture` reloads the
+file it just wrote and hunts every string for an email or a `linkedin.com/in/` URL outside the
+placeholder space. A hit DELETES the file rather than leaving a half-clean fixture looking
+finished.
+
+**Known-bad history.** The raw, pre-redaction versions of these files were swept into `fa22b49` by
+a concurrent `git add -A` and are on `origin/master`. `git show fa22b49:tests/fixtures/outreach_missed_followups.json`
+still matches the real contact strings. The repo is PRIVATE with 0 forks and one owner (`gh repo
+view`), so no third party ever had read access; history surgery on a shared branch with live CI is
+the operator's call. Recorded here because `d35646a` reported the opposite - "an independent secret
+sweep over all eight files found nothing sensitive" - and a false all-clear left in the record is
+worse than the untidy commit it describes.

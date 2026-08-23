@@ -702,10 +702,12 @@ capture time and their absence is asserted, in both the committed fixture and th
 because a shaped profile ends up in transcripts, logs and reports. The private key names are
 filtered out of `sections_present` too - "expected_ctc is populated" is itself a disclosure.
 
-### The 19 tools
+### The 23 tools
 
 (The heading read "17" while the table held 18 rows, from `uplers_my_assessments`
-landing without it being bumped. Corrected here rather than left to rot.)
+landing without it being bumped. Corrected then, and the count is now pinned by
+`test_importing_server_registers_exactly_the_expected_tools`, so a tool cannot
+land again without a human editing the number.)
 
 | Tool | What it is for |
 |---|---|
@@ -725,6 +727,10 @@ landing without it being bumped. Corrected here rather than left to rot.)
 | `uplers_list_profile_snapshots()` | Restore points, newest first. Reads disk only; needs no session. |
 | `uplers_my_interviews(detailed=True)` | Interviews Uplers has arranged for him. Read-only. See the namespace note below. |
 | `uplers_my_assessments()` | Assessments HE has sat, and Uplers' own `cleared` count. The other half of a story the server previously told only from the requisition's side: 99 of the 250 indexed records demand an assessment, but nothing reported which ones he had already done. Read-only, no arguments. |
+| `uplers_agent_readthrough()` | **What Uplers' own paid agent has done for him, and what it missed.** He is paying for their autonomous applier (plan 2, `outreach_mode: "auto"`) and until now none of its output was visible here. Reads five GETs and assembles them: unanswered positive replies ranked oldest-first, which of the agent's two channels is actually connected, 48 runs broken down by outcome, and a `disagreements` block where two Uplers routes report different numbers. Read-only; no write path exists in the tool or the module behind it. |
+| `uplers_platform_saved_jobs(search=None, ...)` | Jobs he bookmarked on **Uplers' own site**, which is a different list from `uplers_save_job`'s local shortlist and always has been. Takes `search` and nothing else: Uplers' code drops every other filter when the saved flag is set, so a filtered request would return his saved jobs *unfiltered while looking filtered*. This refuses instead of sending it. |
+| `uplers_my_preferences()` | What **Uplers** thinks he wants, as opposed to what the local profile says. Fit scores here are computed against the local profile; Uplers ranks him against these, and the two had never been compared because one was invisible. Ids are resolved to labels against the lookup tables shipped in the same response; an id with no matching row is marked `UNRESOLVED` rather than dropped or guessed. |
+| `uplers_assessment_gates(page_size=50)` | Which feed rows demand an assessment **before** he can apply. No new endpoint - `ai_needed` and `custom_screening_needed` already rode on rows this server reads. **Pre-apply signal only:** all 9 of his existing applications read `ai_needed: false`, so nothing here explains why they stall. Absent is reported as `unknown` and never folded into `false`. |
 | `uplers_filter_options(kind, search=None)` | Turns "React" or "Bangalore" into the internal ids `uplers_my_feed` needs. `kind` is `role` / `skill` / `location` / `company`. |
 | `uplers_apply(hr_number, confirm=False)` | **Applies. Cannot be undone.** Previews by default; sends nothing without `confirm=True`; refuses to apply twice. Read "Applying cannot be undone" first. |
 | `uplers_dismiss(hr_number, confirm=False, undo=False)` | Mark "not interested", or reverse that with `undo=True`. Genuinely reversible - Uplers ships the reset flag. Previews by default. |
@@ -746,16 +752,33 @@ Re-run `uplers_login()` whenever `uplers_auth_status()` says `false` or a read t
 session expired - expect that roughly daily. The public tier needs none of this and keeps working
 throughout.
 
-### One namespace exception, stated plainly
+### The namespace exception, stated plainly - and why it grew
 
-`uplers_my_interviews` reads `talent/outreach/interview-list`. That sits under `talent/outreach/*`,
-a prefix otherwise **excluded** from this server because it is where Uplers' paid outreach-agent
-product lives.
+`talent/outreach/*` is where Uplers' **paid outreach-agent product** lives, and this server
+otherwise excludes the whole prefix. Six routes under it are now read, and none is written.
 
-This one route is admitted deliberately: it is a plain GET of his **own** interview schedule.
-Reading your own calendar is using the platform normally, not reimplementing a SKU. The write half
-of the pair, `talent/outreach/interview-feedback`, is deliberately **not** built - submitting
-feedback through an API instead of their UI is a different act, and nothing here needs it.
+`uplers_my_interviews` was the first, admitted because it is a plain GET of his **own** interview
+schedule: reading your own calendar is using the platform normally, not reimplementing a SKU.
+
+The other five arrived on 2026-08-23 behind `uplers_agent_readthrough`, on the same principle and
+a sharper fact. He is **already paying** for Uplers' autonomous applier - measured, not inferred:
+`plan: 2`, `has_plan_expired: false`, `plan_end_date: 2026-09-10`, `auto_run: 1`,
+`outreach_mode: "auto"`. It had run 48 jobs and produced 8 positive replies, and this server could
+not see any of it. Reading the output of an agent he already owns is the `interview-list`
+precedent, not a new one.
+
+**What that emphatically does not license is building a second applier**, and this server does not
+have one. The reason is not "apply cannot be undone" - Naukri has no withdraw either and this
+family shipped an agent there. It is that a second *uncoordinated* agent applying from one account,
+against a **250-requisition** board, through a single intermediary who gates every future match,
+while the vendor's own agent already holds the wheel, is the wrong answer at any quality of
+implementation.
+
+The write half of the namespace stays unbuilt: `interview-feedback`, and
+`consent-email-job-scan` - which changes what Uplers reads out of his mailbox and is his decision,
+not this server's. `tests/test_agent_tools.py` measures the boundary rather than asserting it:
+every request the four tools emit is checked to be a GET, against an exact allowlist of routes,
+with a control proving the census records a write when one happens.
 
 One more route is excluded for a reason worth recording, because its name invites the mistake:
 **`talent/recommendations` is not a job-recommendations feed.** Despite the name, its body is
