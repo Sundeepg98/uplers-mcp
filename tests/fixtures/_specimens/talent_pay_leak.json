@@ -1,0 +1,13 @@
+{
+  "talent": {
+    "id": 975037,
+    "current_ctc": "0",
+    "expected_ctc": "0",
+    "monthly_salary": "0",
+    "ctc_breakdown": {
+      "fixed": "0",
+      "variable": "0"
+    },
+    "preferred_role": "Backend Development"
+  }
+}

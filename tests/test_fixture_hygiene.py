@@ -54,12 +54,26 @@ characters plus a length answer that while routing nothing to anybody.
 
 CONTROLS. Every assertion in the sweep says a leak is ABSENT, and that shape is
 worthless unless the detector behind it demonstrably fires when a leak is
-PRESENT. The specimen is not synthetic: fa22b49 is still in this repo's history,
-its blob still holds the real addresses, and the controls marked `__CONTROL`
-below load it through `git show` and assert the exact offender count. They skip
-rather than error where git or the object is unavailable, so a shallow clone
-does not turn a missing specimen into a red build - but where the object IS
-reachable, they assert.
+PRESENT. The controls marked `__CONTROL` below load a specimen and assert the
+exact offender count.
+
+THE SPECIMEN IS SYNTHETIC AND COMMITTED, AND IT DID NOT USED TO BE. It was
+`git show fa22b49:<path>` - the real capture, which was a better specimen in
+every way except one: another process was allowed to delete it, and one did.
+The privacy rewrite removed that blob from every published ref; the loader
+returned None; None meant `pytest.skip`; a skip is not a failure. Measured on a
+fresh clone of the rewritten remote, this file reported `10 passed, 2 skipped`,
+and the two skipped tests were the only ones proving the detector still
+detects. It could have been commented out and nothing would have gone red.
+
+Two rules came out of that, and both are load-bearing here:
+
+* A control may not DEPEND on history it does not own. History is mutable by
+  policy - rewrites, shallow clones, retention - and a control whose evidence
+  lives there has an expiry date that nothing announces.
+* ABSENCE OF THE SPECIMEN IS A FAILURE, NOT A SKIP. A skip cannot be
+  distinguished from "not applicable on this machine", which is precisely the
+  disguise the defect above wore for as long as it lasted.
 """
 
 from __future__ import annotations
@@ -67,7 +81,6 @@ from __future__ import annotations
 import collections
 import json
 import re
-import subprocess
 
 from pathlib import Path
 
@@ -77,11 +90,36 @@ TESTS_DIR = Path(__file__).resolve().parent
 FIXTURE_DIR = TESTS_DIR / "fixtures"
 REPO_ROOT = TESTS_DIR.parent
 
-#: The commit that published the raw capture. Still reachable, still dirty, and
-#: therefore the only specimen worth calibrating this instrument against.
-LEAK_COMMIT = "fa22b49"
-CONTACT_BLOB = "tests/fixtures/outreach_missed_followups.json"
-PAY_BLOB = "tests/fixtures/talent_preference.json"
+#: The specimens these controls calibrate against. COMMITTED FILES, not blobs
+#: pulled out of git history.
+#:
+#: They used to be `git show fa22b49:<path>` - the real capture, still dirty,
+#: still reachable. That was the better specimen right up until it wasn't: the
+#: privacy rewrite removed those blobs from every published ref, and
+#: `git_blob()` answered None, and `specimen()` turned None into `pytest.skip`.
+#: A skip is not a failure, so CI stayed green while the two controls that
+#: prove this detector still detects ANYTHING stopped running. Measured on a
+#: fresh clone of the rewritten remote: `10 passed, 2 skipped` - and the
+#: detector could have been commented out entirely without a single red build.
+#:
+#: A control calibrated against evidence that another process is allowed to
+#: destroy is a control with a scheduled expiry date, and nothing announces the
+#: date. So the specimens are synthetic and committed, which no rewrite, no
+#: shallow clone and no missing git binary can take away.
+#:
+#: The values inside them satisfy two OPPOSING constraints at once, which is
+#: the only reason this works: they do NOT match the placeholder allowlist
+#: below - so this detector fires on them, which is the point - while still
+#: being admitted by tests/test_pii_hygiene.py, which sweeps every tracked
+#: file. `.invalid` is a reserved TLD and the slugs carry a synthetic token.
+#: A specimen that tripped the hygiene guard would just move the problem.
+#:
+#: They live in a SUBDIRECTORY because `fixture_files()` globs `*.json`
+#: non-recursively; a specimen sitting beside the real fixtures would be swept
+#: as a leak and turn the very guards it calibrates red.
+SPECIMEN_DIR = FIXTURE_DIR / "_specimens"
+CONTACT_BLOB = SPECIMEN_DIR / "outreach_contact_leak.json"
+PAY_BLOB = SPECIMEN_DIR / "talent_pay_leak.json"
 
 # Deliberately loose: it is a DETECTOR, not a validator. Anything that would
 # read as an address to a human scanning the file has to trip it, because the
@@ -206,38 +244,32 @@ def load(path: Path):
         pytest.fail("%s is not parseable JSON: %s" % (path.name, exc))
 
 
-def git_blob(rev: str, path: str):
-    """One committed blob, parsed - or None when git cannot supply it.
+def specimen(path: Path):
+    """The synthetic leak specimen. ABSENT IS A FAILURE, never a skip.
 
-    None is the SKIP signal, and it covers every reason the specimen might be
-    out of reach on a machine that is not this one: no git on PATH, not a
-    checkout, or a shallow clone whose history does not go back far enough to
-    contain the object. None of those is a hygiene failure, so none of them
-    may turn the build red.
+    This used to reach into git history and `pytest.skip` when the object was
+    out of reach - no git, a shallow clone, or history that no longer went back
+    far enough. Every one of those reads as "not applicable here", and that is
+    exactly the problem: a skip cannot be told apart from "the thing I exist to
+    prove has been deleted". The privacy rewrite deleted it, and the skip
+    reported the same green it had always reported.
+
+    So absence is now RED. The specimen is a committed file; if it is missing,
+    something removed a control's evidence, and that is a defect in the repo
+    rather than a property of the machine running the suite.
     """
+    if not path.exists():
+        pytest.fail(
+            "specimen %s is MISSING. It is a committed file and these controls "
+            "cannot certify anything without it. Do not skip past this and do "
+            "not weaken the assertions to match a smaller specimen: restore "
+            "the file, or regenerate one that reproduces the counts asserted "
+            "below." % path.relative_to(REPO_ROOT).as_posix())
     try:
-        done = subprocess.run(
-            ["git", "-C", str(REPO_ROOT), "show", "%s:%s" % (rev, path)],
-            capture_output=True, timeout=60,
-        )
-    except (OSError, subprocess.SubprocessError):
-        return None
-    if done.returncode != 0:
-        return None
-    try:
-        return json.loads(done.stdout.decode("utf-8"))
-    except (UnicodeDecodeError, ValueError):
-        return None
-
-
-def specimen(path: str):
-    """The committed leak, or a clean skip."""
-    body = git_blob(LEAK_COMMIT, path)
-    if body is None:
-        pytest.skip("specimen %s:%s unavailable (no git, or a shallow clone "
-                    "without the object) - the control cannot run here"
-                    % (LEAK_COMMIT, path))
-    return body
+        return json.loads(path.read_text(encoding="utf-8"))
+    except ValueError as exc:
+        pytest.fail("specimen %s is not parseable JSON: %s"
+                    % (path.relative_to(REPO_ROOT).as_posix(), exc))
 
 
 class TestNoFixtureCarriesAContactRoute:
@@ -306,13 +338,19 @@ class TestNoFixtureCarriesAContactRoute:
         assert len(admitted_urls) == 7, len(admitted_urls)
 
 
-class TestTheDetectorFiresOnTheCommittedLeak:
-    """__CONTROL group, calibrated against the real thing rather than a mock.
+class TestTheDetectorFiresOnASpecimenLeak:
+    """__CONTROL group. A guard shown only passing certifies nothing.
 
-    fa22b49 is still in this repo's history and its blobs still hold the real
-    data. A guard for this class of defect that has only ever been shown
-    passing is indistinguishable from a guard with the detector commented out,
-    and the specimen to rule that out already exists - so these load it.
+    A guard for this class of defect that has only ever been shown passing is
+    indistinguishable from a guard with the detector commented out. These load
+    a specimen that DOES leak and assert the exact offender count, so the
+    difference is measured rather than assumed.
+
+    The counts below were MEASURED against the original real capture and are
+    reproduced exactly by the synthetic specimen - same seven rows, same six
+    routing fields per row, same two addresses buried in prose. The specimen
+    was built to those numbers rather than the numbers relaxed to fit it, so
+    the calibration survived the substitution instead of being weakened by it.
     """
 
     def test_the_contact_detector_fires_on_the_committed_leak__CONTROL(self):

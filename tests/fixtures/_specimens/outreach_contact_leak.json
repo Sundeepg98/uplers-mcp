@@ -1,0 +1,102 @@
+{
+  "data": {
+    "count": 7,
+    "days": 15,
+    "rows": [
+      {
+        "company_name": "Specimen Systems 1",
+        "contact_type": "email",
+        "contact_display": "a.nonperson1@vendor1.invalid",
+        "contact_value": "a.nonperson1@vendor1.invalid",
+        "employee_name": "Specimen Contact 1",
+        "employee_business_email": "a.nonperson1@vendor1.invalid",
+        "employee_linkedin_url": "https://www.linkedin.com/in/specimen-placeholder-1",
+        "from_email": "a.nonoperator1@sender1.invalid",
+        "to_email": "a.nonperson1@vendor1.invalid",
+        "outreach_employee_id": 975037,
+        "thread_sent_at": "2026-01-01T00:00:00+00:00",
+        "message_full": "Hi, following up on the role. Reply to a.nonperson1@vendor1.invalid and I will pick it up. Regards."
+      },
+      {
+        "company_name": "Specimen Systems 2",
+        "contact_type": "email",
+        "contact_display": "a.nonperson2@vendor2.invalid",
+        "contact_value": "a.nonperson2@vendor2.invalid",
+        "employee_name": "Specimen Contact 2",
+        "employee_business_email": "a.nonperson2@vendor2.invalid",
+        "employee_linkedin_url": "https://www.linkedin.com/in/specimen-placeholder-2",
+        "from_email": "a.nonoperator2@sender2.invalid",
+        "to_email": "a.nonperson2@vendor2.invalid",
+        "outreach_employee_id": 239935,
+        "thread_sent_at": "2026-01-02T00:00:00+00:00",
+        "reply_summary": "Candidate replied asking to move the thread to a.nonperson2@vendor2.invalid instead."
+      },
+      {
+        "company_name": "Specimen Systems 3",
+        "contact_type": "email",
+        "contact_display": "a.nonperson3@vendor3.invalid",
+        "contact_value": "a.nonperson3@vendor3.invalid",
+        "employee_name": "Specimen Contact 3",
+        "employee_business_email": "a.nonperson3@vendor3.invalid",
+        "employee_linkedin_url": "https://www.linkedin.com/in/specimen-placeholder-3",
+        "from_email": "a.nonoperator3@sender3.invalid",
+        "to_email": "a.nonperson3@vendor3.invalid",
+        "outreach_employee_id": 250082,
+        "thread_sent_at": "2026-01-03T00:00:00+00:00"
+      },
+      {
+        "company_name": "Specimen Systems 4",
+        "contact_type": "email",
+        "contact_display": "a.nonperson4@vendor4.invalid",
+        "contact_value": "a.nonperson4@vendor4.invalid",
+        "employee_name": "Specimen Contact 4",
+        "employee_business_email": "a.nonperson4@vendor4.invalid",
+        "employee_linkedin_url": "https://www.linkedin.com/in/specimen-placeholder-4",
+        "from_email": "a.nonoperator4@sender4.invalid",
+        "to_email": "a.nonperson4@vendor4.invalid",
+        "outreach_employee_id": 570369,
+        "thread_sent_at": "2026-01-04T00:00:00+00:00"
+      },
+      {
+        "company_name": "Specimen Systems 5",
+        "contact_type": "email",
+        "contact_display": "a.nonperson5@vendor5.invalid",
+        "contact_value": "a.nonperson5@vendor5.invalid",
+        "employee_name": "Specimen Contact 5",
+        "employee_business_email": "a.nonperson5@vendor5.invalid",
+        "employee_linkedin_url": "https://www.linkedin.com/in/specimen-placeholder-5",
+        "from_email": "a.nonoperator5@sender5.invalid",
+        "to_email": "a.nonperson5@vendor5.invalid",
+        "outreach_employee_id": 398524,
+        "thread_sent_at": "2026-01-05T00:00:00+00:00"
+      },
+      {
+        "company_name": "Specimen Systems 6",
+        "contact_type": "email",
+        "contact_display": "a.nonperson6@vendor6.invalid",
+        "contact_value": "a.nonperson6@vendor6.invalid",
+        "employee_name": "Specimen Contact 6",
+        "employee_business_email": "a.nonperson6@vendor6.invalid",
+        "employee_linkedin_url": "https://www.linkedin.com/in/specimen-placeholder-6",
+        "from_email": "a.nonoperator6@sender6.invalid",
+        "to_email": "a.nonperson6@vendor6.invalid",
+        "outreach_employee_id": 815140,
+        "thread_sent_at": "2026-01-06T00:00:00+00:00"
+      },
+      {
+        "company_name": "Specimen Systems 7",
+        "contact_type": "email",
+        "contact_display": "a.nonperson7@vendor7.invalid",
+        "contact_value": "a.nonperson7@vendor7.invalid",
+        "employee_name": "Specimen Contact 7",
+        "employee_business_email": "a.nonperson7@vendor7.invalid",
+        "employee_linkedin_url": "https://www.linkedin.com/in/specimen-placeholder-7",
+        "from_email": "a.nonoperator7@sender7.invalid",
+        "to_email": "a.nonperson7@vendor7.invalid",
+        "outreach_employee_id": 380801,
+        "thread_sent_at": "2026-01-07T00:00:00+00:00"
+      }
+    ]
+  },
+  "message": "Reply reminders fetched successfully."
+}
