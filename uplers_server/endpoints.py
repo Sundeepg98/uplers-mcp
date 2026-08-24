@@ -95,11 +95,16 @@ EP_INTERVIEW_LIST = "talent/outreach/interview-list"  # GET, ?detailed=true
 #: own has done is using the platform normally; it is not reimplementing the
 #: SKU. Precedent already on record: EP_INTERVIEW_LIST.
 #:
-#: THE LINE IS READS ONLY, and it is a hard one. The write half of this
-#: namespace stays unbuilt: `interview-feedback`, `consent-email-job-scan`,
-#: and anything that would make a SECOND agent apply from one account. He
-#: already has an applier; a second uncoordinated one against a
-#: 250-requisition board where apply is permanent is the wrong answer.
+#: THE LINE WAS READS ONLY UNTIL 2026-08-24, and it moved by exactly four
+#: routes - all four REVERSIBLE SETTINGS writes, none of them a send. Each one
+#: is marked WRITE ARM and sits directly under the read it pairs with, in the
+#: ring below. What has NOT moved is the part
+#: that mattered: `store-employee-requests` (the actual outreach send, whose
+#: own UI copy says it cannot be undone), `interview-feedback`,
+#: `consent-email-job-scan`, and anything that would make a SECOND agent apply
+#: from one account stay unbuilt. He already has an applier; a second
+#: uncoordinated one against a 250-requisition board where apply is permanent
+#: is the wrong answer.
 #:
 #: ENVELOPE TRAP, measured rather than assumed: these five do NOT share one
 #: success idiom. `outreach-step` answers `{"status": "success", ...}` - the
@@ -111,7 +116,10 @@ EP_OUTREACH_PENDING = "talent/outreach/pending-jobs"
 EP_OUTREACH_MISSED_FOLLOWUPS = "talent/outreach/missed-positive-reply-followups"
 EP_OUTREACH_ACTIVITY = "talent/outreach/agent-tailor-activity"
 
-#: THE NEXT RING OF THE SAME NAMESPACE, and the same hard line: READS ONLY.
+#: THE NEXT RING OF THE SAME NAMESPACE. Six READS, and - since 2026-08-24 -
+#: the four REVERSIBLE WRITE arms that sit on four of them. Each write arm is
+#: marked WRITE ARM and sits directly under its read; anything in this ring
+#: without that marker is a plain GET.
 #: All six VERIFIED LIVE 2026-08-23 and captured as fixtures by
 #: `scripts/capture_agent_surface.py`; every one answered a real 200 with real
 #: data on his live session, and each fixture is named beside its route below.
@@ -142,6 +150,22 @@ EP_OUTREACH_SCANNED_JOBS = "talent/outreach/recommended-jobs-email"
 
 #: Whether an unanswered reply gets chased at all, per channel. Its
 #: `disabled_followup_*` flags are INVERTED - false means the channel is ON.
+#:
+#: WRITE ARM: **THE SAME PATH STRING, POSTed.** There is no second constant for
+#: it and there must not be - a second spelling of one path is a second thing
+#: to keep in step. VERIFIED at chunk `748` @15521 (twin `9071`), the only POST
+#: call site in 13.4 MB of bundle: a flat 9-key object literal, no spread,
+#: every key sent every time, `channel` the hardcoded literal `"both"`, and
+#: each `interval_days*` clamped client-side by `e > 0 ? e : 1`. The GET arm at
+#: `748` @10953 falls back from `disabled_followup_gmail`/`_linkedin` to a
+#: legacy singular `disabled_followup` and from `interval_days_gmail`/`_linkedin`
+#: to `interval_days`; **the POST never sends the singular flag** - there is no
+#: `disabled_followup` key in the body. Two client-side gates run before it: a
+#: channel's message must contain BOTH `{{outreachEmployee}}` and `{{jobTitle}}`
+#: unless that channel is disabled or its message is empty. All of it is
+#: mirrored in `uplers_server.outreach_write`, which is handed a sender by
+#: server.py and cannot reach this route on its own.
+#: Evidence: `_audit/_slices/_slice-outreach-write-inventory.md` section 6.
 EP_OUTREACH_SETTINGS_FOLLOWUP = "talent/outreach/settings/followup"
 
 #: The real blocklist, 16 rows on 2026-08-23, and what Uplers means when an
@@ -156,15 +180,89 @@ EP_OUTREACH_SETTINGS_FOLLOWUP = "talent/outreach/settings/followup"
 #: it and no tool in this server should.
 EP_OUTREACH_DISABLED_COMPANIES = "talent/outreach/settings/disabled-companies"
 
+#: WRITE ARM, ADD: **the same path string, POSTed**, body `{company_id}`, and
+#: like the follow-up route it gets no second constant. VERIFIED chunk `748`
+#: @13095; the response's `res.data.data` is the created blocklist row.
+#:
+#: WRITE ARM, REMOVE: a DELETE whose id is a **PATH SEGMENT**, no body and no
+#: params. VERIFIED chunk `748` @13890. This one DOES get its own constant
+#: because the path is genuinely different, and it is a TEMPLATE rather than a
+#: prefix on purpose: a caller that concatenated onto the bare collection path
+#: and got the id wrong would issue `DELETE` at the COLLECTION URL. The `{id}`
+#: placeholder makes that impossible to do by accident, and
+#: `outreach_write.delete_sender_for` refuses any path that does not carry it.
+#:
+#: **THE ID IS THE BLOCKLIST ROW'S `id`, NOT `company_id`.** The two live side
+#: by side on every row (`{"id": 261, "company_id": 19868, ...}` in
+#: `tests/fixtures/outreach_disabled_companies.json`), both are small integers,
+#: and swapping them unblocks a different company or nothing at all - silently,
+#: with a 200. VERIFIED from their own local filter after the DELETE succeeds:
+#: `e.filter(function(e){return e.id!==n})`, where `n` is the path segment. The
+#: POST's `{company_id}` comes from the OTHER space. This is the same class of
+#: trap as IDENTIFIER_SPACES below, on one route, one path apart.
+EP_OUTREACH_DISABLED_COMPANY_DELETE = (
+    "talent/outreach/settings/disabled-companies/{id}"
+)
+
 #: The auto-reply switch, its delay, and the 8 categories it can answer.
 #: MEASURED `handle_auto_reply: false` - the feature exists and is off.
 EP_OUTREACH_AUTO_REPLY = "talent/outreach/get-auto-reply"
+
+#: WRITE ARM of the route above, and the one write arm in this ring whose path
+#: is NOT its read's: the read is `get-auto-reply`, the write is
+#: `update-auto-reply`. Body `{hours, handle_auto_reply, auto_reply_categories}`,
+#: all three always sent. VERIFIED chunk `8379` @73141 (second call site
+#: `app.js` @5391603). One client-side gate runs before it: enabling with an
+#: empty `auto_reply_categories` is refused ("Select at least one category to
+#: enable auto-reply"). Mirrored in `uplers_server.outreach_write`.
+EP_OUTREACH_UPDATE_AUTO_REPLY = "talent/outreach/update-auto-reply"
 
 #: The outreach message templates. The one route in this ring whose body is
 #: PERSONAL: `gmail_template` is a multi-paragraph self-description carrying
 #: employer history, a LinkedIn URL and a notice period. Whatever reads this
 #: reports that a template EXISTS and what its SUBJECT is, never the body.
 EP_OUTREACH_TEMPLATES = "talent/outreach/get-message-templates"
+
+#: WRITE ARM of the route above, and the second one whose path is not its
+#: read's. Body `{message_template, message_subject, provider}` - exactly three
+#: keys, **no `tag`** - and ONE CHANNEL PER CALL. VERIFIED at all 6 call sites
+#: of the template editor (`_slice-outreach-write-inventory.md` section 5, Path
+#: B). Path A, the preview screen, sends a fourth key `tag` and is deliberately
+#: not built.
+#:
+#: **`provider` IS A NUMBER: 1 = LinkedIn, 2 = Gmail.** VERIFIED three ways -
+#: the declaration `oe=1,ie=2`, the demux `c===ie?r.gmail_message_id=u:...`,
+#: and an independent call site carrying the literal `provider:2` for a gmail
+#: save. The string `"gmail"` here is a different call, not a synonym.
+#:
+#: **THERE IS NO DELETE-TEMPLATE ROUTE ANYWHERE IN THE BUNDLE**, so this write
+#: is recoverable only from a copy taken BEFORE it. That is what
+#: `outreach_write.write_snapshot` is for, and why it is the one snapshot in
+#: this ring that has to hold personal text.
+EP_OUTREACH_STORE_TEMPLATE = "talent/outreach/store-message-template"
+
+# --- Same namespace, ONE-WAY, deliberately NOT built ----------------------
+# Recorded as PROSE and not as constants, on purpose: a constant is an
+# invitation to call it, and every route named here changes something on
+# Uplers that nothing can change back. The four writes above are in this
+# server BECAUSE they are reversible; these are out for the opposite reason.
+# Shapes and evidence live in `_audit/_slices/_slice-outreach-write-inventory.md`
+# (section 1a), which is where to look if one of them ever has to be built.
+#
+#   talent/outreach/store-employee-requests   THE ACTUAL OUTREACH SEND. Uplers'
+#                                             own UI copy says it cannot be
+#                                             undone. This is the SKU.
+#   talent/outreach/reveal-email              spends a reveal, one way
+#   talent/outreach/discard-job               drops a job out of the agent's
+#                                             queue with a feedback reason
+#   talent/outreach/auto-run-request          starts an agent run
+#   talent/outreach/interview-feedback        publishes a company review
+#   talent/outreach/extend-free-trial         )
+#   talent/outreach/claim-discount-offer      )  the five commercial claim
+#   talent/outreach/claim-custom-light-plan   )  routes - each one spends or
+#   talent/outreach/claim-referral-code       )  consumes an entitlement that
+#   talent/outreach/verify-referral-code      )  cannot be un-spent
+
 
 #: THE ONLY ROUTE THAT COUNTS THE REPLIES THAT SAID NO. Everything else in
 #: this ring counts positives: the dashboard reports `total_positive_replies`
@@ -238,6 +336,20 @@ AUTH_PROBE_NOTE = 'GET /api/talent/profile (401 {"message":"Unauthenticated."} w
 # uplers_replace_resume / uplers_restore_resume).
 # RECORDED ONLY, no caller anywhere in this server: EP_CANCEL_OPPORTUNITY and
 # EP_UPDATE_SAVED_HR.
+#
+# NOT THE WHOLE WRITE SURFACE, and this line exists so nobody reads it as one.
+# Four more writes live UP THIS FILE, beside their reads in the outreach ring,
+# each marked WRITE ARM: the follow-up settings POST and the disabled-companies
+# POST (both on the same path string as their GET, so neither has a constant of
+# its own), EP_OUTREACH_DISABLED_COMPANY_DELETE, EP_OUTREACH_UPDATE_AUTO_REPLY
+# and EP_OUTREACH_STORE_TEMPLATE. Their guards are in
+# `uplers_server/outreach_write.py`, which is handed a sender by server.py and
+# names none of the three write-only constants itself. It DOES name the four
+# read constants - it has to, to read the record back - and for the follow-up
+# and disabled-companies POSTs that read constant is also the write path,
+# because Uplers reused one path across two verbs. What stays structural there
+# is the sender, not the string: no route constant this module holds can put
+# anything on the wire.
 #
 # The header here read "shapes recorded; only job-not-interested is built"
 # until 2026-08-24. It was written when that was true and was never revisited
