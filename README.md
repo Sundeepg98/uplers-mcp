@@ -28,6 +28,24 @@ door on *Uplers'* side that only this server's local pre-flight snapshot can rev
 agent-config writes are reversible by construction - each reads its prior value before it writes
 and re-reads after. See "Applying cannot be undone" before using any of them.
 
+### This repository is published to be READ, not run
+
+It is **proprietary**, and `LICENSE` says so explicitly rather than leaving it to
+the default that silence implies: all rights reserved, provided for reference, no
+permission to use, copy, modify or distribute.
+
+That is not boilerplate, and the reason is the paragraph directly above.
+`uplers_apply` expresses interest, which on Uplers **is** applying, and there is
+no withdraw, no cancel and no un-apply anywhere in their product - verified as a
+complete negative search over their entire frontend bundle. Somebody who clones
+this and points it at their own account can do something to their own job search
+that nobody can reverse. The server also drives an authenticated session against
+a platform whose terms prohibit automated access.
+
+So the code is here to be read - the API archaeology, the write guards, the
+evidence trail in `_audit/` - and not to be pointed at anybody's account. If you
+want to do something with it, ask.
+
 ---
 
 ## Status
