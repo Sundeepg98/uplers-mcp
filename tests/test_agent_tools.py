@@ -9,11 +9,20 @@ is really read-only.
 WHY THE READ-ONLY CENSUS IS THE FIRST TEST IN THIS FILE. Three of these four
 tools live in or touch `talent/outreach/*`, which is the namespace of Uplers'
 PAID outreach-agent product, and that namespace also contains
-`interview-feedback` and `consent-email-job-scan` - a write that changes what
-Uplers reads out of his mailbox. One route away from every GET here is a POST
-that acts on his account. "It only reads" is therefore a claim that has to be
-MEASURED against the requests that left, not asserted from reading the code,
-because the code is one typo from being wrong and the typo is not visible.
+`interview-feedback`, `consent-email-job-scan` - a write that changes what
+Uplers reads out of his mailbox - and `store-employee-requests`, which IS the
+outreach send and which Uplers' own copy says cannot be undone. One route away
+from every GET here is a POST that acts on his account. "It only reads" is
+therefore a claim that has to be MEASURED against the requests that left, not
+asserted from reading the code, because the code is one typo from being wrong
+and the typo is not visible.
+
+AND THAT ARGUMENT GOT STRONGER ON 2026-08-24, which is why this note is being
+updated rather than left alone. `uplers_server/outreach_write.py` now exists
+and sends real POSTs and a DELETE into this same namespace. Until then the
+worst a typo here could do was call a route nobody had wired; now a wrong
+import reaches a module built to write. The tools tested in this file must
+still emit nothing but GETs, and that is measured below rather than trusted.
 
 The same reasoning covers `uplers_apply`, which is why no test in this file
 goes near it: on Uplers, expressing interest IS applying and there is no

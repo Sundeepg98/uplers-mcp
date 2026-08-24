@@ -316,6 +316,7 @@ class TestTheDeclaredSurfaceMatchesReality:
         report it.
         """
         from test_tools import (
+            AGENT_CONFIG_WRITE_TOOL_NAMES,
             CONFIG_TOOL_NAMES,
             LOCAL_WRITE_TOOL_NAMES,
             PROFILE_WRITE_TOOL_NAMES,
@@ -324,6 +325,7 @@ class TestTheDeclaredSurfaceMatchesReality:
 
         assert set(server.REQUISITION_WRITE_TOOLS) == WRITE_TOOL_NAMES
         assert set(server.PROFILE_WRITE_TOOLS) == PROFILE_WRITE_TOOL_NAMES
+        assert set(server.AGENT_CONFIG_WRITE_TOOLS) == AGENT_CONFIG_WRITE_TOOL_NAMES
         assert set(server.SHARED_CONFIG_WRITE_TOOLS) == CONFIG_TOOL_NAMES
         assert set(server.LOCAL_STATE_ONLY_TOOLS) == LOCAL_WRITE_TOOL_NAMES
 
@@ -335,8 +337,67 @@ class TestTheDeclaredSurfaceMatchesReality:
         assert writes["reach_uplers"]["profile"]["count"] == len(
             PROFILE_WRITE_TOOL_NAMES
         )
+        assert writes["reach_uplers"]["agent_config"]["count"] == len(
+            AGENT_CONFIG_WRITE_TOOL_NAMES
+        )
         assert writes["reach_the_shared_config"]["count"] == len(CONFIG_TOOL_NAMES)
         assert set(writes["local_state_only"]["tools"]) == LOCAL_WRITE_TOOL_NAMES
+
+    async def test_every_registered_write_tool_appears_in_the_census(self):
+        """No write may reach Uplers without a line in the census. MEASURED.
+
+        The three assertions above each pin ONE declared group against ONE
+        pinned set, which catches a group drifting out of step. What none of
+        them catches is a write tool belonging to NO group at all - it would
+        satisfy every per-group equality by simply not being in any of them,
+        and `uplers_server_info` would then describe a server that can do
+        something it does not mention.
+
+        That is the exact staleness the tool exists to catch, so it is measured
+        from the OTHER end: take the registered surface, take every name the
+        census declares anywhere, and assert the writes are covered.
+
+        PLANTED-CONTROLLED on 2026-08-24, and the plant had to be built
+        carefully to prove the right thing. A confirm-taking sixth tool was
+        registered, added to a NON-census set so the tool-name pin passed, and
+        TOOL_COUNTS bumped so the count test passed. Every other test in this
+        class stayed green - including both per-group equalities - and only the
+        `uncensused` assertion below went red, naming the planted tool. A
+        cruder plant (adding the name to AGENT_CONFIG_WRITE_TOOL_NAMES but not
+        to server.AGENT_CONFIG_WRITE_TOOLS) also goes red here, but it trips
+        the per-group equality too, so it does not isolate what this test
+        uniquely catches.
+        """
+        from test_tools import TOOL_NAMES
+
+        registered = {tool.name for tool in await server.mcp.list_tools()}
+        assert registered == TOOL_NAMES
+
+        censused = (
+            set(server.REQUISITION_WRITE_TOOLS)
+            | set(server.PROFILE_WRITE_TOOLS)
+            | set(server.AGENT_CONFIG_WRITE_TOOLS)
+            | set(server.SHARED_CONFIG_WRITE_TOOLS)
+            | set(server.LOCAL_STATE_ONLY_TOOLS)
+        )
+
+        # Every censused name must actually be a tool. A census that names a
+        # tool nobody registered is describing a server that does not exist.
+        assert censused <= registered, censused - registered
+
+        # And nothing that can write may sit outside it. The heuristic is the
+        # confirm gate: every write reaching Uplers previews unless confirmed,
+        # so `confirm` in a tool's schema is the machine-checkable mark of one.
+        confirmable = {
+            tool.name
+            for tool in await server.mcp.list_tools()
+            if "confirm" in (tool.input_schema.get("properties") or {})
+        }
+        uncensused = confirmable - censused
+        assert uncensused == set(), (
+            "these tools take confirm= and so can change something, but appear "
+            "in no census group: %s" % sorted(uncensused)
+        )
 
     async def test_the_resume_write_is_declared_a_one_way_door(self):
         """uplers_replace_resume must appear, and NOT in the apply list.

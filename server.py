@@ -45,6 +45,7 @@ from uplers_server import (
     fit,
     ids,
     insight,
+    outreach_write,
     policy as policy_mod,
     profile as prof,
     profile_write,
@@ -2108,7 +2109,7 @@ async def uplers_config(write_candidate: bool = False,
 #: the split. That banner is the only definition of the split there is: it is a
 #: physical line in this module, and which side of it a tool is defined on IS
 #: whether that tool needs an account.
-TOOL_COUNTS = {"total": 53, "public": 24, "authenticated": 29}
+TOOL_COUNTS = {"total": 58, "public": 24, "authenticated": 34}
 
 #: Can change something ON UPLERS, acting on a requisition.
 REQUISITION_WRITE_TOOLS = ("uplers_apply", "uplers_dismiss")
@@ -2121,6 +2122,25 @@ PROFILE_WRITE_TOOLS = (
     "uplers_restore_profile",
     "uplers_replace_resume",
     "uplers_restore_resume",
+)
+
+#: Can change what UPLERS' OWN PAID AGENT does next - the write half of the
+#: four switches `uplers_agent_settings` reads. A third kind of act again: none
+#: of these touches a requisition or the profile a recruiter reads, and all
+#: five are REVERSIBLE, which is why they were built when the rest of the
+#: namespace was not. Two are a route pair Uplers ships (block/unblock); three
+#: overwrite a settings record that a GET on the same data serves back, so the
+#: prior value is read before the write and reported after it.
+#:
+#: What is NOT here is the point of the grouping: nothing in this set applies
+#: to anything, sends a message to a person, or reveals a contact. See
+#: OUT_OF_SCOPE_BY_DESIGN.
+AGENT_CONFIG_WRITE_TOOLS = (
+    "uplers_set_followup",
+    "uplers_set_auto_reply",
+    "uplers_set_template",
+    "uplers_block_company",
+    "uplers_unblock_company",
 )
 
 #: The only tool that can write a file OTHER servers read.
@@ -2165,9 +2185,14 @@ CAPABILITIES = [
     "Uplers' OWN authoritative status, the profile recruiters actually see, "
     "interviews, assessments, and the platform's saved-jobs view.",
     "READ-THROUGH of the paid outreach agent HE ALREADY OWNS - what it ran, "
-    "what it found, and how it is configured. Reads only. This server does not "
-    "run an agent and will not build one; see out_of_scope_by_design.",
-    "Six writes that reach Uplers, every one confirm-gated and every one "
+    "what it found, and how it is configured. This server does not run an "
+    "agent and will not build one; see out_of_scope_by_design.",
+    "CONFIGURING that agent: the five REVERSIBLE switches - follow-up per "
+    "channel, auto-reply, message templates, and the block/unblock pair. What "
+    "this does NOT include is anything that applies, messages a person, or "
+    "reveals a contact; those stay refused and are named under "
+    "out_of_scope_by_design.",
+    "Eleven writes that reach Uplers, every one confirm-gated and every one "
     "previewing the exact request first. Enumerated exactly under `writes`.",
     "Self-description that can be falsified from OUTSIDE the process: `build` "
     "against `git rev-parse HEAD` on disk, `config.scoring_hash` against the "
@@ -2201,6 +2226,29 @@ WRITE_CENSUS = {
                 "omitted skill is deleted, and a replaced resume is gone from "
                 "Uplers. Both pairs go to talent/profile-upsert, the skills half "
                 "as JSON and the resume half as multipart."
+            ),
+        },
+        "agent_config": {
+            "count": len(AGENT_CONFIG_WRITE_TOOLS),
+            "tools": list(AGENT_CONFIG_WRITE_TOOLS),
+            "note": (
+                "The write half of talent/outreach/*, and ONLY the reversible "
+                "part of it. Two are a route pair Uplers ships - block and "
+                "unblock name each other in their own UI. The other three "
+                "overwrite a settings record that a GET serves back, so each "
+                "one READS THE LIVE RECORD FIRST, carries over every field the "
+                "caller did not name, snapshots, sends, and then re-reads to "
+                "say whether the value actually landed. A 200 is not proof a "
+                "value changed. None of the five applies to anything, messages "
+                "a person, or reveals a contact."
+            ),
+            "the_inversion": (
+                "Uplers stores the follow-up flags NEGATED - "
+                "disabled_followup_gmail: false means gmail is ON. These tools "
+                "take natural polarity (gmail_enabled) and the negation happens "
+                "exactly once, in outreach_write.to_disabled. A second negation "
+                "anywhere cancels the first and switches OFF the channel the "
+                "caller asked to switch ON, silently, with a 200 coming back."
             ),
         },
     },
@@ -2310,19 +2358,65 @@ OUT_OF_SCOPE_BY_DESIGN = [
     },
     {
         "what": (
-            "The WRITE half of talent/outreach/* - consent-email-job-scan, "
-            "consent-auto-run, interview-feedback. The READ half is built."
+            "CONNECTING THE LINKEDIN OUTREACH CHANNEL. Not refused on taste - "
+            "IMPOSSIBLE from here, and this is the finding rather than a "
+            "shortfall. It is the highest-value thing on this account and it "
+            "needs sixty seconds in HIS OWN BROWSER."
         ),
         "why": (
-            "The read half was admitted on a narrow, stated principle: reading "
-            "the output of an agent he already owns is using the platform "
-            "normally, not reimplementing a SKU. Writing is not reading. "
+            "POST talent/account/linkedin/connect carries {email, password} - "
+            "HIS ACTUAL LINKEDIN PASSWORD - to Uplers' API, followed by a "
+            "second stage on talent/account/linkedin/verify keyed on an "
+            "auth_type of either 'code_required' (a 2FA code sent to his email, "
+            "phone or authenticator) or 'linkedin_app_approval' (approve the "
+            "request in the LinkedIn app). VERIFIED from the rendered form in "
+            "their bundle: input#agent-onb-li-email and "
+            "input#agent-onb-li-password, placeholder 'Enter your LinkedIn "
+            "password'. Their own card prints 'We never see your password' "
+            "directly above that form. "
+            "THIS SERVER NEVER HANDLES A PASSWORD - the same rule uplers_login "
+            "already follows, which is why login opens a browser window and he "
+            "signs in himself. It would also be a THIRD party's credential, not "
+            "Uplers', handed to a vendor; his LinkedIn is a paid Premium Career "
+            "account and sharing credentials is against LinkedIn's own terms. "
+            "Automating it is refused at every one of those layers "
+            "independently. He connects it on the Happpy Agent onboarding card "
+            "under 'Enable linkedin Outreach'."
+        ),
+        "measured": (
+            "The channel is dead at both ends and three separate routes agree: "
+            "outreach-step says linkedin_connected false and linkedin_template "
+            "false, get-message-templates returns the empty string for the "
+            "linkedin template, preview-config carries its own "
+            "linkedin_connected false, and talent/account/status omits linkedin "
+            "entirely rather than reporting it false. Uplers' own failure text "
+            "names that dead channel on 11 of the 16 failed agent runs."
+        ),
+    },
+    {
+        "what": (
+            "The ONE-WAY half of talent/outreach/* - store-employee-requests, "
+            "reveal-email, discard-job, auto-run-request, interview-feedback, "
+            "consent-email-job-scan, consent-auto-run, and the five commercial "
+            "claim routes. The REVERSIBLE half is now built; see writes."
+        ),
+        "why": (
+            "The line moved from 'the namespace' to 'the effect', because one "
+            "ruling was covering 31 routes of very different character. What "
+            "was built is reversible AND reads its prior state back: two are a "
+            "route pair Uplers ships, three overwrite a settings record a GET "
+            "serves. What stays refused is refused for its own reason. "
+            "store-employee-requests IS the outreach send, and Uplers' own UI "
+            "copy says it cannot be undone. reveal-email spends a credit to "
+            "expose a person's address. auto-run-request queues the paid agent "
+            "at a job, which is the second-applier problem by another door. "
             "consent-email-job-scan changes WHAT UPLERS READS OUT OF HIS "
-            "MAILBOX, which is his decision and not this server's. "
-            "tests/test_agent_tools.py MEASURES the boundary rather than "
-            "asserting it: every request those tools emit is checked to be a GET "
-            "against an exact route allowlist, with a control proving the census "
-            "records a write when one happens."
+            "MAILBOX and consent-auto-run turns the autonomous applier itself "
+            "on and off - both are his decision, not this server's, and both "
+            "are reversible, so they are refused on WHOSE CALL IT IS rather "
+            "than on safety. The claim routes alter a live paid subscription. "
+            "None of these has a constant in endpoints.py: they are recorded "
+            "there as prose, because a constant is an invitation to call it."
         ),
     },
     {
@@ -2337,6 +2431,20 @@ OUT_OF_SCOPE_BY_DESIGN = [
             "plainly. Reimplementing a paid product for free against a "
             "marketplace whose value is a human recruiter advocating for you is "
             "a bad trade."
+        ),
+        "is_it_included_in_his_plan": (
+            "MEASURED, not assumed, because 'it might be bundled' would change "
+            "the answer and only a measurement can settle it. IT IS NOT. "
+            "talent/outreach/agent-plans returns a catalogue with exactly two "
+            "entries, id 1 (Starter, 30 days) and id 3 (Elite, 90 days), and "
+            "his outreach-step reads plan: 2 - a plan that is not in the "
+            "catalogue at all. The metering agrees from two directions: "
+            "outreach-step reads credit_plan 0, credit_left 0, credit_added 0, "
+            "and preview-config independently carries plan.paid true, "
+            "plan.expired false, plan.credit_left 0. So the tailor surface is "
+            "credit-metered and he holds zero credits. Wrapping those ~70 "
+            "routes would produce tools that fail at runtime, which is the "
+            "concrete reason on top of the principled one."
         ),
     },
     {
@@ -4281,6 +4389,236 @@ async def uplers_list_profile_snapshots() -> SnapshotList:
             else ["No snapshots. This server has never written to your Uplers profile."]
         ),
     )
+
+
+# --------------------------------------------------------------- tool 54 ---
+#
+# THE WRITE HALF OF THE FOUR SWITCHES `uplers_agent_settings` READS.
+#
+# Read `uplers_server/outreach_write.py` before touching any of the five tools
+# below. Three things there are not obvious from here and each one is a live
+# way to change the wrong thing with a 200 coming back:
+#
+#   * Uplers stores the follow-up flags INVERTED. `disabled_followup_gmail:
+#     false` means gmail is ON. The negation happens once, in
+#     outreach_write.to_disabled, and a second one anywhere cancels it.
+#   * The blocklist DELETE takes the blocklist ROW id, not the company id.
+#     Both are small integers on the same row.
+#   * `provider` goes on the wire as an INTEGER: 1 LinkedIn, 2 Gmail.
+#
+# The wrappers are three lines each on purpose - the guards that run in
+# production are the ones the tests exercise, not a copy of them.
+
+
+@mcp.tool()
+async def uplers_set_followup(
+    gmail_enabled: bool | None = None,
+    linkedin_enabled: bool | None = None,
+    gmail_interval_days: int | None = None,
+    linkedin_interval_days: int | None = None,
+    gmail_message: str | None = None,
+    linkedin_message: str | None = None,
+    confirm: bool = False,
+) -> dict:
+    """Whether your paid agent chases an unanswered reply, and how often.
+
+    This is the switch that decides whether somebody who replied and then heard
+    nothing gets followed up at all. Reversible: Uplers serves this record on a
+    GET at the same URL, so the exact prior values are read before the write
+    and reported back to you.
+
+    OMITTED ARGUMENTS ARE LEFT ALONE. Uplers' route takes the whole 9-key
+    record every time, so this tool reads the live record first and carries
+    over everything you did not name. A call that names nothing REFUSES rather
+    than re-sending the record unchanged.
+
+    The polarity here reads naturally and Uplers' does not - it stores these as
+    `disabled_followup_*`, where false means the channel is on. Say
+    `gmail_enabled=True` for "chase on gmail" and the inversion is handled.
+
+    Uplers' own gate on the messages is mirrored: a follow-up message must
+    contain both {{outreachEmployee}} and {{jobTitle}}, unless that channel is
+    disabled or its message is empty. A message missing one is refused here
+    rather than 422'd there.
+
+    With confirm=False it returns the exact 9-key body it would send and
+    changes nothing. Text you pass in is shown back verbatim; text carried over
+    unchanged from Uplers renders as a length and a hash, because the body
+    resends your existing follow-up messages on every write and an interval
+    change should not print them into a transcript.
+
+    Args:
+        gmail_enabled: chase unanswered replies on gmail.
+        linkedin_enabled: same for linkedin. NOTE that channel is not
+            connected, so enabling it changes a setting and nothing else.
+        gmail_interval_days: days between follow-ups. Clamped to at least 1,
+            which is Uplers' own clamp.
+        linkedin_interval_days: same for linkedin.
+        gmail_message: the follow-up text. Must carry both template variables.
+        linkedin_message: same for linkedin.
+        confirm: False previews. True snapshots, then sends, then re-reads.
+    """
+    async with _talent_client() as client:
+        return await outreach_write.set_followup(
+            client,
+            gmail_enabled=gmail_enabled,
+            linkedin_enabled=linkedin_enabled,
+            gmail_interval_days=gmail_interval_days,
+            linkedin_interval_days=linkedin_interval_days,
+            gmail_message=gmail_message,
+            linkedin_message=linkedin_message,
+            confirm=confirm,
+            send=outreach_write.json_sender_for(
+                client, endpoints.EP_OUTREACH_SETTINGS_FOLLOWUP
+            ),
+        )
+
+
+@mcp.tool()
+async def uplers_set_auto_reply(
+    enabled: bool | None = None,
+    hours: int | None = None,
+    categories: list[str] | None = None,
+    confirm: bool = False,
+) -> dict:
+    """Whether your agent answers replies for you, after how long, and to what.
+
+    It is currently OFF. One of its eight categories is `asking_resume`, which
+    is the category the oldest unanswered reply on this account falls into.
+    That is a fact about the account and not a recommendation - whether
+    software should answer somebody who asked you for your resume is your call,
+    which is why this tool previews and does not act.
+
+    Reversible: `talent/outreach/get-auto-reply` serves the same record, so the
+    prior values are read before the write and can be put straight back.
+
+    Uplers' own gate is mirrored: enabling with an empty category list is
+    refused. Categories outside the eight this account has seen are NOT
+    rejected - Uplers may know more than this fixture does - but the preview
+    names them, so a typo is visible before you confirm.
+
+    With confirm=False it returns the exact three-key body and changes nothing.
+
+    Args:
+        enabled: whether the agent answers replies at all.
+        hours: how long it waits first.
+        categories: which reply categories it will answer.
+        confirm: False previews. True snapshots, then sends, then re-reads.
+    """
+    async with _talent_client() as client:
+        return await outreach_write.set_auto_reply(
+            client,
+            enabled=enabled,
+            hours=hours,
+            categories=categories,
+            confirm=confirm,
+            send=outreach_write.json_sender_for(
+                client, endpoints.EP_OUTREACH_UPDATE_AUTO_REPLY
+            ),
+        )
+
+
+@mcp.tool()
+async def uplers_set_template(
+    channel: str, template: str, subject: str | None = None, confirm: bool = False
+) -> dict:
+    """Rewrite the outreach message your agent sends, on one channel.
+
+    One channel per call - Uplers' own editor saves them independently and this
+    does the same, so writing the linkedin template does not require re-sending
+    the gmail one.
+
+    THERE IS NO DELETE-TEMPLATE ROUTE ON UPLERS. The snapshot this tool takes
+    before it sends is the only way back to the previous text, and a blank
+    template body is refused rather than sent: their editor will happily store
+    an empty string, and with no delete route that is indistinguishable from a
+    mistake.
+
+    The existing template body is never printed back to you, on any channel -
+    the gmail one is a multi-paragraph self-description carrying employer
+    history and a notice period. What you pass IN is echoed in the preview,
+    because showing the exact body is the point of previewing.
+
+    Writing the linkedin template does NOT connect the linkedin channel. That
+    account is not linked, and linking it is not something this server can do -
+    see uplers_server_info's out_of_scope_by_design.
+
+    Args:
+        channel: "gmail" or "linkedin". Goes on the wire as Uplers' integer.
+        template: the message body.
+        subject: the subject line.
+        confirm: False previews. True snapshots, then sends, then re-reads.
+    """
+    async with _talent_client() as client:
+        return await outreach_write.set_message_template(
+            client,
+            channel,
+            template,
+            subject,
+            confirm=confirm,
+            send=outreach_write.json_sender_for(
+                client, endpoints.EP_OUTREACH_STORE_TEMPLATE
+            ),
+        )
+
+
+@mcp.tool()
+async def uplers_block_company(company_id: int, confirm: bool = False) -> dict:
+    """Stop your agent from reaching out to one company. Genuinely reversible.
+
+    This is the real blocklist - the one Uplers means when an agent run fails
+    with "You blocked this company for outreach" - and not the alphabetical
+    company picker a similarly-named route returns.
+
+    The reverse is uplers_unblock_company, and it is a route Uplers ships
+    rather than a workaround this server invented: their own UI names the pair.
+
+    Blocking a company already on the list REFUSES rather than sending a write
+    that would change nothing.
+
+    Args:
+        company_id: Uplers' company id. `uplers_agent_settings` lists the
+            blocked set with their ids.
+        confirm: False previews. True snapshots, then sends, then re-reads.
+    """
+    async with _talent_client() as client:
+        return await outreach_write.block_company(
+            client,
+            company_id,
+            confirm=confirm,
+            send=outreach_write.json_sender_for(
+                client, endpoints.EP_OUTREACH_DISABLED_COMPANIES
+            ),
+        )
+
+
+@mcp.tool()
+async def uplers_unblock_company(company_id: int, confirm: bool = False) -> dict:
+    """Let your agent reach out to a company you had blocked. The reverse pair.
+
+    Takes the COMPANY id, the same one uplers_block_company takes. Uplers'
+    delete route wants a different number - the blocklist ROW id - and this
+    tool resolves that from the live list rather than accepting it from you.
+    Both numbers sit on the same row and both are small integers, so a caller
+    passing one where the other belongs would remove a different company and
+    get a 200 either way.
+
+    Unblocking a company that is not on the list REFUSES rather than sending a
+    delete for a row that is not there.
+
+    Args:
+        company_id: Uplers' company id, as uplers_agent_settings reports it.
+        confirm: False previews. True snapshots, then sends, then re-reads.
+    """
+    async with _talent_client() as client:
+        return await outreach_write.unblock_company(
+            client,
+            company_id,
+            confirm=confirm,
+            send=outreach_write.delete_sender_for(
+                client, endpoints.EP_OUTREACH_DISABLED_COMPANY_DELETE
+            ),
+        )
 
 
 def main() -> None:

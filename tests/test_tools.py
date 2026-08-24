@@ -110,9 +110,17 @@ AUTH_TOOL_NAMES = {
 #: agent's four settings surfaces. All three are GETs, and the intersection
 #: assertion in the census below is what keeps that sentence true.
 #:
-#: The write half of that namespace stays unbuilt: `interview-feedback` and
-#: `consent-email-job-scan`, the latter changing what Uplers reads out of his
-#: mailbox. tests/test_agent_tools.py measures that no tool here reaches one.
+#: UPDATED 2026-08-24, because the sentence that used to sit here - "the write
+#: half of that namespace stays unbuilt" - is no longer true and a stale
+#: comment beside a safety set is worse than none. The REVERSIBLE part of that
+#: write half is now built and lives in AGENT_CONFIG_WRITE_TOOL_NAMES below.
+#: What stays unbuilt is the one-way part, named there.
+#:
+#: The property THIS set still has, and the reason it stays separate, is that
+#: every name in it is a READ. tests/test_agent_tools.py measures that against
+#: the requests that actually left, which matters more now than it did
+#: yesterday: a write module now shares the namespace, so "these seven only
+#: read" is one import away from being wrong.
 AGENT_READ_TOOL_NAMES = {
     "uplers_agent_readthrough",
     "uplers_platform_saved_jobs",
@@ -166,6 +174,34 @@ PROFILE_WRITE_TOOL_NAMES = {
     "uplers_restore_resume",
 }
 
+#: Added 2026-08-24: the WRITE half of the four switches AGENT_READ_TOOL_NAMES
+#: reads. Its own set for the same reason that one has its own set - these live
+#: in `talent/outreach/*`, and a name landing here has to be typed by somebody
+#: who meant it.
+#:
+#: What separates these five from the rest of that namespace is REVERSIBILITY,
+#: measured route by route rather than assumed for the prefix. Two are a route
+#: pair Uplers ships and names in its own UI (block / unblock). The other three
+#: overwrite a settings record that a GET on the same data serves back, so each
+#: one reads the live record before it writes and re-reads after - the prior
+#: value is recoverable and a 200 is never taken as proof the value changed.
+#:
+#: NONE OF THE FIVE CAN APPLY TO ANYTHING, message a person, or reveal a
+#: contact. The one-way routes beside them stay unbuilt and have no constant in
+#: endpoints.py: store-employee-requests (Uplers' own copy says it cannot be
+#: undone), reveal-email, discard-job, auto-run-request, interview-feedback,
+#: the two consent flips, and the five commercial claim routes.
+#:
+#: The intersection assertion below is what keeps the read set a read set now
+#: that a write set shares its namespace.
+AGENT_CONFIG_WRITE_TOOL_NAMES = {
+    "uplers_set_followup",
+    "uplers_set_auto_reply",
+    "uplers_set_template",
+    "uplers_block_company",
+    "uplers_unblock_company",
+}
+
 #: The shared-config surface, kept apart from every other set because its
 #: blast radius is different in kind: this is the only tool in the server that
 #: can write a file OTHER servers read. It writes the `candidate` section and
@@ -192,6 +228,7 @@ TOOL_NAMES = (
     | WRITE_TOOL_NAMES
     | LOCAL_WRITE_TOOL_NAMES
     | PROFILE_WRITE_TOOL_NAMES
+    | AGENT_CONFIG_WRITE_TOOL_NAMES
     | CONFIG_TOOL_NAMES
     | INTROSPECTION_TOOL_NAMES
 )
@@ -242,15 +279,24 @@ def wire_client(monkeypatch, handler):
 async def test_importing_server_registers_exactly_the_expected_tools():
     tools_listed = await server.mcp.list_tools()
 
-    assert len(tools_listed) == 53
+    assert len(tools_listed) == 58
     assert {tool.name for tool in tools_listed} == TOOL_NAMES
     # The seven agent-read tools are READS. The counts below are what stops
     # that sentence from quietly becoming untrue: none of them may appear in
-    # any write set, and no write set may grow to admit them.
+    # any write set, and no write set may grow to admit them. The agent-config
+    # set is in that list precisely BECAUSE it shares their namespace - it is
+    # the one a drifting name would land in without looking wrong.
     assert AGENT_READ_TOOL_NAMES & (
-        WRITE_TOOL_NAMES | PROFILE_WRITE_TOOL_NAMES | CONFIG_TOOL_NAMES
+        WRITE_TOOL_NAMES
+        | PROFILE_WRITE_TOOL_NAMES
+        | AGENT_CONFIG_WRITE_TOOL_NAMES
+        | CONFIG_TOOL_NAMES
     ) == set()
     assert len(AGENT_READ_TOOL_NAMES) == 7
+    # The agent-config write surface stays exactly these five. A sixth name
+    # here means somebody admitted another route out of `talent/outreach/*`,
+    # and that is a decision to be made deliberately rather than discovered.
+    assert len(AGENT_CONFIG_WRITE_TOOL_NAMES) == 5
     # The five original board tools must survive every later addition.
     assert BOARD_TOOL_NAMES <= {tool.name for tool in tools_listed}
     # The requisition-write surface stays exactly this size. A third tool that
