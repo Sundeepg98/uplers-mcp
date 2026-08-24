@@ -410,16 +410,44 @@ EP_UPDATE_SAVED_HR = "talent/hr/update-saved-hr"      # POST JSON {hr_id: enc_id
 #: ``{data:{salary_data:null}}`` - a client that EXPECTS to be refused, which is
 #: strong evidence the surface is an account entitlement rather than open data.
 #:
-#: WHAT IS NOT ESTABLISHED, recorded so nobody repeats the probes: on 2026-08-22
-#: six live GETs (HR_Number / numeric id / enc_id, against one closed and one
-#: open requisition) every one answered ``{"status":400,"errors":"No HR found.."}``.
-#: **No 403 was ever observed, so the entitlement question is UNTESTED, not
-#: answered** - what is unknown is which identifier space `hr_id` names here. It
-#: is not any of the three this API uses elsewhere. The remaining hypothesis is
-#: that the estimated-salary pill exists only on AGGREGATED postings, which this
-#: server deliberately does not fetch, so it was not testable from here.
-EP_COMPANY_SALARY = "get-company-salary-data"         # GET ?hr_id= (id space UNRESOLVED)
-EP_COMPANY_DETAIL = "get-company-detail"              # GET ?hr_id= (id space UNRESOLVED)
+#: RESOLVED 2026-08-24, and both halves of the old note were wrong.
+#:
+#: `hr_id` IS THE ROW'S PLAIN NUMERIC `id`. VERIFIED in the bundle, where the
+#: value is PRODUCED rather than consumed - the estimated-salary-pill component
+#: (module 25397) reads ``f = hrData.id`` and sends ``"?hr_id=".concat(f)``.
+#: Proven live by a one-row control: the SAME requisition answers 200 with its
+#: `id` and 400 ``{"errors":"No HR found.."}`` with its `HR_Number`.
+#:
+#: AND IT IS NOT AN ENTITLEMENT. Every live probe answered 200; not one answered
+#: 403. The dedicated 403 branch is real but this account is never refused, so
+#: the earlier reading of it as "strong evidence of an account entitlement" was
+#: an inference the measurement did not support.
+#:
+#: THE SIX 400s WERE THE WRONG ROWS, NOT THE WRONG ID SPACE. The pill mounts
+#: behind a gate nobody had read: ``"confidential" === cost_string.toLowerCase()
+#: && !is_partner_company``. Rows failing that gate answer 400 whatever id you
+#: send them. Nothing was wrong with the earlier probes except their choice of
+#: requisition, which is why re-running them could never have moved the answer.
+#:
+#: CAUTION, `is_partner_company` IS POLYMORPHIC: boolean on most authenticated
+#: feed rows, a DATE STRING ("Jul 2026") on others, and a date string on every
+#: row of the public index. A truthiness test on it silently classifies every
+#: date-valued row as "partner" - that mistake produced a confident "0 rows
+#: qualify" during this very investigation. Treat a truthy non-boolean as
+#: UNKNOWN.
+#:
+#: WHAT IT RETURNS, and why it is worth having: `has_salary_data`,
+#: `company_salary_p25` / `_p75`, a formatted `company_salary_range`, and
+#: `company_matches`. Measured 3 of 6 gate-satisfying rows carrying real
+#: percentiles. The gate fires exactly when `cost_string` is "Confidential" -
+#: the case where the board shows no pay at all - so this is an estimated band
+#: for precisely the requisitions whose salary is otherwise hidden.
+#:
+#: STILL NOT BUILT: no tool calls either route. That is a scope decision, not a
+#: safety one - both are plain authenticated GETs returning company-level market
+#: data.
+EP_COMPANY_SALARY = "get-company-salary-data"         # GET ?hr_id=<row.id>
+EP_COMPANY_DETAIL = "get-company-detail"              # GET ?hr_id=<row.id>
 
 #: "Jobs like this one." RECORDED, DELIBERATELY NOT BUILT, and the first
 #: reason is a correction: it was handed to this wave as a read. It is not.

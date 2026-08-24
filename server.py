@@ -2511,24 +2511,48 @@ KNOWN_LIMITS = {
             "these two actually want is. Recorded so nobody re-runs the probes."
         ),
     },
-    "unresolved_identifier_space": {
+    "resolved_identifier_space": {
         "routes": ["get-company-salary-data", "get-company-detail"],
-        "what_is_unresolved": (
-            "Which identifier space their `hr_id` names. It is not any of the "
-            "three this API uses elsewhere (numeric id, enc_id, HR_Number). Six "
-            "live GETs on 2026-08-22 - all three id spellings, against one "
-            "closed and one open requisition - every one answered "
-            "{'status':400,'errors':'No HR found..'}."
+        "resolved_on": "2026-08-24",
+        "the_id_space": (
+            "`hr_id` is the requisition row's PLAIN NUMERIC `id`. Found by "
+            "reading where the value is PRODUCED rather than where it is "
+            "consumed: the estimated-salary-pill component takes `hrData.id` "
+            "and sends '?hr_id='.concat(id). Proven live by a one-row control - "
+            "the SAME requisition answers 200 with its `id` and 400 'No HR "
+            "found..' with its `HR_Number`."
         ),
-        "entitlement_is_untested_not_answered": (
-            "The salary service has a dedicated 403 branch resolving "
-            "{salary_data: null} - a client that EXPECTS to be refused, which is "
-            "strong evidence the surface is an account entitlement rather than "
-            "open data. But NO 403 WAS EVER OBSERVED across those six probes, so "
-            "the entitlement question is UNTESTED rather than answered. The "
-            "remaining hypothesis is that the estimated-salary pill exists only "
-            "on AGGREGATED postings, which this server deliberately does not "
-            "fetch, so it was not testable from here."
+        "entitlement_answered_and_it_is_not_one": (
+            "NOT an entitlement. Every live probe answered 200 and not one "
+            "answered 403. The dedicated 403 branch exists, but this account is "
+            "never refused by it, so reading that branch as 'strong evidence of "
+            "an account entitlement' was an inference the measurement did not "
+            "support."
+        ),
+        "why_the_earlier_probes_all_404d": (
+            "WRONG ROWS, NOT WRONG ID SPACE. The pill mounts only behind "
+            "'confidential' === cost_string.toLowerCase() && "
+            "!is_partner_company. A row failing that gate answers 400 whatever "
+            "identifier you send it, so re-running the six probes could never "
+            "have moved the answer."
+        ),
+        "a_trap_in_the_data": (
+            "`is_partner_company` is POLYMORPHIC - boolean on most "
+            "authenticated feed rows, a DATE STRING on others, and a date "
+            "string on every row of the public index. A truthiness test "
+            "classifies every date-valued row as 'partner', which produced a "
+            "confident and completely wrong 'no row qualifies' during the "
+            "investigation that closed this. Treat a truthy non-boolean as "
+            "UNKNOWN."
+        ),
+        "what_it_returns": (
+            "has_salary_data, company_salary_p25 / _p75, a formatted "
+            "company_salary_range, and company_matches. 3 of 6 gate-satisfying "
+            "rows carried real percentiles. The gate fires exactly when "
+            "cost_string is 'Confidential' - the case where the board shows no "
+            "pay at all - so it is an estimated band for precisely the "
+            "requisitions whose salary is otherwise hidden. No tool calls it; "
+            "that is a scope decision, not a safety one."
         ),
     },
 }

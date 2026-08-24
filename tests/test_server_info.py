@@ -627,5 +627,22 @@ class TestTheDeclaredSurfaceMatchesReality:
         assert "talent/outreach/get-employee-requests" in limits["routes"]
         assert "PARAMETER SPACE" in limits["the_open_question"]
 
-        unresolved = payload["known_limits"]["unresolved_identifier_space"]
-        assert "UNTESTED" in unresolved["entitlement_is_untested_not_answered"]
+        # RESOLVED 2026-08-24. This used to assert the OPPOSITE - that the
+        # entitlement question was UNTESTED - and that claim is now false: the
+        # id space is the row's numeric `id`, every live probe answered 200,
+        # and not one answered 403. A test pinning a superseded finding keeps
+        # the finding alive, so it pins the new one and pins the OLD KEY GONE.
+        resolved = payload["known_limits"]["resolved_identifier_space"]
+        assert "PLAIN NUMERIC" in resolved["the_id_space"]
+        assert "NOT an entitlement" in (
+            resolved["entitlement_answered_and_it_is_not_one"]
+        )
+        assert "WRONG ROWS" in resolved["why_the_earlier_probes_all_404d"]
+        # The polymorphic-field trap is the one a future reader will otherwise
+        # walk into: a truthiness test on `is_partner_company` produced a
+        # confident and wrong "no row qualifies" during the investigation.
+        assert "POLYMORPHIC" in resolved["a_trap_in_the_data"]
+        assert "unresolved_identifier_space" not in payload["known_limits"], (
+            "the superseded 'unresolved' block is back; it says the entitlement "
+            "question is untested, and it was answered on 2026-08-24"
+        )
