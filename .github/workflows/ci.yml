@@ -61,3 +61,59 @@ jobs:
         env:
           JOBHUNT_CONFIG: ":none:"
         run: python -m pytest -q
+
+  # THE FLOOR OF THE DECLARED RANGE, which the job above structurally cannot
+  # reach. requirements.txt says `mcp[cli]>=1.26,<3`, and a resolve always
+  # picks the NEWEST allowed version - so every run of the matrix above tests
+  # mcp 2.x and nothing else. The 1.x half of a range this repo publishes as
+  # supported was never executed anywhere.
+  #
+  # That is not theoretical. On 2026-08-24 a census test read the tool schema
+  # off `Tool.input_schema`, which is `Tool.inputSchema` on mcp 1.26 - the
+  # attribute raised before the assertion, so the test was red on one
+  # supported resolve and green on the other, while CI reported green forever.
+  # It was found by a human running a 1.x interpreter, which is not a control.
+  #
+  # One job, one Python, because this gate is about the DEPENDENCY FLOOR and
+  # not about the OS or interpreter matrix - those are already covered above,
+  # and paying 4x for the same signal buys nothing.
+  mcp-floor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check out jobcore beside this repo
+        uses: actions/checkout@v4
+        with:
+          repository: Sundeepg98/jobcore
+          path: .jobcore
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install, then force the OLDEST allowed mcp
+        # requirements.txt first so everything else resolves normally, then the
+        # downgrade, so this job differs from the matrix in exactly one
+        # dimension and a failure here names that dimension.
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install -e ./.jobcore
+          python -m pip install "mcp[cli]>=1.26,<2"
+
+      - name: Report what actually resolved
+        # Printed rather than assumed: if a future pin makes <2 unsatisfiable,
+        # this job must not quietly re-test 2.x and call it a floor.
+        run: |
+          python -c "import importlib.metadata as m; v=m.version('mcp'); print('mcp', v); assert v.startswith('1.'), 'expected the 1.x floor, resolved ' + v"
+
+      - name: The server imports at all
+        env:
+          JOBHUNT_CONFIG: ":none:"
+        run: python -c "import server; print(server.__name__)"
+
+      - name: Run the suite
+        env:
+          JOBHUNT_CONFIG: ":none:"
+        run: python -m pytest -q

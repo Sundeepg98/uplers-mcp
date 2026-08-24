@@ -45,6 +45,42 @@ def payload_of(result) -> dict:
     return json.loads(result.model_dump_json())
 
 
+def confirm_taking(names, module=None):
+    """Which of `names` are tools that take a `confirm` parameter.
+
+    The confirm gate is this server's machine-checkable mark of a write:
+    everything that reaches Uplers previews unless confirmed. So "can this
+    change something" is answerable without a list somebody maintains by hand,
+    which is what lets the census be checked from the registry end.
+
+    IT READS THE FUNCTION SIGNATURE RATHER THAN THE MCP SCHEMA, deliberately.
+    `Tool` spells the schema `inputSchema` on mcp 1.26 and `input_schema` on
+    2.0.0, and requirements.txt allows `>=1.26,<3` - so a test reading the
+    attribute raises on one supported resolve and works on the other, with no
+    version doing anything wrong. `@mcp.tool()` returns the plain function, so
+    the signature is the same fact without the library's naming in the way.
+
+    Split out of its caller so the control below can run the same code against
+    a planted omission on every invocation, rather than a human re-planting one
+    by hand and remembering what it proved.
+    """
+    import inspect
+
+    module = module or server
+    found = set()
+    for name in names:
+        func = getattr(module, name, None)
+        if func is None:
+            continue
+        try:
+            signature = inspect.signature(func)
+        except (TypeError, ValueError):  # not introspectable; not a tool
+            continue
+        if "confirm" in signature.parameters:
+            found.add(name)
+    return found
+
+
 def strings_in(node, trail="$"):
     """Every string in a payload, with the path that reached it."""
     if isinstance(node, dict):
@@ -366,8 +402,26 @@ class TestTheDeclaredSurfaceMatchesReality:
         cruder plant (adding the name to AGENT_CONFIG_WRITE_TOOL_NAMES but not
         to server.AGENT_CONFIG_WRITE_TOOLS) also goes red here, but it trips
         the per-group equality too, so it does not isolate what this test
-        uniquely catches.
+        uniquely catches. `test_the_confirm_detector_can_actually_fail` keeps
+        that plant running on every invocation instead of once by hand.
+
+        IT ASKS THE FUNCTION, NOT THE LIBRARY, and that is the whole repair of
+        this test's first version. That one read the confirm parameter off
+        `tool.input_schema`, which is `Tool.inputSchema` on mcp 1.26 and
+        `Tool.input_schema` on mcp 2.0.0. requirements.txt declares
+        `mcp[cli]>=1.26,<3`, so BOTH spellings are inside this repo's own
+        supported range, and the attribute access raised before reaching any
+        assertion - red on a supported resolve while certifying nothing, green
+        on the other. CI could not catch it either, because a CI resolve always
+        picks the newest allowed version, so it only ever sees one of the two.
+
+        Whether a tool takes `confirm` is a fact about the PYTHON FUNCTION;
+        `@mcp.tool()` returns that function unchanged, so `inspect.signature`
+        answers it identically on every mcp version. The schema was only ever
+        the library's serialisation of the same fact.
         """
+        import inspect
+
         from test_tools import TOOL_NAMES
 
         registered = {tool.name for tool in await server.mcp.list_tools()}
@@ -385,19 +439,80 @@ class TestTheDeclaredSurfaceMatchesReality:
         # tool nobody registered is describing a server that does not exist.
         assert censused <= registered, censused - registered
 
-        # And nothing that can write may sit outside it. The heuristic is the
-        # confirm gate: every write reaching Uplers previews unless confirmed,
-        # so `confirm` in a tool's schema is the machine-checkable mark of one.
-        confirmable = {
-            tool.name
-            for tool in await server.mcp.list_tools()
-            if "confirm" in (tool.input_schema.get("properties") or {})
-        }
+        confirmable = confirm_taking(registered)
+
+        # THE DETECTOR MUST HAVE FOUND SOMETHING. Without this line the
+        # assertion below passes for free the moment detection breaks - an
+        # empty `confirmable` yields an empty `uncensused` - which is how the
+        # attribute bug above managed to look like a spelling problem rather
+        # than a silent hole. These four are known confirm-gated writes.
+        assert {
+            "uplers_apply",
+            "uplers_dismiss",
+            "uplers_replace_resume",
+            "uplers_set_followup",
+        } <= confirmable, sorted(confirmable)
         uncensused = confirmable - censused
         assert uncensused == set(), (
             "these tools take confirm= and so can change something, but appear "
             "in no census group: %s" % sorted(uncensused)
         )
+
+    async def test_the_confirm_detector_can_actually_fail(self):
+        """__CONTROL. A write missing from the census MUST turn the test above red.
+
+        `uncensused == set()` is trivially true whenever detection returns
+        nothing, so the assertion above is only worth its green if the detector
+        genuinely finds confirm-taking tools and genuinely reports one the
+        census omits. That was not hypothetical here: the first version of this
+        test read `tool.input_schema`, which does not exist on mcp 1.26, and it
+        raised before ever evaluating its own assertion.
+
+        So the plant runs on every invocation rather than once by hand. A
+        module stand-in carries three functions - one confirm-taking name that
+        IS censused, one confirm-taking name that is NOT, and one that takes no
+        confirm at all - and the same `confirm_taking` the real test uses has
+        to pick out exactly the middle one.
+
+        A stand-in rather than a real registered tool on purpose: registering a
+        sixth live tool to prove a test works would leave a tool in the server
+        whose only reason to exist is a test.
+        """
+        import types
+
+        async def censused_write(hr_number: str, confirm: bool = False):
+            """Stands in for a write that IS declared."""
+
+        async def undeclared_write(company_id: int, confirm: bool = False):
+            """Stands in for a write somebody forgot to declare."""
+
+        async def a_plain_read(limit: int = 25):
+            """Takes no confirm, so it is not a write and must not be flagged."""
+
+        stub = types.SimpleNamespace(
+            censused_write=censused_write,
+            undeclared_write=undeclared_write,
+            a_plain_read=a_plain_read,
+        )
+        names = {"censused_write", "undeclared_write", "a_plain_read"}
+
+        confirmable = confirm_taking(names, module=stub)
+        assert confirmable == {"censused_write", "undeclared_write"}, (
+            "the detector did not identify the confirm-taking functions, so a "
+            "green census assertion would mean nothing: %s" % sorted(confirmable)
+        )
+
+        uncensused = confirmable - {"censused_write"}
+        assert uncensused == {"undeclared_write"}, (
+            "a confirm-taking function absent from the census was NOT reported, "
+            "so the census check cannot catch an undeclared write: %s"
+            % sorted(uncensused)
+        )
+
+        # And a name the module does not have must not be invented into a
+        # write - the real caller passes the whole registered set, so a
+        # detector that guessed would flag phantoms.
+        assert confirm_taking({"no_such_tool"}, module=stub) == set()
 
     async def test_the_resume_write_is_declared_a_one_way_door(self):
         """uplers_replace_resume must appear, and NOT in the apply list.
