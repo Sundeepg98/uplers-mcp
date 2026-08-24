@@ -36,3 +36,22 @@ scripts/.redaction_salt
 .idea/
 .DS_Store
 Thumbs.db
+
+# Publish-gate audit instruments live in the FAMILY audit tree
+# (`mcp-servers/_audit/_instruments/`), not in the published repo. Two of them
+# carry synthetic control specimens - a JWT, classic test phone numbers, and a
+# 13-pair CONTROL_SPECIMENS table - and this repo's own identity guard reads
+# that table as a de-anonymisation key. It is right to: a pair table whose left
+# column holds real-SHAPED strings is the shape of a sanitisation key, and a
+# public repo is the last place it belongs. The guard cannot tell a synthetic
+# specimen from a real one, and it should not have to.
+scripts/publish_*.py
+
+# Session and token carriers, named by shape rather than by the one filename
+# that happened to exist when this list was written.
+*.session
+cookies*
+*.har
+*.bundle
+_sanitisation*
+replace.txt
