@@ -1,0 +1,66 @@
+{
+  "data": {
+    "interview_companies": [],
+    "jobs_run": 32,
+    "response": [
+      {
+        "channel": "gmail",
+        "company_name": "Spark Eighteen",
+        "employee_name": "Redacted Contact 1",
+        "logo_url": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_Spark_Eighteen_1781174125_6ubvblvOch.jpeg",
+        "reply_category": "Willing to refer; requests updated resume",
+        "reply_type": "positive"
+      },
+      {
+        "channel": "gmail",
+        "company_name": "Okta",
+        "employee_name": "Redacted Contact 2",
+        "logo_url": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_Okta_1733182629_NLiuOCCTIF.jpeg",
+        "reply_category": "Requests form, will proceed with referral",
+        "reply_type": "positive"
+      },
+      {
+        "channel": "gmail",
+        "company_name": "BlackLine",
+        "employee_name": "Redacted Contact 3",
+        "logo_url": "https://d1h53oncnz25tl.cloudfront.net/company/logo/BL-e3a14d02-60851729766406.png",
+        "reply_category": "Referral submitted",
+        "reply_type": "positive"
+      },
+      {
+        "channel": "gmail",
+        "company_name": "PrintDeed",
+        "employee_name": "Redacted Contact 4",
+        "logo_url": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_PrintDeed_1781175172_1CupyXWuHg.jpeg",
+        "reply_category": "Forwarding resume to HR for review",
+        "reply_type": "positive"
+      },
+      {
+        "channel": "gmail",
+        "company_name": "ShimentoX Technologies",
+        "employee_name": "Redacted Contact 5",
+        "logo_url": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_ShimentoX_Technologies_1772443220_xiGtZ97kdk.jpeg",
+        "reply_category": "Resume forwarded to hiring team",
+        "reply_type": "positive"
+      },
+      {
+        "channel": "gmail",
+        "company_name": "Ranium Systems",
+        "employee_name": "Redacted Contact 6",
+        "logo_url": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_Ranium_Systems_1786763028_rhEhhvdZ4N.jpeg",
+        "reply_category": "Profile forwarded to recruitment team",
+        "reply_type": "positive"
+      },
+      {
+        "channel": "gmail",
+        "company_name": "SoftTech Engineers Ltd",
+        "employee_name": "Redacted Contact 7",
+        "logo_url": "https://d1h53oncnz25tl.cloudfront.net/company/logo/lin_SoftTech_Engineers_Ltd_1746795167_QPi2XiCSeS.jpeg",
+        "reply_category": "Forwarding profile to hiring manager",
+        "reply_type": "positive"
+      }
+    ],
+    "time": 16
+  },
+  "status": "success"
+}
