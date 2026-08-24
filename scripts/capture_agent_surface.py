@@ -173,14 +173,18 @@ async def capture(client, stem, path, params) -> None:
         print("%-30s FAILED  %s: %s" % (stem, type(exc).__name__, exc))
         return
 
-    leaks = write_fixture(target, body)
+    # `write_fixture` has ALREADY deleted the file if anything leaked - see its
+    # docstring for the 2026-08-24 incident that moved the unlink in there.
+    # Nothing below this line can strand a leaking fixture on disk, however it
+    # fails.
+    size, leaks = write_fixture(target, body)
     print("%-30s %6d bytes%s" % (
-        stem, target.stat().st_size,
-        ("  LEAKED: %s" % leak_summary(leaks)) if leaks else "  clean",
+        stem, size,
+        ("  LEAKED (fixture deleted): %s" % leak_summary(leaks))
+        if leaks else "  clean",
     ))
     if leaks:
-        target.unlink()
-        print("  ^ deleted; fix DROP/MASK in capture_outreach.py before re-running")
+        print("  ^ fix DROP/MASK in capture_outreach.py before re-running")
 
 
 async def main() -> int:
