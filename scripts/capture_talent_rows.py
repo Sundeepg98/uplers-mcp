@@ -50,7 +50,28 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+#: THE SHARED REDACTION, and why this script now calls it instead of relying on
+#: `strip` alone.
+#:
+#: MEASURED 2026-08-24. This file owns `talent_feed.json` and
+#: `talent_pipeline.json`, and those two carry ALL THREE of the identity
+#: findings that are live at HEAD - real people named in `company_pitch`. It
+#: also carries `talent_id`, `enc_id`, `ta_id` and the `company_logo` signed
+#: URLs. None of that was reachable by anything here: `strip` is an EXACT-NAME
+#: key delete with no value rule at all, so it is the pre-2026-08-24
+#: `capture_outreach` with the camelCase fix, the MASK layer, the
+#: credential-URL rule and the opaque-handle rule all missing.
+#:
+#: Two redactions with different strength is not a redundancy, it is a hole
+#: with a second copy of the rules in front of it. `strip` STAYS - it holds
+#: this surface's own pay and recruiter-contact entries, argued in place below
+#: - and the shared redaction now runs after it, so a rule added in
+#: `capture_outreach.py` protects these four fixtures the day it lands rather
+#: than the day somebody remembers this file exists.
+from capture_outreach import contact_leaks, leak_summary  # noqa: E402
+from capture_outreach import redact as shared_redact  # noqa: E402
 from uplers_server import endpoints  # noqa: E402
 from uplers_server.session import SessionStore  # noqa: E402
 from uplers_server.talent import TalentClient  # noqa: E402
@@ -131,7 +152,20 @@ def strip(value):
 
 
 def assert_clean(path: Path) -> None:
-    """Re-read what was written and refuse to leave a leak on disk."""
+    """Re-read what was written and refuse to leave a leak on disk.
+
+    TWO detectors, because they cannot see each other's class. The key walker
+    below sees a field that should not exist even when its value is null - a
+    value scan is structurally blind to that. `contact_leaks` sees a real
+    address, a personal LinkedIn URL, a credential URL, a sign-off name, a NANP
+    phone or an opaque handle riding inside a link - none of which a key walker
+    can reach, because none of them is a key.
+
+    DELETE BEFORE REPORTING. Nothing that can fail may sit between the verdict
+    and the unlink: on 2026-08-24 a `BrokenPipeError` inside a report print
+    skipped an unlink in the sibling script and left a leaking fixture on disk.
+    Both branches here unlink first and construct their message afterwards.
+    """
     data = json.loads(path.read_text(encoding="utf-8"))
     leaks = []
 
@@ -152,11 +186,20 @@ def assert_clean(path: Path) -> None:
         path.unlink()
         raise SystemExit("REFUSED: private keys survived capture: %s" % sorted(set(leaks)))
 
+    values = sorted(set(contact_leaks(data)))
+    if values:
+        path.unlink()
+        # `leak_summary` names WHERE, never WHAT: a report that prints the leak
+        # has merely moved it into the console scrollback and every log that
+        # captures that.
+        raise SystemExit("REFUSED: leaking values survived capture: %s"
+                         % leak_summary(values))
+
 
 def write(name: str, payload) -> None:
     path = FIXTURES / (name + ".json")
     path.write_text(
-        json.dumps(strip(payload), indent=1, ensure_ascii=False) + "\n",
+        json.dumps(shared_redact(strip(payload)), indent=1, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
     assert_clean(path)

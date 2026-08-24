@@ -632,9 +632,9 @@
         "company_name": null,
         "date": null,
         "description": null,
-        "enc_id": "YVA4JDtUdD6pPEZeIwgVH749S9BTdi93",
+        "enc_id": "UUQ2QLgReE2cPGFmKttGD964A8XDdx95",
         "id": 619638,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "title": "Slashed storage costs by 700% by redesigning database storage for the bulk email scheduler. Leveraged technological expertise to drive innovative solutions and enhance system performance.",
         "uuid": 874
       },
@@ -642,9 +642,9 @@
         "company_name": null,
         "date": null,
         "description": null,
-        "enc_id": "XpMdNMQ6MDE2sBkdNwQMbSgKICM1LS61",
+        "enc_id": "MrFxMRN0RJK4dXjoYuWRdQaMZCO1RT04",
         "id": 619637,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "title": "Enhanced platform adaptability by 20% and customer base growth by 12% through strategic third-party integrations.",
         "uuid": 167
       },
@@ -652,9 +652,9 @@
         "company_name": null,
         "date": null,
         "description": null,
-        "enc_id": "R3ZBb894KXqPAhe0Uy8haEr3d9uTBS27",
+        "enc_id": "S3YJh509SKyKVok6Vk7ghZz1w6mVOZ45",
         "id": 619636,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "title": "Successfully optimized email dispatches, boosting journey engagement by 15%. Reduced ClickhouseDB queries by 60% and server response time through Docker containers and GitHub actions.",
         "uuid": 107
       },
@@ -662,9 +662,9 @@
         "company_name": null,
         "date": null,
         "description": null,
-        "enc_id": "sZH1sDoMddiYB08iYLglLiycCHVkQK41",
+        "enc_id": "uGF0vYmJyoxLD43vOXerTojsAUQjBW99",
         "id": 619635,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "title": "Accomplished significant milestone by increasing the customer base by 12% through strategic third-party integrations and 20% increase in platform adaptability Expertise in improving system performance and elevating patient experience, utilizing Node.JS, AWS, MongoDB, DynamoDB, and Serverless to drive advancements.",
         "uuid": 807
       },
@@ -672,9 +672,9 @@
         "company_name": null,
         "date": null,
         "description": null,
-        "enc_id": "GMtBMHoSDwY0M6xvctMQRSn9IET9ts81",
+        "enc_id": "IDzAFLrTIaN3R5otoeOVVTh6XEV9dv12",
         "id": 619577,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "title": "Increased customer base by 12% and platform adaptability by 20% through strategic third-party integrations.",
         "uuid": 77
       },
@@ -682,9 +682,9 @@
         "company_name": null,
         "date": null,
         "description": null,
-        "enc_id": "L1pkVdufF7OQf3k2cR7bYRswSZ2Gze64",
+        "enc_id": "Z1mgYmtaR6EGw0u2vF4hSIjfBG9Fcp75",
         "id": 619576,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "title": "Completed several courses on Coursera.",
         "uuid": 446
       },
@@ -692,9 +692,9 @@
         "company_name": null,
         "date": null,
         "description": null,
-        "enc_id": "u3uMK2UHL88qJXSuCLL6D3HtKkWvSb14",
+        "enc_id": "w0lDP8JFG30oCUDlOMX5Y6RuYpEqNk29",
         "id": 619575,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "title": "Restructured bulk email scheduler resulting in 700% reduction in storage costs.",
         "uuid": 843
       },
@@ -702,9 +702,9 @@
         "company_name": null,
         "date": null,
         "description": null,
-        "enc_id": "PwxAFSX2lDNPsDJrj3Gum6FDENVnRE02",
+        "enc_id": "ElrEAYZ9kWCZgSAgt1Ver0PNHNKwFT65",
         "id": 619574,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "title": "Enhanced email dispatches and increased journey engagement by 15%.",
         "uuid": 480
       }
@@ -721,56 +721,56 @@
       {
         "degree": "B.Tech, Computer Science and Engineering",
         "degree_type": null,
-        "enc_id": "S1A6Dmp3YPqTl3ScId0uMIktDSfkBI36",
+        "enc_id": "G6E5Exc0INnOa5WwJr6eBXtfQNntTH49",
         "end_date": "2021-01-01",
         "id": 7641146,
         "is_current": 0,
         "start_date": "2017-01-01",
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "university": "IIIT Sri City",
         "uuid": 491
       }
     ],
-    "enc_id": "E0I1SUhJKoGHtWxvDqqqLy2cAYTeOM77",
-    "enc_id_nda": "HNQTPs2UnoSyK8kwTaCRMpnlZIYfcf55",
-    "enc_id_org": "BxrRJCPfZvLIHQjLGZlOv7ygCu7dBw53",
+    "enc_id": "F2I6ARhQQxCDhQaySjcpGs2sXYHhEC93",
+    "enc_id_nda": "DVZJNa1KbyNhR7woUtWUZqajQHLkyy70",
+    "enc_id_org": "KcgNNNDbHqKUEDyZGUaPb9zrZt2kCv04",
     "experiences": [
       {
         "company_name": "Wissen Technology",
-        "enc_id": "iTvvPKWrBssHUYqisWs1kWA9XaSJUU25",
+        "enc_id": "nXceJUBgCarRSTmolBm8uSF8AuEYZP68",
         "end_date": "2026-06-01",
         "engagement_id": null,
         "id": 10239153,
         "is_current": 2,
         "job_description": "Invenco Cloud Services (ICS) - multi-tenant payments platform serving 30,000+ terminals (client: Invenco by GVR)\n- Shipped timezone-aware config and firmware rollouts to 30,000+ FlexPay terminals via EventBridge-scheduled Node.js Lambda services in off-peak windows, cutting update-related disruptions 60%.\n- Designed device tenant app feature-flag and settings resolution in Node.js on PostgreSQL, with a JSON-Schema-validated registry and audited upserts, powering per-terminal behavior fleet-wide.\n- Implemented dual-approval and HSM content-signing APIs (MFA-gated state machine, 3-level key validation) securing firmware releases for G6/G7 terminal families.\n- Replaced a 4-table authorization join with a single PostgreSQL materialized-view lookup (refresh-on-mutation) across 10,000 users, 500 groups, and 50,000 entities.\n- Built the Debezium Kafka (MSK) CDC pipeline standardizing device data into 9 downstream systems - idempotent upserts, Kinesis S3 Parquet tiering - plus media distribution to terminals.\n- Cut ambiguous production errors from 100% to under 5% with a machine-readable error taxonomy across 4 services, taking config-issue resolution from days to hours.\n- Root-caused 15+ production incidents - an N+1 hot path cut from 8-12s to under 800ms, a silent NULL bug dropping 118,933 devices, 1M-row exports at ~1 MB constant memory via pg-query-stream.",
         "start_date": "2024-04-01",
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "title": "Software Engineer",
         "uuid": 494
       },
       {
         "company_name": "Mailmodo",
-        "enc_id": "P2nrnLtgXHqDnAGAxNZgRL0ZexX1NI39",
+        "enc_id": "N6iijXouRBxDuNAJnKKeWY3ChvA7DK62",
         "end_date": "2024-03-01",
         "engagement_id": null,
         "id": 10213944,
         "is_current": 0,
         "job_description": "- Lifted journey engagement 15% and cut sending costs ~20% at 98%+ delivery with a BullMQ rate-controlled dispatch layer in Node.js - multi-provider routing across per-ESP limits (AWS SES, SMTP, SendGrid).\n- Decomposed the monolith into Dockerized Node.js microservices on Kubernetes-based Azure Container Apps and Azure Functions (Container App Jobs, ClickHouse, Cosmos DB), removing cross-team deploy dependencies.\n- Cut analytics storage 7 and query load 60% by re-partitioning the event-tracking schema and tuning ClickHouse queries across open/click/bounce pipelines.\n- Built integration services for MoEngage, CleverTap, WebEngage, Shopify, and Zapier - webhook/event delivery and transactional triggers.",
         "start_date": "2023-02-01",
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "title": "Software Engineer, Backend",
         "uuid": 830
       },
       {
         "company_name": "Pristyn Care",
-        "enc_id": "fXoIQgnuVvT7GFSLnvAxJB8LoYAprs29",
+        "enc_id": "nGfCMynuLfM8EVLQhiMgYO2WfODymb71",
         "end_date": "2023-02-01",
         "engagement_id": null,
         "id": 8128092,
         "is_current": 0,
         "job_description": "- Drove 25% more booking conversions by rebuilding appointment scheduling and search across the stack - the React booking UI flows patients used plus the Node.js ranking and search APIs behind them.\n- Built the backend for the Hospital and Finance dashboards and the Doctor app - REST APIs at 500K+ requests/day on MongoDB (aggregation pipelines, $lookup joins), search/filtering, automated CI/CD (Node.js, AWS, DynamoDB).\n- Added Redis cache-aside for hot reads (doctor profiles, hospital data), cutting API latency 40%.\n- Built patient-communication IVR and chatbots on Twilio and Knowlarity, including a CoWIN vaccination-info bot at peak COVID demand.",
         "start_date": "2021-05-01",
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "title": "Associate Software Engineer",
         "uuid": 782
       }
@@ -788,7 +788,7 @@
     "objective_data": {
       "id": 544269,
       "objective": "Result-oriented professional in search of challenging opportunities in back-end software engineering, with expertise in developing innovative solutions and enhancing system performance.",
-      "talent_id": 9440850
+      "talent_id": 2839256
     },
     "preferred_cities": [
       {
@@ -813,451 +813,451 @@
     ],
     "primaryskills": [
       {
-        "enc_id": "Dy4vYse3vGTWONGmPVxjSNgCZ6mBXO86",
+        "enc_id": "Dw7nZrn0sKPJUTEtQXkoAGhMI8eKWT55",
         "id": 36114505,
         "order": 0,
         "skill_id": 3898076,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "4"
       },
       {
-        "enc_id": "XGfOIeQxuaCetxA9PXoNK4F3p3piRk05",
+        "enc_id": "WMvJGdLdyuMyekW9KYwBD3A6i6bpQi18",
         "id": 36114703,
         "order": 0,
         "skill_id": 3890028,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "3"
       },
       {
-        "enc_id": "P9GirPn7H7WkCTkLWPp4zItZWvfXdm54",
+        "enc_id": "J0IvbVz1F3EsWSpQAAi0fXwDIhvYdt31",
         "id": 36114507,
         "order": 0,
         "skill_id": 166,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "2"
       },
       {
-        "enc_id": "lGgNG0QvrRSfLkunuyOtLwQIzcApBL98",
+        "enc_id": "sBvIO2AbjBIuCubmmeLmYvGQdaAnKA41",
         "id": 60394787,
         "order": 0,
         "skill_id": 10,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "a54GrSAOXHttZgBJHGq4cCJumFNVPZ03",
+        "enc_id": "b65TdDLZRFjgUuQINSq7nLRcgOJOHU58",
         "id": 60543375,
         "order": 0,
         "skill_id": 3710666,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "YZvAR2n7D96WfPF8WSiFTYo3sOnTaw17",
+        "enc_id": "GMqPI4o3O18KlVA8KWfBTSj6tVdQxh65",
         "id": 60394797,
         "order": 0,
         "skill_id": 2784529,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "WOj9tY7kAw6DZw5hE5o8XOrAXvPMNe55",
+        "enc_id": "ETy8aH2jFi7VPt6mV2h7GPqENrSUUb14",
         "id": 60394796,
         "order": 0,
         "skill_id": 345234,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "U1LQF5m6TUa3A01YsHHEJRyLNlK0Wg70",
+        "enc_id": "R5ADO5g5VQf8R92TxTZPOSfJEuC6Cs81",
         "id": 60394795,
         "order": 0,
         "skill_id": 3784695,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "gJV0zip1TkwmUQTLfYb6LG7sRTUTVG88",
+        "enc_id": "qEF7xyq0DleqFJUAmWp9JZ6iBEHRZH31",
         "id": 60394794,
         "order": 0,
         "skill_id": 504621,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "Ip7zGu6BIiM9cHytPZzdNlM9F4cRSF31",
+        "enc_id": "Th5fEy2CYsG6zAfaBXhnOpV5H8wNDT52",
         "id": 60394793,
         "order": 0,
         "skill_id": 457484,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "nB99E43tmDZpPmwQYJNmLDKOLGHnSL84",
+        "enc_id": "zJ02M24uoEExOikUOOVaSSZJRYTaWQ46",
         "id": 60394791,
         "order": 0,
         "skill_id": 1188105,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "Kvj9FxfGTalVjjfhuJA0n5wWP2X7Oa91",
+        "enc_id": "Ktj4XbtLCghJodiswQJ9u8zQE9K6An96",
         "id": 60394790,
         "order": 0,
         "skill_id": 2706508,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "JDfzUhBjtTBrH1cldAWhppUhOWxtFD11",
+        "enc_id": "GKxtIpGboWWyG8wvfFPueoPlDUogIA19",
         "id": 60543377,
         "order": 0,
         "skill_id": 350690,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "o1l3I1EdN4Kwz4ged7UlWueSsOzTEZ03",
+        "enc_id": "r5y4C1FmB8Nbl9iug4QhQyaJaKcPYO33",
         "id": 60394786,
         "order": 0,
         "skill_id": 3765505,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "xszrSQFMsSNzSOcJL0ZYBZw6XjGhtv09",
+        "enc_id": "fkplYFSQhNLaXLoHF2UPHVs0QtUfze95",
         "id": 60394785,
         "order": 0,
         "skill_id": 3898876,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "M2CaW7UgaCsyTH3cGftzR12nFEhzEE06",
+        "enc_id": "Z5GsT3DpxCroYZ0yTaagN51lKDamBO64",
         "id": 60394784,
         "order": 0,
         "skill_id": 3899027,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "PYJ2XLXtAQ3qMEjfk2UuHaN3AqSdKA27",
+        "enc_id": "HGN1DCFmTX6cQHnqq0HjFgN0LeIxLY08",
         "id": 60394783,
         "order": 0,
         "skill_id": 291793,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "V0M0pEENKtZoDBsoV9hHb9YQEfVUAU40",
+        "enc_id": "X5I9vQPOGyRbKKisP6fNn5UCBtTFYQ28",
         "id": 60543376,
         "order": 0,
         "skill_id": 3571730,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "rkCZC8v9E0K9MXSstoTiwj0lTbS7YZ83",
+        "enc_id": "hnQUW6e2Z6D0XTEycwWgsp9oAbK0HX10",
         "id": 60394780,
         "order": 0,
         "skill_id": 3723066,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "ood2oLe2DcomHnd0iocCQ4tErCO2Yy51",
+        "enc_id": "evy6mMk6HvniFma7ktjKJ1zJsFI1Ap51",
         "id": 60543378,
         "order": 0,
         "skill_id": 3898724,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "ybUwwzGHlKGhS4loUndeOAzJLFQjvt03",
+        "enc_id": "yvJsrjDMnYAiN2mwXywpMXmBZUSmxl04",
         "id": 60543379,
         "order": 0,
         "skill_id": 3789757,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "AKBhO3r1iT5eTGRwC5M0Zy8oF6yrJM33",
+        "enc_id": "HYGeH0u8iC3sBHWmA2E8Vr2pR0wmRI46",
         "id": 60543381,
         "order": 0,
         "skill_id": 3495698,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "ZUeDg6RMvHMAsgFtNQlFHJV4CzIiFI77",
+        "enc_id": "KLmBq0HQkCLJloYwUTsKRQR4BxNlTK80",
         "id": 60543382,
         "order": 0,
         "skill_id": 877833,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "BMS2iGgDWgzVNl6OYKNObOeGcAOhns10",
+        "enc_id": "BHJ6tElEBmwLSu5RGTHIaByYaZYbmi80",
         "id": 60543383,
         "order": 0,
         "skill_id": 3891634,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "LqTuVMvez2XcRQYwA6UFKY3KvzzeAM84",
+        "enc_id": "KqJsNHhxo9GgONVtF5TFOF3UveybLU61",
         "id": 60543384,
         "order": 0,
         "skill_id": 3710702,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "hnceJuO0AbB8C41HxdQPAFdceHhdfh44",
+        "enc_id": "mnpbJoG2ZhK1E44YenFSAQvsuObqro51",
         "id": 60543385,
         "order": 0,
         "skill_id": 207489,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "Qhl4sOBTg4lqU8EBCghgcGA7K26kRx16",
+        "enc_id": "Nue1oFSJp8mgG8MFNwxgyYW5S66jAa23",
         "id": 60543386,
         "order": 0,
         "skill_id": 3902461,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "OBL8SWCLNLvUUdAnqK5YGLhmMFXlRK67",
+        "enc_id": "YPQ0GYTVHDtXIyKccJ1LHKxrTJDmLT93",
         "id": 60543387,
         "order": 0,
         "skill_id": 3890198,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "PNOCS2GkAsjgMS5birMODgJwBaFWVd01",
+        "enc_id": "MPQSS8UrPoijBX1kiuMNTqPcAeBENu84",
         "id": 60544304,
         "order": 0,
         "skill_id": 586588,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "BbgdDwLhDWSdT8FeM3jBBEH3KWf2jn98",
+        "enc_id": "MqokVvEwOSLcT9UiV1iPMNW0APs5pe44",
         "id": 60562271,
         "order": 0,
         "skill_id": 3028113,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "XK8KM97BPXwmE69AP0OoCWKWJWZhZH94",
+        "enc_id": "KJ4AX28QJSmnU59UI2GkSMJFPOSnCI88",
         "id": 59310079,
         "order": 0,
         "skill_id": 257574,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "G8gTMDYHgeV5UhBoUlZ6TPLrZ5lwIU37",
+        "enc_id": "B4zVJTBOdhR4TkWpCoE6WMDiP0uuBT32",
         "id": 36114498,
         "order": 0,
         "skill_id": 3909135,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "C1DyX9XbSRWVi30JROMdPhhgVUFyhc74",
+        "enc_id": "I6JjC3DfNOFQc41GEBQkVcqkHJBdxo06",
         "id": 36114500,
         "order": 0,
         "skill_id": 11,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "RG29QwdHMYWQTNNFCT3tXU3rEkB1ZV94",
+        "enc_id": "GI70DnrHJLSHJGHEEI6nBU8kBrV4GY48",
         "id": 36114503,
         "order": 0,
         "skill_id": 3900084,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "A5FDjpMxfMVHT1sTNwSwWWb9GjPlMI34",
+        "enc_id": "Z3WFyxTezYAUZ6bEFwEwYUd4AlGvAQ84",
         "id": 36114509,
         "order": 0,
         "skill_id": 3901097,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "C8dsfZmXGHoPRjF2tL9Na5xPbhM8JG11",
+        "enc_id": "N7husPpVHEbOZyO2iM9Hl1wBwvG4WK80",
         "id": 36114713,
         "order": 0,
         "skill_id": 3901096,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "hJkfGIyozRmwrOUyLVMJIWtSwcD2SD55",
+        "enc_id": "jSyvFHqxkYbmsGIlZHOUZMzDibQ0BW98",
         "id": 52681854,
         "order": 0,
         "skill_id": 285,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "fxAvEDHlARhnM8Y4F7KVCSNqBzixFZ13",
+        "enc_id": "lpLnVFLnUWcaR3C9S1TLXDHzTfbfZO11",
         "id": 52681858,
         "order": 0,
         "skill_id": 4567,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "U3ZfGsQCm68RVSANT9eiKLa9Un7jlr55",
+        "enc_id": "O9QlOgTWe23ZICHDR6ihVTa6Tu1xqu34",
         "id": 59310069,
         "order": 0,
         "skill_id": 248356,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "FqpRyNA8Eg1fkRVduNGVU9R2LHT6TD58",
+        "enc_id": "GnnBoRG2Nj2kwWIwgJTVA8O2FMO1ZD49",
         "id": 59310070,
         "order": 0,
         "skill_id": 469639,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "pRf3AVI7kLk9n7NnYLMhTZulW3kakt48",
+        "enc_id": "oRw1HWX7kIq0b7YiOLOlLIeiN9alfu59",
         "id": 59310071,
         "order": 0,
         "skill_id": 158944,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "DGKwhzlqZZwfmEuwBSrYddbijdPWXa01",
+        "enc_id": "SFGuzdjjXUdszHnkRCdGxoznpjPEOq30",
         "id": 59310074,
         "order": 0,
         "skill_id": 106557,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "q5zKVENiTkdGjYiVpLVrw4BvGsovAN78",
+        "enc_id": "r7nRMTHgKdhAvMbBhRFzy3FgHixyUW24",
         "id": 59310077,
         "order": 0,
         "skill_id": 256659,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "xPjCEEPOKPMrL40yQ3F6YylNYOceRM83",
+        "enc_id": "yDhSSEZKWSGmO95oA0T9FwyEAKxmJE69",
         "id": 60394781,
         "order": 0,
         "skill_id": 512359,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "NphNIbRQV3K1G08wcndxNJ04iPFwxg56",
+        "enc_id": "WroNIxTGZ9W6K61aknvmEA20pHOrhi58",
         "id": 59310081,
         "order": 0,
         "skill_id": 256679,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "L1uKEVE8QqqnHp8jEXi0PNm1IGQ5Xf58",
+        "enc_id": "U1mBBED1KfvvUz5uQBl1LEf8NIJ1Ul33",
         "id": 59310083,
         "order": 0,
         "skill_id": 302,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "FzL9UX3vSUn1tmT6O1Sofy3JPObuFh29",
+        "enc_id": "WjD3LQ4sBVp9gkE6T4Uapf7DTIpdFz60",
         "id": 59310084,
         "order": 0,
         "skill_id": 3885848,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "LWHyv3MvVgoiQfW0R3rUUVXHE3WNED76",
+        "enc_id": "SSRig5YoWeseUsH0V9dCYONLY1NLOJ54",
         "id": 59310085,
         "order": 0,
         "skill_id": 512365,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "MCA2NuKuZvDBr2vpUPQcFOEvOyfHXd74",
+        "enc_id": "XDO3NjUnKcLHp8ymCLIrMVUmDhcPUj82",
         "id": 59310634,
         "order": 0,
         "skill_id": 3898922,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "EUJaQHTcTvVATiakFTQ0Aju4OD3BBJ11",
+        "enc_id": "PHNgVHDuOsOUOhcoTAR8Zbx1DU2WRH64",
         "id": 59310714,
         "order": 0,
         "skill_id": 512366,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "i2NdH1Bmhxycru53RF2sUve1A4Vmvj71",
+        "enc_id": "v7YtH7Ieoojmoq60YA2zXqg3J7Ajwg37",
         "id": 60394769,
         "order": 0,
         "skill_id": 3524955,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "aMSaNDpOZCqDUonaGjE3E1ppEEfvlc40",
+        "enc_id": "xBUeUScWXRxSLvymKpA4W9dcWFenuf59",
         "id": 60394773,
         "order": 0,
         "skill_id": 3640789,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "GvxZCJDsvBKMRqPzScIcpiCkQbpSCy82",
+        "enc_id": "YgsNTKXenHXGLnLiHtSsrsEdPdrCNh08",
         "id": 60394775,
         "order": 0,
         "skill_id": 3438587,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "hBqGWAVWStJQLIq6GjIiu1E8oUIhRe54",
+        "enc_id": "rQcXEDRRDwCQTJk1VfWyo2T7wGRxYs37",
         "id": 60394777,
         "order": 0,
         "skill_id": 3438123,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "BSRssw8bI7WbDZsvwvKFLMMWTZuuaz65",
+        "enc_id": "MHOfwt7cO5EeFXvbiyRIJFPZIWgvti36",
         "id": 60394778,
         "order": 0,
         "skill_id": 3890204,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "WGbrjMXahQUQWyRSXDP1DGBpbqGElr70",
+        "enc_id": "RYgwaRWvrVZQPoDEVME6KPAblyWQxz25",
         "id": 36114497,
         "order": 0,
         "skill_id": 301,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       }
     ],
@@ -1265,24 +1265,24 @@
       {
         "company_name": null,
         "description": "Hosted MCP server (closed-source SaaS) giving AI agents Google Workspace automation: tools plus one-call Apps Script deployment (bound scripts, triggers, web apps); per-user OAuth.",
-        "enc_id": "WzTYJS1pm3SjU0DPhSM6cpzwDBawZQ77",
+        "enc_id": "DgCABT8oa4SrM7XScGW0idcbCBydKQ77",
         "end_date": null,
         "id": 6243711,
         "is_current": 0,
         "start_date": null,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "title": "appscriptly",
         "uuid": 608
       },
       {
         "company_name": null,
         "description": "Open-source Python servers for AI computer control and automation, including PR #343 merged on doobidoo/mcp-memory-service (1,400+ stars).",
-        "enc_id": "YTmNRUKNGSDlBGVPX661X9VMcZuBWE61",
+        "enc_id": "WObMMONXNGGpSVFTL994K9SYcScAMW30",
         "end_date": null,
         "id": 6243712,
         "is_current": 0,
         "start_date": null,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "title": "MCP servers: computer-use-mcp and mcp-server-unipile",
         "uuid": 208
       }
@@ -1290,491 +1290,491 @@
     "short_created_at": "1970-01-01",
     "skills": [
       {
-        "enc_id": "Dy4vYse3vGTWONGmPVxjSNgCZ6mBXO86",
+        "enc_id": "Dw7nZrn0sKPJUTEtQXkoAGhMI8eKWT55",
         "id": 36114505,
         "order": 0,
         "skill_id": 3898076,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "4"
       },
       {
-        "enc_id": "XGfOIeQxuaCetxA9PXoNK4F3p3piRk05",
+        "enc_id": "WMvJGdLdyuMyekW9KYwBD3A6i6bpQi18",
         "id": 36114703,
         "order": 0,
         "skill_id": 3890028,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "3"
       },
       {
-        "enc_id": "P9GirPn7H7WkCTkLWPp4zItZWvfXdm54",
+        "enc_id": "J0IvbVz1F3EsWSpQAAi0fXwDIhvYdt31",
         "id": 36114507,
         "order": 0,
         "skill_id": 166,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "2"
       },
       {
-        "enc_id": "lGgNG0QvrRSfLkunuyOtLwQIzcApBL98",
+        "enc_id": "sBvIO2AbjBIuCubmmeLmYvGQdaAnKA41",
         "id": 60394787,
         "order": 0,
         "skill_id": 10,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "YZvAR2n7D96WfPF8WSiFTYo3sOnTaw17",
+        "enc_id": "GMqPI4o3O18KlVA8KWfBTSj6tVdQxh65",
         "id": 60394797,
         "order": 0,
         "skill_id": 2784529,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "WOj9tY7kAw6DZw5hE5o8XOrAXvPMNe55",
+        "enc_id": "ETy8aH2jFi7VPt6mV2h7GPqENrSUUb14",
         "id": 60394796,
         "order": 0,
         "skill_id": 345234,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "U1LQF5m6TUa3A01YsHHEJRyLNlK0Wg70",
+        "enc_id": "R5ADO5g5VQf8R92TxTZPOSfJEuC6Cs81",
         "id": 60394795,
         "order": 0,
         "skill_id": 3784695,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "gJV0zip1TkwmUQTLfYb6LG7sRTUTVG88",
+        "enc_id": "qEF7xyq0DleqFJUAmWp9JZ6iBEHRZH31",
         "id": 60394794,
         "order": 0,
         "skill_id": 504621,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "Ip7zGu6BIiM9cHytPZzdNlM9F4cRSF31",
+        "enc_id": "Th5fEy2CYsG6zAfaBXhnOpV5H8wNDT52",
         "id": 60394793,
         "order": 0,
         "skill_id": 457484,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "nB99E43tmDZpPmwQYJNmLDKOLGHnSL84",
+        "enc_id": "zJ02M24uoEExOikUOOVaSSZJRYTaWQ46",
         "id": 60394791,
         "order": 0,
         "skill_id": 1188105,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "Kvj9FxfGTalVjjfhuJA0n5wWP2X7Oa91",
+        "enc_id": "Ktj4XbtLCghJodiswQJ9u8zQE9K6An96",
         "id": 60394790,
         "order": 0,
         "skill_id": 2706508,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "V0M0pEENKtZoDBsoV9hHb9YQEfVUAU40",
+        "enc_id": "X5I9vQPOGyRbKKisP6fNn5UCBtTFYQ28",
         "id": 60543376,
         "order": 0,
         "skill_id": 3571730,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "o1l3I1EdN4Kwz4ged7UlWueSsOzTEZ03",
+        "enc_id": "r5y4C1FmB8Nbl9iug4QhQyaJaKcPYO33",
         "id": 60394786,
         "order": 0,
         "skill_id": 3765505,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "xszrSQFMsSNzSOcJL0ZYBZw6XjGhtv09",
+        "enc_id": "fkplYFSQhNLaXLoHF2UPHVs0QtUfze95",
         "id": 60394785,
         "order": 0,
         "skill_id": 3898876,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "M2CaW7UgaCsyTH3cGftzR12nFEhzEE06",
+        "enc_id": "Z5GsT3DpxCroYZ0yTaagN51lKDamBO64",
         "id": 60394784,
         "order": 0,
         "skill_id": 3899027,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "PYJ2XLXtAQ3qMEjfk2UuHaN3AqSdKA27",
+        "enc_id": "HGN1DCFmTX6cQHnqq0HjFgN0LeIxLY08",
         "id": 60394783,
         "order": 0,
         "skill_id": 291793,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "xPjCEEPOKPMrL40yQ3F6YylNYOceRM83",
+        "enc_id": "yDhSSEZKWSGmO95oA0T9FwyEAKxmJE69",
         "id": 60394781,
         "order": 0,
         "skill_id": 512359,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "rkCZC8v9E0K9MXSstoTiwj0lTbS7YZ83",
+        "enc_id": "hnQUW6e2Z6D0XTEycwWgsp9oAbK0HX10",
         "id": 60394780,
         "order": 0,
         "skill_id": 3723066,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "a54GrSAOXHttZgBJHGq4cCJumFNVPZ03",
+        "enc_id": "b65TdDLZRFjgUuQINSq7nLRcgOJOHU58",
         "id": 60543375,
         "order": 0,
         "skill_id": 3710666,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "GvxZCJDsvBKMRqPzScIcpiCkQbpSCy82",
+        "enc_id": "YgsNTKXenHXGLnLiHtSsrsEdPdrCNh08",
         "id": 60394775,
         "order": 0,
         "skill_id": 3438587,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "JDfzUhBjtTBrH1cldAWhppUhOWxtFD11",
+        "enc_id": "GKxtIpGboWWyG8wvfFPueoPlDUogIA19",
         "id": 60543377,
         "order": 0,
         "skill_id": 350690,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "ood2oLe2DcomHnd0iocCQ4tErCO2Yy51",
+        "enc_id": "evy6mMk6HvniFma7ktjKJ1zJsFI1Ap51",
         "id": 60543378,
         "order": 0,
         "skill_id": 3898724,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "ybUwwzGHlKGhS4loUndeOAzJLFQjvt03",
+        "enc_id": "yvJsrjDMnYAiN2mwXywpMXmBZUSmxl04",
         "id": 60543379,
         "order": 0,
         "skill_id": 3789757,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "AKBhO3r1iT5eTGRwC5M0Zy8oF6yrJM33",
+        "enc_id": "HYGeH0u8iC3sBHWmA2E8Vr2pR0wmRI46",
         "id": 60543381,
         "order": 0,
         "skill_id": 3495698,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "ZUeDg6RMvHMAsgFtNQlFHJV4CzIiFI77",
+        "enc_id": "KLmBq0HQkCLJloYwUTsKRQR4BxNlTK80",
         "id": 60543382,
         "order": 0,
         "skill_id": 877833,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "BMS2iGgDWgzVNl6OYKNObOeGcAOhns10",
+        "enc_id": "BHJ6tElEBmwLSu5RGTHIaByYaZYbmi80",
         "id": 60543383,
         "order": 0,
         "skill_id": 3891634,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "LqTuVMvez2XcRQYwA6UFKY3KvzzeAM84",
+        "enc_id": "KqJsNHhxo9GgONVtF5TFOF3UveybLU61",
         "id": 60543384,
         "order": 0,
         "skill_id": 3710702,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "hnceJuO0AbB8C41HxdQPAFdceHhdfh44",
+        "enc_id": "mnpbJoG2ZhK1E44YenFSAQvsuObqro51",
         "id": 60543385,
         "order": 0,
         "skill_id": 207489,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "Qhl4sOBTg4lqU8EBCghgcGA7K26kRx16",
+        "enc_id": "Nue1oFSJp8mgG8MFNwxgyYW5S66jAa23",
         "id": 60543386,
         "order": 0,
         "skill_id": 3902461,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "OBL8SWCLNLvUUdAnqK5YGLhmMFXlRK67",
+        "enc_id": "YPQ0GYTVHDtXIyKccJ1LHKxrTJDmLT93",
         "id": 60543387,
         "order": 0,
         "skill_id": 3890198,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "PNOCS2GkAsjgMS5birMODgJwBaFWVd01",
+        "enc_id": "MPQSS8UrPoijBX1kiuMNTqPcAeBENu84",
         "id": 60544304,
         "order": 0,
         "skill_id": 586588,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "BbgdDwLhDWSdT8FeM3jBBEH3KWf2jn98",
+        "enc_id": "MqokVvEwOSLcT9UiV1iPMNW0APs5pe44",
         "id": 60562271,
         "order": 0,
         "skill_id": 3028113,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "pRf3AVI7kLk9n7NnYLMhTZulW3kakt48",
+        "enc_id": "oRw1HWX7kIq0b7YiOLOlLIeiN9alfu59",
         "id": 59310071,
         "order": 0,
         "skill_id": 158944,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "F5biVClUWic5d7O8R7RkDH8UcVk0Nl41",
+        "enc_id": "B6mfWChKMtz6z7E8T1QlIT1DyAb3Jh31",
         "id": 12809787,
         "order": 0,
         "skill_id": 4283180,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "OwWTeJ5nWf0BO5xVNLXNxTeNnL79Pe32",
+        "enc_id": "JlCHrY5yPp3GD8sOIJXLtSyAdM48Df54",
         "id": 32260995,
         "order": 0,
         "skill_id": 3870737,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "WGbrjMXahQUQWyRSXDP1DGBpbqGElr70",
+        "enc_id": "RYgwaRWvrVZQPoDEVME6KPAblyWQxz25",
         "id": 36114497,
         "order": 0,
         "skill_id": 301,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "G8gTMDYHgeV5UhBoUlZ6TPLrZ5lwIU37",
+        "enc_id": "B4zVJTBOdhR4TkWpCoE6WMDiP0uuBT32",
         "id": 36114498,
         "order": 0,
         "skill_id": 3909135,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "C1DyX9XbSRWVi30JROMdPhhgVUFyhc74",
+        "enc_id": "I6JjC3DfNOFQc41GEBQkVcqkHJBdxo06",
         "id": 36114500,
         "order": 0,
         "skill_id": 11,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "RG29QwdHMYWQTNNFCT3tXU3rEkB1ZV94",
+        "enc_id": "GI70DnrHJLSHJGHEEI6nBU8kBrV4GY48",
         "id": 36114503,
         "order": 0,
         "skill_id": 3900084,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "A5FDjpMxfMVHT1sTNwSwWWb9GjPlMI34",
+        "enc_id": "Z3WFyxTezYAUZ6bEFwEwYUd4AlGvAQ84",
         "id": 36114509,
         "order": 0,
         "skill_id": 3901097,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "UTdfLSq7PuHnIyWZZTbsBRIlFtIUJM65",
+        "enc_id": "COigNLa4FaOdNmIZOIrgFBRlRdKIBH33",
         "id": 36114708,
         "order": 0,
         "skill_id": 3428227,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "C8dsfZmXGHoPRjF2tL9Na5xPbhM8JG11",
+        "enc_id": "N7husPpVHEbOZyO2iM9Hl1wBwvG4WK80",
         "id": 36114713,
         "order": 0,
         "skill_id": 3901096,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "G1q4JMePBFPmZ7ZODIM4kP61L5bIXa66",
+        "enc_id": "I6r4WErFMIEjD9CDHBR6mN24F4uFSk73",
         "id": 36114722,
         "order": 0,
         "skill_id": 3917541,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "hJkfGIyozRmwrOUyLVMJIWtSwcD2SD55",
+        "enc_id": "jSyvFHqxkYbmsGIlZHOUZMzDibQ0BW98",
         "id": 52681854,
         "order": 0,
         "skill_id": 285,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "fxAvEDHlARhnM8Y4F7KVCSNqBzixFZ13",
+        "enc_id": "lpLnVFLnUWcaR3C9S1TLXDHzTfbfZO11",
         "id": 52681858,
         "order": 0,
         "skill_id": 4567,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "U3ZfGsQCm68RVSANT9eiKLa9Un7jlr55",
+        "enc_id": "O9QlOgTWe23ZICHDR6ihVTa6Tu1xqu34",
         "id": 59310069,
         "order": 0,
         "skill_id": 248356,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "FqpRyNA8Eg1fkRVduNGVU9R2LHT6TD58",
+        "enc_id": "GnnBoRG2Nj2kwWIwgJTVA8O2FMO1ZD49",
         "id": 59310070,
         "order": 0,
         "skill_id": 469639,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "BSRssw8bI7WbDZsvwvKFLMMWTZuuaz65",
+        "enc_id": "MHOfwt7cO5EeFXvbiyRIJFPZIWgvti36",
         "id": 60394778,
         "order": 0,
         "skill_id": 3890204,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "DGKwhzlqZZwfmEuwBSrYddbijdPWXa01",
+        "enc_id": "SFGuzdjjXUdszHnkRCdGxoznpjPEOq30",
         "id": 59310074,
         "order": 0,
         "skill_id": 106557,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "q5zKVENiTkdGjYiVpLVrw4BvGsovAN78",
+        "enc_id": "r7nRMTHgKdhAvMbBhRFzy3FgHixyUW24",
         "id": 59310077,
         "order": 0,
         "skill_id": 256659,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "XK8KM97BPXwmE69AP0OoCWKWJWZhZH94",
+        "enc_id": "KJ4AX28QJSmnU59UI2GkSMJFPOSnCI88",
         "id": 59310079,
         "order": 0,
         "skill_id": 257574,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "NphNIbRQV3K1G08wcndxNJ04iPFwxg56",
+        "enc_id": "WroNIxTGZ9W6K61aknvmEA20pHOrhi58",
         "id": 59310081,
         "order": 0,
         "skill_id": 256679,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "L1uKEVE8QqqnHp8jEXi0PNm1IGQ5Xf58",
+        "enc_id": "U1mBBED1KfvvUz5uQBl1LEf8NIJ1Ul33",
         "id": 59310083,
         "order": 0,
         "skill_id": 302,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "FzL9UX3vSUn1tmT6O1Sofy3JPObuFh29",
+        "enc_id": "WjD3LQ4sBVp9gkE6T4Uapf7DTIpdFz60",
         "id": 59310084,
         "order": 0,
         "skill_id": 3885848,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "LWHyv3MvVgoiQfW0R3rUUVXHE3WNED76",
+        "enc_id": "SSRig5YoWeseUsH0V9dCYONLY1NLOJ54",
         "id": 59310085,
         "order": 0,
         "skill_id": 512365,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "MCA2NuKuZvDBr2vpUPQcFOEvOyfHXd74",
+        "enc_id": "XDO3NjUnKcLHp8ymCLIrMVUmDhcPUj82",
         "id": 59310634,
         "order": 0,
         "skill_id": 3898922,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "EUJaQHTcTvVATiakFTQ0Aju4OD3BBJ11",
+        "enc_id": "PHNgVHDuOsOUOhcoTAR8Zbx1DU2WRH64",
         "id": 59310714,
         "order": 0,
         "skill_id": 512366,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "i2NdH1Bmhxycru53RF2sUve1A4Vmvj71",
+        "enc_id": "v7YtH7Ieoojmoq60YA2zXqg3J7Ajwg37",
         "id": 60394769,
         "order": 0,
         "skill_id": 3524955,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "aMSaNDpOZCqDUonaGjE3E1ppEEfvlc40",
+        "enc_id": "xBUeUScWXRxSLvymKpA4W9dcWFenuf59",
         "id": 60394773,
         "order": 0,
         "skill_id": 3640789,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "FRO1WFIBCfCgXBkLHOVsGaIJIJpTDC66",
+        "enc_id": "RUT1HZYEAfGfRQkNPLQpSdIPTYjEMP12",
         "id": 12809456,
         "order": 0,
         "skill_id": 175,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       },
       {
-        "enc_id": "hBqGWAVWStJQLIq6GjIiu1E8oUIhRe54",
+        "enc_id": "rQcXEDRRDwCQTJk1VfWyo2T7wGRxYs37",
         "id": 60394777,
         "order": 0,
         "skill_id": 3438123,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "years_of_experience": "0"
       }
     ],
@@ -1783,79 +1783,79 @@
     "testimonials": [],
     "tools": [
       {
-        "enc_id": "dOFhesv4TGVsPZMce6BtxtqYHXv0ZS81",
+        "enc_id": "aQYjtsl8TXRuYBFny1DofeoPCVo2HS22",
         "id": 927660,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "tool_id": 31730
       },
       {
-        "enc_id": "iaU5MZTpPRL5LLcwLItbKGpBSnDQJZ66",
+        "enc_id": "eqZ0QWSnJAF2YClnGUukHUpPEuPFAA80",
         "id": 927661,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "tool_id": 12
       },
       {
-        "enc_id": "imX3U7XSFroUWGA7HeaZguc9N5TnWl91",
+        "enc_id": "ucA4A2RJUgbKOUV7CdhMulc5P2AdXv29",
         "id": 927662,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "tool_id": 12483
       },
       {
-        "enc_id": "uhnwGYi0ZXIWHF99Ml98BFQNexmzhm15",
+        "enc_id": "vbxcDUs0SVZYMG24Mr59SRLVtbwnhg27",
         "id": 927663,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "tool_id": 14046
       },
       {
-        "enc_id": "eCV0aXLrSGzoKpS8VybLNtKPbte5ha80",
+        "enc_id": "vNS7qILdGGhbGtR6DzjKKcZTcxd0ph21",
         "id": 927664,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "tool_id": 12220
       },
       {
-        "enc_id": "D6y0MLVzD6o9FXb0HXm0Pe4QSfuFYC57",
+        "enc_id": "H4b0EPVxE6h3SFt9DAu7Ot3QLbuOSM17",
         "id": 927665,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "tool_id": 15114
       },
       {
-        "enc_id": "CPiIR385TQTwCWGhAOB7TkSSNVtDGc54",
+        "enc_id": "NHrCR400UQMfIVQuVXW4PdEDJMjCIi44",
         "id": 927666,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "tool_id": 21
       },
       {
-        "enc_id": "QDeNh1S1DvANzEZ2lQThM0MINTzgSo16",
+        "enc_id": "STtBe9H8BuWJxKA4zTXxV2TKGLndKg56",
         "id": 927667,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "tool_id": 6236
       },
       {
-        "enc_id": "HEQoxNSLBSh2gPWdB5q0kD0SsKfMCs95",
+        "enc_id": "FWRrePDCTMu1aHLiR4y4xW2EmAdLAf85",
         "id": 927668,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "tool_id": 9
       },
       {
-        "enc_id": "aUuALSVsBDZ1KaTJogGBTgSEVbAFTX93",
+        "enc_id": "hAuRSZSnNOG1OmMShqNRNlWIYySMUD00",
         "id": 927669,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "tool_id": 24
       },
       {
-        "enc_id": "EYqCcDfmvcoGAaGvClKDBPaDgMShip27",
+        "enc_id": "PHdExEbiqdlLXcJhMbSVJTxYsICgbs27",
         "id": 927670,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "tool_id": 18541
       },
       {
-        "enc_id": "Y7YrLhlaGtKSDE6MGL2dtZuKvZRpDs76",
+        "enc_id": "O6EhPuujNoDCCH8SMX6reQkUvBRyMo29",
         "id": 927671,
-        "talent_id": 9440850,
+        "talent_id": 2839256,
         "tool_id": 28285
       }
     ],
     "total_experience": "5.2",
-    "user_id": 6318906
+    "user_id": 2786954
   }
 }

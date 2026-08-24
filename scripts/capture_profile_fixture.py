@@ -35,7 +35,20 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+#: THE SHARED REDACTION. Same argument as `capture_talent_rows.py`, and this
+#: file is the more urgent of the two: `talent_profile.json` carries
+#: `$.talent_details.enc_id`, the ONE opaque handle in this repository that is
+#: PROVEN live rather than probable - `uplers_server/resume_write.py` sends
+#: exactly that string to `talent/talent-download-resume-profile`, which is the
+#: route that downloads his resume and takes one parameter. It also carries
+#: `enc_id_nda`, `enc_id_org`, `user_id`, `talent_id` and 143 per-row `enc_id`
+#: handles under skills, tools, achievements, experiences, projects and
+#: educations. `strip` below is an exact-name key delete and could see none of
+#: them.
+from capture_outreach import contact_leaks, leak_summary  # noqa: E402
+from capture_outreach import redact as shared_redact  # noqa: E402
 from uplers_server import endpoints  # noqa: E402
 from uplers_server.session import SessionStore  # noqa: E402
 from uplers_server.talent import TalentClient  # noqa: E402
@@ -106,7 +119,13 @@ def trim_master(rows, wanted: set, decoys: int) -> list:
 
 
 def assert_clean(path: Path) -> None:
-    """Re-read what was written and refuse to leave a leak on disk."""
+    """Re-read what was written and refuse to leave a leak on disk.
+
+    TWO detectors: the key walker below sees a field that should not exist even
+    when its value is null, and `contact_leaks` sees the value classes no key
+    walker can reach. Both unlink BEFORE building their message, so nothing
+    that can fail sits between the verdict and the delete.
+    """
     text = path.read_text(encoding="utf-8")
     data = json.loads(text)
     leaks = []
@@ -125,6 +144,12 @@ def assert_clean(path: Path) -> None:
     if leaks:
         path.unlink()
         raise SystemExit("REFUSED: private keys survived capture: %s" % sorted(set(leaks)))
+
+    values = sorted(set(contact_leaks(data)))
+    if values:
+        path.unlink()
+        raise SystemExit("REFUSED: leaking values survived capture: %s"
+                         % leak_summary(values))
 
 
 async def main() -> int:
@@ -160,7 +185,10 @@ async def main() -> int:
     }
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(captured, ensure_ascii=False, indent=2), encoding="utf-8")
+    OUT.write_text(
+        json.dumps(shared_redact(captured), ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
     assert_clean(OUT)
 
     print("wrote %s (%.1f KB)" % (OUT, OUT.stat().st_size / 1024))

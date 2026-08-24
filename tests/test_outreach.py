@@ -87,6 +87,10 @@ from uplers_server.outreach import OutreachError
 
 from conftest import FIXTURE_DIR, load_talent_fixture
 
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+from capture_outreach import contact_leaks  # noqa: E402
+
 STEP = "outreach_step"
 DASHBOARD = "outreach_dashboard"
 PENDING = "outreach_pending_jobs"
@@ -896,13 +900,73 @@ class TestTheReportSaysNothingItCannotDerive:
 
     def test_the_payload_really_did_carry_the_routes_that_were_withheld(self, missed):
         """Nothing is dropped silently: what is withheld is named, and it was
-        genuinely present."""
-        row = load_talent_fixture(MISSED)["data"]["rows"][0]
+        genuinely present.
+
+        THE SECOND HALF READS THE SPECIMEN, NOT THE CAPTURED FIXTURE, and the
+        reason is the whole point of this test. It used to read
+        `outreach_missed_followups.json`. On 2026-08-24 that capture stopped
+        recording contact routes at all - the publish-gate census found real
+        signature blocks surviving in its `message_full` prose after a scrub
+        that had walked only the structured fields, so the redactor now DROPS
+        those keys at capture time.
+
+        That is the right fix to the leak and it silently guts this proof: a
+        row that no longer carries the keys satisfies "they were withheld"
+        vacuously, and the test would have gone green while proving nothing.
+        It is the same shape as the defect recorded at the top of
+        `test_fixture_hygiene.py`, where a rewrite deleted a specimen and a
+        control turned into a skip.
+
+        The specimen exists for exactly this. It is synthetic, committed, owned
+        by this repository, and its contact fields are PRESENT ON PURPOSE, so
+        the claim stays falsifiable without a real value on disk.
+        """
+        specimen = json.loads(
+            (FIXTURE_DIR / "_specimens" / "outreach_contact_leak.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        row = specimen["data"]["rows"][0]
 
         assert missed["withheld_fields"] == list(outreach.WITHHELD_CONTACT_KEYS)
         for key in outreach.WITHHELD_CONTACT_KEYS:
-            assert row[key]
+            assert row[key], (
+                "the specimen no longer carries %r, so 'it was withheld' is "
+                "vacuously true and this test proves nothing" % key
+            )
         assert any("withheld from this shape" in note for note in missed["notes"])
+
+    def test_the_captured_fixture_carries_no_real_contact_value__CONTROL(self):
+        """__CONTROL. The live-derived fixture must be clean, by measurement.
+
+        The pair is the point. The test above proves the withheld keys are real
+        keys by finding them in the specimen; this one proves the live-derived
+        fixture carries nothing real. Passing only the first would be satisfied
+        by a redactor that cleaned nothing.
+
+        TWO DIFFERENT TREATMENTS, and the distinction is worth stating because
+        the first draft of this control got it wrong and demanded the stricter
+        one everywhere. The STRUCTURED contact fields are SUBSTITUTED, not
+        deleted - they keep their names and take synthetic values, so the row
+        still exercises the shaping code. The PROSE field `message_full` is
+        DELETED outright, because prose cannot be substituted field-by-field
+        and it was the one that actually leaked: the 2026-08-24 census found
+        intact email signature blocks surviving inside it, carrying a given
+        name, a job title, an employer and two phone numbers, in a file whose
+        structured fields had all been correctly scrubbed years-of-effort ago.
+        The scrubbed neighbours are what made it read as synthetic.
+        """
+        row = load_talent_fixture(MISSED)["data"]["rows"][0]
+
+        assert "message_full" not in row, (
+            "the prose field is back. It is the field that leaked, and it "
+            "cannot be scrubbed in place -- it is dropped or it is a leak."
+        )
+        leaks = list(contact_leaks(load_talent_fixture(MISSED)))
+        assert leaks == [], (
+            "the detector still finds contact routes in the captured fixture: "
+            "%s" % [trail for _, trail, _ in leaks][:5]
+        )
 
     def test_the_window_days_meaning_is_not_invented(self, missed):
         assert missed["window_days"] == 15

@@ -22,6 +22,15 @@ data/
 session.json
 browser_profile/
 
+# Optional redaction salt. `scripts/capture_outreach.py` substitutes opaque
+# handles with a one-way, shape-preserving hash of the original. The tracked
+# default salt is deliberately NOT a secret - destruction, not reversibility,
+# is the point - but a published salt leaves the SHORT digit-shaped handles
+# (a seven-digit account id has only 10^7 candidates) recoverable by brute
+# force. Drop one line of text here before a re-derivation and that class
+# becomes unrecoverable too. Untracked for the same reason a key is.
+scripts/.redaction_salt
+
 # Editor / OS
 .vscode/
 .idea/
