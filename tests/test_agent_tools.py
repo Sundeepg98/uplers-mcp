@@ -298,6 +298,74 @@ class TestNothingHereWrites:
         for route in forbidden:
             assert not any(route in path for path in touched), (route, touched)
 
+    def test_the_consent_write_constant_is_reachable_from_nothing(self):
+        """EP_CONSENT_EMAIL_JOB_SCAN exists, and NOTHING may reference it.
+
+        The constant predates the ruling that refuses the route - it is what
+        explains an empty diary elsewhere - so unlike the ten one-way routes
+        beside it, which are recorded in endpoints.py as prose precisely
+        because a constant is an invitation to call it, this one is a name
+        sitting in the codebase with no guard around it.
+
+        `uplers_server_info` states that nothing reaches it. That sentence is
+        either measured or it is decoration, and the runtime census above
+        cannot measure it: that census watches the requests four specific tools
+        emit, so it would stay green if a FIFTH tool wired the constant
+        tomorrow. This reads the source instead, so the property holds for
+        every module rather than for the four under test.
+
+        Deliberately a static check and not a call: the route is a POST/DELETE
+        that changes what Uplers reads out of his mailbox, and the one thing a
+        test of it must never do is exercise it.
+
+        IT PARSES THE AST RATHER THAN GREPPING, and that is not fastidiousness.
+        The first version matched the substring and went red on its own
+        documentation - the refusal in OUT_OF_SCOPE_BY_DESIGN names the
+        constant in prose in order to explain why it is refused. A test that
+        fires on a sentence pushes the next maintainer to stop WRITING about
+        the refusal so the suite stays green, which is exactly backwards. Names
+        in the syntax tree are references; names in strings and comments are
+        the documentation this repo is made of.
+        """
+        import ast
+        import pathlib
+
+        root = pathlib.Path(server.__file__).resolve().parent
+        sources = [root / "server.py", *sorted((root / "uplers_server").glob("*.py"))]
+
+        def names_in_code(path):
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+            return {
+                node.attr if isinstance(node, ast.Attribute) else node.id
+                for node in ast.walk(tree)
+                if isinstance(node, (ast.Attribute, ast.Name))
+            } | {
+                alias.name
+                for node in ast.walk(tree)
+                if isinstance(node, ast.ImportFrom)
+                for alias in node.names
+            }
+
+        referencing = [
+            path.name
+            for path in sources
+            if path.name != "endpoints.py"
+            and "EP_CONSENT_EMAIL_JOB_SCAN" in names_in_code(path)
+        ]
+        assert referencing == [], (
+            "these modules REFERENCE the consent-write constant in code: %s. "
+            "The route is refused - it changes what Uplers reads out of his "
+            "mailbox and that is his call. If wiring it was deliberate, the "
+            "refusal in OUT_OF_SCOPE_BY_DESIGN has to be edited in the same "
+            "commit." % referencing
+        )
+
+        # The constant really is there to be found. Without this the assertion
+        # above would pass just as happily against a name nobody ever defined.
+        assert "EP_CONSENT_EMAIL_JOB_SCAN" in names_in_code(
+            root / "uplers_server" / "endpoints.py"
+        )
+
     async def test_the_census_can_actually_fail(self, monkeypatch):
         """__CONTROL. `writes(calls) == []` is trivially true when no request
         was made at all, so a broken wiring would pass the census by being

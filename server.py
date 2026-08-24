@@ -2384,7 +2384,7 @@ OUT_OF_SCOPE_BY_DESIGN = [
             "under 'Enable linkedin Outreach'."
         ),
         "measured": (
-            "The channel is dead at both ends and three separate routes agree: "
+            "The channel is dead at both ends and four separate routes agree: "
             "outreach-step says linkedin_connected false and linkedin_template "
             "false, get-message-templates returns the empty string for the "
             "linkedin template, preview-config carries its own "
@@ -2415,8 +2415,14 @@ OUT_OF_SCOPE_BY_DESIGN = [
             "on and off - both are his decision, not this server's, and both "
             "are reversible, so they are refused on WHOSE CALL IT IS rather "
             "than on safety. The claim routes alter a live paid subscription. "
-            "None of these has a constant in endpoints.py: they are recorded "
-            "there as prose, because a constant is an invitation to call it."
+            "The ten ONE-WAY routes have NO constant in endpoints.py - they are "
+            "recorded there as prose, because a constant is an invitation to "
+            "call it. The two consent routes are the stated exception and the "
+            "shape of it differs: consent-auto-run appears in endpoints.py zero "
+            "times, while EP_CONSENT_EMAIL_JOB_SCAN does exist, predating this "
+            "ruling. It is referenced by no module and no test - the property "
+            "that matters is that nothing reaches it, and that is measured "
+            "rather than implied by its absence."
         ),
     },
     {

@@ -15,17 +15,18 @@ There are two tiers, and the line between them is the first thing to read.
 endpoint plus the public sitemap. It never applies to anything and never mutates Uplers:
 `uplers_track` records what you already did by hand.
 
-**The authenticated tier** - 29 tools, first added 2026-08-21 - reads *his account*, and the
+**The authenticated tier** - 34 tools, first added 2026-08-21 - reads *his account*, and the
 difference is the whole reason it exists: the public board shows what Uplers is hiring for, his
 account shows what Uplers is doing about **him** - which requisitions he has been matched to, what
 their recruiters have moved to interview, and what his profile looks like to the people making
-that call. Of the twenty-nine: four manage the session, twelve read his account, four read the
+that call. Of the thirty-four: four manage the session, twelve read his account, four read the
 output of the paid outreach agent he already owns, one syncs his Uplers profile down into the
-local one, two list local restore points, two write to a requisition and four write to his
-PROFILE. Those write groups are three different kinds of act: `uplers_apply` **cannot be undone**,
-`uplers_dismiss` can, and `uplers_replace_resume` is a one-way door on *Uplers'* side that only
-this server's local pre-flight snapshot can reverse. See "Applying cannot be undone" before using
-any of them.
+local one, two list local restore points, two write to a requisition, four write to his PROFILE
+and five configure that paid agent. Those eleven writes are three different kinds of act:
+`uplers_apply` **cannot be undone** and `uplers_dismiss` can; `uplers_replace_resume` is a one-way
+door on *Uplers'* side that only this server's local pre-flight snapshot can reverse; and the five
+agent-config writes are reversible by construction - each reads its prior value before it writes
+and re-reads after. See "Applying cannot be undone" before using any of them.
 
 ---
 
@@ -34,13 +35,13 @@ any of them.
 | | |
 |---|---|
 | Stack | Python 3.11+, FastMCP (`mcp`), `httpx`, stdlib `sqlite3`, [`jobcore`](../jobcore) |
-| Tools | **53** - 24 public (5 board readers, 18 profile-aware, 1 introspection) + 29 authenticated |
-| Size | 17,124 lines of server code, 21,282 lines of tests |
-| Tests | **1,352**, all offline |
-| Network surface | 2 public GET endpoints needing no auth; 26 `talent/*` routes plus `v2/assessments` behind a bearer token |
+| Tools | **58** - 24 public (5 board readers, 18 profile-aware, 1 introspection) + 34 authenticated |
+| Size | 19,461 lines of server code, 23,278 lines of tests |
+| Tests | **1,424**, all offline |
+| Network surface | 2 public GET endpoints needing no auth; 34 `talent/*` routes named as constants - 30 of them reached by a tool, four recorded and deliberately uncalled - plus `v2/assessments`, all behind a bearer token. 33 of the 34 live in `endpoints.py`; `talent/talent-download-resume-profile` lives in `resume_write.py` and says why in its own comment |
 | Browser | Playwright, in exactly one module, for login only. The public tier needs none. |
 | Maintenance estimate | 1-3 hours/month |
-| Verified live | 2026-08-24 - the Gmail job scan read on its authoritative route (consent granted 2026-08-12, last run 2026-08-23) and 79 scanned jobs fetched; 14 agent-surface GETs captured as fixtures; 2 of them measured 404 and recorded as such |
+| Verified live | 2026-08-24 - the Gmail job scan read on its authoritative route (consent granted 2026-08-12, last run 2026-08-23) and 79 scanned jobs fetched; 14 agent-surface GETs captured as fixtures; 2 of them measured 404 and recorded as such. The five agent-config writes are built and tested against captured shapes, and **none of them has been fired live** - nothing in `outreach_write.py` was derived from a live probe, and no write it can send has reached his account. |
 
 ---
 
@@ -77,7 +78,7 @@ Five read the board. Eighteen answer "what is on it **for me**, and what have I 
 Everything in the second group runs against the local index and costs **no network at all**. The
 twenty-fourth is `uplers_server_info`, which describes the server itself - what it can do, what it
 deliberately cannot, and which commit it is running - and reaches for nothing at all to do it.
-None of the twenty-four needs an account; the twenty-nine that do are documented under "The
+None of the twenty-four needs an account; the thirty-four that do are documented under "The
 authenticated tier" below.
 
 ### `uplers_sync_index(hydrate=True, fetch_budget=300, refresh_stale=True)`
@@ -407,8 +408,10 @@ database by hand and upgrades it, asserting nothing that was there before is tou
 
 ## The authenticated tier
 
-Thirteen tools that read his Uplers account. Everything above this point reads the public
-catalogue; everything here reads what Uplers is doing about **him**.
+Thirty-four tools behind a session he opens by hand. Everything above this point reads the public
+catalogue; everything here reads what Uplers is doing about **him**, and eleven of the thirty-four
+can change it - every one of those eleven confirm-gated, every one previewing the exact request
+first.
 
 The evidence base for every route, parameter and encoding below is
 [`../_audit/2026-08-21-uplers-bundle-callsites.md`](../_audit/2026-08-21-uplers-bundle-callsites.md)
@@ -707,14 +710,16 @@ capture time and their absence is asserted, in both the committed fixture and th
 because a shaped profile ends up in transcripts, logs and reports. The private key names are
 filtered out of `sections_present` too - "expected_ctc is populated" is itself a disclosure.
 
-### The 29 tools
+### The 34 tools
 
-(This heading has now drifted twice, the same way both times. It read "17" over an
+(This heading has now drifted three times, the same way every time. It read "17" over an
 18-row table when `uplers_my_assessments` landed; it read "23" over a 23-row table
 on 2026-08-24, by which point six more tools had landed - the three Gmail-scan
-readers and the whole resume-write trio - and none of them had a row. Both were
-corrected by counting, not by memory. What is pinned by
-`test_importing_server_registers_exactly_the_expected_tools` is the TOTAL of 53;
+readers and the whole resume-write trio - and none of them had a row; and it read
+"29" over a 29-row table later the same day, when the five agent-config writes
+landed and heading and table went stale together. All three were corrected by
+counting, not by memory. What is pinned by
+`test_importing_server_registers_exactly_the_expected_tools` is the TOTAL of 58;
 this per-tier heading and the rows beneath it are prose, and prose is what goes
 stale. `uplers_server_info().capabilities` carries the split as a checked number
 if you want one that cannot drift.)
@@ -740,16 +745,33 @@ if you want one that cannot drift.)
 | `uplers_list_resume_snapshots()` | Resume restore points, newest first. Reads disk only; needs no session. |
 | `uplers_my_interviews(detailed=True)` | Interviews Uplers has arranged for him. Read-only. See the namespace note below. |
 | `uplers_my_assessments()` | Assessments HE has sat, and Uplers' own `cleared` count. The other half of a story the server previously told only from the requisition's side: 99 of the 250 indexed records demand an assessment, but nothing reported which ones he had already done. Read-only, no arguments. |
-| `uplers_agent_readthrough()` | **What Uplers' own paid agent has done for him, and what it missed.** He is paying for their autonomous applier (plan 2, `outreach_mode: "auto"`) and until now none of its output was visible here. Reads five GETs and assembles them: unanswered positive replies ranked oldest-first, which of the agent's two channels is actually connected, 48 runs broken down by outcome, and a `disagreements` block where two Uplers routes report different numbers. Read-only; no write path exists in the tool or the module behind it. |
+| `uplers_agent_readthrough()` | **What Uplers' own paid agent has done for him, and what it missed.** He is paying for their autonomous applier (plan 2, `outreach_mode: "auto"`) and until now none of its output was visible here. Reads six GETs and assembles them: unanswered positive replies ranked oldest-first, which of the agent's two channels is actually connected, 48 runs broken down by outcome, and a `disagreements` block where two Uplers routes report different numbers. The sixth route is the only one on this surface that counts the replies which said **no**, so `total_answered` is 10 where every other counter here stops at the 8 positives. Read-only; no write path exists in the tool or the module behind it. |
 | `uplers_email_scan()` | Whether Uplers is scanning his Gmail for jobs, and what that scan found. Reads the **authoritative** consent route rather than the copy carried on the outreach dashboard, and neither of those is the `has_consent` on the interview list - that is a third consent entirely, for an interview scan whose UI Uplers designed but never shipped, wearing the identical field name. Read-only. |
 | `uplers_scanned_jobs(best_for_you=None, limit=25)` | The jobs that Gmail scan actually found, listed. `best_for_you` is Uplers' own narrowing: measured 2026-08-23 as 79 rows unset and 51 with it. The route accepts no working `limit` of its own - a `limit=3` on its sibling returned all 97 rows - so any truncation here is this server's and is reported as this server's. |
-| `uplers_agent_settings()` | The four switches that decide what his paid agent actually does: whether an unanswered reply gets chased, per channel, where the `disabled_followup_*` flags are **inverted** and `false` means the channel is ON; the auto-reply switch and the eight categories it would answer; the real 16-row blocklist, which is *not* the alphabetical company picker a similarly-named route returns; and whether message templates exist. Reports that a template exists and what its subject is, never the body - that body is a multi-paragraph self-description carrying employer history and a notice period. Four GETs, no writes. |
+| `uplers_agent_settings()` | The four switches that decide what his paid agent actually does: whether an unanswered reply gets chased, per channel, where the `disabled_followup_*` flags are **inverted** and `false` means the channel is ON; the auto-reply switch and the eight categories it would answer; the real 16-row blocklist, which is *not* the alphabetical company picker a similarly-named route returns; and whether message templates exist. Reports that a template exists and what its subject is, never the body - that body is a multi-paragraph self-description carrying employer history and a notice period. Four GETs; the write half of the same four switches is the five tools at the end of this table. |
 | `uplers_platform_saved_jobs(search=None, ...)` | Jobs he bookmarked on **Uplers' own site**, which is a different list from `uplers_save_job`'s local shortlist and always has been. Takes `search` and nothing else: Uplers' code drops every other filter when the saved flag is set, so a filtered request would return his saved jobs *unfiltered while looking filtered*. This refuses instead of sending it. |
 | `uplers_my_preferences()` | What **Uplers** thinks he wants, as opposed to what the local profile says. Fit scores here are computed against the local profile; Uplers ranks him against these, and the two had never been compared because one was invisible. Ids are resolved to labels against the lookup tables shipped in the same response; an id with no matching row is marked `UNRESOLVED` rather than dropped or guessed. |
 | `uplers_assessment_gates(page_size=50)` | Which feed rows demand an assessment **before** he can apply. No new endpoint - `ai_needed` and `custom_screening_needed` already rode on rows this server reads. **Pre-apply signal only:** all 9 of his existing applications read `ai_needed: false`, so nothing here explains why they stall. Absent is reported as `unknown` and never folded into `false`. |
 | `uplers_filter_options(kind, search=None)` | Turns "React" or "Bangalore" into the internal ids `uplers_my_feed` needs. `kind` is `role` / `skill` / `location` / `company`. |
 | `uplers_apply(hr_number, confirm=False)` | **Applies. Cannot be undone.** Previews by default; sends nothing without `confirm=True`; refuses to apply twice. Read "Applying cannot be undone" first. |
 | `uplers_dismiss(hr_number, confirm=False, undo=False)` | Mark "not interested", or reverse that with `undo=True`. Genuinely reversible - Uplers ships the reset flag. Previews by default. |
+| `uplers_set_followup(gmail_enabled, linkedin_enabled, gmail_interval_days, linkedin_interval_days, gmail_message, linkedin_message, confirm=False)` | Whether an unanswered reply gets chased, per channel, and how often. **Omitted arguments are left alone.** Uplers' route takes the whole 9-key record every time, so the tool reads the live record first and carries over every field you did not name; a call that names nothing **refuses** rather than re-sending the record unchanged. Arguments read in natural polarity - `gmail_enabled=True` means "chase on gmail" - and Uplers' inversion happens once, internally. Two of their own client-side gates are mirrored, not improved on: a follow-up message must carry both `{{outreachEmployee}}` and `{{jobTitle}}` unless that channel is disabled or its message is empty, and each interval clamps to at least 1. Previews by default. |
+| `uplers_set_auto_reply(enabled, hours, categories, confirm=False)` | Whether the agent answers replies for him, after how long, and to which of the eight categories. It is currently off. Enabling with an empty category list is refused, which is Uplers' own gate; a category outside the eight this account has seen is **named in the preview rather than rejected**, because Uplers may know more categories than the fixture does. `hours` gets **no floor at all** - the bundle coerces it through a minified function whose identity did not resolve, and a gate invented on unresolved evidence is a guess this repo does not make. Previews by default. |
+| `uplers_set_template(channel, template, subject=None, confirm=False)` | Rewrites the outreach message on one channel; Uplers' own editor saves the two independently and so does this. **There is no delete-template route on Uplers**, so the snapshot taken before the send is the only way back, and a blank template body is refused rather than sent. `channel` goes on the wire as Uplers' integer - 1 LinkedIn, 2 Gmail. The existing body is never printed back, on any channel; what you pass **in** is echoed verbatim, because showing the exact body is the point of previewing. Writing the linkedin template does not connect the linkedin channel - see "Deliberately out of scope". Previews by default. |
+| `uplers_block_company(company_id, confirm=False)` | Stops the agent contacting one company. This is the real blocklist - what Uplers means when a run fails with "You blocked this company for outreach" - and not the alphabetical company picker a similarly-named route returns. Blocking a company already on the list refuses rather than sending a write that would change nothing. Previews by default. |
+| `uplers_unblock_company(company_id, confirm=False)` | The reverse, and a route pair Uplers ships and names in its own UI rather than a workaround assembled here. Takes the **company** id; Uplers' DELETE wants the blocklist **row** id, and this tool resolves that from the live list instead of accepting it from you. Both numbers sit on the same row, both are small integers, and sending the wrong one removes a different company with a 200 either way. Unblocking a company that is not on the list refuses. Previews by default. |
+
+The five agent-config writes share one shape, and it is the read-before-write that makes them
+reversible - not the mere existence of a route that undoes them. Each reads the live record first
+(the three settings writes to carry over every field the caller did not name; the block/unblock
+pair to resolve the blocklist row id and to refuse a call that would change nothing), writes a
+snapshot to `data/outreach_snapshots/` **before** it sends, sends, and then re-reads the same GET
+and reports whether the value actually landed. **A 200 is not proof a value changed** - three of
+the four routes behind these five answer 200 and echo nothing useful, and the fourth answers with
+the string `"success"`. Existing template and follow-up message bodies are never printed back:
+text the caller passes in is echoed in the preview, text carried over from the live record renders
+as a length and a sha256, and every redacted key is listed in `body_redacted_keys` so the omission
+is visible rather than silent.
 
 Rows here go through the same compact models as the public tier, so the shaping rules under "The
 governing constraint: token cost" apply unchanged: empty fields never reach the wire, composites
@@ -768,21 +790,25 @@ Re-run `uplers_login()` whenever `uplers_auth_status()` says `false` or a read t
 session expired - expect that roughly daily. The public tier needs none of this and keeps working
 throughout.
 
-### The namespace exception, stated plainly - and why it grew
+### The namespace exception, and the line that replaced it
 
-`talent/outreach/*` is where Uplers' **paid outreach-agent product** lives, and this server
-otherwise excludes the whole prefix. Twelve routes under it are now read, and none is
-written - six on 2026-08-23 and six more in the ring after it.
+`talent/outreach/*` is where Uplers' **paid outreach-agent product** lives, and this server used to
+exclude the whole prefix. Thirteen routes under it are now read and five verb+route pairs are
+written. The change worth understanding is not the arithmetic: **the line moved from the namespace
+to the effect.** Excluding a prefix was one ruling covering 31 routes of very different character -
+an analytics ping and the outreach send itself were on the same side of it, for the same reason,
+which is to say for no reason about either of them.
 
-`uplers_my_interviews` was the first, admitted because it is a plain GET of his **own** interview
-schedule: reading your own calendar is using the platform normally, not reimplementing a SKU.
+`uplers_my_interviews` was the first exception, admitted because it is a plain GET of his **own**
+interview schedule: reading your own calendar is using the platform normally, not reimplementing a
+SKU.
 
-The other five arrived on 2026-08-23 behind `uplers_agent_readthrough`, on the same principle and
-a sharper fact. He is **already paying** for Uplers' autonomous applier - measured, not inferred:
-`plan: 2`, `has_plan_expired: false`, `plan_end_date: 2026-09-10`, `auto_run: 1`,
-`outreach_mode: "auto"`. It had run 48 jobs and produced 8 positive replies, and this server could
-not see any of it. Reading the output of an agent he already owns is the `interview-list`
-precedent, not a new one.
+The reads that followed on 2026-08-23, behind `uplers_agent_readthrough` and the agent-surface
+tools, arrived on the same principle and a sharper fact. He is **already paying** for Uplers'
+autonomous applier - measured, not inferred: `plan: 2`, `has_plan_expired: false`,
+`plan_end_date: 2026-09-10`, `auto_run: 1`, `outreach_mode: "auto"`. It had run 48 jobs and
+produced 8 positive replies, and this server could not see any of it. Reading the output of an
+agent he already owns is the `interview-list` precedent, not a new one.
 
 **What that emphatically does not license is building a second applier**, and this server does not
 have one. The reason is not "apply cannot be undone" - Naukri has no withdraw either and this
@@ -791,11 +817,60 @@ against a **250-requisition** board, through a single intermediary who gates eve
 while the vendor's own agent already holds the wheel, is the wrong answer at any quality of
 implementation.
 
-The write half of the namespace stays unbuilt: `interview-feedback`, and
-`consent-email-job-scan` - which changes what Uplers reads out of his mailbox and is his decision,
-not this server's. `tests/test_agent_tools.py` measures the boundary rather than asserting it:
-every request the four tools emit is checked to be a GET, against an exact allowlist of routes,
-with a control proving the census records a write when one happens.
+**What told the write routes apart is an inventory, not a judgement.**
+[`_audit/_slices/_slice-outreach-write-inventory.md`](_audit/_slices/_slice-outreach-write-inventory.md)
+reads every write route under the prefix out of Uplers' own bundle and classifies each one by
+whether it can be put back: **PAIRED** (an explicit inverse route exists, and is named),
+**IDEMPOTENT-SETTINGS** (a GET serves the same record, so the prior value is readable *before* the
+write), **ONE-WAY** (no inverse and no readable prior state) and **UNKNOWN** (could not be
+established, with the reason given). Across the 32 verb+route pairs it lists under
+`talent/outreach/*` that comes out at **5 PAIRED, 4 IDEMPOTENT-SETTINGS, 22 ONE-WAY and 1
+UNKNOWN** - counted off the document's own summary table, which is the denominator to quote,
+because the same document also inventories seven `talent/account/*` routes that are not under this
+prefix at all.
+
+**What was built is the reversible part, and reversibility here means it reads its prior state
+back.** Two of the five tools are a route pair Uplers ships and names in its own UI; the other
+three overwrite a settings record that a GET on the same data serves, so each one reads the live
+record first, snapshots, sends, and re-reads to say whether the value landed. None of the five is
+a send.
+
+**What stays refused is refused route by route, each for its own reason** - which is the whole
+point of replacing the prefix rule with an effect rule:
+
+- **`store-employee-requests` IS the outreach send**, and Uplers' own UI copy says it cannot be
+  undone. This is the SKU.
+- `reveal-email` spends a credit to expose a person's address.
+- `discard-job` drops a job out of the agent's queue with a feedback reason, one way.
+- `auto-run-request` queues the paid agent at a job - the second-applier problem by another door.
+- `interview-feedback` publishes a company review.
+- `consent-email-job-scan` and `consent-auto-run` are **reversible**, and are refused anyway. One
+  changes what Uplers reads out of his mailbox; the other turns the autonomous applier itself on
+  and off. Both are his call, not this server's, so these two are refused on **whose decision it
+  is** rather than on safety - a different reason, recorded as a different reason.
+- the five commercial claim routes each alter a live paid subscription.
+
+None of the ten one-way routes listed above has a constant in `endpoints.py`. They are recorded in
+that file as prose, because a constant is an invitation to call it. One refused route is an
+exception worth stating rather than glossing: `consent-email-job-scan` **does** have a constant,
+`EP_CONSENT_EMAIL_JOB_SCAN`, written down before this ruling existed - it is what explains why
+`uplers_my_interviews` can return an empty diary that is not "no interviews" - and no production
+code path references it. `consent-auto-run` appears in `endpoints.py` not at all.
+
+**The paragraph about a second applier above is untouched by all of this, and it is permanent.**
+None of the five new writes applies to anything, messages a person, or reveals a contact. "The
+write half opened" is not "the applier question reopened", and nothing in this section should be
+read as softening that refusal by a single word.
+
+The boundary is measured rather than asserted, in three places. `tests/test_agent_tools.py` and
+`tests/test_agent_surface.py` each check every request their tools emit against an exact route
+allowlist and assert nothing but GETs, each with a control proving the census records a write when
+one happens. And since 2026-08-24 `tests/test_server_info.py` works the census backwards from the
+registry: every name the census declares must be a registered tool, and every registered tool
+taking `confirm=` must appear in some census group. That third one exists because the per-group
+assertions could not fail for a write tool belonging to *no* group - it satisfies each equality by
+not appearing in it - and `uplers_server_info` would then describe a server that can do something
+it never mentions. It was planted-controlled before it was trusted.
 
 One more route is excluded for a reason worth recording, because its name invites the mistake:
 **`talent/recommendations` is not a job-recommendations feed.** Despite the name, its body is
@@ -805,30 +880,81 @@ have produced a tool that silently returned the wrong kind of thing.
 
 ## Deliberately out of scope
 
-No resume tailoring, no resume health check, no referral agent, and no outreach beyond reading his
-own interview list. Those endpoints (`talent/tailor/*`, `talent/resume-health-check/*`,
-`talent/referral-agent/*`, and the rest of `talent/outreach/*`) are Uplers' own **paid** candidate
+No resume tailoring, no resume health check, no referral agent, and nothing under
+`talent/outreach/*` that sends, spends or applies. Those endpoints (`talent/tailor/*`,
+`talent/resume-health-check/*`, `talent/referral-agent/*`, and the one-way half of
+`talent/outreach/*` named under "The namespace exception") are Uplers' own **paid** candidate
 products - `talent/tailor/order/create`, `talent/tailor/order/capture` and
 `talent/tailor/refund-request` say so plainly. Reimplementing a paid product for free against a
 marketplace whose value is a human recruiter advocating for you is a bad trade.
 
+**And they are not bundled into his plan. That is measured, not assumed**, because "it might be
+included" would have changed the answer and only a measurement can settle it.
+`talent/outreach/agent-plans` returns a catalogue with exactly two entries - id 1 (Starter, 30
+days) and id 3 (Elite, 90 days) - while his `outreach-step` reads `plan: 2`, a plan that is not in
+the catalogue at all. The metering agrees from two independent directions: `outreach-step` reads
+`credit_plan 0`, `credit_left 0`, `credit_added 0`, and `preview-config` separately carries
+`plan.paid true`, `plan.expired false`, `plan.credit_left 0`. So the tailor surface is
+credit-metered and he holds none, and wrapping those ~70 routes would produce tools that fail at
+runtime. That is a concrete reason sitting on top of the principled one, not a replacement for it.
+
 Also not exposed, each for a reason recorded above rather than by omission:
 `talent/hr/cancel-opportunity` (see "Why `talent/hr/cancel-opportunity` is deliberately not
-exposed"), `talent/outreach/interview-feedback`, and `talent/recommendations` (see "One namespace
-exception"). Their shapes are recorded in `endpoints.py` so the findings are not lost; no tool
-calls them.
+exposed"), the one-way write routes under `talent/outreach/*`, and `talent/recommendations` (see
+"The namespace exception"). Where a shape is recorded in `endpoints.py` the finding is not lost;
+no tool calls any of them.
 
 **The public tier never logs in, never mutates Uplers, and never applies to anything.** That is
-still exactly true of all 22 of its tools, and `uplers_track(status="applied_manually")` does not
+still exactly true of all 24 of its tools, and `uplers_track(status="applied_manually")` does not
 weaken it: it is a note to yourself that you went to their site and applied. It sends nothing, and
 the only thing it mutates is the local sqlite file. The status is named `applied_manually`
 precisely so the record cannot be misread later as something this server did.
 
-What changed on 2026-08-21 is that a **second, clearly separated tier** now can log in and can
-mutate - through exactly two tools, both of which preview by default and neither of which does
-anything without `confirm=True`. The separation is the point: nothing in the public tier acquired
-a new power, and the authenticated tier is unreachable without a session the operator opened by
-hand.
+What changed on 2026-08-21 is that a **second, clearly separated tier** can log in and can
+mutate. That tier now holds **eleven** writes that reach Uplers - two on a requisition, four on
+his profile, five on his paid agent's settings - and every one of them previews by default and
+does nothing without `confirm=True`. The separation is the point, and it has not moved: nothing in
+the public tier acquired a new power, its count is the same 24 it was, and the authenticated tier
+is unreachable without a session the operator opened by hand. `uplers_server_info().writes`
+enumerates all eleven, grouped by what kind of thing they can change, and a test works that census
+backwards from the tool registry so a write cannot be added without appearing in it.
+
+### A second autonomous applier
+
+There is not one, and there will not be one. The full argument is under "The namespace exception";
+what belongs here is that the five agent-config writes added on 2026-08-24 do not bear on it at
+all. Not one of them applies to anything, messages a person, or reveals a contact, and the routes
+that would - `store-employee-requests`, `auto-run-request` - stay refused with no constant naming
+them.
+
+### Connecting the LinkedIn outreach channel: not refused, impossible from here
+
+This one is a report rather than a shortfall, and it is worth the space because it is the
+highest-value thing on this account and it costs him about a minute of his own browser.
+
+**`POST talent/account/linkedin/connect` carries `{email, password}` - his actual LinkedIn
+password - to Uplers' API**, followed by a second stage on `talent/account/linkedin/verify` keyed
+on an `auth_type` of either `code_required` (a 2FA code) or `linkedin_app_approval` (approve it in
+the LinkedIn app). VERIFIED from the rendered form in their bundle: `input#agent-onb-li-email`,
+`input#agent-onb-li-password`, placeholder *"Enter your LinkedIn password"* - and their own card
+prints *"We never see your password"* directly above that form, which is worth recording because
+it is their copy contradicting their own form.
+
+Three reasons refuse it, each sufficient on its own. **This server never handles a password** -
+the same rule `uplers_login` already follows, which is why login opens a browser window and he
+signs in himself. It would be a **third party's** credential handed to a vendor, not Uplers' own.
+And his LinkedIn is a paid Premium Career account whose terms forbid sharing credentials.
+
+**He connects it himself**, on the Happpy Agent onboarding card, on the button reading *"Enable
+linkedin Outreach"*. That un-deadens a channel Uplers' own failure text names on **11 of 16**
+failed agent runs.
+
+The channel is dead at both ends and four routes agree: `outreach-step` says `linkedin_connected:
+false` and `linkedin_template: false`; `get-message-templates` returns the empty string for the
+linkedin template; `preview-config` carries its own `linkedin_connected: false`; and
+`talent/account/status` **omits linkedin entirely** rather than reporting it false.
+`uplers_set_template(channel="linkedin", ...)` will happily write that template, and writing it
+connects nothing.
 
 ---
 
@@ -839,7 +965,7 @@ cd D:\Sundeep\projects\job-hunting\mcp-servers\uplers
 python -m venv venv
 venv\Scripts\python.exe -m pip install -r requirements.txt
 venv\Scripts\python.exe -m pip install -e ../jobcore   # the shared scoring engine
-venv\Scripts\python.exe -m pytest        # 727 tests, no network
+venv\Scripts\python.exe -m pytest        # 1,424 tests, no network
 venv\Scripts\python.exe server.py        # stdio MCP server
 ```
 
@@ -856,7 +982,7 @@ venv\Scripts\python.exe -m playwright install chromium
 
 **Only `uplers_login` needs this.** Playwright is an optional dependency, deliberately not in
 `requirements.txt`, and it is not needed to run the suite - which is entirely offline and never
-launches a real browser. All 24 public tools work without it, and so do the other twenty-eight
+launches a real browser. All 24 public tools work without it, and so do the other thirty-three
 authenticated tools once a token exists: Playwright opens the sign-in window and does nothing
 else. Without it, `uplers_login` returns `error: "browser_unavailable"` carrying that install
 line, rather than failing obscurely.
@@ -958,11 +1084,15 @@ a bundle they can rebuild at will, so this half ages faster than the public half
    already handled - `follow_redirects` is off and a redirect to `/console/login` is read as
    `auth_required`. This should degrade rather than break, and it is the reason the 302 path was
    kept after the 401 was measured.
-4. *A route moves.* All twelve live in `endpoints.py` as constants, one file. Re-extracting them
-   means repeating the bundle read that produced
-   [`../_audit/2026-08-21-uplers-bundle-callsites.md`](../_audit/2026-08-21-uplers-bundle-callsites.md);
-   that document records the method, the exact body shape and the response envelope for each, so
-   it is the thing to diff against, not to rewrite from scratch.
+4. *A route moves.* Every route this tier calls is a named constant rather than an inline string,
+   and all but one live in `endpoints.py`; the exception, `EP_DOWNLOAD_RESUME` in
+   `resume_write.py`, records in its own comment that it belongs in `endpoints.py` and that moving
+   it is a one-line follow-up. Re-extracting them means repeating the
+   bundle read that produced
+   [`../_audit/2026-08-21-uplers-bundle-callsites.md`](../_audit/2026-08-21-uplers-bundle-callsites.md)
+   and, for the write half, `_audit/_slices/_slice-outreach-write-inventory.md`; both record the
+   method, the exact body shape and the response envelope for each route, so they are the thing to
+   diff against, not to rewrite from scratch.
 5. *A filter encoding changes.* `experience` as a range string and `engagements` as a JSON-encoded
    array of objects are the two most likely to move, and the failure mode is quiet - a rejected
    filter that returns the unfiltered board. `_feed_params` is the one place they are built.
@@ -996,10 +1126,12 @@ successes and failures side by side and `FetchReport.ok` is False if anything fa
 
 ## Tests
 
-`venv\Scripts\python.exe -m pytest` - **817 tests**, all offline via `httpx.MockTransport`,
-against 7 real captured API responses in `tests/fixtures/` (see `tests/fixtures/MANIFEST.md` for
-why each one is there) - six job records plus `talent_profile.json`, his own profile with the
-private half removed by `scripts/capture_profile_fixture.py`. Coverage spans the native/aggregated split, the id date decoder, every
+`venv\Scripts\python.exe -m pytest` - **1,424 tests**, all offline via `httpx.MockTransport`,
+against **38** real captured API responses in `tests/fixtures/` (see `tests/fixtures/MANIFEST.md`
+for why each one is there) - six job records, `talent_profile.json` (his own profile with the
+private half removed by `scripts/capture_profile_fixture.py`), and the rest captured off his
+authenticated account, twenty-two of them from the outreach agent's own
+surfaces. Coverage spans the native/aggregated split, the id date decoder, every
 filter, the sitemap union, the market-stats maths, the scoring adapter, migrations from a
 hand-built pre-migration database, the lease under two connections, the error paths, and the
 dependency pins themselves (`tests/test_requirements_pins.py`, read as text - see "Checking a
@@ -1020,6 +1152,14 @@ never sent, so the masters join could return zero skills unnoticed. `test_profil
 pins which profile is authoritative, and its last two tests grep the source to prove no path
 writes to his Uplers profile; both were shown failing against an injected write before being
 trusted, because a check that has never failed certifies nothing.
+
+The write half added on 2026-08-24 is tested the same way: against captured settings shapes, never
+against his account. Two of its checks are worth naming. The inversion is pinned in **both**
+directions - asking for a channel to stay ON must produce `disabled_*: False` - because a missing
+negation turns "keep gmail on" into a request that switches it off, and a *double* negation does
+the same thing while looking correct at every individual call site. And the write census is
+asserted backwards from the tool registry, so a tool that takes `confirm=` cannot exist without a
+line in `uplers_server_info().writes` describing it.
 
 Five invariants hold in every test, four of them autouse so they cannot be forgotten:
 
@@ -1043,7 +1183,7 @@ violate them** rather than in the shared `conftest.py`, which is why they are li
 drives the whole login handshake over fake browser objects. **No test in this suite ever launches
 a real browser or touches the real `data/session.json`.**
 
-Seven of these tests were written because the behaviour they assert was **wrong when first
+Nine of these tests were written because the behaviour they assert was **wrong when first
 measured**, which is the only reason to trust the rest when they are green:
 
 | Test | The bug it caught |
@@ -1055,3 +1195,5 @@ measured**, which is the only reason to trust the rest when they are green:
 | `test_a_broken_alert_does_not_kill_the_brief` | Criteria were validated on write but not on read; a stored bad key was silently dropped, leaving zero filters and matching the entire board. |
 | `test_a_persistently_failing_sync_is_not_retried_every_poll` | A failing sync left `last_sync` old, so the due check said yes on every 15-minute poll, forever. |
 | `test_unfetched_native_ids_are_surfaced` | The unhydrated count was a subtraction of two counts that could understate or go negative. |
+| `test_capture_outreach_deletes_before_it_reports__CONTROL` | The capture gate scanned a fixture for PII, **reported, and then deleted** - so a print that raised left the leaking file on disk. It fired live: the output went through `head`, the pipe closed, `BrokenPipeError` landed mid-print on a route that had leaked, and `outreach_preview_config.json` stayed on disk holding a real presigned URL. It had fired once before for a different reason - a leaked value containing an emoji raised `UnicodeEncodeError` on a cp1252 console. Twice, two causes, one hole. The delete now owns the verdict and nothing that can raise sits between them. |
+| `test_a_presigned_url_under_an_unenumerated_key_is_masked__CONTROL` | `resumePath.url` on `preview-config` - a 466-character presigned S3 URL, which is a **bearer credential** that downloads his resume until it expires - was caught by no DROP entry: that list is exact snake_case key names and this one is camelCase with the URL nested a level down. It escaped only because the same fixture leaked something else and was condemned for the other reason. Appending the literal key would have left the next camelCase variant just as exposed, so the load-bearing half of the fix is **value-shaped**: any presigned object-storage URL is redacted whatever key holds it. Known cost, stated at the source - an S3-hosted company logo gets masked too. |
