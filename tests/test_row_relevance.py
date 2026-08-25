@@ -83,6 +83,7 @@ from conftest import (
     load_fixture,
     load_talent_fixture,
     make_transport,
+    tool_schema,
 )
 
 TOKEN = "test-token"
@@ -398,7 +399,10 @@ async def test_no_tool_ADVERTISES_a_row_field_its_responses_never_contain(tool):
     never promise it.
     """
     tools = {t.name: t for t in await server.mcp.list_tools()}
-    schema = getattr(tools[tool], "outputSchema", None) or {}
+    # Via the shared helper, NOT a hard-coded attribute name: this test read
+    # `outputSchema` and found nothing on mcp 2.0.0, where it is `output_schema`.
+    # Its premise check below is the only reason that did not pass vacuously.
+    schema = tool_schema(tools[tool], "output")
     row_schema = (schema.get("$defs") or {}).get("TalentRow", {})
 
     advertised = set(row_schema.get("properties", {}))

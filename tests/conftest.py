@@ -436,3 +436,25 @@ def walk_strings(node, trail="$"):
             yield from walk_strings(item, "%s[%d]" % (trail, index))
     elif isinstance(node, str):
         yield (trail, node)
+
+
+def tool_schema(tool, which="output"):
+    """A tool's declared schema, whichever spelling this mcp uses.
+
+    `Tool` spells these `inputSchema`/`outputSchema` on mcp 1.26 and
+    `input_schema`/`output_schema` on mcp 2.0.0, and requirements.txt declares
+    `mcp[cli]>=1.26,<3` - so BOTH are inside the supported range and a test that
+    picks one is blind on the other half of it.
+
+    THIS EXISTS BECAUSE THE SAME DEFECT HAPPENED TWICE. It was found and fixed
+    once in `test_server_info.py`, and the fix was local to that file, so the
+    knowledge did not travel: a later test read `outputSchema` on a 2.0.0 box,
+    found nothing, and was saved only by its own premise check. A rule written
+    in one test's docstring is not a rule; a shared helper is.
+
+    Returns `{}` when the tool declares no such schema, so a caller can tell
+    "no schema" from "wrong attribute name" - the second is what this prevents.
+    """
+    camel = "%sSchema" % which
+    snake = "%s_schema" % which
+    return getattr(tool, camel, None) or getattr(tool, snake, None) or {}
