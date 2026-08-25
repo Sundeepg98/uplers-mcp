@@ -442,6 +442,110 @@ EP_SKU_HEALTH_CHECK_LAST = "talent/outreach/get-last-health-check"
 EP_SKU_HEALTH_CHECK_DASHBOARD = "talent/resume-health-check/dashboard"
 EP_SKU_TAILOR_LIST = "talent/tailor/list"
 
+#: THE PLAN CATALOGUE, and the route that makes the tailor ORDER previewable.
+#: A GET, no params. Added 2026-08-25 with `uplers_server/checkout.py`.
+#:
+#: It is read for ONE reason and the reason is a rule rather than a
+#: convenience: an order preview must print the price it is about to commit
+#: him to, RESOLVED FROM THE LIVE PLATFORM rather than from a constant in this
+#: repo. A hardcoded 1499 in a preview is a number that was true when somebody
+#: typed it.
+#:
+#: MEASURED (`tests/fixtures/outreach_agent_plans.json`, captured live and
+#: restored 2026-08-25): `data.agent_tailor_plans` is an OBJECT KEYED BY THE
+#: STRINGS "1" and "3" - not a list - carrying `{CTA, Description, Name, Price,
+#: PriceText, Validity, ValidityText}`. Plan "1" is Starter, Price 1499,
+#: Validity 30. Plan "3" is Elite, Price 2999, Validity 90.
+#:
+#: **IT CARRIES NO CURRENCY FIELD.** Not on the plan, not on its siblings
+#: (`agent_tailor_plans_original`, `conversion_offer`, `happy_referral_total_
+#: discount`), not at the envelope. So the catalogue price is an UNLABELLED
+#: number and `checkout.read_agent_plans` reports `currency: None` rather than
+#: inventing one. Only the created ORDER answers a currency, and the confirmed
+#: result prints the two side by side. `payment_transactions` does carry
+#: `"currency": "INR"` for past payments and is deliberately NOT consulted:
+#: inferring this plan's currency from unrelated historical transactions is a
+#: guess that would be wrong the day Uplers prices anything in another one.
+#:
+#: ENVELOPE NOTE: this route answers the STRING `"success"`, not the integer
+#: 200 that the three SKU reads above answer. `outreach.unwrap` takes both
+#: idioms; the difference is MEASURED per route rather than assumed, which is
+#: exactly why it takes both.
+EP_OUTREACH_AGENT_PLANS = "talent/outreach/agent-plans"     # GET, no params
+
+# --- CHECKOUT WRITES ------------------------------------------------------
+#
+# Added 2026-08-25. FOUR ROUTES THAT SPEND OR REFUND REAL MONEY, and they get
+# constants here for the reason EP_INTERVIEW_FEEDBACK gives: a route this
+# server CALLS with no constant would be a path string living in server.py
+# where nothing could census it. The "a constant is an invitation to call it"
+# rule still governs everything this server does not call - see the two
+# absences recorded at the bottom of this block, which are the point of it.
+#
+# Every body below is VERIFIED at a call site in Uplers' production bundle and
+# is pinned as an exact key SET in `uplers_server/checkout.py`. None of these
+# strings is named by that module: server.py builds the sender and hands it in,
+# so no constant the orchestrators hold can put anything on the wire. That is
+# the same seam `outreach_write` and `consent_write` run on, and it binds
+# hardest here.
+
+#: TAILOR PLAN ORDER. Body `{plan_id}` - ONE KEY, VERIFIED at 9 call sites,
+#: all identical, every one a bare variable (`{plan_id:t}`) with no `Number()`
+#: cast anywhere, resolved from `agent_tailor_plans[t]` - so the value the UI
+#: sends is the catalogue's own STRING key.
+#:
+#: IT DOES NOT CHARGE THE CARD. It mints a Razorpay order and answers
+#: `{id, amount, currency, notes:{name}, created_at}`. The card is charged in
+#: Razorpay's hosted widget, which this server cannot drive, so a confirmed
+#: call leaves a REAL, UNPAID order record on his account and paying it still
+#: needs a browser.
+EP_TAILOR_ORDER_CREATE = "talent/tailor/order/create"       # POST {plan_id}
+
+#: RESUME HEALTH-CHECK ORDER. Body `{amount, health_check_id, is_tailored}` -
+#: THREE KEYS, VERIFIED, 1 call site. `is_tailored` goes on the wire as the
+#: INTEGER 1 or 0, never `true`/`false` - the same wire-shape trap
+#: QP_IS_SAVED_FILTER carries above, and it is pinned by a test for the same
+#: reason.
+#:
+#: The amount is IN THE BODY here rather than resolved by the platform, which
+#: is why `checkout.health_check_order_create` refuses a non-positive or
+#: non-integer one and prints it pre-flight.
+EP_HEALTH_CHECK_ORDER_CREATE = "talent/resume-health-check/create-order"
+
+#: THE TWO REFUND-REQUEST ROUTES. Body `{}`, plus `transformation_id` only when
+#: one is supplied. VERIFIED, 5 call sites across the pair.
+#:
+#: **THEY RAISE A REQUEST. THEY ARE NOT A REFUND.** Uplers' own confirm dialog
+#: reads "Are you sure you want to raise a refund request?", their UI then
+#: writes a `refund-request-raised` timestamp to localStorage and rate-limits
+#: the button to once per day. NOBODY HAS OBSERVED A REFUND COMPLETING: the
+#: bundle shows a request being raised and a success toast echoing
+#: `res.data.message`, and there is NO ROUTE ANYWHERE that reports refund
+#: status - which is why `checkout` reports guard 5 as unverifiable instead of
+#: claiming a read-back it cannot do.
+EP_TAILOR_REFUND_REQUEST = "talent/tailor/refund-request"
+EP_HEALTH_CHECK_REFUND_REQUEST = "talent/resume-health-check/refund-request"
+
+#: RECORDED, DELIBERATELY WITHOUT A CONSTANT, and NOT because of taste - these
+#: two are the reason the block above says the rule still governs:
+#:
+#:   * `talent/tailor/order/capture`
+#:   * `talent/resume-health-check/capture-order`
+#:
+#: **UNMEASURABLE WITHOUT SPENDING, and unusable from a non-browser client.**
+#: The measured capture body carries `razorpayOrderId`, `razorpayPaymentId`,
+#: `razorpaySignature`, `order_id` and `payment_completed`, and it is called
+#: from INSIDE RAZORPAY'S OWN HANDLER CALLBACK - those values are minted and
+#: signed by Razorpay after a real card payment has gone through. No client can
+#: produce them. This is a shape refusal, not a policy one: there is no correct
+#: body for this server to send.
+#:
+#: AND CAPTURE LIVES ON A DIFFERENT HOST: `https://lrr-platform.uplers.com/api/`,
+#: not `platform.uplers.com`. THIS SERVER HAS NEVER CONTACTED THAT HOST.
+#: `tailor/create`, `tailor/upload` and `resume-transform` are on it too, so
+#: anything built there later inherits an auth question nothing here has
+#: answered.
+
 #: What UPLERS thinks he wants, which is not what this server's profile says.
 #: Fit scores here come from our own profile; Uplers ranks him against these.
 #: Seeing both is how a disagreement between the two becomes visible at all.

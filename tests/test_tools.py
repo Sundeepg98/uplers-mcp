@@ -272,6 +272,42 @@ CONSENT_AND_ONE_WAY_WRITE_TOOL_NAMES = {
     "uplers_submit_interview_feedback",
 }
 
+#: Added 2026-08-25. THE WRITES THAT INVOLVE MONEY, and the reason they are not
+#: folded into either set above is the reason those two sets exist at all.
+#: AGENT_CONFIG_WRITE_TOOL_NAMES claims everything in it can be PUT BACK.
+#: CONSENT_AND_ONE_WAY_WRITE_TOOL_NAMES is a named pair about a mailbox
+#: permission and a published review, and its own comment says a third name has
+#: to be typed by somebody who meant it. A PURCHASE IS NEITHER OF THOSE THINGS,
+#: and the cheapest wrong move available to a later editor is to notice a count
+#: going stale and "fix" it by moving a name across - which is why every one of
+#: these sets is pinned by a `len` AND by a disjointness assertion.
+#:
+#: THREE TOOLS, FOUR ROUTES, and the arithmetic is deliberate rather than a
+#: miscount. `uplers_request_refund` is ONE tool taking a `kind` that picks
+#: between `talent/tailor/refund-request` and
+#: `talent/resume-health-check/refund-request`. Splitting it would produce one
+#: tool and a copy of its guards, and a second copy of a guard on a money route
+#: is a second thing that can drift.
+#:
+#: WHAT THESE CAN DO, stated here because a reader of this file should not have
+#: to open another to find out that a set spends money:
+#:
+#:   * `uplers_order_create` and `uplers_health_check_order_create` mint a
+#:     RAZORPAY ORDER. **They do not charge the card** - that happens in
+#:     Razorpay's hosted widget, which this server cannot drive - so a
+#:     confirmed call leaves a REAL, UNPAID order that still needs a browser,
+#:     and no route in Uplers' API cancels one.
+#:   * `uplers_request_refund` raises a REQUEST. Nobody has observed a refund
+#:     completing and no route anywhere reports refund status.
+#:
+#: Their guards are exercised in tests/test_checkout.py, every one with a
+#: control proving it can go red.
+CHECKOUT_WRITE_TOOL_NAMES = {
+    "uplers_order_create",
+    "uplers_health_check_order_create",
+    "uplers_request_refund",
+}
+
 #: The shared-config surface, kept apart from every other set because its
 #: blast radius is different in kind: this is the only tool in the server that
 #: can write a file OTHER servers read. It writes the `candidate` section and
@@ -302,6 +338,7 @@ TOOL_NAMES = (
     | PROFILE_WRITE_TOOL_NAMES
     | AGENT_CONFIG_WRITE_TOOL_NAMES
     | CONSENT_AND_ONE_WAY_WRITE_TOOL_NAMES
+    | CHECKOUT_WRITE_TOOL_NAMES
     | CONFIG_TOOL_NAMES
     | INTROSPECTION_TOOL_NAMES
 )
@@ -352,16 +389,24 @@ def wire_client(monkeypatch, handler):
 async def test_importing_server_registers_exactly_the_expected_tools():
     tools_listed = await server.mcp.list_tools()
 
-    assert len(tools_listed) == 64
+    assert len(tools_listed) == 67
     assert {tool.name for tool in tools_listed} == TOOL_NAMES
     # The two SKU tools are READS, and they sit one path segment from routes
     # that spend money. The same intersection argument the agent-read set
     # makes, and it binds harder here: no write set may grow to admit them.
+    #
+    # HARDER STILL FROM 2026-08-25: those money routes are no longer merely
+    # neighbours, they are BUILT, and CHECKOUT_WRITE_TOOL_NAMES is in the union
+    # below for exactly that reason. `uplers_resume_health` reads the health
+    # check; `uplers_health_check_order_create` orders one. A name sliding from
+    # the first set to the second is the single most expensive drift available
+    # in this file, and it is now caught here as well as by the two `len`s.
     assert SKU_READ_TOOL_NAMES & (
         WRITE_TOOL_NAMES
         | PROFILE_WRITE_TOOL_NAMES
         | AGENT_CONFIG_WRITE_TOOL_NAMES
         | CONSENT_AND_ONE_WAY_WRITE_TOOL_NAMES
+        | CHECKOUT_WRITE_TOOL_NAMES
         | CONFIG_TOOL_NAMES
     ) == set()
     assert len(SKU_READ_TOOL_NAMES) == 2
@@ -375,6 +420,7 @@ async def test_importing_server_registers_exactly_the_expected_tools():
         | PROFILE_WRITE_TOOL_NAMES
         | AGENT_CONFIG_WRITE_TOOL_NAMES
         | CONSENT_AND_ONE_WAY_WRITE_TOOL_NAMES
+        | CHECKOUT_WRITE_TOOL_NAMES
         | CONFIG_TOOL_NAMES
     ) == set()
     assert len(AGENT_READ_TOOL_NAMES) == 7
@@ -392,6 +438,16 @@ async def test_importing_server_registers_exactly_the_expected_tools():
     assert (
         CONSENT_AND_ONE_WAY_WRITE_TOOL_NAMES & AGENT_CONFIG_WRITE_TOOL_NAMES == set()
     )
+    # And the checkout surface stays exactly these THREE tools over FOUR
+    # routes. The same tripwire one line up, for the set where being wrong
+    # costs actual money: the refund is one tool with a `kind`, so a reader who
+    # counts routes gets four and a reader who counts tools gets three, and
+    # somebody reconciling those two numbers by adding a tool is the mistake
+    # this line exists to catch. Disjoint from BOTH neighbouring write sets,
+    # asserted separately so a failure says which boundary moved.
+    assert len(CHECKOUT_WRITE_TOOL_NAMES) == 3
+    assert CHECKOUT_WRITE_TOOL_NAMES & AGENT_CONFIG_WRITE_TOOL_NAMES == set()
+    assert CHECKOUT_WRITE_TOOL_NAMES & CONSENT_AND_ONE_WAY_WRITE_TOOL_NAMES == set()
     # The five original board tools must survive every later addition.
     assert BOARD_TOOL_NAMES <= {tool.name for tool in tools_listed}
     # The requisition-write surface stays exactly this size. A third tool that

@@ -41,6 +41,7 @@ from uplers_server import (
     alerts as alerts_mod,
     brief as brief_mod,
     buildinfo as buildinfo_mod,
+    checkout,
     config,
     consent_write,
     fit,
@@ -2112,7 +2113,7 @@ async def uplers_config(write_candidate: bool = False,
 #: the split. That banner is the only definition of the split there is: it is a
 #: physical line in this module, and which side of it a tool is defined on IS
 #: whether that tool needs an account.
-TOOL_COUNTS = {"total": 64, "public": 24, "authenticated": 40}
+TOOL_COUNTS = {"total": 67, "public": 24, "authenticated": 43}
 
 #: Can change something ON UPLERS, acting on a requisition.
 REQUISITION_WRITE_TOOLS = ("uplers_apply", "uplers_dismiss")
@@ -2172,6 +2173,41 @@ CONSENT_AND_ONE_WAY_WRITE_TOOLS = (
     "uplers_submit_interview_feedback",
 )
 
+#: Added 2026-08-25. THE WRITES THAT INVOLVE MONEY, and their own set for the
+#: reason each set above has one: neither of those two groups can hold a
+#: purchase without retiring its own claim. AGENT_CONFIG_WRITE_TOOLS says
+#: everything in it can be put back. CONSENT_AND_ONE_WAY_WRITE_TOOLS is a
+#: two-name group about a mailbox permission and a published review. A paid
+#: order is neither, and filing one in either would make the `len(...)`
+#: assertions in tests/test_tools.py look like bookkeeping to be bumped.
+#:
+#: THEY WERE RULED IN SCOPE KNOWINGLY. What the tools add over the browser is
+#: the preview: an exact body, a live price, and a membership check, before
+#: anything is committed.
+#:
+#: THREE TOOLS, FOUR ROUTES. The refund is ONE tool taking a `kind` that picks
+#: between `talent/tailor/refund-request` and
+#: `talent/resume-health-check/refund-request` - Uplers ships the pair and they
+#: differ only in which product they claim against, so two tools would be one
+#: tool and a copy of its guards.
+#:
+#:   * uplers_order_create and uplers_health_check_order_create CREATE A
+#:     RAZORPAY ORDER AND DO NOT CHARGE THE CARD. The charge happens in
+#:     Razorpay's hosted widget, which this server cannot drive, so a confirmed
+#:     call leaves a REAL, UNPAID order that still needs a browser to pay - and
+#:     no route in Uplers' API cancels one.
+#:   * uplers_request_refund RAISES A REQUEST and is named so. Nobody has
+#:     observed a refund completing, and no route anywhere reports refund
+#:     status.
+#:
+#: NOTHING HERE PAYS, and nothing here can: see the capture entry in
+#: OUT_OF_SCOPE_BY_DESIGN, which is a SHAPE refusal rather than a policy one.
+CHECKOUT_WRITE_TOOLS = (
+    "uplers_order_create",
+    "uplers_health_check_order_create",
+    "uplers_request_refund",
+)
+
 #: The only tool that can write a file OTHER servers read.
 SHARED_CONFIG_WRITE_TOOLS = ("uplers_config",)
 
@@ -2221,14 +2257,23 @@ CAPABILITIES = [
     "this does NOT include is anything that applies, messages a person, or "
     "reveals a contact; those stay refused and are named under "
     "out_of_scope_by_design.",
-    "Thirteen writes that reach Uplers, every one confirm-gated and every one "
+    "Sixteen writes that reach Uplers, every one confirm-gated and every one "
     "previewing the exact request first. Enumerated exactly under `writes`.",
-    "TWO of those thirteen are NOT reversible settings switches and are "
+    "TWO of those sixteen are NOT reversible settings switches and are "
     "censused apart for that reason: revoking Uplers' permission to scan his "
     "Gmail for job-board alerts, and publishing interview feedback, which is "
     "ONE-WAY - no edit route, no delete route. Both preview first; the one-way "
     "one also refuses any company that is not on his live interview list, and "
     "that list is currently empty.",
+    "THREE of those sixteen SPEND OR CLAIM MONEY and are censused apart again: "
+    "ordering a tailor plan, ordering a resume health check, and raising a "
+    "refund request. THE TWO ORDERS DO NOT PAY - they mint a Razorpay order, "
+    "the card is charged in Razorpay's hosted widget which this server cannot "
+    "drive, so confirming leaves a REAL UNPAID order that still needs a "
+    "browser, and no Uplers route cancels one. The refund is a REQUEST: nobody "
+    "has observed a refund completing and no route anywhere reports refund "
+    "status. Prices are read LIVE from Uplers' own catalogue, never from a "
+    "constant here.",
     "Self-description that can be falsified from OUTSIDE the process: `build` "
     "against `git rev-parse HEAD` on disk, `config.scoring_hash` against the "
     "stamp on a stored score.",
@@ -2320,6 +2365,59 @@ WRITE_CENSUS = {
                 "not on the live interview list is REFUSED rather than posted. "
                 "MEASURED: that list currently holds ZERO companies, so every "
                 "call refuses today - which is the tool working."
+            ),
+        },
+        "checkout": {
+            "count": len(CHECKOUT_WRITE_TOOLS),
+            "tools": list(CHECKOUT_WRITE_TOOLS),
+            "note": (
+                "THE WRITES THAT SPEND OR CLAIM MONEY, filed apart from every "
+                "group above because neither of the two nearest ones can hold "
+                "a purchase without retiring its own claim. THREE TOOLS REACH "
+                "FOUR ROUTES: the refund is one tool whose `kind` picks "
+                "between the tailor and health-check refund routes. All three "
+                "are confirm-gated, all three preview the exact body, and each "
+                "body's key SET is pinned - {plan_id}, {amount, "
+                "health_check_id, is_tailored} and {} or {transformation_id}."
+            ),
+            "the_orders_do_not_pay": (
+                "MEASURED, and it is the most important sentence here. "
+                "uplers_order_create and uplers_health_check_order_create mint "
+                "a RAZORPAY ORDER. The card is charged inside Razorpay's "
+                "hosted widget, which this server cannot drive. So a confirmed "
+                "call leaves a REAL, UNPAID order record on his account and "
+                "paying it still requires a browser - and NO ROUTE IN UPLERS' "
+                "API CANCELS AN ORDER, so nothing here can remove one either."
+            ),
+            "the_refund_is_a_request": (
+                "Uplers' own confirm copy, verbatim: 'Are you sure you want to "
+                "raise a refund request?'. NOBODY HAS OBSERVED A REFUND "
+                "COMPLETING - the bundle shows a request being raised and a "
+                "toast echoing res.data.message, and THERE IS NO ROUTE "
+                "ANYWHERE that reports refund status. So guard 5 on that tool "
+                "reports its verification as UNAVAILABLE rather than claiming "
+                "a read-back that does not exist. Uplers rate-limits it to "
+                "once per day and this server mirrors that limit locally."
+            ),
+            "where_the_prices_come_from": (
+                "NEVER FROM A CONSTANT IN THIS REPO. The tailor order reads "
+                "talent/outreach/agent-plans LIVE and refuses a plan the "
+                "catalogue does not list; the health-check order carries the "
+                "amount in its own body and refuses a non-positive or "
+                "non-integer one. MEASURED: that catalogue carries NO CURRENCY "
+                "FIELD, so a previewed price is an unlabelled number and says "
+                "so - only the created order reports a currency, and the two "
+                "are printed side by side."
+            ),
+            "which_health_check": (
+                "RESOLVED FROM TWO ROUTES, not taken on trust. MEASURED: "
+                "talent/outreach/get-last-health-check reports the last check "
+                "but carries NO id for it, and the ids live on "
+                "talent/resume-health-check/dashboard. The two are joined on "
+                "transform.resume_transformation_id (150705 -> exactly one "
+                "row, id 152462) and the order REFUSES unless the caller's id "
+                "equals that. A join matching zero rows, several rows, or "
+                "missing its key refuses too, naming which."
             ),
         },
     },
@@ -2528,12 +2626,31 @@ OUT_OF_SCOPE_BY_DESIGN = [
     },
     {
         "what": (
-            "The ORDERING half of the paid candidate SKUs: talent/tailor/"
-            "order/create, order/capture, refund-request and the transform "
-            "arm; every non-dashboard arm of talent/resume-health-check/*; and "
-            "the referral agent (talent/referral-agent/*) entire. The THREE "
-            "READS were built on 2026-08-25; see uplers_resume_health and "
-            "uplers_tailored_resumes."
+            "What is LEFT of the paid candidate SKUs: the TRANSFORM arm of "
+            "talent/tailor/*, every non-dashboard non-order arm of "
+            "talent/resume-health-check/*, and the referral agent "
+            "(talent/referral-agent/*) entire. The THREE READS were built on "
+            "2026-08-25 (uplers_resume_health, uplers_tailored_resumes); the "
+            "FOUR ORDER AND REFUND ROUTES were built later the same day - see "
+            "the `checkout` group under writes."
+        ),
+        "narrowed_2026_08_25_the_ordering_half": (
+            "FOUR NAMES CAME OFF THIS LIST and the entry is edited rather than "
+            "left standing, because a refusal that names something now built "
+            "is worse than no refusal. talent/tailor/order/create, "
+            "talent/resume-health-check/create-order and BOTH refund-request "
+            "routes are now built behind uplers_server/checkout.py. "
+            "WHAT CHANGED THE ANSWER WAS NOT A MEASUREMENT: it was a ruling, "
+            "made knowingly and with the spend understood, that a paid route "
+            "behind an exact-body preview, a live price read and a confirm "
+            "gate is a smaller hazard than the same purchase made in a browser "
+            "with no preview at all. The reads that landed earlier the same "
+            "day had already refuted the OLD reason for refusing the namespace "
+            "wholesale - that these routes 'would produce tools that fail at "
+            "runtime' - so what remained was a judgement about money rather "
+            "than a fact about credits, and that judgement was made. "
+            "THE TWO CAPTURE ROUTES DID NOT MOVE and could not: they are a "
+            "separate entry below, refused on SHAPE rather than on scope."
         ),
         "why": (
             "The line moved from 'the namespace' to 'the effect', the same way "
@@ -2573,6 +2690,45 @@ OUT_OF_SCOPE_BY_DESIGN = [
             "he holds zero credits, and his tailor plan has lapsed - which is "
             "exactly why the ordering routes stay unbuilt and exactly what the "
             "read tools report."
+        ),
+    },
+    {
+        "what": (
+            "PAYING FOR ANY OF IT. talent/tailor/order/capture and "
+            "talent/resume-health-check/capture-order. Not refused on taste - "
+            "IMPOSSIBLE from here, and this is the finding rather than a "
+            "shortfall. This server can CREATE an order and can never settle "
+            "one."
+        ),
+        "why": (
+            "THERE IS NO CORRECT BODY FOR THIS SERVER TO SEND, which makes it "
+            "a SHAPE refusal rather than a policy one. The measured capture "
+            "body carries razorpayOrderId, razorpayPaymentId, "
+            "razorpaySignature, order_id and payment_completed, and the call "
+            "site is INSIDE RAZORPAY'S OWN HANDLER CALLBACK - those values are "
+            "minted and SIGNED by Razorpay after a real card payment has gone "
+            "through. No client can produce them; no amount of access to his "
+            "account would help. It is UNMEASURABLE WITHOUT SPENDING and "
+            "unusable from a non-browser client, and both halves of that are "
+            "true independently."
+        ),
+        "measured": (
+            "AND IT LIVES ON A DIFFERENT HOST: https://lrr-platform.uplers.com"
+            "/api/, not platform.uplers.com. THIS SERVER HAS NEVER CONTACTED "
+            "THAT HOST - no capture script targets it, no constant names it, "
+            "and no request in this repo has ever gone there. tailor/create, "
+            "tailor/upload and resume-transform are on it too, so anything "
+            "built against that host later inherits an AUTH QUESTION NOTHING "
+            "HERE HAS ANSWERED: whether the bearer this server holds is even "
+            "accepted there is unknown, because it has never been tried."
+        ),
+        "what_this_means_in_practice": (
+            "A confirmed uplers_order_create or "
+            "uplers_health_check_order_create leaves a REAL, UNPAID ORDER on "
+            "his account. Paying it requires opening a browser, and NO ROUTE "
+            "IN UPLERS' API CANCELS AN ORDER, so an order created and not paid "
+            "simply sits there. Both tools say so in their own docstrings "
+            "rather than leaving it to be discovered here."
         ),
     },
     {
@@ -3945,8 +4101,22 @@ async def uplers_reply_outcomes() -> dict:
         payload = await client.get_json(
             endpoints.EP_OUTREACH_VALUE_WITH_HAPPY, None
         )
+        # THE SECOND READ IS THE POINT OF THIS TOOL'S HONESTY. The reply rows
+        # say what was ASKED and carry nothing about whether he answered, so
+        # the only resolution signal Uplers exposes is fetched alongside them
+        # rather than left to a caller who will not know to look.
+        try:
+            pending = await client.get_json(
+                endpoints.EP_OUTREACH_FOLLOWUPS_PENDING, {"days": 90}
+            )
+            pending = pending.get("data") if isinstance(pending, dict) else None
+        except UplersError:
+            # An unreadable pending count renders as unknown, never as zero.
+            # "Nothing is outstanding" and "we could not ask" are opposite
+            # facts and the payload must not collapse them.
+            pending = None
 
-    return conversion.shape_reply_outcomes(payload)
+    return conversion.shape_reply_outcomes(payload, pending)
 
 
 @mcp.tool()
@@ -5146,6 +5316,182 @@ async def uplers_submit_interview_feedback(
             confirm=confirm,
             send=outreach_write.json_sender_for(
                 client, endpoints.EP_INTERVIEW_FEEDBACK
+            ),
+        )
+
+
+# --------------------------------------------------------------- tool 65 ---
+#
+# THE FOUR WRITES THAT INVOLVE MONEY.
+#
+# Read `uplers_server/checkout.py` before touching any of them. They are NOT
+# in AGENT_CONFIG_WRITE_TOOLS and NOT in CONSENT_AND_ONE_WAY_WRITE_TOOLS, and
+# must not be moved to either: the first group's stated property is that
+# everything in it can be put back, and the second is a two-name group about
+# consent and a one-way review. A purchase is neither.
+#
+#   * uplers_order_create and uplers_health_check_order_create CREATE A
+#     RAZORPAY ORDER. They DO NOT charge the card - that happens in Razorpay's
+#     hosted widget, which this server cannot drive - so a confirmed call
+#     leaves a REAL, UNPAID order on the account that still needs a browser to
+#     pay. Neither can be cancelled by anything in Uplers' API.
+#   * uplers_request_refund RAISES A REQUEST, and is named so. Nobody has
+#     observed a refund completing and no route anywhere reports refund status.
+#
+# THE KIND-TO-ROUTE MAPPING FOR THE REFUND LIVES HERE, in one dict, because
+# `kind` picks the route and the module that builds the body must not hold a
+# write path string. The sender is STAMPED with its kind and the orchestrator
+# refuses a mismatch, so a sender built for one product cannot raise a claim
+# against the other.
+#
+# The wrappers stay thin on purpose: the guards that run in production are the
+# ones the tests exercise, not a copy of them living here.
+
+#: kind -> route. The ONLY place the pairing exists; tests/test_checkout.py
+#: pins it against endpoints.py so a third kind cannot be added to one of them
+#: alone.
+REFUND_ROUTES = {
+    "tailor": endpoints.EP_TAILOR_REFUND_REQUEST,
+    "resume_health_check": endpoints.EP_HEALTH_CHECK_REFUND_REQUEST,
+}
+
+
+@mcp.tool()
+async def uplers_order_create(plan_id: str, confirm: bool = False) -> dict:
+    """Create an order for an Uplers tailor plan. THIS DOES NOT PAY FOR IT.
+
+    IT CREATES A RAZORPAY ORDER AND NOTHING ELSE. The card is charged inside
+    Razorpay's hosted payment widget, which this server cannot drive. So
+    confirming leaves a REAL, UNPAID ORDER RECORD on your account, and actually
+    paying it still requires opening a browser. Nothing here can cancel that
+    order afterwards either - Uplers ships no route that does.
+
+    THE PRICE IS READ LIVE. Before anything is sent, this reads Uplers' own
+    plan catalogue and prints the price of the plan you named, labelled as the
+    CATALOGUE price rather than the order's - the order does not exist yet and
+    its amount comes back from creating it. A plan the live catalogue does not
+    list is REFUSED rather than sent.
+
+    That matters on this account specifically: the catalogue holds exactly two
+    plans, 1 (Starter) and 3 (Elite), while your outreach record reads plan 2 -
+    a number that is not in the catalogue at all and is not an index into it.
+
+    THE CATALOGUE CARRIES NO CURRENCY, so the previewed price is an unlabelled
+    number and says so. Once confirmed, the order's own amount and currency are
+    printed beside the catalogue price, and a difference between them is called
+    out rather than left to be noticed.
+
+    With confirm=False it returns the exact one-key body and sends nothing.
+
+    Args:
+        plan_id: a plan id from Uplers' live catalogue, e.g. "1" or "3".
+        confirm: False previews. True records the price shown, then creates the
+            order, then reports what came back.
+    """
+    async with _talent_client() as client:
+        return await checkout.order_create(
+            client,
+            plan_id,
+            confirm=confirm,
+            send=outreach_write.json_sender_for(
+                client, endpoints.EP_TAILOR_ORDER_CREATE
+            ),
+        )
+
+
+@mcp.tool()
+async def uplers_health_check_order_create(
+    health_check_id: int,
+    amount: int,
+    is_tailored: bool = False,
+    confirm: bool = False,
+) -> dict:
+    """Create an order for a resume health check. THIS DOES NOT PAY FOR IT.
+
+    IT CREATES A RAZORPAY ORDER, exactly as uplers_order_create does, with the
+    same consequence: confirming leaves a REAL, UNPAID order that still needs a
+    browser to pay, and nothing in Uplers' API cancels it.
+
+    THE AMOUNT IS IN THE REQUEST, which makes this the sharper of the two. The
+    platform does not resolve the price here - the number you pass IS what the
+    order is created for. Uplers' own screen sources it from its
+    resume_transform_price field. You must supply it; this server will not
+    invent one, and it refuses a non-positive or non-integer amount because a
+    wrong id fails loudly while a wrong amount succeeds quietly at the wrong
+    number. Nothing anywhere labels its currency, so it is printed as the bare
+    integer it is.
+
+    IT CHECKS WHICH HEALTH CHECK YOU ACTUALLY HAVE, and it takes two routes to
+    do it. Uplers' last-health-check route reports the check but carries no id
+    for it; the ids live on the health-check dashboard. So the two are joined
+    on the transformation id they share, and this REFUSES unless the id you
+    passed is the one that join resolves to. A join that does not land on
+    exactly one row refuses too, and says which of the three ways it failed.
+
+    With confirm=False it returns the exact three-key body and sends nothing.
+
+    Args:
+        health_check_id: the id Uplers' health-check dashboard reports.
+        amount: the price, as an integer. Refused if not positive.
+        is_tailored: goes on the wire as 1 or 0, never true/false.
+        confirm: False previews. True snapshots, then creates the order.
+    """
+    async with _talent_client() as client:
+        return await checkout.health_check_order_create(
+            client,
+            health_check_id,
+            amount,
+            is_tailored=is_tailored,
+            confirm=confirm,
+            send=outreach_write.json_sender_for(
+                client, endpoints.EP_HEALTH_CHECK_ORDER_CREATE
+            ),
+        )
+
+
+@mcp.tool()
+async def uplers_request_refund(
+    kind: str, transformation_id: int | None = None, confirm: bool = False
+) -> dict:
+    """Ask Uplers to refund a tailor plan or a health check. IT IS A REQUEST.
+
+    IT RAISES A REFUND REQUEST. IT DOES NOT REFUND ANYTHING. Uplers' own
+    confirmation dialog reads "Are you sure you want to raise a refund
+    request?", and that is the whole claim their product makes for this button.
+
+    NOBODY HAS OBSERVED A REFUND COMPLETING. What is measured is a request
+    being raised and a success message coming back. THERE IS NO ROUTE ANYWHERE
+    - not here, not in Uplers' own web client - that reports refund status. So
+    what happens on their side after this is UNMEASURED beyond "a request was
+    accepted", and this tool reports that rather than implying it checked.
+
+    ONCE PER DAY, AND THAT IS UPLERS' LIMIT, NOT THIS SERVER'S. Their UI stamps
+    a refund-request-raised timestamp and disables the button for 24 hours.
+    This mirrors it: a second request of the same kind inside 24 hours is
+    refused, and the refusal says whose rule it is.
+
+    kind picks the route: "tailor" or "resume_health_check". A kind this server
+    does not recognise is refused rather than defaulted, because defaulting it
+    would raise a money claim against the wrong product.
+
+    With confirm=False it returns the exact body - which is EMPTY unless you
+    pass a transformation_id - and sends nothing.
+
+    Args:
+        kind: "tailor" or "resume_health_check". It picks the route.
+        transformation_id: optional. Omit it to send the measured empty body.
+        confirm: False previews. True snapshots, sends, then records the
+            once-per-day marker.
+    """
+    refund_kind = checkout.as_refund_kind(kind)
+    async with _talent_client() as client:
+        return await checkout.request_refund(
+            client,
+            refund_kind,
+            transformation_id=transformation_id,
+            confirm=confirm,
+            send=checkout.refund_sender_for(
+                client, REFUND_ROUTES[refund_kind], kind=refund_kind
             ),
         )
 

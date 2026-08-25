@@ -91,15 +91,49 @@ FIXTURES = {
 
 BODIES = {route: load_talent_fixture(stem) for stem, route in FIXTURES.items()}
 
-#: THE ROUTES THAT MUST NEVER BE TOUCHED. Path siblings of the three above,
-#: every one of which spends money or an attempt. Named here so the census can
-#: assert their ABSENCE by name rather than only asserting "no writes" - a GET
-#: at `talent/tailor/order/create` would pass a method check.
+#: THE ROUTES THE TWO SKU READ TOOLS MUST NEVER TOUCH. Path siblings of the
+#: three captured reads, every one of which spends money, claims money, or
+#: changes a standing permission. Named here so the census can assert their
+#: ABSENCE by name rather than only asserting "no writes" - a GET at
+#: `talent/tailor/order/create` would pass a method check.
+#:
+#: **THIS LIST DID NOT SHRINK ON 2026-08-25 WHEN FOUR OF THEM WERE BUILT**, and
+#: that is the point of it. `uplers_resume_health` and `uplers_tailored_resumes`
+#: are READS; whether some OTHER tool in this server may now reach a route has
+#: no bearing on whether THESE two may, and quietly dropping a name here
+#: because a sibling module started calling it would retire the only claim this
+#: file makes. What changed is a different assertion - see
+#: :data:`WITHOUT_A_CONSTANT` below.
 FORBIDDEN_SIBLINGS = (
     "talent/tailor/order/create",
     "talent/tailor/order/capture",
     "talent/tailor/refund-request",
     "talent/outreach/consent-email-job-scan",
+    "talent/outreach/consent-auto-run",
+)
+
+#: THE ROUTES THAT MAY NOT EVEN BE NAMED in endpoints.py, on the rule that file
+#: states: a constant is an invitation to call it.
+#:
+#: NARROWED 2026-08-25, and the narrowing is the tripwire working rather than
+#: being edited away. This used to be `FORBIDDEN_SIBLINGS[:3]` - the three
+#: commercial routes - and it went RED the moment the checkout writes landed,
+#: naming `talent/tailor/order/create` and `talent/tailor/refund-request` as
+#: routes that had acquired constants. They acquired them because they are now
+#: CALLED, which is the `EP_INTERVIEW_FEEDBACK` exception: a route this server
+#: calls with no constant would be a path string living in server.py where
+#: nothing could census it. So the test is narrowed to the routes that are
+#: still genuinely uncalled, and the two that moved are recorded here rather
+#: than deleted.
+#:
+#: **THE CAPTURE PAIR CAN NEVER MOVE OFF THIS LIST**, and it is not a matter of
+#: policy: their measured body carries values Razorpay mints and SIGNS after a
+#: real card payment, so no client can produce one. They also live on a
+#: different host this server has never contacted. See the `PAYING FOR ANY OF
+#: IT` entry in `OUT_OF_SCOPE_BY_DESIGN`.
+WITHOUT_A_CONSTANT = (
+    "talent/tailor/order/capture",
+    "talent/resume-health-check/capture-order",
     "talent/outreach/consent-auto-run",
 )
 
@@ -202,20 +236,36 @@ class TestNeitherToolCanReachACommercialRoute:
         for forbidden in FORBIDDEN_SIBLINGS:
             assert forbidden not in seen
 
-    def test_the_forbidden_siblings_have_no_constant(self):
-        """None of them may be a NAME in endpoints.py either.
+    def test_the_uncalled_commercial_routes_have_no_constant(self):
+        """The routes nothing calls may not be a NAME in endpoints.py either.
 
         The same rule endpoints.py already applies to the one-way outreach
-        routes: a constant is an invitation to call it. `consent-email-job-scan`
-        is the stated exception that predates this and has its own guard in
-        test_agent_tools.py, so only the three commercial ones are checked.
+        routes: a constant is an invitation to call it.
+
+        NARROWED 2026-08-25, AND THE NARROWING IS THIS TEST DOING ITS JOB. It
+        used to check `FORBIDDEN_SIBLINGS[:3]` and it went RED when the
+        checkout writes landed, naming `talent/tailor/order/create` and
+        `talent/tailor/refund-request`. Those two are now CALLED - by
+        `uplers_server/checkout.py` through senders built in server.py - and a
+        route this server calls with no constant is a path string living in
+        server.py where nothing can census it, which is strictly worse. So the
+        assertion moved to :data:`WITHOUT_A_CONSTANT`, the routes that are
+        still genuinely uncalled, in the same commit that called the other two.
+        A tripwire that fires and is then NARROWED rather than deleted is the
+        whole reason it is worth having.
+
+        `consent-email-job-scan` is the older stated exception and has its own
+        guard in test_agent_tools.py, which is why it is not repeated here.
+
+        THE CAPTURE PAIR IS PERMANENT ON THIS LIST. Not by policy: their body
+        carries Razorpay-signed values no client can mint.
         """
         values = {
             value
             for name, value in vars(endpoints).items()
             if name.startswith("EP_") and isinstance(value, str)
         }
-        for forbidden in FORBIDDEN_SIBLINGS[:3]:
+        for forbidden in WITHOUT_A_CONSTANT:
             assert forbidden not in values
 
     async def test_the_census_can_actually_fail__CONTROL(self, monkeypatch):

@@ -1,0 +1,48 @@
+{
+  "data": {
+    "agent_tailor_plans": {
+      "1": {
+        "CTA": "Get 1-Month Access",
+        "Description": "Best for trying it on a few immediate applications",
+        "Name": "Starter Plan",
+        "Price": 1499,
+        "PriceText": 1499,
+        "Validity": 30,
+        "ValidityText": "1 month"
+      },
+      "3": {
+        "CTA": "Get 3-Month Access",
+        "Description": "Best for serious job search across multiple roles",
+        "Name": "Elite Plan",
+        "Price": 2999,
+        "PriceText": 2999,
+        "Validity": 90,
+        "ValidityText": "3 months"
+      }
+    },
+    "agent_tailor_plans_original": {
+      "1": {
+        "CTA": "Get 1-Month Access",
+        "Description": "Best for trying it on a few immediate applications",
+        "Name": "Starter Plan",
+        "Price": 1499,
+        "PriceText": 1499,
+        "Validity": 30,
+        "ValidityText": "1 month"
+      },
+      "3": {
+        "CTA": "Get 3-Month Access",
+        "Description": "Best for serious job search across multiple roles",
+        "Name": "Elite Plan",
+        "Price": 2999,
+        "PriceText": 2999,
+        "Validity": 90,
+        "ValidityText": "3 months"
+      }
+    },
+    "conversion_offer": null,
+    "happy_referral_total_discount": 0
+  },
+  "message": "Agent plans fetched successfully",
+  "status": "success"
+}

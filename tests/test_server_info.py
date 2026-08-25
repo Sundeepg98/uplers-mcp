@@ -353,6 +353,7 @@ class TestTheDeclaredSurfaceMatchesReality:
         """
         from test_tools import (
             AGENT_CONFIG_WRITE_TOOL_NAMES,
+            CHECKOUT_WRITE_TOOL_NAMES,
             CONFIG_TOOL_NAMES,
             CONSENT_AND_ONE_WAY_WRITE_TOOL_NAMES,
             LOCAL_WRITE_TOOL_NAMES,
@@ -367,6 +368,7 @@ class TestTheDeclaredSurfaceMatchesReality:
             set(server.CONSENT_AND_ONE_WAY_WRITE_TOOLS)
             == CONSENT_AND_ONE_WAY_WRITE_TOOL_NAMES
         )
+        assert set(server.CHECKOUT_WRITE_TOOLS) == CHECKOUT_WRITE_TOOL_NAMES
         assert set(server.SHARED_CONFIG_WRITE_TOOLS) == CONFIG_TOOL_NAMES
         assert set(server.LOCAL_STATE_ONLY_TOOLS) == LOCAL_WRITE_TOOL_NAMES
 
@@ -383,6 +385,9 @@ class TestTheDeclaredSurfaceMatchesReality:
         )
         assert writes["reach_uplers"]["consent_and_one_way"]["count"] == len(
             CONSENT_AND_ONE_WAY_WRITE_TOOL_NAMES
+        )
+        assert writes["reach_uplers"]["checkout"]["count"] == len(
+            CHECKOUT_WRITE_TOOL_NAMES
         )
         assert writes["reach_the_shared_config"]["count"] == len(CONFIG_TOOL_NAMES)
         assert set(writes["local_state_only"]["tools"]) == LOCAL_WRITE_TOOL_NAMES
@@ -446,6 +451,14 @@ class TestTheDeclaredSurfaceMatchesReality:
             # union does not know about turns its own members invisible to the
             # one assertion that was built to find them.
             | set(server.CONSENT_AND_ONE_WAY_WRITE_TOOLS)
+            # Added 2026-08-25 with the three writes that spend or claim
+            # money, and added HERE for the reason the line above gives: this
+            # union is what makes "a confirm-taking tool in no group at all"
+            # detectable, so a new group the union does not know about turns
+            # its own members invisible to the one assertion built to find
+            # them. A money write invisible to the census is the worst
+            # instance of that failure available in this server.
+            | set(server.CHECKOUT_WRITE_TOOLS)
             | set(server.SHARED_CONFIG_WRITE_TOOLS)
             | set(server.LOCAL_STATE_ONLY_TOOLS)
         )
@@ -472,6 +485,13 @@ class TestTheDeclaredSurfaceMatchesReality:
             # one-way write is exactly the tool that must never go undetected.
             "uplers_revoke_email_scan",
             "uplers_submit_interview_feedback",
+            # The three added later the same day. Named individually for the
+            # same reason: an empty `confirmable` makes the assertion below
+            # pass for free, and a write that creates a paid order is exactly
+            # the tool that must never go undetected.
+            "uplers_order_create",
+            "uplers_health_check_order_create",
+            "uplers_request_refund",
         } <= confirmable, sorted(confirmable)
         uncensused = confirmable - censused
         assert uncensused == set(), (
