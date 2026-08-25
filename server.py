@@ -91,6 +91,7 @@ from uplers_server import (
     agent_surface,
     assessment_flags,
     auth as auth_mod,
+    conversion,
     endpoints,
     outreach as outreach_mod,
     preference as preference_mod,
@@ -2111,7 +2112,7 @@ async def uplers_config(write_candidate: bool = False,
 #: the split. That banner is the only definition of the split there is: it is a
 #: physical line in this module, and which side of it a tool is defined on IS
 #: whether that tool needs an account.
-TOOL_COUNTS = {"total": 62, "public": 24, "authenticated": 38}
+TOOL_COUNTS = {"total": 64, "public": 24, "authenticated": 40}
 
 #: Can change something ON UPLERS, acting on a requisition.
 REQUISITION_WRITE_TOOLS = ("uplers_apply", "uplers_dismiss")
@@ -2674,6 +2675,34 @@ KNOWN_LIMITS = {
             "pay at all - so it is an estimated band for precisely the "
             "requisitions whose salary is otherwise hidden. No tool calls it; "
             "that is a scope decision, not a safety one."
+        ),
+        # ADDED 2026-08-25. The five entries above are kept VERBATIM rather
+        # than rewritten: they are what the 2026-08-24 investigation actually
+        # concluded, and three of them are contradicted by a later probe. A
+        # correction that edits the original in place leaves no way to tell
+        # that the finding ever moved, which is how a superseded conclusion
+        # gets re-derived. So the correction sits beside them and names which
+        # ones it overturns.
+        "corrected_2026_08_25": (
+            "A build of this route was briefed and STOPPED after probing it. "
+            "THREE CORRECTIONS, all measured on the live session by "
+            "scripts/probe_company_salary.py. (1) THE REFUSAL IS NOT AN HTTP "
+            "400: a gate-failing row answers HTTP 200 with the BODY "
+            "{status: 400, errors: 'No HR found..'}, so nothing raises and a "
+            "transport-status check reads every refusal as a success. (2) THE "
+            "SUCCESS ENVELOPE HAS NO `data` KEY - it is {status, company_name, "
+            "hr_id, salary_data{...}} - so outreach.unwrap cannot read it and "
+            "no second unwrapper was written to make it fit. (3) DATE-STRING "
+            "is_partner_company ROWS ARE REFUSED IN PRACTICE. Treating a truthy "
+            "non-boolean as UNKNOWN is still right about what this server may "
+            "conclude, and it does not predict Uplers: their backend applies "
+            "the same truthiness their frontend does. Controlled on rows live "
+            "at that instant - 6 of 6 boolean-false rows answered 200, 2 of 2 "
+            "date-string rows answered 400, and one requisition present in "
+            "both the live feed and the local index answered 400, which rules "
+            "out staleness. All 250 local-index rows carry a date string, so "
+            "resolving an hr_number against the local index - the briefed "
+            "design - would be refused on every requisition it could name."
         ),
     },
 }
@@ -3853,6 +3882,130 @@ async def uplers_agent_settings() -> dict:
         templates=agent_surface.shape_templates(templates_raw),
         auto_reply=agent_surface.shape_auto_reply(auto_reply_raw),
         blocked=agent_surface.shape_disabled_companies(blocked_raw),
+    )
+
+
+# --------------------------------------------------------------- tool 61 ---
+#
+# THE CONVERSION RING. Read `uplers_server/conversion.py` before touching
+# either tool below; both wrappers here are deliberately thin and every
+# decision lives in that module.
+#
+# WHY THIS RING EXISTS AT ALL. Every other read in this server is about
+# DISCOVERY. These two are about the other end: nine applications in about two
+# and a half years, eight still at "Added" and one at "Profile Shared". The
+# board is not the constraint on this account.
+#
+# ALL FOUR ROUTES WERE ALREADY CAPTURED AND NOTHING READ THEM until these tools
+# landed - four live requests spent on fixtures no test asserted on. They are
+# load-bearing now.
+#
+# A THIRD TOOL WAS BRIEFED HERE AND IS NOT BUILT. `uplers_salary_estimate` over
+# `get-company-salary-data` was stopped on 2026-08-25 when the probe
+# contradicted three of its premises; see `EP_COMPANY_SALARY` in endpoints.py
+# and `known_limits.resolved_identifier_space.corrected_2026_08_25` above.
+
+
+@mcp.tool()
+async def uplers_reply_outcomes() -> dict:
+    """What the people who replied to your outreach actually ASKED FOR.
+
+    THE ONLY SURFACE IN THIS SERVER THAT ANSWERS THAT. Everything else counts
+    replies: the dashboard totals them, `get-outreach-agent-meta` splits them
+    positive and negative, `missed-positive-reply-followups` returns the
+    threads. None of them carries a reply CATEGORY. This route does, in Uplers'
+    own free text, and it is the difference between knowing someone answered
+    and knowing someone is waiting on a document from you.
+
+    MEASURED 2026-08-24: seven replies, every one positive, every one over
+    Gmail, from seven different companies - and their categories name three
+    distinct asks. One wants an updated resume. One wants a form filled in
+    before proceeding with a referral. Five say the profile has already been
+    forwarded onward. `interview_companies` is EMPTY on the same payload, so
+    none of the seven has turned into an interview yet.
+
+    THE COUNT HERE IS NOT THE REPLY LEDGER AND THE RESULT SAYS SO. This route
+    returned 7 positive rows and no negative row at all;
+    `get-outreach-agent-meta` measured 8 positive and 2 negative the day
+    before. The route's name - "value with happy" - makes a curated subset the
+    obvious hypothesis, and a hypothesis is all it is, so the number ships
+    under a name that says whose count it is and points at
+    `uplers_agent_readthrough` for the totals. Neither is picked and no third
+    number is invented.
+
+    THE NAME OF THE PERSON WHO REPLIED IS DELIBERATELY WITHHELD, and so is the
+    company logo URL. This is the same register `uplers_agent_readthrough`
+    already sets: the company, the channel and what they asked for are what you
+    act on; the counterparty's name belongs in the thread they wrote it in, not
+    in a transcript. Open the thread to read it.
+
+    Read-only, no arguments, one request.
+    """
+    async with _talent_client() as client:
+        payload = await client.get_json(
+            endpoints.EP_OUTREACH_VALUE_WITH_HAPPY, None
+        )
+
+    return conversion.shape_reply_outcomes(payload)
+
+
+@mcp.tool()
+async def uplers_agent_pending(days: int = 15) -> dict:
+    """Is anything blocked on YOU right now? Three routes, one answer.
+
+    Three different senses of "waiting", and only together do they say whether
+    the next move is yours:
+
+    * a positive reply inside the window that was never followed up
+      (THE CONVERSION ONE, and it is ranked first for that reason);
+    * the outreach agent holding a pending action for you;
+    * how much external job-link quota is left, which is the context that says
+      whether you could act even if you wanted to.
+
+    MEASURED 2026-08-23 at the default window: the follow-up flag reads
+    **TRUE** - positive replies are sitting unanswered - while the agent has no
+    pending action and all 8 external link slots are free. That combination is
+    this account's whole problem in one line: nothing is stopping him, and the
+    replies went cold anyway.
+
+    NOT THE SAME ROUTE as the one behind `uplers_agent_readthrough`'s
+    `needs_reply`. That one returns the THREADS; this returns Uplers' own
+    boolean over a window you choose. Read this to find out IF, read
+    `uplers_agent_readthrough` to find out WHICH, and `uplers_reply_outcomes`
+    to find out what each one asked for.
+
+    `anything_blocked` is False only when every route ANSWERED and answered no.
+    A route that did not carry its flag lands in `unknown`, never in a clean
+    bill - absent is not false, and on this question the difference is the
+    whole point.
+
+    Args:
+        days: the look-back window for the missed-follow-up flag. The route
+            echoes the window it actually used and the result reports the ECHO,
+            so a window Uplers ignored is visible rather than assumed.
+
+    Read-only, three requests, no writes.
+    """
+    if isinstance(days, bool) or not isinstance(days, int) or days < 1:
+        raise UplersError(
+            "days must be a positive whole number of days (got %r)." % (days,)
+        )
+
+    async with _talent_client() as client:
+        pending_raw = await client.get_json(
+            endpoints.EP_OUTREACH_PENDING_ACTION, None
+        )
+        followups_raw = await client.get_json(
+            endpoints.EP_OUTREACH_FOLLOWUPS_PENDING, {"days": days}
+        )
+        external_raw = await client.get_json(
+            endpoints.EP_OUTREACH_EXTERNAL_REMAINING, None
+        )
+
+    return conversion.agent_pending(
+        pending_action=conversion.shape_pending_action(pending_raw),
+        followups=conversion.shape_followups_pending(followups_raw),
+        external=conversion.shape_external_remaining(external_raw),
     )
 
 

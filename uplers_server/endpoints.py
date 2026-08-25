@@ -328,6 +328,86 @@ EP_OUTREACH_STORE_TEMPLATE = "talent/outreach/store-message-template"
 #: worth having rather than an assumption worth making.
 EP_OUTREACH_AGENT_META = "talent/outreach/get-outreach-agent-meta"
 
+# --- The CONVERSION ring --------------------------------------------------
+#
+# FOUR MORE GETs IN THE SAME NAMESPACE, none of them taking a parameter except
+# the third. All four were captured as fixtures on 2026-08-23/24 and then sat
+# UNUSED - no tool read one, no test asserted on one - until 2026-08-25, when
+# `uplers_server.conversion` and its two tools consumed all four. That gap is
+# recorded rather than tidied away, because a captured payload nothing reads is
+# a live request spent for nothing and a personal payload sitting in a public
+# repository for no reason.
+#
+# THE RING IS NAMED FOR WHAT IT ANSWERS. Everything else this server reads is
+# about DISCOVERY - what is on the board, what suits him, what the agent
+# queued. These four are about CONVERSION: who answered, what they asked for,
+# and whether anything is blocked on him right now. On an account with nine
+# applications in two and a half years, eight of them still sitting at "Added",
+# that is the question with the numbers behind it.
+#
+# ENVELOPE TRAP, AND IT SPLITS THREE-ONE. MEASURED off the committed fixtures:
+# `value-with-happy`, `has-pending-action-manual-outreach-agent` and
+# `external-job-link-remaining` answer the STRING `"success"`;
+# `missed-positive-reply-followups-pending` answers the INTEGER `200`. So the
+# split does not run along "which ring", "which capture script" or "which
+# date" - it is per route, again. `outreach.unwrap` takes both and refuses
+# everything else.
+
+#: WHAT THE REPLIES ACTUALLY WANTED, which no other route in this server says.
+#: The dashboard counts replies and `get-outreach-agent-meta` splits them 8
+#: positive / 2 negative; NEITHER says what any of them ASKED FOR. This route's
+#: `response` rows carry a `reply_category` in free text - MEASURED values
+#: include "Willing to refer; requests updated resume" and "Requests form, will
+#: proceed with referral" - which is the difference between "someone replied"
+#: and "someone is waiting on a document from you".
+#:
+#: MEASURED (`tests/fixtures/outreach_value_with_happy.json`, captured
+#: 2026-08-24): `jobs_run` 32, `interview_companies` the EMPTY LIST, `response`
+#: SEVEN rows, every one `reply_type: "positive"`.
+#:
+#: THE SEVEN DOES NOT RECONCILE WITH THE TEN, and this file does not pick one.
+#: `get-outreach-agent-meta` measured `total_positive_replies: 8` on 2026-08-23
+#: and this route returned 7 positive rows on 2026-08-24. The name is the
+#: obvious hypothesis - "value with HAPPY" reads like a curated subset rather
+#: than the reply ledger - and it is a hypothesis, not a measurement. The
+#: shaper reports the count it actually received and says it is not the meta
+#: count; see `uplers_server.conversion.shape_reply_outcomes`.
+#:
+#: PRIVACY: the rows also carry `employee_name` and `logo_url`. NEITHER is ever
+#: returned - the same register `uplers_agent_readthrough` set for the outreach
+#: ring, where the counterparty's name and address stay in the thread they were
+#: written in. `employee_name` is masked at capture time; `logo_url` is a
+#: CDN address and is not.
+EP_OUTREACH_VALUE_WITH_HAPPY = "talent/outreach/value-with-happy"
+
+#: IS THE AGENT WAITING ON HIM? MEASURED
+#: (`tests/fixtures/outreach_pending_action.json`, captured 2026-08-23):
+#: `{"data": {"has_pending_action": false, "hrs": []}, "status": "success"}`.
+#:
+#: THE ENVELOPE IS PINNED BY THAT FIXTURE AND WAS NOT GUESSED. Uplers' own UI
+#: discards this response - it fires the request and reads nothing back - so
+#: the bundle could not say what the shape was. The capture could, and did.
+EP_OUTREACH_PENDING_ACTION = (
+    "talent/outreach/has-pending-action-manual-outreach-agent"
+)
+
+#: THE CONVERSION ONE. A boolean flag - are there positive replies from the
+#: last `days` that were never followed up - as against
+#: `EP_OUTREACH_MISSED_FOLLOWUPS`, which returns the THREADS. Both exist and
+#: they are not the same route: this one is `...-pending` and takes `?days=`.
+#: MEASURED (`tests/fixtures/outreach_followups_pending.json`, captured
+#: 2026-08-23 at `days=15`): `{"days": 15, "pending": true}` under the INTEGER
+#: 200. `pending` reading TRUE is the single highest-signal bit in this ring.
+EP_OUTREACH_FOLLOWUPS_PENDING = (
+    "talent/outreach/missed-positive-reply-followups-pending"
+)
+
+#: QUOTA CONTEXT, not an action. How many external job links the agent may
+#: still be handed. MEASURED
+#: (`tests/fixtures/outreach_external_remaining.json`, captured 2026-08-23):
+#: `{"limit": 8, "remaining": 8, "used": 0}`.
+EP_OUTREACH_EXTERNAL_REMAINING = "talent/outreach/external-job-link-remaining"
+
 #: THE PAID-SKU READS. Three GETs, no params, all VERIFIED LIVE 2026-08-25 -
 #: a real 200 with real data on his own session, zero 403s and zero 402s -
 #: and captured as fixtures by `scripts/capture_skus.py`.
@@ -482,10 +562,16 @@ EP_CANCEL_OPPORTUNITY = "talent/hr/cancel-opportunity"  # POST JSON, dead code i
 EP_UPDATE_SAVED_HR = "talent/hr/update-saved-hr"      # POST JSON {hr_id: enc_id, type}
 
 # --- Recorded, deliberately NOT built -------------------------------------
-# Shapes kept here so the findings are not lost. No tool calls any of these.
+# Shapes kept here so the findings are not lost.
 # Recorded 2026-08-22 from the exhaustive route sweep
 # (`_audit/_slices/_slice-uplers-route-inventory.md`, 214 API paths) and its
 # shape follow-up.
+#
+# "No tool calls any of these" STILL HOLDS, including for EP_COMPANY_SALARY,
+# which was briefed to be built on 2026-08-25 and was STOPPED that day when
+# three live measurements contradicted the premises under it. The evidence is
+# recorded on the constant itself rather than in a changelog, because the next
+# session to consider building it will read the constant, not the history.
 
 #: Per-JOB estimated salary and company detail. Both `?hr_id=`, both answering
 #: `res.data.status == 200` with `salary_data` / `company_data`.
@@ -527,10 +613,71 @@ EP_UPDATE_SAVED_HR = "talent/hr/update-saved-hr"      # POST JSON {hr_id: enc_id
 #: the case where the board shows no pay at all - so this is an estimated band
 #: for precisely the requisitions whose salary is otherwise hidden.
 #:
-#: STILL NOT BUILT: no tool calls either route. That is a scope decision, not a
-#: safety one - both are plain authenticated GETs returning company-level market
-#: data.
+#: STILL NOT BUILT. It was BRIEFED to be built on 2026-08-25 - as
+#: `uplers_salary_estimate(hr_number)`, resolving the HR number to `row.id`
+#: against the local index - and the slice was STOPPED after the probe, because
+#: three of the premises above are wrong. The three corrections are the
+#: valuable part of this block and they are stated as measurements. Reproduce
+#: any of them with `scripts/probe_company_salary.py`, which writes nothing.
+#:
+#: CORRECTION 1 - **THE REFUSAL IS NOT AN HTTP 400.** A gate-failing row answers
+#: **HTTP 200** carrying the body `{"status": 400, "errors": "No HR found.."}`.
+#: `TalentClient._classify` sees a 2xx and raises nothing, so there is no
+#: exception branch to write and a client that checked only the transport
+#: status would read every refusal as a success. Everything above that says
+#: this route "answers 400" is describing a BODY status; the wording was
+#: ambiguous and is now pinned.
+#:
+#: CORRECTION 2 - **THE SUCCESS ENVELOPE HAS NO `data` KEY.** MEASURED:
+#: ``{"status": 200, "company_name": "Fivetran", "hr_id": 336028,
+#: "salary_data": {"has_salary_data": true, "company_salary_range": "<INR>42L -
+#: <INR>48.3L", "company_salary_p25": 4200000, "company_salary_p75": 4830000,
+#: "company_matches": 1, "feedback_given": false, "feedback_type": null}}`` -
+#: the payload node is `salary_data`, at the TOP level. `outreach.unwrap`
+#: requires a `data` key by design (its rule 4 is what separates "empty
+#: container" from "missing key"), so it cannot read this route at all. This
+#: server has no reader for the shape and did not grow a second unwrapper to
+#: get one.
+#:
+#: CORRECTION 3 - **THE DATE-STRING ROWS ARE REFUSED, AND THIS IS THE ONE THAT
+#: KILLED THE BRIEFED DESIGN.** The standing rule above - treat a truthy
+#: non-boolean `is_partner_company` as UNKNOWN, never as "partner" - is right
+#: about what this server may CONCLUDE and does not predict what Uplers DOES.
+#: Uplers' backend applies the same `!is_partner_company` truthiness their
+#: frontend does, so a date string behaves as "partner" on the wire.
+#:
+#: MEASURED 2026-08-25 as a controlled comparison, on rows live at that
+#: instant, so staleness cannot explain it:
+#:
+#:     population    confidential rows   partner state        probed -> answer
+#:     local index   118                 unrecognised 118/118  8/8 -> status 400
+#:     live feed     139                 false 135, unrec. 4   6/6 false -> 200
+#:                                                             2/2 unrec. -> 400
+#:
+#: One requisition, `HR280726200209` (id 302816), sits in BOTH populations, is
+#: in the live feed right now, carries a date string, and answers 400 - which
+#: is what rules out "those rows have simply expired".
+#:
+#: THE CONSEQUENCE: 250 of 250 rows in the LOCAL INDEX carry a date string, so
+#: a tool resolving `hr_number` against it would be refused on every
+#: requisition it could name. The rows that DO answer are the live feed's
+#: boolean-`false` rows, which are the AGGREGATED postings (16-digit ids), and
+#: reaching those means a different resolution source than the one briefed.
+#: That is a design decision, not an adaptation, and it is left to whoever
+#: picks this up.
+#:
+#: WHAT IT RETURNS WHEN IT ANSWERS, re-measured: of 8 gate-satisfying live rows
+#: probed, **2 carried real percentiles** (both Fivetran requisitions, sharing
+#: one company band) and 6 answered 200 with `has_salary_data: false` and
+#: `company_matches: 0`. The false is a real answer - "no comparable data for
+#: this company" - and not a failure. The earlier "3 of 6" was a different
+#: sample on a different day and neither figure is a rate.
 EP_COMPANY_SALARY = "get-company-salary-data"         # GET ?hr_id=<row.id>
+
+#: NOT BUILT, and it is the half of this pair that is still only recorded. A
+#: scope decision, not a safety one - it is a plain authenticated GET returning
+#: company-level data, on the same `?hr_id=<row.id>` id space its sibling was
+#: proven to use.
 EP_COMPANY_DETAIL = "get-company-detail"              # GET ?hr_id=<row.id>
 
 #: "Jobs like this one." RECORDED, DELIBERATELY NOT BUILT, and the first

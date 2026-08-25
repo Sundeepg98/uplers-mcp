@@ -151,6 +151,17 @@ SKU_READ_TOOL_NAMES = {
     "uplers_tailored_resumes",
 }
 
+#: Added 2026-08-25. Reads aimed at the one thing his numbers say is broken:
+#: 9 applications in ~2.5 years, 8 still sitting at "Added". The bottleneck is
+#: CONVERSION, not discovery, so these answer "what did the people who replied
+#: actually want" and "is anything blocked on me" rather than finding a tenth
+#: job. Their own set for the same reason the others have theirs: a name landing
+#: here should be a decision somebody typed.
+CONVERSION_READ_TOOL_NAMES = {
+    "uplers_reply_outcomes",
+    "uplers_agent_pending",
+}
+
 WRITE_TOOL_NAMES = {
     "uplers_apply",
     "uplers_dismiss",
@@ -285,6 +296,7 @@ TOOL_NAMES = (
     | AUTH_TOOL_NAMES
     | AGENT_READ_TOOL_NAMES
     | SKU_READ_TOOL_NAMES
+    | CONVERSION_READ_TOOL_NAMES
     | WRITE_TOOL_NAMES
     | LOCAL_WRITE_TOOL_NAMES
     | PROFILE_WRITE_TOOL_NAMES
@@ -340,7 +352,7 @@ def wire_client(monkeypatch, handler):
 async def test_importing_server_registers_exactly_the_expected_tools():
     tools_listed = await server.mcp.list_tools()
 
-    assert len(tools_listed) == 62
+    assert len(tools_listed) == 64
     assert {tool.name for tool in tools_listed} == TOOL_NAMES
     # The two SKU tools are READS, and they sit one path segment from routes
     # that spend money. The same intersection argument the agent-read set
