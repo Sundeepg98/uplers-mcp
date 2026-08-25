@@ -176,7 +176,7 @@ def _rows(data: dict, key: str) -> list:
 # --- Tool 1: what the replies actually wanted -------------------------------
 
 
-def shape_reply_outcomes(payload: dict) -> dict:
+def shape_reply_outcomes(payload: dict, pending: dict | None = None) -> dict:
     """Reply outcomes, from ``talent/outreach/value-with-happy``.
 
     **THE ONLY SURFACE IN THIS SERVER THAT SAYS WHAT A REPLY ASKED FOR.** The
@@ -207,6 +207,45 @@ def shape_reply_outcomes(payload: dict) -> dict:
     reported under its own name for the same reason.
 
     THE COUNTERPARTY'S NAME IS NEVER RETURNED. See the module docstring.
+
+    IT IS A SNAPSHOT, NOT A TO-DO LIST, AND THAT DISTINCTION COST SOMEBODY REAL
+    TIME. `reply_category` records WHAT WAS ASKED. It carries nothing about
+    whether he answered - and a row reading "requests updated resume" with no
+    completion state beside it reads as outstanding. It was read that way, out
+    loud, on two rows that had both been answered a fortnight earlier: the
+    resume went on 11 Aug and the form was completed on 12 Aug with the referral
+    confirmed on 14 Aug.
+
+    MEASURED, so the limit is stated rather than guessed. The `response` rows
+    carry exactly `channel`, `company_name`, `employee_name`, `logo_url`,
+    `reply_category`, `reply_type` - **no timestamp, no thread id, no status,
+    and no key that joins to anything that has one.** So a per-row answered flag
+    is not merely unbuilt here; the data to build it is not on this route.
+
+    WHAT UPLERS DOES EXPOSE is one account-level BOOLEAN:
+    `missed-positive-reply-followups-pending` answers `{days, pending}`, and
+    Uplers' own message calls it a *"Reply reminders pending flag"*. It is
+    passed in rather than fetched here so this shaper stays a pure function of
+    its payloads.
+
+    **AND IT DISAGREES WITH THE MAILBOX, WHICH IS WHY IT IS CARRIED RATHER THAN
+    TRUSTED.** MEASURED 2026-08-25: the flag reads **true** at 90 days, while at
+    least two of the rows above had been answered a fortnight earlier. It is the
+    AGENT's reminder state, not a record of what he sent - his replies happen in
+    his own mailbox, which this platform does not read. Reading `true` as "he
+    owes replies" would reproduce the exact mistake this field exists to
+    prevent, in the opposite direction.
+
+    A NEAR-MISS WORTH RECORDING, because the first version of this code shipped
+    the opposite claim. A probe that extracted rows from the payload found none
+    and reported "0", and "0 pending" was written up as *nothing is
+    outstanding*. The value is not a count and was never 0; it is `true`.
+    `outreach._int` is what caught it - it rejects `bool` by design, so the
+    field came back None instead of a confident zero. **A helper that refuses to
+    coerce is worth more than one that copes.**
+
+    So `completion_state` ships in the PAYLOAD, not only here: a docstring is
+    read once and a field is read every time.
     """
     data = unwrap(payload, route=ROUTE_REPLY_OUTCOMES, expect=dict)
 
@@ -239,8 +278,13 @@ def shape_reply_outcomes(payload: dict) -> dict:
             )
         )
         headline.append(
-            "WHAT THEY ASKED FOR is the column to read: %s."
+            "WHAT THEY ASKED FOR, at the time they wrote: %s."
             % "; ".join("%s (x%d)" % (text, n) for text, n in _tally(categories).items())
+        )
+        headline.append(
+            "THIS IS A SNAPSHOT OF WHAT WAS ASKED, NOT A LIST OF WHAT IS "
+            "OUTSTANDING. Nothing on this route records whether he answered. "
+            "Read completion_state before treating any row as an action."
         )
     else:
         headline.append(
@@ -258,9 +302,14 @@ def shape_reply_outcomes(payload: dict) -> dict:
             "empty on the same payload."
         )
 
+    completion = _completion_state(pending)
+
     return {
         "route": ROUTE_REPLY_OUTCOMES,
         "headline": headline,
+        # THE FIELD THIS TOOL EXISTS TO CARRY. A docstring is read once; this is
+        # read every call. Never let a row be actioned without it.
+        "completion_state": completion,
         # Named for whose count it is. See the docstring: this is NOT the
         # positive/negative ledger and must not be read as one.
         "replies_on_this_route": len(rows),
@@ -290,6 +339,53 @@ def shape_reply_outcomes(payload: dict) -> dict:
     }
 
 
+def _completion_state(pending: dict | None) -> dict:
+    """Whether he ANSWERED is not on this route. Say so, in the payload.
+
+    Three-valued and `unknown` is the default, because the alternative - an
+    absent field - is what a reader turns into "outstanding". The one thing
+    this must never do is let a row be mistaken for a task.
+    """
+    state = {
+        "per_reply_answered": "NOT AVAILABLE",
+        "why": (
+            "These categories record WHAT WAS ASKED, never whether he "
+            "answered. The rows carry no timestamp, no thread id and no key "
+            "that joins to one, so a per-reply answered flag cannot be "
+            "derived from this route at all. CHECK THE THREAD before treating "
+            "any row as an action."
+        ),
+        "measured_absence": (
+            "response rows carry exactly: channel, company_name, "
+            "employee_name, logo_url, reply_category, reply_type."
+        ),
+    }
+    if not isinstance(pending, dict):
+        state["uplers_side_followups_pending"] = None
+        state["pending_note"] = (
+            "The portfolio-level pending count was not read on this call, so "
+            "even the agent-side signal is unknown here."
+        )
+        return state
+
+    state["uplers_reply_reminder_pending"] = _flag(pending.get("pending"))
+    state["pending_window_days"] = _int(pending.get("days"))
+    state["pending_note"] = (
+        "missed-positive-reply-followups-pending answers {days, pending} where "
+        "`pending` is a BOOLEAN - Uplers' own message calls it a 'Reply "
+        "reminders pending flag'. It is one flag for the whole account, so it "
+        "cannot be attributed to any row above. "
+        "AND IT IS NOT A STATEMENT THAT HE DID NOT REPLY: it is the AGENT's "
+        "reminder state. MEASURED 2026-08-25 it reads TRUE while at least two "
+        "of the rows above were answered a fortnight earlier - the resume went "
+        "on 11 Aug, the form on 12 Aug with the referral confirmed on 14 Aug. "
+        "So the flag DISAGREES with the mailbox on those rows, and reading it "
+        "as 'he owes replies' would reproduce exactly the mistake this field "
+        "exists to prevent."
+    )
+    return state
+
+
 def _reply_row(raw: dict) -> dict:
     """One ``response`` row, minus the person and minus the addresses.
 
@@ -303,6 +399,12 @@ def _reply_row(raw: dict) -> dict:
         "channel": _text(raw.get("channel")),
         "reply_category": _text(raw.get("reply_category")),
         "reply_type": _text(raw.get("reply_type")),
+        # THREE-VALUED, AND IT IS ALWAYS "unknown" ON THIS ROUTE. Carried per
+        # row rather than only at the top, because the row is what gets read
+        # aloud - and an absent field is what a reader turns into "outstanding".
+        # `unknown` must never be rendered as an action.
+        "answered": "unknown",
+        "answered_note": "not recorded on this route - check the thread",
         "employee_name_withheld": True,
         "logo_url_withheld": True,
     }

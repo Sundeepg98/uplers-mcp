@@ -227,12 +227,70 @@ class TestTheFourFixturesAreLoadBearing:
 class TestNeitherToolCanReachAWriteRoute:
     """MEASURED against the requests that left, not asserted from the source."""
 
-    async def test_reply_outcomes_issues_exactly_one_get(self, monkeypatch):
+    async def test_reply_outcomes_issues_exactly_two_gets(self, monkeypatch):
+        """Two now, and the second one is the point.
+
+        It was one GET until 2026-08-25. The reply rows say what was ASKED and
+        carry nothing about whether he answered, and the tool was read aloud as
+        a to-do list on two rows that had been answered a fortnight earlier. So
+        it now also reads the only resolution signal Uplers exposes, rather
+        than leaving a caller to know to look for it.
+
+        Pinned as an ordered list so the SECOND read cannot be quietly dropped:
+        without it `completion_state` degrades to "we did not ask", which is a
+        weaker answer than the one available.
+        """
         calls = wire(monkeypatch, by_route(BODIES))
         await server.uplers_reply_outcomes()
 
         assert writes(calls) == []
-        assert routes_of(calls) == [endpoints.EP_OUTREACH_VALUE_WITH_HAPPY]
+        assert routes_of(calls) == [
+            endpoints.EP_OUTREACH_VALUE_WITH_HAPPY,
+            endpoints.EP_OUTREACH_FOLLOWUPS_PENDING,
+        ]
+
+    async def test_an_unknown_answered_state_never_renders_as_outstanding__CONTROL(
+        self, monkeypatch
+    ):
+        """__CONTROL. The defect this whole change exists to prevent.
+
+        A row saying "requests updated resume" with no completion state beside
+        it reads as a task. Both halves are asserted: every row carries
+        `answered` and it is `unknown`, and the payload carries a
+        `completion_state` saying per-reply resolution is NOT AVAILABLE.
+
+        Watched failing by deleting the per-row marker: the rows come back
+        looking exactly like a to-do list, which is what a human did with them.
+        """
+        wire(monkeypatch, by_route(BODIES))
+        result = await server.uplers_reply_outcomes()
+
+        assert result["rows"], "no rows means this control proves nothing"
+        for row in result["rows"]:
+            assert row["answered"] == "unknown", row
+        state = result["completion_state"]
+        assert state["per_reply_answered"] == "NOT AVAILABLE"
+        assert "check the thread" in state["why"].lower()
+
+    async def test_an_unreadable_pending_count_is_none_and_never_zero__CONTROL(
+        self, monkeypatch
+    ):
+        """__CONTROL. "Nothing outstanding" and "we could not ask" are opposite.
+
+        If the pending route fails, the count must render None. A zero there
+        would assert the strongest possible claim - nothing is outstanding -
+        on the strength of a failed request.
+        """
+        def handler(request):
+            import httpx
+            if endpoints.EP_OUTREACH_FOLLOWUPS_PENDING in str(request.url):
+                return httpx.Response(500, json={"message": "boom"})
+            return by_route(BODIES)(request)
+
+        wire(monkeypatch, handler)
+        result = await server.uplers_reply_outcomes()
+
+        assert result["completion_state"]["uplers_side_followups_pending"] is None
 
     async def test_agent_pending_issues_exactly_three_gets(self, monkeypatch):
         calls = wire(monkeypatch, by_route(BODIES))
