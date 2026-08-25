@@ -571,8 +571,26 @@ class TestTierCIsNotLoadableFromHere:
     uplers tool call, and it changes nothing about a uplers score.
     """
 
+    #: THE NAMESPACE IS THE POINT, and this fixture used to get it wrong.
+    #:
+    #: It planted `servers.naukri.*` - a SIBLING's namespace - while the
+    #: docstring above claims to assert "the part that belongs to this repo".
+    #: Those two things disagreed, and nobody noticed until jobcore moved the
+    #: six agent keys to tier B for naukri (`ac189b0`): the plant stopped being
+    #: refused, this test went red, and the red was reporting a fact about
+    #: naukri's configuration rather than about uplers' safety.
+    #:
+    #: A test that reaches into another server's namespace to assert something
+    #: about its own is not testing what it says it tests, and it fails the day
+    #: that other server's owner makes a decision - a decision they are entitled
+    #: to make and cannot see this assertion from.
+    #:
+    #: Measured after the move: the same five-write escalation yields 0 tier-C
+    #: refusals for naukri (now tier B), 4 for uplers, 3 for instahyre. The
+    #: uplers invariant never weakened; only the namespace being probed was
+    #: wrong.
     ESCALATION = {
-        "servers": {"naukri": {"agent": {
+        "servers": {"uplers": {"agent": {
             "enabled": True,
             "mode": "auto",
             "min_fit_score": 0,
@@ -586,6 +604,32 @@ class TestTierCIsNotLoadableFromHere:
         for key in ("enabled", "mode", "min_fit_score"):
             assert key in refusals
         assert any("REFUSED" in note for note in bound.notes())
+
+    def test_this_class_probes_its_OWN_namespace__CONTROL(self):
+        """__CONTROL. The escalation must target `servers.uplers.*`, always.
+
+        This guard exists because the defect it catches survived undetected
+        until a SIBLING made an unrelated decision. The fixture planted
+        `servers.naukri.*`, the assertions passed for years because naukri's
+        agent keys happened to be tier C, and the day jobcore moved them to
+        tier B this suite went red while uplers' own invariant was untouched.
+
+        Red for somebody else's reason is the worst kind of red: it looks like
+        your safety property broke, and the temptation is to weaken your own
+        assertion to get green again.
+
+        So the namespace is asserted structurally rather than trusted. A future
+        edit that reaches into a sibling's namespace fails HERE, with a message
+        saying why, instead of failing months later as a mystery.
+        """
+        servers = self.ESCALATION["servers"]
+        assert list(servers) == ["uplers"], (
+            "this class asserts a UPLERS invariant, so it must plant in "
+            "uplers' namespace. Found %s. A tier change made by the owner of "
+            "another server must never turn this suite red - they cannot see "
+            "this assertion, and they are entitled to make that change."
+            % sorted(servers)
+        )
 
     def test_it_does_not_move_a_uplers_score(self, configured, unconfigured, me):
         bound = configured(self.ESCALATION)
@@ -799,7 +843,9 @@ class TestTheConfigTool:
         import server
 
         make_profile()
-        configured({"servers": {"naukri": {"agent": {"enabled": True,
+        # OWN namespace, not a sibling's - see the note on
+        # TestTierCIsNotLoadableFromHere.ESCALATION for why this matters.
+        configured({"servers": {"uplers": {"agent": {"enabled": True,
                                                      "mode": "auto"}}}})
         report = await server.uplers_config()
 
