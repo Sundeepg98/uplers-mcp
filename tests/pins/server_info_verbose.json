@@ -1,0 +1,184 @@
+{
+  "server": {
+    "name": "uplers",
+    "version": "1.1.0"
+  },
+  "build": "<NORMALISED>",
+  "config": "<NORMALISED>",
+  "tiers": "PUBLIC tools need no account (uplers_sync_index, uplers_daily_brief, uplers_rank_opportunities and the rest of the board readers); AUTHENTICATED tools read his Uplers account and need uplers_login first (uplers_my_feed, uplers_my_pipeline, uplers_my_profile, uplers_apply).",
+  "irreversible_tools": [
+    "uplers_apply"
+  ],
+  "capabilities": [
+    "67 tools. 24 need no account at all; 43 read or write his signed-in Uplers account.",
+    "THE END CLIENT COMPANY NAME on Uplers-native requisitions - the field the job boards hide, where LinkedIn shows the same requisition as 'Uplers' and stops. This is the reason the server exists.",
+    "Board index and search, served OFFLINE: uplers_sync_index builds a local sqlite index from the public sitemap plus one public JSON route, and every board read after it costs no network.",
+    "Fit scoring against his profile using jobcore's scoring - the SAME scoring the Naukri server uses, so a fit score means the same thing on both. config.scoring_hash is stamped on every scored result.",
+    "A local shortlist, application tracker, alert set and scheduler. None of it is ever sent to Uplers; uplers_track is the record of what the human did elsewhere.",
+    "His account once signed in: personalised feed, real pipeline carrying Uplers' OWN authoritative status, the profile recruiters actually see, interviews, assessments, and the platform's saved-jobs view.",
+    "READ-THROUGH of the paid outreach agent HE ALREADY OWNS - what it ran, what it found, and how it is configured. This server does not run an agent and will not build one; see out_of_scope_by_design.",
+    "CONFIGURING that agent: the five REVERSIBLE switches - follow-up per channel, auto-reply, message templates, and the block/unblock pair. What this does NOT include is anything that applies, messages a person, or reveals a contact; those stay refused and are named under out_of_scope_by_design.",
+    "Sixteen writes that reach Uplers, every one confirm-gated and every one previewing the exact request first. Enumerated exactly under `writes`.",
+    "TWO of those sixteen are NOT reversible settings switches and are censused apart for that reason: revoking Uplers' permission to scan his Gmail for job-board alerts, and publishing interview feedback, which is ONE-WAY - no edit route, no delete route. Both preview first; the one-way one also refuses any company that is not on his live interview list, and that list is currently empty.",
+    "THREE of those sixteen SPEND OR CLAIM MONEY and are censused apart again: ordering a tailor plan, ordering a resume health check, and raising a refund request. THE TWO ORDERS DO NOT PAY - they mint a Razorpay order, the card is charged in Razorpay's hosted widget which this server cannot drive, so confirming leaves a REAL UNPAID order that still needs a browser, and no Uplers route cancels one. The refund is a REQUEST: nobody has observed a refund completing and no route anywhere reports refund status. Prices are read LIVE from Uplers' own catalogue, never from a constant here.",
+    "Self-description that can be falsified from OUTSIDE the process: `build` against `git rev-parse HEAD` on disk, `config.scoring_hash` against the stamp on a stored score."
+  ],
+  "writes": {
+    "counted_by": "EFFECT, never by HTTP verb. A read-shaped POST is counted as a read - talent/hr/tailor-jobs is one, and uplers_tailored_jobs calls it - so the numbers below are 'what can change', not 'how many POSTs exist'.",
+    "reach_uplers": {
+      "requisition": {
+        "count": 2,
+        "tools": [
+          "uplers_apply",
+          "uplers_dismiss"
+        ],
+        "note": "uplers_apply expresses interest, which on Uplers IS applying and cannot be undone. uplers_dismiss is genuinely reversible - Uplers ships an explicit reset_not_interested flag for it - and a performed dismissal returns the exact call that reverses it."
+      },
+      "profile": {
+        "count": 4,
+        "tools": [
+          "uplers_update_profile",
+          "uplers_restore_profile",
+          "uplers_replace_resume",
+          "uplers_restore_resume"
+        ],
+        "note": "Two writes and the undo each one ships with. All four are confirm-gated and all four SNAPSHOT BEFORE THEY SEND, because all four replace a whole field rather than editing one: an omitted skill is deleted, and a replaced resume is gone from Uplers. Both pairs go to talent/profile-upsert, the skills half as JSON and the resume half as multipart."
+      },
+      "agent_config": {
+        "count": 5,
+        "tools": [
+          "uplers_set_followup",
+          "uplers_set_auto_reply",
+          "uplers_set_template",
+          "uplers_block_company",
+          "uplers_unblock_company"
+        ],
+        "note": "The write half of talent/outreach/*, and ONLY the reversible part of it. Two are a route pair Uplers ships - block and unblock name each other in their own UI. The other three overwrite a settings record that a GET serves back, so each one READS THE LIVE RECORD FIRST, carries over every field the caller did not name, snapshots, sends, and then re-reads to say whether the value actually landed. A 200 is not proof a value changed. None of the five applies to anything, messages a person, or reveals a contact.",
+        "the_inversion": "Uplers stores the follow-up flags NEGATED - disabled_followup_gmail: false means gmail is ON. These tools take natural polarity (gmail_enabled) and the negation happens exactly once, in outreach_write.to_disabled. A second negation anywhere cancels the first and switches OFF the channel the caller asked to switch ON, silently, with a 200 coming back."
+      },
+      "consent_and_one_way": {
+        "count": 2,
+        "tools": [
+          "uplers_revoke_email_scan",
+          "uplers_submit_interview_feedback"
+        ],
+        "note": "THE TWO THAT ARE NOT REVERSIBLE SETTINGS SWITCHES, filed apart from agent_config for exactly that reason - that group's whole claim is that everything in it can be put back. uplers_revoke_email_scan withdraws Uplers' standing permission to scan his job-board alert emails: reversible on their side (a POST to the same URL re-grants) but a PERMISSION rather than a setting, and re-granting starts a FRESH scan rather than resuming. uplers_submit_interview_feedback is genuinely ONE-WAY and is the only tool here that reaches a one-way route in that namespace at all. Both are confirm-gated, both read live first, both snapshot, both re-read.",
+        "what_the_revoke_does_not_do": "MEASURED, and it is narrower than it sounds. It stops FUTURE scans only - Uplers' own success copy is future tense. NO ROUTE ANYWHERE DELETES ALREADY-INGESTED SCAN DATA: complete negative search, the only three DELETE routes under talent/outreach/* are this consent, settings/disabled-companies/{id} and external-apply-pending-jobs/{id}. And it does NOT disconnect Gmail - that is a separate grant on talent/account/gmail/disconnect, which this server does not build.",
+        "the_one_way_one_has_no_undo_at_all": "There is no edit route and no delete route for submitted interview feedback anywhere in Uplers' product. The snapshot is LOCAL ONLY and cannot retract what Uplers received. Its guard 4 is therefore stricter than the others': a company_id that is not on the live interview list is REFUSED rather than posted. MEASURED: that list currently holds ZERO companies, so every call refuses today - which is the tool working."
+      },
+      "checkout": {
+        "count": 3,
+        "tools": [
+          "uplers_order_create",
+          "uplers_health_check_order_create",
+          "uplers_request_refund"
+        ],
+        "note": "THE WRITES THAT SPEND OR CLAIM MONEY, filed apart from every group above because neither of the two nearest ones can hold a purchase without retiring its own claim. THREE TOOLS REACH FOUR ROUTES: the refund is one tool whose `kind` picks between the tailor and health-check refund routes. All three are confirm-gated, all three preview the exact body, and each body's key SET is pinned - {plan_id}, {amount, health_check_id, is_tailored} and {} or {transformation_id}.",
+        "the_orders_do_not_pay": "MEASURED, and it is the most important sentence here. uplers_order_create and uplers_health_check_order_create mint a RAZORPAY ORDER. The card is charged inside Razorpay's hosted widget, which this server cannot drive. So a confirmed call leaves a REAL, UNPAID order record on his account and paying it still requires a browser - and NO ROUTE IN UPLERS' API CANCELS AN ORDER, so nothing here can remove one either.",
+        "the_refund_is_a_request": "Uplers' own confirm copy, verbatim: 'Are you sure you want to raise a refund request?'. NOBODY HAS OBSERVED A REFUND COMPLETING - the bundle shows a request being raised and a toast echoing res.data.message, and THERE IS NO ROUTE ANYWHERE that reports refund status. So guard 5 on that tool reports its verification as UNAVAILABLE rather than claiming a read-back that does not exist. Uplers rate-limits it to once per day and this server mirrors that limit locally.",
+        "where_the_prices_come_from": "NEVER FROM A CONSTANT IN THIS REPO. The tailor order reads talent/outreach/agent-plans LIVE and refuses a plan the catalogue does not list; the health-check order carries the amount in its own body and refuses a non-positive or non-integer one. MEASURED: that catalogue carries NO CURRENCY FIELD, so a previewed price is an unlabelled number and says so - only the created order reports a currency, and the two are printed side by side.",
+        "which_health_check": "RESOLVED FROM TWO ROUTES, not taken on trust. MEASURED: talent/outreach/get-last-health-check reports the last check but carries NO id for it, and the ids live on talent/resume-health-check/dashboard. The two are joined on transform.resume_transformation_id (150705 -> exactly one row, id 152462) and the order REFUSES unless the caller's id equals that. A join matching zero rows, several rows, or missing its key refuses too, naming which."
+      }
+    },
+    "reach_the_shared_config": {
+      "count": 1,
+      "tools": [
+        "uplers_config"
+      ],
+      "note": "The only tool here that writes a file OTHER servers read. It writes the `candidate` section of jobhunt.json and nothing else - never `scoring`, never a sibling server's block - and jobcore's apply_patch enforces that independently of this server."
+    },
+    "local_state_only": {
+      "tools": [
+        "uplers_sync_profile_from_uplers",
+        "uplers_list_profile_snapshots",
+        "uplers_list_resume_snapshots"
+      ],
+      "note": "Filed apart from the sets above so those stay exact. THE LABEL OVERSTATES TWO OF THE THREE: only uplers_sync_profile_from_uplers writes anything, and it writes local disk FROM Uplers rather than the other way - his Uplers profile is the authoritative direction and there is no counterpart going back. The two list_*_snapshots tools are PURE DISK READS, filed beside their siblings so the restore surface reads as one group."
+    },
+    "not_a_census_of_local_disk": "Plenty of tools outside `local_state_only` write local state - uplers_sync_index writes the index, save/unsave the shortlist, track/update_status the tracker, the alert tools their alerts, uplers_set_profile the local profile, uplers_logout the session. None of them can reach Uplers, which is why none is counted above. The sets above answer 'what can change outside this machine', not 'what touches the disk'.",
+    "gate": "Every write that reaches Uplers performs NOTHING without confirm=True and otherwise returns a preview of the exact request it would send."
+  },
+  "irreversible": {
+    "no_undo_anywhere_in_uplers": {
+      "tools": [
+        "uplers_apply"
+      ],
+      "why": "Expressing interest on Uplers IS applying: their own analytics label the two call sites 'Single Opportunity - Apply' and 'All opportunity - Apply', and once it lands the button is disabled and reads 'Applied'. THERE IS NO WITHDRAW, NO CANCEL AND NO UN-APPLY ANYWHERE IN THEIR PRODUCT - a complete negative search over 13.4 MB of their bundle: 'Withdraw' 0 hits, 'Cancel Application' 0, 'unapply' 0. The only thing that retracts an application on Uplers is deactivating the whole account, which is where their own copy mentions it. Treat every apply as final.",
+      "recoverable_by": "nothing"
+    },
+    "one_way_door_on_uplers_recoverable_only_locally": {
+      "tools": [
+        "uplers_replace_resume"
+      ],
+      "why": "UPLERS KEEPS NO PREVIOUS COPY OF THE RESUME. Verified as absences across their whole corpus - resume_history 0 hits, resume_versions 0, previous_resume 0, old_resume 0, resume_archive 0 - and the download route takes one parameter and no version, so it always returns the CURRENT resume. No history, no versions, no revert route on their side.",
+      "recoverable_by": "A PRE-FLIGHT SNAPSHOT TO LOCAL DISK, taken by this server before the write is sent, and it is the only rollback in existence. uplers_server.resume_write REFUSES TO SEND AT ALL when the snapshot cannot be taken, because after the replacement the old document is unreachable forever. uplers_restore_resume replays it.",
+      "caveat": "The snapshot restores the FILE, not the RECORD. The undo is a fresh upload, so server-side identity is new, and whether Uplers re-parses the resume, re-scores him, notifies a recruiter or touches an already-submitted application is UNRESOLVED - every preview prints that verbatim rather than summarising it."
+    },
+    "why_two_lists_and_not_one": "They are different safety classes, and flattening them would have to lie in one direction or the other: promise a rollback for uplers_apply that does not exist, or deny the local one for uplers_replace_resume that does. `irreversible_tools` stays exactly the first list, which is what every existing caller of this tool already reads."
+  },
+  "out_of_scope_by_design": [
+    {
+      "what": "A second autonomous applier. This server does not have one and will not grow one.",
+      "why": "He is ALREADY PAYING for Uplers' own autonomous applier - measured, not inferred: plan 2, auto_run 1, outreach_mode 'auto'. The reason is not 'apply cannot be undone': Naukri has no withdraw either and this family shipped an agent there. It is that a second UNCOORDINATED agent applying from one account, against a 250-requisition board, through a single intermediary who gates every future match, while the vendor's own agent already holds the wheel, is the wrong answer at any quality of implementation."
+    },
+    {
+      "what": "CONNECTING THE LINKEDIN OUTREACH CHANNEL. Not refused on taste - IMPOSSIBLE from here, and this is the finding rather than a shortfall. It is the highest-value thing on this account and it needs sixty seconds in HIS OWN BROWSER.",
+      "why": "POST talent/account/linkedin/connect carries {email, password} - HIS ACTUAL LINKEDIN PASSWORD - to Uplers' API, followed by a second stage on talent/account/linkedin/verify keyed on an auth_type of either 'code_required' (a 2FA code sent to his email, phone or authenticator) or 'linkedin_app_approval' (approve the request in the LinkedIn app). VERIFIED from the rendered form in their bundle: input#agent-onb-li-email and input#agent-onb-li-password, placeholder 'Enter your LinkedIn password'. Their own card prints 'We never see your password' directly above that form. THIS SERVER NEVER HANDLES A PASSWORD - the same rule uplers_login already follows, which is why login opens a browser window and he signs in himself. It would also be a THIRD party's credential, not Uplers', handed to a vendor; his LinkedIn is a paid Premium Career account and sharing credentials is against LinkedIn's own terms. Automating it is refused at every one of those layers independently. He connects it on the Happpy Agent onboarding card under 'Enable linkedin Outreach'.",
+      "measured": "The channel is dead at both ends and four separate routes agree: outreach-step says linkedin_connected false and linkedin_template false, get-message-templates returns the empty string for the linkedin template, preview-config carries its own linkedin_connected false, and talent/account/status omits linkedin entirely rather than reporting it false. Uplers' own failure text names that dead channel on 11 of the 16 failed agent runs."
+    },
+    {
+      "what": "What is left of the refused half of talent/outreach/* - store-employee-requests, reveal-email, discard-job, auto-run-request, consent-auto-run, the POST (grant) arm of consent-email-job-scan, and the five commercial claim routes. The REVERSIBLE half is built; see writes.",
+      "narrowed_2026_08_25": "TWO NAMES CAME OFF THIS LIST and the entry is edited rather than left standing, because a refusal that names something now built is worse than no refusal. `interview-feedback` and the DELETE (revoke) arm of `consent-email-job-scan` are now built - see the `consent_and_one_way` group under writes. WHAT CHANGED THE ANSWER IS DIFFERENT FOR EACH, and neither was a new measurement overturning an old one: this refusal already SAID the consent flips were refused on WHOSE CALL IT IS rather than on safety, and a refusal on that ground is answered by giving him the control, gated, not by keeping it. So the revoke was built and the GRANT was not: re-granting starts a fresh mailbox scan, which is a decision the same size as stopping one and needs its own preview. `interview-feedback` is the harder case and was admitted on a narrower argument: it is ONE-WAY and stays one-way, so it is built with a guard the reversible five do not carry - it refuses any company that is not on the live interview list, which currently holds ZERO companies, so it refuses every call today. The judgement was that a one-way write behind a preview, a confirm gate and a membership check is a smaller hazard than the same review published from a browser form with no preview at all. `store-employee-requests`, `reveal-email`, `discard-job`, `auto-run-request`, the grant arm and the five claim routes are UNMOVED.",
+      "why": "The line moved from 'the namespace' to 'the effect', because one ruling was covering 31 routes of very different character. What was built is reversible AND reads its prior state back: two are a route pair Uplers ships, three overwrite a settings record a GET serves. What stays refused is refused for its own reason. store-employee-requests IS the outreach send, and Uplers' own UI copy says it cannot be undone. reveal-email spends a credit to expose a person's address. auto-run-request queues the paid agent at a job, which is the second-applier problem by another door. consent-auto-run turns the autonomous applier itself on and off, and the GRANT arm of consent-email-job-scan starts a fresh mailbox scan - both are his decision, not this server's, and the grant is the half that starts something rather than stops it. The claim routes alter a live paid subscription. NINE ONE-WAY ROUTES HAVE NO CONSTANT in endpoints.py - they are recorded there as prose, because a constant is an invitation to call it. That was ten until 2026-08-25; interview-feedback is the one deliberate exception and it has a constant because it is now CALLED, which is argued at EP_INTERVIEW_FEEDBACK itself. consent-auto-run appears in endpoints.py zero times and still does. EP_CONSENT_EMAIL_JOB_SCAN exists and is now REFERENCED - by uplers_server/consent_write.py and by nothing else, which tests/test_agent_tools.py asserts by AST across every module in the package. Until 2026-08-25 that test asserted the opposite, that nothing referenced it at all; it went red the moment the route was wired, which is what it was built to do, and it was narrowed in the same commit rather than deleted."
+    },
+    {
+      "what": "What is LEFT of the paid candidate SKUs: the TRANSFORM arm of talent/tailor/*, every non-dashboard non-order arm of talent/resume-health-check/*, and the referral agent (talent/referral-agent/*) entire. The THREE READS were built on 2026-08-25 (uplers_resume_health, uplers_tailored_resumes); the FOUR ORDER AND REFUND ROUTES were built later the same day - see the `checkout` group under writes.",
+      "narrowed_2026_08_25_the_ordering_half": "FOUR NAMES CAME OFF THIS LIST and the entry is edited rather than left standing, because a refusal that names something now built is worse than no refusal. talent/tailor/order/create, talent/resume-health-check/create-order and BOTH refund-request routes are now built behind uplers_server/checkout.py. WHAT CHANGED THE ANSWER WAS NOT A MEASUREMENT: it was a ruling, made knowingly and with the spend understood, that a paid route behind an exact-body preview, a live price read and a confirm gate is a smaller hazard than the same purchase made in a browser with no preview at all. The reads that landed earlier the same day had already refuted the OLD reason for refusing the namespace wholesale - that these routes 'would produce tools that fail at runtime' - so what remained was a judgement about money rather than a fact about credits, and that judgement was made. THE TWO CAPTURE ROUTES DID NOT MOVE and could not: they are a separate entry below, refused on SHAPE rather than on scope.",
+      "why": "The line moved from 'the namespace' to 'the effect', the same way it moved for talent/outreach/* a day earlier, and for the same reason: one ruling was covering routes of very different character. Ordering, transforming and refunding alter a live paid subscription or spend an attempt, and those stay refused with no constant in endpoints.py. READING BACK what he has already bought does neither.",
+      "what_overturned_the_read_half": "MEASUREMENT, not argument, and it refuted a specific claim this register used to make. The old entry reasoned that wrapping these routes 'would produce tools that fail at runtime' because the account holds zero tailor credits. MEASURED LIVE 2026-08-25 on his own session: talent/outreach/get-last-health-check, talent/resume-health-check/dashboard and talent/tailor/list each answered HTTP 200 with real data - a resume score of 89, three history rows, and a plan record. Zero 403s, zero 402s, no credit gate anywhere on the read side. The credit metering is real and it gates BUYING a tailored resume; it does not gate reading the check he has already had. Captured by scripts/capture_skus.py.",
+      "is_it_included_in_his_plan": "MEASURED, not assumed, because 'it might be bundled' would change the answer and only a measurement can settle it. IT IS NOT, and the reads now corroborate that from a third direction rather than contradicting it. talent/outreach/agent-plans returns a catalogue with exactly two entries, id 1 (Starter, 30 days) and id 3 (Elite, 90 days), and his outreach-step reads plan: 2 - a plan that is not in the catalogue at all. The metering agrees from two directions: outreach-step reads credit_plan 0, credit_left 0, credit_added 0, and preview-config independently carries plan.paid true, plan.expired false, plan.credit_left 0. talent/tailor/list now adds a third: plan_active 0, remaining_days 0, and a plan_end_date of 2026-08-11 already past. So the tailor surface is credit-metered, he holds zero credits, and his tailor plan has lapsed - which is exactly why the ordering routes stay unbuilt and exactly what the read tools report."
+    },
+    {
+      "what": "PAYING FOR ANY OF IT. talent/tailor/order/capture and talent/resume-health-check/capture-order. Not refused on taste - IMPOSSIBLE from here, and this is the finding rather than a shortfall. This server can CREATE an order and can never settle one.",
+      "why": "THERE IS NO CORRECT BODY FOR THIS SERVER TO SEND, which makes it a SHAPE refusal rather than a policy one. The measured capture body carries razorpayOrderId, razorpayPaymentId, razorpaySignature, order_id and payment_completed, and the call site is INSIDE RAZORPAY'S OWN HANDLER CALLBACK - those values are minted and SIGNED by Razorpay after a real card payment has gone through. No client can produce them; no amount of access to his account would help. It is UNMEASURABLE WITHOUT SPENDING and unusable from a non-browser client, and both halves of that are true independently.",
+      "measured": "AND IT LIVES ON A DIFFERENT HOST: https://lrr-platform.uplers.com/api/, not platform.uplers.com. THIS SERVER HAS NEVER CONTACTED THAT HOST - no capture script targets it, no constant names it, and no request in this repo has ever gone there. tailor/create, tailor/upload and resume-transform are on it too, so anything built against that host later inherits an AUTH QUESTION NOTHING HERE HAS ANSWERED: whether the bearer this server holds is even accepted there is unknown, because it has never been tried.",
+      "what_this_means_in_practice": "A confirmed uplers_order_create or uplers_health_check_order_create leaves a REAL, UNPAID ORDER on his account. Paying it requires opening a browser, and NO ROUTE IN UPLERS' API CANCELS AN ORDER, so an order created and not paid simply sits there. Both tools say so in their own docstrings rather than leaving it to be discovered here."
+    },
+    {
+      "what": "find-similar-job and talent-matchmake. Recorded, deliberately not built.",
+      "why": "Two reasons, both about these routes rather than about POSTs in general. (1) find-similar-job sends HIS EMAIL ADDRESS in the body to get back a list. (2) The payoff is near zero: this server already indexes all 250 requisitions locally, so 'similar to this one' is answerable offline by uplers_rank_opportunities against a record already held - with jobcore's scoring, comparable across servers, rather than Uplers' opaque one. A third reason, that it would be the first non-write POST here, WAS WITHDRAWN ON 2026-08-24 as false: talent/hr/tailor-jobs is already a read-shaped POST and predates the claim."
+    },
+    {
+      "what": "talent/hr/cancel-opportunity.",
+      "why": "DEAD CODE in the build that was read - no live call site - so its real behaviour is unverified, and it is not the withdraw its name suggests. Building an un-apply out of a route nobody has seen fire, against a product that has no un-apply, would be inventing a promise this server cannot keep."
+    },
+    {
+      "what": "talent/recommendations, and the name is the trap.",
+      "why": "It is NOT a job-recommendations feed. Its body is {key: 'rnr', role: '<job title>'} and its single caller in 13.4 MB is the PROFILE EXPERIENCE EDITOR: it returns suggested bullet-point text for a CV entry. Built as a jobs feed it would have produced a tool that silently returned the wrong kind of thing."
+    }
+  ],
+  "known_limits": {
+    "measured_404": {
+      "routes": [
+        "talent/outreach/outreached-people",
+        "talent/outreach/get-employee-requests"
+      ],
+      "measured_on": "2026-08-23",
+      "detail": "Both answered HTTP 404 on a LIVE session with a real outreach_hr_id taken off an agent-tailor-activity row - the same id that answered 200 on every other route in that ring. Both had been listed as buildable GET reads off the bundle inventory; a path that appears in the bundle is not a path the API serves.",
+      "the_open_question": "THE PARAMETER SPACE, NOT THE SESSION. The session was good and the id was good, so re-probing after a fresh login is not the retry that could change this answer - finding the identifier or query these two actually want is. Recorded so nobody re-runs the probes."
+    },
+    "resolved_identifier_space": {
+      "routes": [
+        "get-company-salary-data",
+        "get-company-detail"
+      ],
+      "resolved_on": "2026-08-24",
+      "the_id_space": "`hr_id` is the requisition row's PLAIN NUMERIC `id`. Found by reading where the value is PRODUCED rather than where it is consumed: the estimated-salary-pill component takes `hrData.id` and sends '?hr_id='.concat(id). Proven live by a one-row control - the SAME requisition answers 200 with its `id` and 400 'No HR found..' with its `HR_Number`.",
+      "entitlement_answered_and_it_is_not_one": "NOT an entitlement. Every live probe answered 200 and not one answered 403. The dedicated 403 branch exists, but this account is never refused by it, so reading that branch as 'strong evidence of an account entitlement' was an inference the measurement did not support.",
+      "why_the_earlier_probes_all_404d": "WRONG ROWS, NOT WRONG ID SPACE. The pill mounts only behind 'confidential' === cost_string.toLowerCase() && !is_partner_company. A row failing that gate answers 400 whatever identifier you send it, so re-running the six probes could never have moved the answer.",
+      "a_trap_in_the_data": "`is_partner_company` is POLYMORPHIC - boolean on most authenticated feed rows, a DATE STRING on others, and a date string on every row of the public index. A truthiness test classifies every date-valued row as 'partner', which produced a confident and completely wrong 'no row qualifies' during the investigation that closed this. Treat a truthy non-boolean as UNKNOWN.",
+      "what_it_returns": "has_salary_data, company_salary_p25 / _p75, a formatted company_salary_range, and company_matches. 3 of 6 gate-satisfying rows carried real percentiles. The gate fires exactly when cost_string is 'Confidential' - the case where the board shows no pay at all - so it is an estimated band for precisely the requisitions whose salary is otherwise hidden. No tool calls it; that is a scope decision, not a safety one.",
+      "corrected_2026_08_25": "A build of this route was briefed and STOPPED after probing it. THREE CORRECTIONS, all measured on the live session by scripts/probe_company_salary.py. (1) THE REFUSAL IS NOT AN HTTP 400: a gate-failing row answers HTTP 200 with the BODY {status: 400, errors: 'No HR found..'}, so nothing raises and a transport-status check reads every refusal as a success. (2) THE SUCCESS ENVELOPE HAS NO `data` KEY - it is {status, company_name, hr_id, salary_data{...}} - so outreach.unwrap cannot read it and no second unwrapper was written to make it fit. (3) DATE-STRING is_partner_company ROWS ARE REFUSED IN PRACTICE. Treating a truthy non-boolean as UNKNOWN is still right about what this server may conclude, and it does not predict Uplers: their backend applies the same truthiness their frontend does. Controlled on rows live at that instant - 6 of 6 boolean-false rows answered 200, 2 of 2 date-string rows answered 400, and one requisition present in both the live feed and the local index answered 400, which rules out staleness. All 250 local-index rows carry a date string, so resolving an hr_number against the local index - the briefed design - would be refused on every requisition it could name."
+    }
+  }
+}

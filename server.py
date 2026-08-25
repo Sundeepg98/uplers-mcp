@@ -478,7 +478,7 @@ async def uplers_get_market_stats(
     max_yoe: float | None = None,
     yoe_admits: float | None = None,
     min_group_size: int = 2,
-    top_groups: int = 20,
+    top_groups: int | None = 20,
     include_aggregated: bool | None = None,
 ) -> MarketStats:
     """Pay bands, experience levels and skill demand across the native cohort.
@@ -493,6 +493,11 @@ async def uplers_get_market_stats(
     share, the most-demanded skills, and currency / notice-period splits.
     `overall` carries the same figures for the whole filtered population.
 
+    `groups_returned` and `groups_total` bracket the answer: equal means you
+    are seeing every group that cleared `min_group_size`, and a smaller
+    `groups_returned` means `top_groups` cut the tail and `notes` says by how
+    much. Whole groups only - a group is never returned half-built.
+
     Use it: "what does a backend role pay", "which skills show up most",
     "how much more do Remote roles pay", "is 5 years enough for this band".
 
@@ -501,8 +506,13 @@ async def uplers_get_market_stats(
             joining_period | industry.
         skill / title / mode_of_work / remote_only / currency / min_yoe /
             max_yoe / yoe_admits: narrow the population before aggregating.
-        min_group_size: drop groups smaller than this (noise control).
-        top_groups: cap on groups returned, largest first.
+        min_group_size: drop groups smaller than this (noise control). The
+            count it drops is reported in `notes`.
+        top_groups: cap on groups returned, largest first. Pass 0 (or None)
+            for all of them. `groups_total` always reports how many groups
+            passed min_group_size, so a truncated answer says it is truncated
+            and by how much - this cap has always been 20 and used to be
+            silent, which made 20 of 306 skill groups look like all of them.
         include_aggregated: fold in the ~39k scraped postings. Unset takes
             servers.uplers.include_aggregated, whose default is off; most of
             them carry no pay data, which skews every figure.
@@ -2867,8 +2877,63 @@ KNOWN_LIMITS = {
 # ------------------------------------------------------------ tool 17 ---
 
 
+def _write_census_summary() -> dict:
+    """The write census with its REASONING stripped and its NAMES kept.
+
+    What survives is the part a caller decides on - which tools can change
+    something, grouped by what they can change - and what goes is the prose
+    explaining why each group is drawn where it is. That prose is 7.7 KB of
+    the 30 KB this tool used to return on every call, and it is read once by a
+    human, not on every staleness check by a model.
+
+    THE GROUPS ARE WALKED, NOT LISTED. A hand-written list here would be a
+    second declaration to keep in step with WRITE_CENSUS, which is the exact
+    staleness `uplers_server_info` exists to catch - so a new census group
+    appears here the moment it is added there, and no edit to this function is
+    needed for it to show up.
+
+    `count` IS COPIED, NEVER COMPUTED. `local_state_only` carries `tools` and
+    deliberately no `count`, and synthesising `len(tools)` for it would print a
+    number the census never asserted. A group without a count is reported
+    without one.
+    """
+
+    def walk(node: dict, prefix: str = "") -> dict:
+        out: dict = {}
+        for key, value in node.items():
+            if not isinstance(value, dict):
+                continue
+            if "tools" in value:
+                entry = {"tools": list(value["tools"])}
+                if "count" in value:
+                    entry["count"] = value["count"]
+                out[prefix + key] = entry
+            else:
+                out.update(walk(value, prefix + key + "."))
+        return out
+
+    return {
+        "counted_by": "EFFECT, not HTTP verb.",
+        "groups": walk(WRITE_CENSUS),
+        "gate": WRITE_CENSUS["gate"],
+    }
+
+
+#: Named in the compact payload's `omitted`, and pinned by
+#: tests/test_server_info.py so the pointer cannot drift from the blocks it
+#: promises. A default that drops something has to say what and name the flag
+#: that brings it back; this is that sentence's raw material.
+_SERVER_INFO_OMITTED_BLOCKS = (
+    "capabilities",
+    "writes.notes",
+    "irreversible",
+    "out_of_scope_by_design",
+    "known_limits",
+)
+
+
 @mcp.tool()
-async def uplers_server_info() -> ServerInfo:
+async def uplers_server_info(verbose: bool = False) -> ServerInfo:
     """What code THIS process is running. Check it before debugging behaviour.
 
     HOW TO USE IT, and it is one comparison: take `build.code.commit` and run
@@ -2914,6 +2979,25 @@ async def uplers_server_info() -> ServerInfo:
     already under suspicion, so it must not run the machinery under suspicion
     to answer.
 
+    WHAT THE DEFAULT COSTS, and why there is a flag at all. The five
+    declaration blocks are REASONING - why a refusal stands, what a probe
+    measured - and reasoning is read once by a human, not on every call by a
+    model. Returning all of it unconditionally made the routine staleness
+    check cost 30 KB, of which the block that answers "what code is running"
+    was 696 bytes. So the default now carries the comparison, the config, the
+    tiers, the tool counts and the write census WITH ITS TOOL NAMES, and says
+    in `omitted` exactly what it left out and how to get it. Nothing was
+    deleted: `verbose=True` returns the whole payload, byte for byte as it
+    always did, and tests/test_server_info.py pins that against a captured
+    copy so this flag cannot quietly become an edit.
+
+    Args:
+        verbose: True returns the five full declaration blocks -
+            `capabilities`, the write-census notes, `irreversible`,
+            `out_of_scope_by_design` and `known_limits`. Read them when you
+            need the REASON behind a refusal or a limit; the default answers
+            "is this process stale" and "what can it do" without them.
+
     Costs nothing - it reads module constants and touches neither git, the
     network, nor the database.
     """
@@ -2936,11 +3020,22 @@ async def uplers_server_info() -> ServerInfo:
             "uplers_apply)."
         ),
         irreversible_tools=list(IRREVERSIBLE_TOOLS),
-        capabilities=list(CAPABILITIES),
-        writes=WRITE_CENSUS,
-        irreversible=IRREVERSIBLE,
-        out_of_scope_by_design=list(OUT_OF_SCOPE_BY_DESIGN),
-        known_limits=KNOWN_LIMITS,
+        # Below this line the two payloads diverge. Every block the compact
+        # one drops is replaced by a summary that keeps the NAMES and loses
+        # the prose, and `omitted` names both what went and the call that
+        # brings it back - an omission nobody can see is indistinguishable
+        # from a tool that never knew the answer.
+        capabilities=list(CAPABILITIES) if verbose else [],
+        writes=WRITE_CENSUS if verbose else _write_census_summary(),
+        irreversible=IRREVERSIBLE if verbose else {},
+        out_of_scope_by_design=list(OUT_OF_SCOPE_BY_DESIGN) if verbose else [],
+        known_limits=KNOWN_LIMITS if verbose else {},
+        tools={} if verbose else dict(TOOL_COUNTS),
+        capabilities_count=None if verbose else len(CAPABILITIES),
+        omitted=None if verbose else (
+            "Omitted: %s. Call uplers_server_info(verbose=True) for them."
+            % ", ".join(_SERVER_INFO_OMITTED_BLOCKS)
+        ),
     )
 
 
@@ -3842,7 +3937,7 @@ async def uplers_my_assessments() -> MyAssessments:
 
 
 @mcp.tool()
-async def uplers_agent_readthrough() -> dict:
+async def uplers_agent_readthrough(verbose: bool = False) -> dict:
     """What Uplers' OWN autonomous agent has done for you, and what it missed.
 
     You are PAYING for that agent - plan 2, `outreach_mode: "auto"`, auto-run
@@ -3870,7 +3965,17 @@ async def uplers_agent_readthrough() -> dict:
     address and the verbatim body of their message do not need to be printed
     into a transcript to answer them. Open the thread.
 
-    Read-only, no arguments. Costs six requests.
+    `notes` IS OMITTED BY DEFAULT. It is the shaping commentary - which route
+    a figure came from, which envelope idiom it arrived in - and it is a
+    quarter of this payload on every call, read once when the report is being
+    trusted for the first time rather than each time it is consulted.
+    `verbose=True` restores it verbatim. Nothing else is dropped, and the
+    payload says so in `notes_omitted` rather than leaving you to notice.
+
+    Args:
+        verbose: True restores `notes`, the per-route shaping commentary.
+
+    Read-only. Costs six requests.
     """
     async with _talent_client() as client:
         plan_raw = await client.get_json(endpoints.EP_OUTREACH_STEP, None)
@@ -3881,7 +3986,7 @@ async def uplers_agent_readthrough() -> dict:
         meta_raw = await client.get_json(endpoints.EP_OUTREACH_AGENT_META, None)
 
     now = datetime.now().astimezone()
-    return outreach_mod.agent_readthrough(
+    report = outreach_mod.agent_readthrough(
         plan=outreach_mod.shape_agent_plan(plan_raw, today=now.date().isoformat()),
         dashboard=outreach_mod.shape_agent_dashboard(dashboard_raw),
         pending=outreach_mod.shape_pending_jobs(pending_raw),
@@ -3889,6 +3994,18 @@ async def uplers_agent_readthrough() -> dict:
         activity=outreach_mod.shape_activity(activity_raw),
         agent_meta=outreach_mod.shape_agent_meta(meta_raw),
     )
+    # DROPPED HERE, NOT IN THE SHAPER. `outreach.agent_readthrough` is a pure
+    # function with its own callers and its own tests, and `notes` is part of
+    # what it returns; trimming it there would change a shape four test files
+    # assert against to save bytes on one tool's wire format. This is the wire
+    # format, so this is where the wire format is decided.
+    if not verbose and "notes" in report:
+        dropped = len(report.pop("notes"))
+        report["notes_omitted"] = (
+            "%d shaping notes omitted; call uplers_agent_readthrough(verbose=True) "
+            "for them." % dropped
+        )
+    return report
 
 
 @mcp.tool()

@@ -696,3 +696,106 @@ class TestPreferencesAndGates:
 
         assert result["rows"] == 0
         assert "one feed page of 0 row(s)" in result["scope"]
+
+
+# ==========================================================================
+# uplers_agent_readthrough - the compact default
+#
+# This is the flagship read, and `notes` was a quarter of it: the per-route
+# shaping commentary, which says which envelope idiom a figure arrived in and
+# which route it came from. That is read ONCE, when the report is being
+# trusted for the first time, and then re-read on every subsequent call for
+# the rest of the tool's life.
+#
+# `needs_reply` IS THE SIGNAL AND STAYS IN THE DEFAULT. It is the reason the
+# tool exists - positive replies from real people sitting unanswered - and no
+# amount of token economy may push it behind a flag.
+# ==========================================================================
+
+
+class TestTheCompactDefault:
+
+    async def test_the_default_omits_the_notes_and_says_so(self, monkeypatch):
+        """The rule: an omission nobody can see is indistinguishable from a
+        tool that never knew. So the pointer has to name the flag."""
+        wire(monkeypatch, by_route(OUTREACH_BODIES))
+
+        result = await server.uplers_agent_readthrough()
+
+        assert "notes" not in result
+        assert "verbose=True" in result["notes_omitted"], result["notes_omitted"]
+        assert "uplers_agent_readthrough" in result["notes_omitted"]
+
+    async def test_verbose_restores_the_notes_verbatim(self, monkeypatch):
+        """Nothing was deleted - it moved behind a flag. This is the half of
+        that claim a test can hold."""
+        wire(monkeypatch, by_route(OUTREACH_BODIES))
+
+        verbose = await server.uplers_agent_readthrough(verbose=True)
+
+        assert verbose["notes"], "the notes did not come back"
+        assert "notes_omitted" not in verbose
+
+    async def test_the_pointer_counts_what_it_dropped(self, monkeypatch):
+        """"Some notes were omitted" is a weaker claim than the number, and
+        the number is free: a caller can tell one dropped note from twenty."""
+        wire(monkeypatch, by_route(OUTREACH_BODIES))
+
+        default = await server.uplers_agent_readthrough()
+        verbose = await server.uplers_agent_readthrough(verbose=True)
+
+        assert str(len(verbose["notes"])) in default["notes_omitted"], (
+            default["notes_omitted"], len(verbose["notes"])
+        )
+
+    async def test_the_signal_survives_the_trim(self, monkeypatch):
+        """Everything the tool exists to surface is still on the default path.
+
+        Asserted as the SAME VALUES the verbose payload carries rather than as
+        mere presence: a trim that silently emptied `needs_reply` would pass a
+        `in result` check while destroying the finding.
+        """
+        wire(monkeypatch, by_route(OUTREACH_BODIES))
+
+        default = await server.uplers_agent_readthrough()
+        verbose = await server.uplers_agent_readthrough(verbose=True)
+
+        for key in verbose:
+            if key == "notes":
+                continue
+            assert default[key] == verbose[key], key
+
+        assert default["needs_reply"]["positive_replies"] == 8
+        assert default["needs_reply"]["rows"][0]["company"] == "Spark Eighteen"
+        assert default["channels"]["not_ready"] == ["linkedin"]
+
+    async def test_only_the_notes_were_dropped__CONTROL(self, monkeypatch):
+        """__CONTROL for the trim's blast radius. The test above compares the
+        blocks that survive; this pins that `notes` is the ONLY key that did
+        not, so a future trim cannot quietly take a second block with it.
+        """
+        wire(monkeypatch, by_route(OUTREACH_BODIES))
+
+        default = await server.uplers_agent_readthrough()
+        verbose = await server.uplers_agent_readthrough(verbose=True)
+
+        gone = set(verbose) - set(default)
+        added = set(default) - set(verbose)
+
+        assert gone == {"notes"}, gone
+        assert added == {"notes_omitted"}, added
+
+    async def test_the_readthrough_still_only_reads_on_both_paths(self, monkeypatch):
+        """The census that opens this file, re-run across the new parameter.
+
+        A flag that changed which ROUTES are called would be a different tool
+        on each path, and this namespace is one path segment from writes that
+        cannot be undone. Both paths: six GETs, nothing else.
+        """
+        calls = wire(monkeypatch, by_route(OUTREACH_BODIES))
+
+        await server.uplers_agent_readthrough()
+        await server.uplers_agent_readthrough(verbose=True)
+
+        assert writes(calls) == []
+        assert len(calls) == 12, [call.url.path for call in calls]

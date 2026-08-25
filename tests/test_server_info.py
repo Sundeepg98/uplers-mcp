@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import json
 import re
+from pathlib import Path
 
 import pytest
 
@@ -372,8 +373,11 @@ class TestTheDeclaredSurfaceMatchesReality:
         assert set(server.SHARED_CONFIG_WRITE_TOOLS) == CONFIG_TOOL_NAMES
         assert set(server.LOCAL_STATE_ONLY_TOOLS) == LOCAL_WRITE_TOOL_NAMES
 
-        # and the counts the PAYLOAD prints, not just the constants behind it
-        payload = payload_of(await server.uplers_server_info())
+        # and the counts the PAYLOAD prints, not just the constants behind it.
+        # VERBOSE, because the full census with its per-group notes is what
+        # this test reads; the compact default carries the same counts in a
+        # flattened shape and is asserted in TestTheCompactDefault below.
+        payload = payload_of(await server.uplers_server_info(verbose=True))
         writes = payload["writes"]
 
         assert writes["reach_uplers"]["requisition"]["count"] == len(WRITE_TOOL_NAMES)
@@ -565,7 +569,7 @@ class TestTheDeclaredSurfaceMatchesReality:
         one list would have to lie in one direction or the other, so this
         asserts BOTH the presence and the separation.
         """
-        payload = payload_of(await server.uplers_server_info())
+        payload = payload_of(await server.uplers_server_info(verbose=True))
         block = payload["irreversible"]
 
         one_way = block["one_way_door_on_uplers_recoverable_only_locally"]
@@ -623,7 +627,7 @@ class TestTheDeclaredSurfaceMatchesReality:
         assert counts["authenticated"] == len(below), sorted(below)
 
         # and the payload prints the same numbers it was built from
-        payload = payload_of(await server.uplers_server_info())
+        payload = payload_of(await server.uplers_server_info(verbose=True))
         headline = payload["capabilities"][0]
         assert "%d tools" % counts["total"] in headline, headline
 
@@ -643,12 +647,19 @@ class TestTheDeclaredSurfaceMatchesReality:
 
         monkeypatch.setattr(server.mcp, "list_tools", explode)
 
-        payload = payload_of(await server.uplers_server_info())
+        payload = payload_of(await server.uplers_server_info(verbose=True))
 
         assert payload["writes"]["reach_uplers"]["requisition"]["count"] == 2
         assert payload["capabilities"]
         assert payload["out_of_scope_by_design"]
         assert payload["known_limits"]
+
+        # The DEFAULT path builds its census by walking the same constants, so
+        # it must survive the exploding registry too - it does more work than
+        # the verbose path, not less, and that work is where a lazy
+        # implementation would reach for list_tools().
+        compact = payload_of(await server.uplers_server_info())
+        assert compact["writes"]["groups"]["reach_uplers.requisition"]["count"] == 2
 
     async def test_the_known_limits_carry_the_measured_404_routes(self):
         """Recorded so nobody re-runs the probes that established them.
@@ -660,7 +671,7 @@ class TestTheDeclaredSurfaceMatchesReality:
         """
         from uplers_server import endpoints
 
-        payload = payload_of(await server.uplers_server_info())
+        payload = payload_of(await server.uplers_server_info(verbose=True))
         limits = payload["known_limits"]["measured_404"]
 
         assert limits["routes"] == list(endpoints.MEASURED_404)
@@ -686,4 +697,195 @@ class TestTheDeclaredSurfaceMatchesReality:
         assert "unresolved_identifier_space" not in payload["known_limits"], (
             "the superseded 'unresolved' block is back; it says the entitlement "
             "question is untested, and it was answered on 2026-08-24"
+        )
+
+
+# ==========================================================================
+# THE COMPACT DEFAULT
+#
+# 87% of this tool's 30,227-byte payload was reasoning prose, and the block
+# that answers the question it exists for - "what code is this process
+# running" - was 696 bytes of it. The prose now lives behind `verbose=True`.
+#
+# NOTHING WAS DELETED, and that is the property this section defends. The
+# reasoning in `out_of_scope_by_design`, `known_limits` and the write-census
+# notes is load-bearing evidence: several findings in this repo exist only
+# because it is written down. So the verbose payload is pinned BYTE FOR BYTE
+# against a copy captured before the flag landed, and the default is required
+# to say what it dropped and name the call that brings it back.
+# ==========================================================================
+
+PIN_PATH = Path(__file__).parent / "pins" / "server_info_verbose.json"
+
+
+def normalised(payload: dict) -> dict:
+    """The payload with `build` replaced, ready to compare against the pin.
+
+    `build` IS THE ONE BLOCK THAT CANNOT BE PINNED, and not pinning it is the
+    point rather than a gap. `process` carries a live pid and a uptime that
+    moves between two calls in the same test, and `code`/`jobcore` carry the
+    commit - which changes on every commit to this repo, including the one
+    that adds this test. A pin over them would go red on facts it is not
+    guarding, and the usual repair for a test that cries wolf is deletion.
+
+    `config` IS NORMALISED FOR THE SAME REASON, and it was this test that
+    found it: the bound jobhunt.json differs between a bare interpreter, which
+    resolves the real file, and this suite, which isolates the policy on
+    purpose - so the block reads `policy_rev: 1` in one and `policy_rev: 0` in
+    the other. It is environment, like `build`, not declaration.
+
+    What IS pinned is every declaration block, which is what `verbose=True`
+    promises to return unchanged. That `build` and `config` survived at all is
+    asserted separately below, so normalising them here cannot hide their
+    disappearance.
+    """
+    out = dict(payload)
+    out["build"] = "<NORMALISED>"
+    out["config"] = "<NORMALISED>"
+    return out
+
+
+class TestTheCompactDefault:
+
+    async def test_verbose_is_byte_identical_to_what_it_returned_before(self):
+        """CONTROL 2, and the reason the flag is not an edit.
+
+        The pin was captured from this tool BEFORE `verbose` existed. If a
+        single word of any declaration block moved while being made
+        conditional, this fails and names the block.
+        """
+        payload = payload_of(await server.uplers_server_info(verbose=True))
+        pin = json.loads(PIN_PATH.read_text(encoding="ascii"))
+
+        assert normalised(payload) == pin, (
+            "the verbose payload no longer matches the copy captured before "
+            "the verbose flag landed - blocks differing: %s"
+            % sorted(
+                key
+                for key in set(pin) | set(normalised(payload))
+                if pin.get(key) != normalised(payload).get(key)
+            )
+        )
+
+    async def test_the_pin_would_notice_a_missing_block__CONTROL(self):
+        """__CONTROL for the pin above, which is an `==` over two dicts and
+        would pass just as happily if both sides were empty. This drops one
+        block from the payload side and requires the comparison to see it.
+        """
+        payload = normalised(payload_of(await server.uplers_server_info(verbose=True)))
+        pin = json.loads(PIN_PATH.read_text(encoding="ascii"))
+
+        assert payload == pin, "precondition: they must match before the mutation"
+        del payload["known_limits"]
+
+        assert payload != pin, (
+            "the pin compared EQUAL to a payload missing known_limits, so it "
+            "certifies nothing"
+        )
+
+    async def test_the_pin_is_not_vacuous__CONTROL(self):
+        """__CONTROL. A pin file that had been truncated to `{}` would make
+        the comparison above trivially satisfiable by an empty payload. This
+        asserts the pin actually holds the five expensive blocks."""
+        pin = json.loads(PIN_PATH.read_text(encoding="ascii"))
+
+        for block in ("capabilities", "writes", "irreversible",
+                      "out_of_scope_by_design", "known_limits"):
+            assert pin.get(block), "pin is missing %s" % block
+        assert len(pin["out_of_scope_by_design"]) > 1, pin["out_of_scope_by_design"]
+
+    async def test_the_default_still_answers_what_code_is_running(self):
+        """The whole purpose of the tool, and the block it was drowning in
+        prose. `build` is 696 bytes; it must survive the trim intact."""
+        payload = payload_of(await server.uplers_server_info())
+
+        assert payload["build"]["code"]["commit"], payload["build"]
+        assert "jobcore" in payload["build"]
+        assert "process" in payload["build"]
+        assert payload["config"]["scoring_hash"]
+        assert payload["server"]["name"] == "uplers"
+
+    async def test_the_default_names_the_flag_that_restores_what_it_dropped(self):
+        """CONTROL 4. Silent omission is indistinguishable from a tool that
+        never knew the answer, so the default has to say BOTH what went and
+        the exact call that returns it."""
+        payload = payload_of(await server.uplers_server_info())
+
+        assert "verbose=True" in payload["omitted"], payload["omitted"]
+        assert "uplers_server_info" in payload["omitted"], payload["omitted"]
+
+    async def test_the_pointer_names_every_block_actually_dropped(self):
+        """The pointer and the omission cannot be allowed to drift apart: a
+        sentence naming four blocks while five went missing is worse than no
+        sentence, because it reads as a complete account.
+        """
+        default = payload_of(await server.uplers_server_info())
+        verbose = payload_of(await server.uplers_server_info(verbose=True))
+
+        gone = [key for key in verbose if key not in default]
+        assert gone, "nothing was dropped - this test would certify nothing"
+        for key in gone:
+            assert key in payload_of(await server.uplers_server_info())["omitted"], (
+                "%r vanished from the default without being named in `omitted`" % key
+            )
+
+    async def test_the_default_keeps_every_write_tool_name(self):
+        """The census is what a caller decides on. Summarising it may drop the
+        PROSE and must not drop a NAME: a write tool missing from the compact
+        payload is exactly the staleness this tool exists to catch, wearing a
+        token-economy disguise.
+        """
+        default = payload_of(await server.uplers_server_info())
+
+        named = set()
+        for entry in default["writes"]["groups"].values():
+            named.update(entry["tools"])
+
+        expected = (
+            set(server.REQUISITION_WRITE_TOOLS)
+            | set(server.PROFILE_WRITE_TOOLS)
+            | set(server.AGENT_CONFIG_WRITE_TOOLS)
+            | set(server.CONSENT_AND_ONE_WAY_WRITE_TOOLS)
+            | set(server.CHECKOUT_WRITE_TOOLS)
+            | set(server.SHARED_CONFIG_WRITE_TOOLS)
+            | set(server.LOCAL_STATE_ONLY_TOOLS)
+        )
+        assert named == expected, sorted(named ^ expected)
+
+    async def test_the_compact_census_never_invents_a_count(self):
+        """`local_state_only` declares `tools` and deliberately NO `count`.
+
+        Synthesising `len(tools)` for it would print a number the census never
+        asserted - a claim manufactured by the summariser, which is the one
+        thing a summariser must never do.
+        """
+        default = payload_of(await server.uplers_server_info())
+        groups = default["writes"]["groups"]
+
+        assert "count" not in groups["local_state_only"], groups["local_state_only"]
+        assert groups["local_state_only"]["tools"] == list(server.LOCAL_STATE_ONLY_TOOLS)
+        assert groups["reach_uplers.requisition"]["count"] == len(
+            server.REQUISITION_WRITE_TOOLS
+        )
+
+    async def test_the_default_reports_the_tool_counts(self):
+        """"What can it do" is the tool's other question, and the default has
+        to answer it without the capability prose."""
+        payload = payload_of(await server.uplers_server_info())
+
+        assert payload["tools"] == server.TOOL_COUNTS
+        assert payload["capabilities_count"] == len(server.CAPABILITIES)
+        assert payload["irreversible_tools"] == list(server.IRREVERSIBLE_TOOLS)
+
+    async def test_the_default_drops_the_five_prose_blocks(self):
+        """The measurement that motivated the change, asserted as a shape so a
+        future edit that quietly puts one back is caught here as well as by
+        the byte budget in test_payload_budgets.py."""
+        payload = payload_of(await server.uplers_server_info())
+
+        for block in ("capabilities", "irreversible", "out_of_scope_by_design",
+                      "known_limits"):
+            assert block not in payload, block
+        assert "note" not in json.dumps(payload["writes"]["groups"]), (
+            "the per-group census notes came back onto the default path"
         )

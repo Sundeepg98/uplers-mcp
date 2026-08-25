@@ -213,7 +213,7 @@ def market_stats(
     *,
     group_by: str = "role",
     min_group_size: int = 2,
-    top_groups: int = 20,
+    top_groups: int | None = 20,
     cohort: str = "native",
     filters_applied: dict | None = None,
     **filters,
@@ -239,12 +239,30 @@ def market_stats(
     ]
     groups.sort(key=lambda g: (-g.count, g.key))
 
+    # THE CAP IS APPLIED HERE AND REPORTED, which it was not before. The slice
+    # itself is unchanged - same order, same `top_groups`, same default of 20 -
+    # but a caller can now see that it happened and by how much. 0 or None
+    # means no cap, for the caller who wants the long tail.
+    #
+    # ORDER IS NOT REDEFINED: `groups` was already sorted by (-count, key) on
+    # the line above, so "largest first" is what gets kept, exactly as the
+    # docstring on the tool has always claimed.
+    groups_total = len(groups)
+    if top_groups:
+        groups = groups[:top_groups]
+
     notes = []
-    dropped = len(buckets) - len(groups)
+    dropped = len(buckets) - groups_total
     if dropped > 0:
         notes.append(
             "%d group(s) below min_group_size=%d were omitted; lower it to see the long tail."
             % (dropped, min_group_size)
+        )
+    if groups_total > len(groups):
+        notes.append(
+            "Showing the %d largest of %d groups; %d were cut by top_groups=%d. "
+            "Raise top_groups, or pass top_groups=0, to see them all."
+            % (len(groups), groups_total, groups_total - len(groups), top_groups)
         )
     if not population:
         notes.append(
@@ -256,7 +274,9 @@ def market_stats(
         group_by=group_by,
         cohort=cohort,
         population=len(population),
-        groups=groups[:top_groups],
+        groups=groups,
+        groups_returned=len(groups),
+        groups_total=groups_total,
         overall=_build_group("ALL", population, top_skills=15) if population else None,
         filters_applied=filters_applied or {},
         notes=notes,

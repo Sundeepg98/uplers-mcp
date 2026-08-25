@@ -168,6 +168,21 @@ class MarketStats(BaseModel):
     cohort: str
     population: int = Field(0, description="Records the aggregation ran over, after filters")
     groups: list[StatsGroup] = Field(default_factory=list)
+    # `groups` has been capped at `top_groups` since this tool shipped, and
+    # until now the cap was SILENT: on the live index, grouping by role
+    # returned 20 of 51 eligible groups and grouping by skill returned 20 of
+    # 306, with nothing in the payload saying so. A caller could not tell a
+    # truncated answer from a complete one. These two make the cut visible.
+    groups_returned: int = Field(
+        0, description="Groups in `groups` - what this payload actually carries"
+    )
+    groups_total: int = Field(
+        0,
+        description=(
+            "Groups that passed min_group_size, BEFORE top_groups capped the "
+            "list. Greater than groups_returned means the answer is truncated."
+        ),
+    )
     overall: StatsGroup | None = None
     filters_applied: dict = Field(default_factory=dict)
     index_synced_at: str | None = None
@@ -411,6 +426,34 @@ class ServerInfo(Compact):
         description=(
             "Measured dead ends, recorded so a future session does not re-run "
             "the probes that established them."
+        ),
+    )
+
+    # --- compact-mode fields -------------------------------------------
+    #
+    # DECLARED LAST ON PURPOSE. Pydantic serialises in declaration order, and
+    # `verbose=True` has to stay byte-identical to what this tool returned
+    # before the flag existed. Appending here leaves every existing field in
+    # its original position; `Compact` then prunes these three, which are
+    # empty on the verbose path, so the verbose payload does not gain a byte.
+    # tests/test_server_info.py pins that against a captured copy.
+    tools: dict = Field(
+        default_factory=dict,
+        description="Tool counts: total, and the public/authenticated split",
+    )
+    capabilities_count: int | None = Field(
+        None,
+        description=(
+            "How many capability groups exist, when the prose for them was "
+            "omitted. The groups themselves are on the verbose payload."
+        ),
+    )
+    omitted: str | None = Field(
+        None,
+        description=(
+            "What the compact default left out and the exact call that "
+            "returns it. Present ONLY when something was in fact dropped, so "
+            "its absence means the payload is complete."
         ),
     )
 
