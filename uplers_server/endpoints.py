@@ -80,9 +80,43 @@ EP_COMPANY_MASTER = "talent/hr/all-opp-company-master"
 #: which is otherwise excluded from this server because that prefix is where
 #: Uplers' paid outreach-agent product lives. This one route is a plain GET of
 #: the operator's OWN interview schedule - reading your own calendar is using
-#: the platform normally, not reimplementing a SKU. The write half of the pair
-#: (``talent/outreach/interview-feedback``) is deliberately NOT built.
+#: the platform normally, not reimplementing a SKU.
+#:
+#: CORRECTED 2026-08-25: this comment used to end "The write half of the pair
+#: (``talent/outreach/interview-feedback``) is deliberately NOT built." That is
+#: no longer true - see :data:`EP_INTERVIEW_FEEDBACK` directly below, which is
+#: now built behind ``uplers_server.consent_write``. The sentence is replaced
+#: rather than deleted, because a reader who remembers the old refusal needs to
+#: find out that it was lifted, not to find silence where it stood.
 EP_INTERVIEW_LIST = "talent/outreach/interview-list"  # GET, ?detailed=true
+
+#: THE WRITE HALF OF THAT PAIR, and the FIRST genuinely ONE-WAY route this
+#: server calls anywhere in ``talent/outreach/*``. Added 2026-08-25.
+#:
+#: **ONE-WAY, VERIFIED BY A COMPLETE NEGATIVE SEARCH: no edit route and no
+#: delete route for submitted feedback exists anywhere in Uplers' bundle.** The
+#: only thing that can follow it is a repeat POST for the same ``company_id``,
+#: and whether their server overwrites or appends is NOT decidable from the
+#: client - it patches its own row either way
+#: (``_slice-outreach-write-inventory.md`` section 9, item 5).
+#:
+#: Body: ``{company_id, feedback}`` - EXACTLY TWO KEYS, VERIFIED at all four
+#: call sites across three screens (1625, 2063, 6069):
+#: ``(0,i.o$)(...+"talent/outreach/interview-feedback",{company_id:t,feedback:n})``.
+#: Response read as ``res.data.status === "success"``, with validation errors at
+#: ``res.data.errors.feedback[0]``. Evidence: section 3.19 of the same slice.
+#:
+#: THIS BREAKS THE RULE THE ONE-WAY BLOCK BELOW STATES, AND DOES IT ON PURPOSE.
+#: That block records the remaining one-way routes as PROSE rather than
+#: constants, on the ground that "a constant is an invitation to call it". Nine
+#: of them still are. This one has a constant because it is CALLED, and a route
+#: this server calls with no constant would be a path string living in
+#: server.py where nothing could census it. The invitation argument is answered
+#: by the guards rather than by the absence of a name: the write refuses
+#: without a sender, refuses without ``confirm=True``, and refuses outright
+#: unless the company is on the live interview list - which is currently EMPTY,
+#: so it refuses every call today.
+EP_INTERVIEW_FEEDBACK = "talent/outreach/interview-feedback"  # POST {company_id, feedback}
 
 #: HIS OWN AGENT'S OUTPUT. Five plain GETs, all VERIFIED LIVE on 2026-08-23 by
 #: `scripts/capture_outreach.py`, whose responses are committed as fixtures.
@@ -98,13 +132,22 @@ EP_INTERVIEW_LIST = "talent/outreach/interview-list"  # GET, ?detailed=true
 #: THE LINE WAS READS ONLY UNTIL 2026-08-24, and it moved by exactly four
 #: routes - all four REVERSIBLE SETTINGS writes, none of them a send. Each one
 #: is marked WRITE ARM and sits directly under the read it pairs with, in the
-#: ring below. What has NOT moved is the part
-#: that mattered: `store-employee-requests` (the actual outreach send, whose
-#: own UI copy says it cannot be undone), `interview-feedback`,
-#: `consent-email-job-scan`, and anything that would make a SECOND agent apply
-#: from one account stay unbuilt. He already has an applier; a second
-#: uncoordinated one against a 250-requisition board where apply is permanent
-#: is the wrong answer.
+#: ring below.
+#:
+#: IT MOVED AGAIN ON 2026-08-25, by exactly two more routes, and this note is
+#: edited rather than left standing because it used to name both of them as
+#: unbuilt. `interview-feedback` and the DELETE arm of `consent-email-job-scan`
+#: are now built behind `uplers_server.consent_write`, censused in their OWN
+#: group (`server.CONSENT_AND_ONE_WAY_WRITE_TOOLS`) rather than folded in with
+#: the four above - because those four are grouped by "can be put back" and one
+#: of these two cannot.
+#:
+#: WHAT STILL HAS NOT MOVED is the part that mattered: `store-employee-requests`
+#: (the actual outreach send, whose own UI copy says it cannot be undone), the
+#: GRANT arm of the consent, `consent-auto-run`, and anything that would make a
+#: SECOND agent apply from one account stay unbuilt. He already has an applier;
+#: a second uncoordinated one against a 250-requisition board where apply is
+#: permanent is the wrong answer.
 #:
 #: ENVELOPE TRAP, measured rather than assumed: these five do NOT share one
 #: success idiom. `outreach-step` answers `{"status": "success", ...}` - the
@@ -246,6 +289,14 @@ EP_OUTREACH_STORE_TEMPLATE = "talent/outreach/store-message-template"
 # invitation to call it, and every route named here changes something on
 # Uplers that nothing can change back. The four writes above are in this
 # server BECAUSE they are reversible; these are out for the opposite reason.
+#
+# NINE, NOT TEN, SINCE 2026-08-25. `interview-feedback` was the tenth and it
+# is now BUILT, with a constant of its own (EP_INTERVIEW_FEEDBACK, above) -
+# so this list is one shorter and the rule it states now has one deliberate
+# exception rather than none. The exception is argued at that constant: a
+# route the server actually calls needs a name something can census, and the
+# "invitation" is answered by the guards around the call. Nothing else moved:
+# the nine below are still refused, still nameless, and still one-way.
 # Shapes and evidence live in `_audit/_slices/_slice-outreach-write-inventory.md`
 # (section 1a), which is where to look if one of them ever has to be built.
 #
@@ -256,7 +307,6 @@ EP_OUTREACH_STORE_TEMPLATE = "talent/outreach/store-message-template"
 #   talent/outreach/discard-job               drops a job out of the agent's
 #                                             queue with a feedback reason
 #   talent/outreach/auto-run-request          starts an agent run
-#   talent/outreach/interview-feedback        publishes a company review
 #   talent/outreach/extend-free-trial         )
 #   talent/outreach/claim-discount-offer      )  the five commercial claim
 #   talent/outreach/claim-custom-light-plan   )  routes - each one spends or
@@ -277,6 +327,40 @@ EP_OUTREACH_STORE_TEMPLATE = "talent/outreach/store-message-template"
 #: can be held against each other. They agreed on capture, which is a fact
 #: worth having rather than an assumption worth making.
 EP_OUTREACH_AGENT_META = "talent/outreach/get-outreach-agent-meta"
+
+#: THE PAID-SKU READS. Three GETs, no params, all VERIFIED LIVE 2026-08-25 -
+#: a real 200 with real data on his own session, zero 403s and zero 402s -
+#: and captured as fixtures by `scripts/capture_skus.py`.
+#:
+#: THEY OVERTURN HALF OF A STANDING REFUSAL, and the half they leave standing
+#: matters as much as the half they remove. `out_of_scope_by_design` refused
+#: `talent/resume-health-check/*` and `talent/tailor/*` wholesale as paid
+#: candidate products, reasoning that wrapping them "would produce tools that
+#: fail at runtime" because the account holds zero tailor credits. MEASURED:
+#: that is true of the ORDERING routes and false of these three READS. A credit
+#: balance gates buying a tailored resume; it does not gate reading the health
+#: check he has already had or the plan he already holds. Every ordering,
+#: transforming and refunding route in both namespaces stays refused and stays
+#: nameless here, on the rule this file already applies to the one-way outreach
+#: routes above: a constant is an invitation to call it.
+#:
+#: ALL THREE ANSWER THE INTEGER 200, none of them the string `"success"`.
+#: MEASURED per route rather than inferred - which is the whole reason
+#: `outreach.unwrap` takes both idioms and refuses everything else.
+#:
+#: THE HEALTH-CHECK ROUTE IS THE MOST PERSONAL PAYLOAD THIS SERVER READS. Its
+#: `report_details` node is Uplers' scoring report on his resume: his name, his
+#: city, and whole bullets of the resume quoted back verbatim. `uplers_server.
+#: skus` does not return it and `capture_skus.py` does not keep it - see
+#: `SKU_DROP` in `scripts/capture_outreach.py`.
+#:
+#: NAMESPACE NOTE: the first of the three sits under `talent/outreach/` despite
+#: having nothing to do with outreach, one path segment from
+#: `consent-email-job-scan`. The other two are the only routes in this file
+#: under their own prefixes.
+EP_SKU_HEALTH_CHECK_LAST = "talent/outreach/get-last-health-check"
+EP_SKU_HEALTH_CHECK_DASHBOARD = "talent/resume-health-check/dashboard"
+EP_SKU_TAILOR_LIST = "talent/tailor/list"
 
 #: What UPLERS thinks he wants, which is not what this server's profile says.
 #: Fit scores here come from our own profile; Uplers ranks him against these.
@@ -491,10 +575,31 @@ EP_TALENT_MATCHMAKE = "talent-matchmake"          # POST {hr_id: HR_Number}, sam
 #: interviews": Uplers builds that list by scanning a connected mailbox, and
 #: MEASURED 2026-08-22 his `meta` read
 #: ``{has_consent: false, consent_interview_email_scan: null, gmail_connected: true}``.
-#: A mailbox is connected; the scan was never consented to. This is the route
-#: that flips it - and it is a WRITE, in the excluded `talent/outreach/*`
-#: namespace, that changes what Uplers reads on his behalf. His call, not this
-#: server's.
+#: A mailbox is connected; the scan was never consented to.
+#:
+#: **THAT PARAGRAPH IS ABOUT A DIFFERENT CONSENT FROM THIS CONSTANT, and it
+#: used to end by calling this "the route that flips it". It is not.** This
+#: route is the GMAIL JOB-BOARD scan; `EP_INTERVIEW_LIST -> meta.has_consent`
+#: is the INTERVIEW scan, a separate backend flag wearing the identical field
+#: name, whose consent UI ships as CSS with no JSX behind it and which nothing
+#: in Uplers' frontend can grant. The two were conflated here while nothing
+#: called either one, so the error was inert; it stops being inert the moment
+#: a tool wires this constant, which is what 2026-08-25 did. See
+#: `agent_surface.CONSENT_AUTHORITY` and
+#: `_audit/_slices/_slice-consent-semantics.md`, which established the split.
+#:
+#: WIRED 2026-08-25, and only its DELETE arm. `uplers_server.consent_write`
+#: is the ONLY module that names this constant, and `uplers_revoke_email_scan`
+#: hands it in as a sender - so the route is reachable from that one tool and
+#: nowhere else, which
+#: `tests/test_agent_tools.py::test_the_consent_write_constant_is_reachable_only_from_consent_write`
+#: asserts by AST across every module in the package.
+#:
+#: THE VERBS ARE NOT SYMMETRICAL IN THIS SERVER even though they are on Uplers.
+#: DELETE (revoke) is built. POST (grant, body a literal `{}`) is NOT: granting
+#: starts a fresh mailbox scan, which is a decision of the same size as
+#: stopping one and needs its own tool and its own preview rather than a
+#: boolean parameter on this one.
 EP_CONSENT_EMAIL_JOB_SCAN = "talent/outreach/consent-email-job-scan"  # POST/DELETE
 
 # --- Measured unreachable -------------------------------------------------

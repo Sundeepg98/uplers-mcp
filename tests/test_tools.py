@@ -131,6 +131,26 @@ AGENT_READ_TOOL_NAMES = {
     "uplers_agent_settings",
 }
 
+#: Added 2026-08-25. Their OWN set, and not folded into AGENT_READ_TOOL_NAMES
+#: even though they share its read-only property, because the namespaces they
+#: sit in are different in kind: `talent/tailor/*` contains `order/create`,
+#: `order/capture` and `refund-request`, so the sibling of a name in this set
+#: is not a one-way door, it is a CHARGE. Keeping the set separate means a
+#: further name appearing here is a decision somebody had to type.
+#:
+#: They exist because a standing refusal was NARROWED by measurement.
+#: `out_of_scope_by_design` refused both namespaces outright, partly on the
+#: concrete ground that wrapping them "would produce tools that fail at
+#: runtime" for want of credits. MEASURED LIVE 2026-08-25: the three read
+#: routes each answered HTTP 200 with real data, zero 403s and zero 402s. The
+#: credit gate is on the WRITE side. Every ordering, transforming and refunding
+#: route stays refused, has no constant in endpoints.py, and is asserted absent
+#: by name in tests/test_skus.py rather than merely not written.
+SKU_READ_TOOL_NAMES = {
+    "uplers_resume_health",
+    "uplers_tailored_resumes",
+}
+
 WRITE_TOOL_NAMES = {
     "uplers_apply",
     "uplers_dismiss",
@@ -187,10 +207,18 @@ PROFILE_WRITE_TOOL_NAMES = {
 #: value is recoverable and a 200 is never taken as proof the value changed.
 #:
 #: NONE OF THE FIVE CAN APPLY TO ANYTHING, message a person, or reveal a
-#: contact. The one-way routes beside them stay unbuilt and have no constant in
-#: endpoints.py: store-employee-requests (Uplers' own copy says it cannot be
-#: undone), reveal-email, discard-job, auto-run-request, interview-feedback,
-#: the two consent flips, and the five commercial claim routes.
+#: contact. That line has not moved.
+#:
+#: WHAT MOVED ON 2026-08-25 is what sits BESIDE them, and this comment is
+#: edited rather than left standing because it used to say the routes below
+#: "stay unbuilt". Two of them no longer are: `interview-feedback` and the
+#: DELETE arm of `consent-email-job-scan` are built and live in
+#: CONSENT_AND_ONE_WAY_WRITE_TOOL_NAMES, in a set of their own precisely
+#: because neither is reversible-and-readable the way these five are. Still
+#: unbuilt and still without a constant in endpoints.py:
+#: store-employee-requests (Uplers' own copy says it cannot be undone),
+#: reveal-email, discard-job, auto-run-request, consent-auto-run, the GRANT arm
+#: of the consent, and the five commercial claim routes.
 #:
 #: The intersection assertion below is what keeps the read set a read set now
 #: that a write set shares its namespace.
@@ -200,6 +228,37 @@ AGENT_CONFIG_WRITE_TOOL_NAMES = {
     "uplers_set_template",
     "uplers_block_company",
     "uplers_unblock_company",
+}
+
+#: Added 2026-08-25. THEIR OWN SET, AND THE REASON IS THE ONE PROPERTY
+#: AGENT_CONFIG_WRITE_TOOL_NAMES CLAIMS. That set's comment says what separates
+#: its five from the rest of `talent/outreach/*` is REVERSIBILITY, measured
+#: route by route. Neither of these two is a reversible settings switch, so
+#: folding them in would not enlarge that set - it would quietly retire the
+#: only claim it makes, and the `len(...) == 5` assertion below would have been
+#: bumped to 7 by somebody who thought they were fixing a count.
+#:
+#: The two are not the same kind as each other either:
+#:
+#:   * `uplers_revoke_email_scan` is a CONSENT REVOCATION. Reversible on
+#:     Uplers' side - the POST on the identical URL re-grants - but what it
+#:     withdraws is a standing permission to read a mailbox, not a setting, and
+#:     re-granting starts a FRESH scan rather than resuming the one it stopped.
+#:     Only the DELETE arm is built; the grant is not.
+#:   * `uplers_submit_interview_feedback` is ONE-WAY. No edit route and no
+#:     delete route for submitted feedback exists anywhere in Uplers' bundle -
+#:     complete negative search - so it is the ONLY tool in this server that
+#:     reaches a one-way route in that namespace. Its pre-flight snapshot is
+#:     local and cannot retract what Uplers received, which is why its guard 4
+#:     is stricter than any other write's: a company that is not on the LIVE
+#:     interview list is refused rather than posted. That list currently holds
+#:     zero companies, so it refuses every call today.
+#:
+#: A third name landing here has to be typed by somebody who meant it, exactly
+#: as with the two sets above.
+CONSENT_AND_ONE_WAY_WRITE_TOOL_NAMES = {
+    "uplers_revoke_email_scan",
+    "uplers_submit_interview_feedback",
 }
 
 #: The shared-config surface, kept apart from every other set because its
@@ -225,10 +284,12 @@ TOOL_NAMES = (
     | TIER2_TOOL_NAMES
     | AUTH_TOOL_NAMES
     | AGENT_READ_TOOL_NAMES
+    | SKU_READ_TOOL_NAMES
     | WRITE_TOOL_NAMES
     | LOCAL_WRITE_TOOL_NAMES
     | PROFILE_WRITE_TOOL_NAMES
     | AGENT_CONFIG_WRITE_TOOL_NAMES
+    | CONSENT_AND_ONE_WAY_WRITE_TOOL_NAMES
     | CONFIG_TOOL_NAMES
     | INTROSPECTION_TOOL_NAMES
 )
@@ -279,8 +340,19 @@ def wire_client(monkeypatch, handler):
 async def test_importing_server_registers_exactly_the_expected_tools():
     tools_listed = await server.mcp.list_tools()
 
-    assert len(tools_listed) == 58
+    assert len(tools_listed) == 62
     assert {tool.name for tool in tools_listed} == TOOL_NAMES
+    # The two SKU tools are READS, and they sit one path segment from routes
+    # that spend money. The same intersection argument the agent-read set
+    # makes, and it binds harder here: no write set may grow to admit them.
+    assert SKU_READ_TOOL_NAMES & (
+        WRITE_TOOL_NAMES
+        | PROFILE_WRITE_TOOL_NAMES
+        | AGENT_CONFIG_WRITE_TOOL_NAMES
+        | CONSENT_AND_ONE_WAY_WRITE_TOOL_NAMES
+        | CONFIG_TOOL_NAMES
+    ) == set()
+    assert len(SKU_READ_TOOL_NAMES) == 2
     # The seven agent-read tools are READS. The counts below are what stops
     # that sentence from quietly becoming untrue: none of them may appear in
     # any write set, and no write set may grow to admit them. The agent-config
@@ -290,6 +362,7 @@ async def test_importing_server_registers_exactly_the_expected_tools():
         WRITE_TOOL_NAMES
         | PROFILE_WRITE_TOOL_NAMES
         | AGENT_CONFIG_WRITE_TOOL_NAMES
+        | CONSENT_AND_ONE_WAY_WRITE_TOOL_NAMES
         | CONFIG_TOOL_NAMES
     ) == set()
     assert len(AGENT_READ_TOOL_NAMES) == 7
@@ -297,6 +370,16 @@ async def test_importing_server_registers_exactly_the_expected_tools():
     # here means somebody admitted another route out of `talent/outreach/*`,
     # and that is a decision to be made deliberately rather than discovered.
     assert len(AGENT_CONFIG_WRITE_TOOL_NAMES) == 5
+    # And the consent/one-way surface stays exactly these two. This line is the
+    # tripwire that matters most on 2026-08-25: the two tools added that day are
+    # the first writes in this server that are NOT reversible settings switches,
+    # and the cheapest wrong move available to a later editor is to notice the
+    # count above going stale and "fix" it by moving a name across. The two sets
+    # are disjoint and both are pinned, so that move goes red twice.
+    assert len(CONSENT_AND_ONE_WAY_WRITE_TOOL_NAMES) == 2
+    assert (
+        CONSENT_AND_ONE_WAY_WRITE_TOOL_NAMES & AGENT_CONFIG_WRITE_TOOL_NAMES == set()
+    )
     # The five original board tools must survive every later addition.
     assert BOARD_TOOL_NAMES <= {tool.name for tool in tools_listed}
     # The requisition-write surface stays exactly this size. A third tool that

@@ -15,18 +15,23 @@ There are two tiers, and the line between them is the first thing to read.
 endpoint plus the public sitemap. It never applies to anything and never mutates Uplers:
 `uplers_track` records what you already did by hand.
 
-**The authenticated tier** - 34 tools, first added 2026-08-21 - reads *his account*, and the
+**The authenticated tier** - 38 tools, first added 2026-08-21 - reads *his account*, and the
 difference is the whole reason it exists: the public board shows what Uplers is hiring for, his
 account shows what Uplers is doing about **him** - which requisitions he has been matched to, what
 their recruiters have moved to interview, and what his profile looks like to the people making
-that call. Of the thirty-four: four manage the session, twelve read his account, four read the
-output of the paid outreach agent he already owns, one syncs his Uplers profile down into the
-local one, two list local restore points, two write to a requisition, four write to his PROFILE
-and five configure that paid agent. Those eleven writes are three different kinds of act:
-`uplers_apply` **cannot be undone** and `uplers_dismiss` can; `uplers_replace_resume` is a one-way
-door on *Uplers'* side that only this server's local pre-flight snapshot can reverse; and the five
-agent-config writes are reversible by construction - each reads its prior value before it writes
-and re-reads after. See "Applying cannot be undone" before using any of them.
+that call. Of the thirty-eight: four manage the session, twelve read his account, four read the
+output of the paid outreach agent he already owns, two read the paid candidate products he has
+already bought, one syncs his Uplers profile down into the local one, two list local restore
+points, two write to a requisition, four write to his PROFILE, five configure that paid agent, and
+two withdraw a permission or publish something that cannot be taken back. Those thirteen writes
+are four different kinds of act: `uplers_apply` **cannot be undone** and `uplers_dismiss` can;
+`uplers_replace_resume` is a one-way door on *Uplers'* side that only this server's local
+pre-flight snapshot can reverse; the five agent-config writes are reversible by construction -
+each reads its prior value before it writes and re-reads after; and the fourth kind exists
+*because* that third sentence is a claim rather than a grouping - `uplers_revoke_email_scan`
+withdraws a standing permission rather than flipping a setting, and
+`uplers_submit_interview_feedback` is genuinely one-way, with no edit route and no delete route
+anywhere in Uplers' product. See "Applying cannot be undone" before using any of them.
 
 ### This repository is published to be READ, not run
 
@@ -53,7 +58,7 @@ want to do something with it, ask.
 | | |
 |---|---|
 | Stack | Python 3.11+, FastMCP (`mcp`), `httpx`, stdlib `sqlite3`, [`jobcore`](../jobcore) |
-| Tools | **58** - 24 public (5 board readers, 18 profile-aware, 1 introspection) + 34 authenticated |
+| Tools | **62** - 24 public (5 board readers, 18 profile-aware, 1 introspection) + 38 authenticated |
 | Size | 19,461 lines of server code, 23,278 lines of tests |
 | Tests | **1,424**, all offline |
 | Network surface | 2 public GET endpoints needing no auth; 34 `talent/*` routes named as constants - 30 of them reached by a tool, four recorded and deliberately uncalled - plus `v2/assessments`, all behind a bearer token. 33 of the 34 live in `endpoints.py`; `talent/talent-download-resume-profile` lives in `resume_write.py` and says why in its own comment |
@@ -96,7 +101,7 @@ Five read the board. Eighteen answer "what is on it **for me**, and what have I 
 Everything in the second group runs against the local index and costs **no network at all**. The
 twenty-fourth is `uplers_server_info`, which describes the server itself - what it can do, what it
 deliberately cannot, and which commit it is running - and reaches for nothing at all to do it.
-None of the twenty-four needs an account; the thirty-four that do are documented under "The
+None of the twenty-four needs an account; the thirty-eight that do are documented under "The
 authenticated tier" below.
 
 ### `uplers_sync_index(hydrate=True, fetch_budget=300, refresh_stale=True)`
@@ -426,10 +431,10 @@ database by hand and upgrades it, asserting nothing that was there before is tou
 
 ## The authenticated tier
 
-Thirty-four tools behind a session he opens by hand. Everything above this point reads the public
-catalogue; everything here reads what Uplers is doing about **him**, and eleven of the thirty-four
-can change it - every one of those eleven confirm-gated, every one previewing the exact request
-first.
+Thirty-eight tools behind a session he opens by hand. Everything above this point reads the public
+catalogue; everything here reads what Uplers is doing about **him**, and thirteen of the
+thirty-eight can change it - every one of those thirteen confirm-gated, every one previewing the
+exact request first.
 
 The evidence base for every route, parameter and encoding below is
 [`../_audit/2026-08-21-uplers-bundle-callsites.md`](../_audit/2026-08-21-uplers-bundle-callsites.md)
@@ -728,16 +733,18 @@ capture time and their absence is asserted, in both the committed fixture and th
 because a shaped profile ends up in transcripts, logs and reports. The private key names are
 filtered out of `sections_present` too - "expected_ctc is populated" is itself a disclosure.
 
-### The 34 tools
+### The 38 tools
 
-(This heading has now drifted three times, the same way every time. It read "17" over an
+(This heading has now drifted four times, the same way every time. It read "17" over an
 18-row table when `uplers_my_assessments` landed; it read "23" over a 23-row table
 on 2026-08-24, by which point six more tools had landed - the three Gmail-scan
-readers and the whole resume-write trio - and none of them had a row; and it read
+readers and the whole resume-write trio - and none of them had a row; it read
 "29" over a 29-row table later the same day, when the five agent-config writes
-landed and heading and table went stale together. All three were corrected by
+landed and heading and table went stale together; and it read "34" over a 34-row
+table on 2026-08-25, when the two paid-SKU reads and the two consent-and-one-way
+writes landed and did exactly the same thing again. All four were corrected by
 counting, not by memory. What is pinned by
-`test_importing_server_registers_exactly_the_expected_tools` is the TOTAL of 58;
+`test_importing_server_registers_exactly_the_expected_tools` is the TOTAL of 62;
 this per-tier heading and the rows beneath it are prose, and prose is what goes
 stale. `uplers_server_info().capabilities` carries the split as a checked number
 if you want one that cannot drift.)
@@ -766,7 +773,9 @@ if you want one that cannot drift.)
 | `uplers_agent_readthrough()` | **What Uplers' own paid agent has done for him, and what it missed.** He is paying for their autonomous applier (plan 2, `outreach_mode: "auto"`) and until now none of its output was visible here. Reads six GETs and assembles them: unanswered positive replies ranked oldest-first, which of the agent's two channels is actually connected, 48 runs broken down by outcome, and a `disagreements` block where two Uplers routes report different numbers. The sixth route is the only one on this surface that counts the replies which said **no**, so `total_answered` is 10 where every other counter here stops at the 8 positives. Read-only; no write path exists in the tool or the module behind it. |
 | `uplers_email_scan()` | Whether Uplers is scanning his Gmail for jobs, and what that scan found. Reads the **authoritative** consent route rather than the copy carried on the outreach dashboard, and neither of those is the `has_consent` on the interview list - that is a third consent entirely, for an interview scan whose UI Uplers designed but never shipped, wearing the identical field name. Read-only. |
 | `uplers_scanned_jobs(best_for_you=None, limit=25)` | The jobs that Gmail scan actually found, listed. `best_for_you` is Uplers' own narrowing: measured 2026-08-23 as 79 rows unset and 51 with it. The route accepts no working `limit` of its own - a `limit=3` on its sibling returned all 97 rows - so any truncation here is this server's and is reported as this server's. |
-| `uplers_agent_settings()` | The four switches that decide what his paid agent actually does: whether an unanswered reply gets chased, per channel, where the `disabled_followup_*` flags are **inverted** and `false` means the channel is ON; the auto-reply switch and the eight categories it would answer; the real 16-row blocklist, which is *not* the alphabetical company picker a similarly-named route returns; and whether message templates exist. Reports that a template exists and what its subject is, never the body - that body is a multi-paragraph self-description carrying employer history and a notice period. Four GETs; the write half of the same four switches is the five tools at the end of this table. |
+| `uplers_agent_settings()` | The four switches that decide what his paid agent actually does: whether an unanswered reply gets chased, per channel, where the `disabled_followup_*` flags are **inverted** and `false` means the channel is ON; the auto-reply switch and the eight categories it would answer; the real 16-row blocklist, which is *not* the alphabetical company picker a similarly-named route returns; and whether message templates exist. Reports that a template exists and what its subject is, never the body - that body is a multi-paragraph self-description carrying employer history and a notice period. Four GETs; the write half of the same four switches is the five agent-config tools further down this table. |
+| `uplers_resume_health()` | His resume health check: the score, the verdict, the attempts, and the history. Uplers splits this across two routes - one for the CURRENT state, one for the HISTORY - and this reads both, because they answer the same question from opposite sides. **It is also what makes one number readable.** The current route sends two bare counters, `user_attempts` and `total_attempts`, and nothing on it says which is spent and which is the cap; the history route independently reports its own count and returns its own rows, and all three read 3, so `user_attempts` is identifiable as the spent one by corroboration rather than by its name. That cross-check ships in the result, and if the routes ever stop agreeing the report says so instead of picking one. MEASURED 2026-08-25: he scored **89**, has run 3 checks of 5, and `is_eligible` reads `false` anyway - printed side by side and deliberately **not** reconciled, because 5 minus 3 leaves 2 and this server does not know which governs. `final_verdict` is present on every row and is the empty string on all four, so "Uplers shipped no verdict" stays distinct from "this server could not read one". The `report_details` body is withheld on purpose - it carries his name, states his city and quotes whole resume bullets back - and so are filenames and every link to the document, which is treated as a bearer credential; what that costs is listed in the result under `unsurfaced`. Read-only, two requests. |
+| `uplers_tailored_resumes()` | Tailored resumes that already exist, plus the state of his tailor plan. **Not `uplers_tailored_jobs`**, which is a different surface with a confusingly similar name: that one asks Uplers which *requisitions* suit him, this one reads what the paid resume tailor has actually produced. **The trap on this route is its row count**, which is why the tool is worth having over the raw payload: MEASURED 2026-08-25, `total_records` reads 1 while `total_tailored_resumes` reads 0, because the single row is a *source* row - a base resume registered as tailoring input, with `tailored_resume: null`. Anything treating the row count as the tailored count would report a tailored resume that does not exist. The two counts are kept apart by name and each row is classified from its own fields, so the answer today is that **none** exists, from two independent readings of one payload. The plan is inactive by three fields agreeing - `plan_active` 0, `remaining_days` 0, `plan_end_date` 2026-08-11 - and that date is passed through and never compared to today, because this server's shapers have no clock. `plan_type` reads 4 and `status` reads 2; both are unlabelled integers and no meaning is attached to either, and `plan_type` is **not** an index into `talent/outreach/agent-plans`, which catalogues only ids 1 and 3. Filenames are withheld on the same rule as `uplers_resume_health`. Read-only, one request. |
 | `uplers_platform_saved_jobs(search=None, ...)` | Jobs he bookmarked on **Uplers' own site**, which is a different list from `uplers_save_job`'s local shortlist and always has been. Takes `search` and nothing else: Uplers' code drops every other filter when the saved flag is set, so a filtered request would return his saved jobs *unfiltered while looking filtered*. This refuses instead of sending it. |
 | `uplers_my_preferences()` | What **Uplers** thinks he wants, as opposed to what the local profile says. Fit scores here are computed against the local profile; Uplers ranks him against these, and the two had never been compared because one was invisible. Ids are resolved to labels against the lookup tables shipped in the same response; an id with no matching row is marked `UNRESOLVED` rather than dropped or guessed. |
 | `uplers_assessment_gates(page_size=50)` | Which feed rows demand an assessment **before** he can apply. No new endpoint - `ai_needed` and `custom_screening_needed` already rode on rows this server reads. **Pre-apply signal only:** all 9 of his existing applications read `ai_needed: false`, so nothing here explains why they stall. Absent is reported as `unknown` and never folded into `false`. |
@@ -778,6 +787,8 @@ if you want one that cannot drift.)
 | `uplers_set_template(channel, template, subject=None, confirm=False)` | Rewrites the outreach message on one channel; Uplers' own editor saves the two independently and so does this. **There is no delete-template route on Uplers**, so the snapshot taken before the send is the only way back, and a blank template body is refused rather than sent. `channel` goes on the wire as Uplers' integer - 1 LinkedIn, 2 Gmail. The existing body is never printed back, on any channel; what you pass **in** is echoed verbatim, because showing the exact body is the point of previewing. Writing the linkedin template does not connect the linkedin channel - see "Deliberately out of scope". Previews by default. |
 | `uplers_block_company(company_id, confirm=False)` | Stops the agent contacting one company. This is the real blocklist - what Uplers means when a run fails with "You blocked this company for outreach" - and not the alphabetical company picker a similarly-named route returns. Blocking a company already on the list refuses rather than sending a write that would change nothing. Previews by default. |
 | `uplers_unblock_company(company_id, confirm=False)` | The reverse, and a route pair Uplers ships and names in its own UI rather than a workaround assembled here. Takes the **company** id; Uplers' DELETE wants the blocklist **row** id, and this tool resolves that from the live list instead of accepting it from you. Both numbers sit on the same row, both are small integers, and sending the wrong one removes a different company with a 200 either way. Unblocking a company that is not on the list refuses. Previews by default. |
+| `uplers_revoke_email_scan(confirm=False)` | Withdraws Uplers' standing permission to scan his Gmail for job-board alerts - `DELETE talent/outreach/consent-email-job-scan`. **It is narrower than it sounds, and that is measured rather than hedged.** It stops **future** scans only; Uplers' own success copy is future tense. **No route anywhere deletes already-ingested scan data** - a complete negative search, and the only three DELETE routes under `talent/outreach/*` are this consent, `settings/disabled-companies/{id}` and `external-apply-pending-jobs/{id}`. And it does **not** disconnect Gmail: that is a separate grant on `talent/account/gmail/disconnect`, which this server does not build. Reversible on Uplers' side - a POST to the same URL re-grants - but re-granting starts a **fresh** scan rather than resuming, which is a decision the same size as stopping one, so the grant arm is deliberately not built. Reads live first, snapshots, sends, re-reads. Previews by default. |
+| `uplers_submit_interview_feedback(company_id, feedback, confirm=False)` | Publishes his feedback on an interview, and it is the one tool here that is **genuinely one-way**. There is no edit route and no delete route for submitted feedback anywhere in Uplers' product, so the snapshot is local only and cannot retract what Uplers received. Its membership guard is therefore stricter than the other writes': a `company_id` that is not on his live interview list is **refused rather than posted**. **MEASURED 2026-08-25: that list holds zero companies, so every call refuses today** - that is the tool working, not the tool broken. It was admitted on a narrower argument than the reversible five: a one-way write behind a preview, a confirm gate and a membership check is a smaller hazard than the same review published from a browser form with no preview at all. Previews by default. |
 
 The five agent-config writes share one shape, and it is the read-before-write that makes them
 reversible - not the mere existence of a route that undoes them. Each reads the live record first
@@ -811,7 +822,7 @@ throughout.
 ### The namespace exception, and the line that replaced it
 
 `talent/outreach/*` is where Uplers' **paid outreach-agent product** lives, and this server used to
-exclude the whole prefix. Thirteen routes under it are now read and five verb+route pairs are
+exclude the whole prefix. Fourteen routes under it are now read and seven verb+route pairs are
 written. The change worth understanding is not the arithmetic: **the line moved from the namespace
 to the effect.** Excluding a prefix was one ruling covering 31 routes of very different character -
 an analytics ping and the outreach send itself were on the same side of it, for the same reason,
@@ -861,24 +872,47 @@ point of replacing the prefix rule with an effect rule:
 - `reveal-email` spends a credit to expose a person's address.
 - `discard-job` drops a job out of the agent's queue with a feedback reason, one way.
 - `auto-run-request` queues the paid agent at a job - the second-applier problem by another door.
-- `interview-feedback` publishes a company review.
-- `consent-email-job-scan` and `consent-auto-run` are **reversible**, and are refused anyway. One
-  changes what Uplers reads out of his mailbox; the other turns the autonomous applier itself on
-  and off. Both are his call, not this server's, so these two are refused on **whose decision it
-  is** rather than on safety - a different reason, recorded as a different reason.
+- the **POST (grant) arm** of `consent-email-job-scan` starts a fresh mailbox scan, and
+  `consent-auto-run` turns the autonomous applier itself on and off. Both are **reversible** and
+  both are refused anyway, on **whose decision it is** rather than on safety - a different reason,
+  recorded as a different reason. The grant arm is the half that *starts* something rather than
+  stops it.
 - the five commercial claim routes each alter a live paid subscription.
 
-None of the ten one-way routes listed above has a constant in `endpoints.py`. They are recorded in
-that file as prose, because a constant is an invitation to call it. One refused route is an
-exception worth stating rather than glossing: `consent-email-job-scan` **does** have a constant,
+**Two names came off that list on 2026-08-25, and this entry is edited rather than left standing,
+because a refusal that names something now built is worse than no refusal.** `interview-feedback`
+and the **DELETE (revoke) arm** of `consent-email-job-scan` are now built - see
+`uplers_submit_interview_feedback` and `uplers_revoke_email_scan`, censused together under
+`consent_and_one_way`. **What changed the answer is different for each, and neither was a new
+measurement overturning an old one.** The consent refusal already said it was refused on *whose
+call it is* rather than on safety, and a refusal on that ground is answered by **giving him the
+control, gated** - not by keeping it. So the revoke was built and the grant was not.
+`interview-feedback` is the harder case and was admitted on a narrower argument: it is one-way and
+stays one-way, so it ships with a guard the reversible five do not carry - it refuses any company
+that is not on the live interview list, and that list currently holds **zero** companies, so it
+refuses every call today. The judgement was that a one-way write behind a preview, a confirm gate
+and a membership check is a smaller hazard than the same review published from a browser form with
+no preview at all. `store-employee-requests`, `reveal-email`, `discard-job`, `auto-run-request`,
+the grant arm and the five claim routes are **unmoved**.
+
+**Nine** one-way routes still listed above have no constant in `endpoints.py`. They are recorded in
+that file as prose, because a constant is an invitation to call it. That was **ten** until
+2026-08-25: `interview-feedback` is the one deliberate exception and it now has a constant
+precisely **because it is called**, which is argued at `EP_INTERVIEW_FEEDBACK` itself rather than
+left to be noticed. `consent-email-job-scan` also has a constant,
 `EP_CONSENT_EMAIL_JOB_SCAN`, written down before this ruling existed - it is what explains why
-`uplers_my_interviews` can return an empty diary that is not "no interviews" - and no production
-code path references it. `consent-auto-run` appears in `endpoints.py` not at all.
+`uplers_my_interviews` can return an empty diary that is not "no interviews" - and it is now
+**referenced**, by `uplers_server/consent_write.py` and by nothing else, which
+`tests/test_agent_tools.py` asserts by AST across every module in the package. Until 2026-08-25
+that test asserted the *opposite*, that nothing referenced it at all; it went red the moment the
+route was wired, which is exactly what it was built to do, and it was narrowed in the same commit
+rather than deleted. `consent-auto-run` appears in `endpoints.py` not at all, and still does not.
 
 **The paragraph about a second applier above is untouched by all of this, and it is permanent.**
-None of the five new writes applies to anything, messages a person, or reveals a contact. "The
-write half opened" is not "the applier question reopened", and nothing in this section should be
-read as softening that refusal by a single word.
+Not one of the seven writes now built in this namespace applies to anything, messages a person, or
+reveals a contact - that line has not moved, and the two added on 2026-08-25 do not move it
+either. "The write half opened" is not "the applier question reopened", and nothing in this
+section should be read as softening that refusal by a single word.
 
 The boundary is measured rather than asserted, in three places. `tests/test_agent_tools.py` and
 `tests/test_agent_surface.py` each check every request their tools emit against an exact route
@@ -898,29 +932,55 @@ have produced a tool that silently returned the wrong kind of thing.
 
 ## Deliberately out of scope
 
-No resume tailoring, no resume health check, no referral agent, and nothing under
-`talent/outreach/*` that sends, spends or applies. Those endpoints (`talent/tailor/*`,
-`talent/resume-health-check/*`, `talent/referral-agent/*`, and the one-way half of
-`talent/outreach/*` named under "The namespace exception") are Uplers' own **paid** candidate
-products - `talent/tailor/order/create`, `talent/tailor/order/capture` and
-`talent/tailor/refund-request` say so plainly. Reimplementing a paid product for free against a
-marketplace whose value is a human recruiter advocating for you is a bad trade.
+**This section was wrong about half of what it named, and the correction is recorded here rather
+than quietly applied.** Until 2026-08-25 it refused resume tailoring and the resume health check
+outright, on the ground that they are Uplers' own **paid** candidate products. The read half is
+now built - three routes behind two tools, `uplers_resume_health` and `uplers_tailored_resumes` -
+and the sentence that justified refusing them does not survive being read closely.
 
-**And they are not bundled into his plan. That is measured, not assumed**, because "it might be
-included" would have changed the answer and only a measurement can settle it.
+**Two different arguments were wearing one name.** "Do not reimplement a vendor's paid product for
+free, against a marketplace whose value is a human recruiter advocating for you" is a real
+constraint and it still holds: this server does not tailor a resume, does not score one, and does
+not build a referral agent. "Do not show him output he has **already bought**" was never the same
+claim, and it is not defensible. The tailoring and the health check were run on his account, with
+his money. Refusing to read the result back protected no boundary; it just withheld his own data
+from him. Only the first argument survives, and it never covered the read side.
+
+**The other half of the old reasoning was refuted by measurement rather than by argument.** This
+section used to state that wrapping those routes "would produce tools that fail at runtime"
+because the account holds zero tailor credits. MEASURED LIVE 2026-08-25 on his own session:
+`talent/outreach/get-last-health-check`, `talent/resume-health-check/dashboard` and
+`talent/tailor/list` each answered **HTTP 200 with real data** - a resume score of 89, three
+history rows, and a plan record. **Zero 403s, zero 402s, no credit gate anywhere on the read
+side.** The credit metering is real and it gates **buying** a tailored resume; it does not gate
+reading the check he has already had. Captured by `scripts/capture_skus.py`.
+
+**What stays refused is the ordering half, for a reason that does survive.**
+`talent/tailor/order/create`, `talent/tailor/order/capture`, `talent/tailor/refund-request` and
+the transform arm **spend money** or consume an attempt. That is his call to make and not a
+tool's, so they stay unbuilt and stay nameless in `endpoints.py` - the same rule the one-way
+outreach routes follow, because a constant is an invitation to call it. Every non-dashboard arm of
+`talent/resume-health-check/*` is unmoved, the referral agent (`talent/referral-agent/*`) is
+unmoved entire, and so is everything under `talent/outreach/*` that sends, spends or applies.
+
+**And the tailor surface is still not bundled into his plan. That is measured, not assumed**,
+because "it might be included" would have changed the answer and only a measurement can settle it.
 `talent/outreach/agent-plans` returns a catalogue with exactly two entries - id 1 (Starter, 30
 days) and id 3 (Elite, 90 days) - while his `outreach-step` reads `plan: 2`, a plan that is not in
 the catalogue at all. The metering agrees from two independent directions: `outreach-step` reads
 `credit_plan 0`, `credit_left 0`, `credit_added 0`, and `preview-config` separately carries
-`plan.paid true`, `plan.expired false`, `plan.credit_left 0`. So the tailor surface is
-credit-metered and he holds none, and wrapping those ~70 routes would produce tools that fail at
-runtime. That is a concrete reason sitting on top of the principled one, not a replacement for it.
+`plan.paid true`, `plan.expired false`, `plan.credit_left 0`. `talent/tailor/list` now adds a
+third: `plan_active 0`, `remaining_days 0`, and a `plan_end_date` of 2026-08-11 already past. So
+the tailor surface is credit-metered, he holds zero credits, and his tailor plan has lapsed -
+which is exactly why the ordering routes stay unbuilt, and exactly what the read tools report. The
+reads corroborate that finding from a third direction rather than contradicting it.
 
 Also not exposed, each for a reason recorded above rather than by omission:
 `talent/hr/cancel-opportunity` (see "Why `talent/hr/cancel-opportunity` is deliberately not
-exposed"), the one-way write routes under `talent/outreach/*`, and `talent/recommendations` (see
-"The namespace exception"). Where a shape is recorded in `endpoints.py` the finding is not lost;
-no tool calls any of them.
+exposed"), the one-way write routes under `talent/outreach/*` **except `interview-feedback`, which
+is now built and says so under "The namespace exception"**, and `talent/recommendations` (see "The
+namespace exception"). Where a shape is recorded in `endpoints.py` the finding is not lost; no
+tool calls any of them apart from the two named exceptions.
 
 **The public tier never logs in, never mutates Uplers, and never applies to anything.** That is
 still exactly true of all 24 of its tools, and `uplers_track(status="applied_manually")` does not
@@ -929,13 +989,18 @@ the only thing it mutates is the local sqlite file. The status is named `applied
 precisely so the record cannot be misread later as something this server did.
 
 What changed on 2026-08-21 is that a **second, clearly separated tier** can log in and can
-mutate. That tier now holds **eleven** writes that reach Uplers - two on a requisition, four on
-his profile, five on his paid agent's settings - and every one of them previews by default and
-does nothing without `confirm=True`. The separation is the point, and it has not moved: nothing in
-the public tier acquired a new power, its count is the same 24 it was, and the authenticated tier
-is unreachable without a session the operator opened by hand. `uplers_server_info().writes`
-enumerates all eleven, grouped by what kind of thing they can change, and a test works that census
-backwards from the tool registry so a write cannot be added without appearing in it.
+mutate. That tier now holds **thirteen** writes that reach Uplers, in **four** groups - two on a
+requisition, four on his profile, five on his paid agent's settings, and two that are neither a
+requisition nor a reversible switch - and every one of them previews by default and does nothing
+without `confirm=True`. **That fourth group exists because the third one makes a claim.** Every
+tool in the agent-config five can be put back, and that sentence is the entire reason those five
+were built while the rest of the namespace was not; filing `uplers_revoke_email_scan` and
+`uplers_submit_interview_feedback` alongside them would not be a tidier census, it would silently
+retire the only claim the census makes. The separation is the point, and it has not moved: nothing
+in the public tier acquired a new power, its count is the same 24 it was, and the authenticated
+tier is unreachable without a session the operator opened by hand. `uplers_server_info().writes`
+enumerates all thirteen, grouped by what kind of thing they can change, and a test works that
+census backwards from the tool registry so a write cannot be added without appearing in it.
 
 ### A second autonomous applier
 

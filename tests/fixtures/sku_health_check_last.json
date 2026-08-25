@@ -1,0 +1,27 @@
+{
+  "data": {
+    "current_profile_cv_healthchecked": false,
+    "health_check": {
+      "created_at": "11-08-2026 17:50:40",
+      "final_verdict": "",
+      "resume_score": 89,
+      "status": 3
+    },
+    "is_eligible": false,
+    "is_paid": false,
+    "resume_healthchecked": true,
+    "total_attempts": 5,
+    "transform": {
+      "created_at": "11-08-2026 17:50:40",
+      "id": "Q1VxWEkrMVR6SElPU3RWTU1OdGcxUT09",
+      "is_resume_updated": 0,
+      "resume_transformation_id": 150705,
+      "status": 0,
+      "talent_transaction_id": null,
+      "version": 2
+    },
+    "user_attempts": 3
+  },
+  "message": "Last health check fetched successfully",
+  "status": 200
+}

@@ -42,6 +42,7 @@ from uplers_server import (
     brief as brief_mod,
     buildinfo as buildinfo_mod,
     config,
+    consent_write,
     fit,
     ids,
     insight,
@@ -95,6 +96,7 @@ from uplers_server import (
     preference as preference_mod,
     saved_filter,
     session as session_mod,
+    skus,
     talent_shape,
 )
 from uplers_server.search import notice_days
@@ -2109,7 +2111,7 @@ async def uplers_config(write_candidate: bool = False,
 #: the split. That banner is the only definition of the split there is: it is a
 #: physical line in this module, and which side of it a tool is defined on IS
 #: whether that tool needs an account.
-TOOL_COUNTS = {"total": 58, "public": 24, "authenticated": 34}
+TOOL_COUNTS = {"total": 62, "public": 24, "authenticated": 38}
 
 #: Can change something ON UPLERS, acting on a requisition.
 REQUISITION_WRITE_TOOLS = ("uplers_apply", "uplers_dismiss")
@@ -2141,6 +2143,32 @@ AGENT_CONFIG_WRITE_TOOLS = (
     "uplers_set_template",
     "uplers_block_company",
     "uplers_unblock_company",
+)
+
+#: Added 2026-08-25. THE GROUP THAT EXISTS BECAUSE THE ONE ABOVE HAS A STATED
+#: PROPERTY: every tool in AGENT_CONFIG_WRITE_TOOLS can be put back, and that
+#: sentence is the entire reason those five were built while the rest of the
+#: namespace was not. Neither of these two is a reversible settings switch, so
+#: filing them there would not be a tidier census - it would silently retire
+#: the only claim that census makes.
+#:
+#: They are also not each other's kind, which is why the group's note names
+#: both rather than generalising:
+#:
+#:   * uplers_revoke_email_scan IS reversible on Uplers (POST the same URL
+#:     re-grants) but withdraws a standing PERMISSION rather than flipping a
+#:     setting, and re-granting starts a FRESH scan rather than resuming. It
+#:     was refused for a year on WHOSE CALL IT IS, never on safety; the tool
+#:     exists so he can make the call and still performs nothing unconfirmed.
+#:   * uplers_submit_interview_feedback is genuinely ONE-WAY - no edit route,
+#:     no delete route, complete negative search - and is the only tool in this
+#:     server that reaches a one-way `talent/outreach/*` route at all.
+#:
+#: Neither applies to anything, sends a message to a person, or reveals a
+#: contact. That line has not moved.
+CONSENT_AND_ONE_WAY_WRITE_TOOLS = (
+    "uplers_revoke_email_scan",
+    "uplers_submit_interview_feedback",
 )
 
 #: The only tool that can write a file OTHER servers read.
@@ -2192,8 +2220,14 @@ CAPABILITIES = [
     "this does NOT include is anything that applies, messages a person, or "
     "reveals a contact; those stay refused and are named under "
     "out_of_scope_by_design.",
-    "Eleven writes that reach Uplers, every one confirm-gated and every one "
+    "Thirteen writes that reach Uplers, every one confirm-gated and every one "
     "previewing the exact request first. Enumerated exactly under `writes`.",
+    "TWO of those thirteen are NOT reversible settings switches and are "
+    "censused apart for that reason: revoking Uplers' permission to scan his "
+    "Gmail for job-board alerts, and publishing interview feedback, which is "
+    "ONE-WAY - no edit route, no delete route. Both preview first; the one-way "
+    "one also refuses any company that is not on his live interview list, and "
+    "that list is currently empty.",
     "Self-description that can be falsified from OUTSIDE the process: `build` "
     "against `git rev-parse HEAD` on disk, `config.scoring_hash` against the "
     "stamp on a stored score.",
@@ -2249,6 +2283,42 @@ WRITE_CENSUS = {
                 "exactly once, in outreach_write.to_disabled. A second negation "
                 "anywhere cancels the first and switches OFF the channel the "
                 "caller asked to switch ON, silently, with a 200 coming back."
+            ),
+        },
+        "consent_and_one_way": {
+            "count": len(CONSENT_AND_ONE_WAY_WRITE_TOOLS),
+            "tools": list(CONSENT_AND_ONE_WAY_WRITE_TOOLS),
+            "note": (
+                "THE TWO THAT ARE NOT REVERSIBLE SETTINGS SWITCHES, filed apart "
+                "from agent_config for exactly that reason - that group's whole "
+                "claim is that everything in it can be put back. "
+                "uplers_revoke_email_scan withdraws Uplers' standing permission "
+                "to scan his job-board alert emails: reversible on their side (a "
+                "POST to the same URL re-grants) but a PERMISSION rather than a "
+                "setting, and re-granting starts a FRESH scan rather than "
+                "resuming. uplers_submit_interview_feedback is genuinely ONE-WAY "
+                "and is the only tool here that reaches a one-way route in that "
+                "namespace at all. Both are confirm-gated, both read live first, "
+                "both snapshot, both re-read."
+            ),
+            "what_the_revoke_does_not_do": (
+                "MEASURED, and it is narrower than it sounds. It stops FUTURE "
+                "scans only - Uplers' own success copy is future tense. NO ROUTE "
+                "ANYWHERE DELETES ALREADY-INGESTED SCAN DATA: complete negative "
+                "search, the only three DELETE routes under talent/outreach/* "
+                "are this consent, settings/disabled-companies/{id} and "
+                "external-apply-pending-jobs/{id}. And it does NOT disconnect "
+                "Gmail - that is a separate grant on talent/account/gmail/"
+                "disconnect, which this server does not build."
+            ),
+            "the_one_way_one_has_no_undo_at_all": (
+                "There is no edit route and no delete route for submitted "
+                "interview feedback anywhere in Uplers' product. The snapshot is "
+                "LOCAL ONLY and cannot retract what Uplers received. Its guard 4 "
+                "is therefore stricter than the others': a company_id that is "
+                "not on the live interview list is REFUSED rather than posted. "
+                "MEASURED: that list currently holds ZERO companies, so every "
+                "call refuses today - which is the tool working."
             ),
         },
     },
@@ -2395,10 +2465,35 @@ OUT_OF_SCOPE_BY_DESIGN = [
     },
     {
         "what": (
-            "The ONE-WAY half of talent/outreach/* - store-employee-requests, "
-            "reveal-email, discard-job, auto-run-request, interview-feedback, "
-            "consent-email-job-scan, consent-auto-run, and the five commercial "
-            "claim routes. The REVERSIBLE half is now built; see writes."
+            "What is left of the refused half of talent/outreach/* - "
+            "store-employee-requests, reveal-email, discard-job, "
+            "auto-run-request, consent-auto-run, the POST (grant) arm of "
+            "consent-email-job-scan, and the five commercial claim routes. The "
+            "REVERSIBLE half is built; see writes."
+        ),
+        "narrowed_2026_08_25": (
+            "TWO NAMES CAME OFF THIS LIST and the entry is edited rather than "
+            "left standing, because a refusal that names something now built is "
+            "worse than no refusal. `interview-feedback` and the DELETE (revoke) "
+            "arm of `consent-email-job-scan` are now built - see the "
+            "`consent_and_one_way` group under writes. "
+            "WHAT CHANGED THE ANSWER IS DIFFERENT FOR EACH, and neither was a "
+            "new measurement overturning an old one: this refusal already SAID "
+            "the consent flips were refused on WHOSE CALL IT IS rather than on "
+            "safety, and a refusal on that ground is answered by giving him the "
+            "control, gated, not by keeping it. So the revoke was built and the "
+            "GRANT was not: re-granting starts a fresh mailbox scan, which is a "
+            "decision the same size as stopping one and needs its own preview. "
+            "`interview-feedback` is the harder case and was admitted on a "
+            "narrower argument: it is ONE-WAY and stays one-way, so it is built "
+            "with a guard the reversible five do not carry - it refuses any "
+            "company that is not on the live interview list, which currently "
+            "holds ZERO companies, so it refuses every call today. The judgement "
+            "was that a one-way write behind a preview, a confirm gate and a "
+            "membership check is a smaller hazard than the same review published "
+            "from a browser form with no preview at all. `store-employee-"
+            "requests`, `reveal-email`, `discard-job`, `auto-run-request`, the "
+            "grant arm and the five claim routes are UNMOVED."
         ),
         "why": (
             "The line moved from 'the namespace' to 'the effect', because one "
@@ -2410,47 +2505,73 @@ OUT_OF_SCOPE_BY_DESIGN = [
             "copy says it cannot be undone. reveal-email spends a credit to "
             "expose a person's address. auto-run-request queues the paid agent "
             "at a job, which is the second-applier problem by another door. "
-            "consent-email-job-scan changes WHAT UPLERS READS OUT OF HIS "
-            "MAILBOX and consent-auto-run turns the autonomous applier itself "
-            "on and off - both are his decision, not this server's, and both "
-            "are reversible, so they are refused on WHOSE CALL IT IS rather "
-            "than on safety. The claim routes alter a live paid subscription. "
-            "The ten ONE-WAY routes have NO constant in endpoints.py - they are "
+            "consent-auto-run turns the autonomous applier itself on and off, "
+            "and the GRANT arm of consent-email-job-scan starts a fresh mailbox "
+            "scan - both are his decision, not this server's, and the grant is "
+            "the half that starts something rather than stops it. The claim "
+            "routes alter a live paid subscription. "
+            "NINE ONE-WAY ROUTES HAVE NO CONSTANT in endpoints.py - they are "
             "recorded there as prose, because a constant is an invitation to "
-            "call it. The two consent routes are the stated exception and the "
-            "shape of it differs: consent-auto-run appears in endpoints.py zero "
-            "times, while EP_CONSENT_EMAIL_JOB_SCAN does exist, predating this "
-            "ruling. It is referenced by no module and no test - the property "
-            "that matters is that nothing reaches it, and that is measured "
-            "rather than implied by its absence."
+            "call it. That was ten until 2026-08-25; interview-feedback is the "
+            "one deliberate exception and it has a constant because it is now "
+            "CALLED, which is argued at EP_INTERVIEW_FEEDBACK itself. "
+            "consent-auto-run appears in endpoints.py zero times and still does. "
+            "EP_CONSENT_EMAIL_JOB_SCAN exists and is now REFERENCED - by "
+            "uplers_server/consent_write.py and by nothing else, which "
+            "tests/test_agent_tools.py asserts by AST across every module in the "
+            "package. Until 2026-08-25 that test asserted the opposite, that "
+            "nothing referenced it at all; it went red the moment the route was "
+            "wired, which is what it was built to do, and it was narrowed in the "
+            "same commit rather than deleted."
         ),
     },
     {
         "what": (
-            "The paid candidate SKUs: resume tailoring (talent/tailor/*), the "
-            "resume health check (talent/resume-health-check/*) and the referral "
-            "agent (talent/referral-agent/*)."
+            "The ORDERING half of the paid candidate SKUs: talent/tailor/"
+            "order/create, order/capture, refund-request and the transform "
+            "arm; every non-dashboard arm of talent/resume-health-check/*; and "
+            "the referral agent (talent/referral-agent/*) entire. The THREE "
+            "READS were built on 2026-08-25; see uplers_resume_health and "
+            "uplers_tailored_resumes."
         ),
         "why": (
-            "They are Uplers' own PAID candidate products - "
-            "talent/tailor/order/create, order/capture and refund-request say so "
-            "plainly. Reimplementing a paid product for free against a "
-            "marketplace whose value is a human recruiter advocating for you is "
-            "a bad trade."
+            "The line moved from 'the namespace' to 'the effect', the same way "
+            "it moved for talent/outreach/* a day earlier, and for the same "
+            "reason: one ruling was covering routes of very different "
+            "character. Ordering, transforming and refunding alter a live paid "
+            "subscription or spend an attempt, and those stay refused with no "
+            "constant in endpoints.py. READING BACK what he has already bought "
+            "does neither."
+        ),
+        "what_overturned_the_read_half": (
+            "MEASUREMENT, not argument, and it refuted a specific claim this "
+            "register used to make. The old entry reasoned that wrapping these "
+            "routes 'would produce tools that fail at runtime' because the "
+            "account holds zero tailor credits. MEASURED LIVE 2026-08-25 on "
+            "his own session: talent/outreach/get-last-health-check, "
+            "talent/resume-health-check/dashboard and talent/tailor/list each "
+            "answered HTTP 200 with real data - a resume score of 89, three "
+            "history rows, and a plan record. Zero 403s, zero 402s, no credit "
+            "gate anywhere on the read side. The credit metering is real and it "
+            "gates BUYING a tailored resume; it does not gate reading the check "
+            "he has already had. Captured by scripts/capture_skus.py."
         ),
         "is_it_included_in_his_plan": (
             "MEASURED, not assumed, because 'it might be bundled' would change "
-            "the answer and only a measurement can settle it. IT IS NOT. "
-            "talent/outreach/agent-plans returns a catalogue with exactly two "
-            "entries, id 1 (Starter, 30 days) and id 3 (Elite, 90 days), and "
-            "his outreach-step reads plan: 2 - a plan that is not in the "
-            "catalogue at all. The metering agrees from two directions: "
+            "the answer and only a measurement can settle it. IT IS NOT, and "
+            "the reads now corroborate that from a third direction rather than "
+            "contradicting it. talent/outreach/agent-plans returns a catalogue "
+            "with exactly two entries, id 1 (Starter, 30 days) and id 3 (Elite, "
+            "90 days), and his outreach-step reads plan: 2 - a plan that is not "
+            "in the catalogue at all. The metering agrees from two directions: "
             "outreach-step reads credit_plan 0, credit_left 0, credit_added 0, "
             "and preview-config independently carries plan.paid true, "
-            "plan.expired false, plan.credit_left 0. So the tailor surface is "
-            "credit-metered and he holds zero credits. Wrapping those ~70 "
-            "routes would produce tools that fail at runtime, which is the "
-            "concrete reason on top of the principled one."
+            "plan.expired false, plan.credit_left 0. talent/tailor/list now "
+            "adds a third: plan_active 0, remaining_days 0, and a plan_end_date "
+            "of 2026-08-11 already past. So the tailor surface is credit-metered, "
+            "he holds zero credits, and his tailor plan has lapsed - which is "
+            "exactly why the ordering routes stay unbuilt and exactly what the "
+            "read tools report."
         ),
     },
     {
@@ -3711,9 +3832,11 @@ async def uplers_agent_settings() -> dict:
     20 rows; reading a blocklist off that route would report the first twenty
     companies in the alphabet as blocked.
 
-    Read-only, no arguments, four requests. Nothing here writes, and the write
-    half of this namespace - `consent-email-job-scan`, `consent-auto-run`,
-    `interview-feedback` - is not built anywhere in this server.
+    Read-only, no arguments, four requests. Nothing here writes and no write
+    route in this namespace is reachable from this tool. Two of them are built
+    elsewhere and are named rather than left implied: uplers_revoke_email_scan
+    (the consent DELETE) and uplers_submit_interview_feedback (ONE-WAY).
+    `consent-auto-run` and the GRANT arm of the consent are not built at all.
     """
     async with _talent_client() as client:
         followup_raw = await client.get_json(
@@ -3731,6 +3854,112 @@ async def uplers_agent_settings() -> dict:
         auto_reply=agent_surface.shape_auto_reply(auto_reply_raw),
         blocked=agent_surface.shape_disabled_companies(blocked_raw),
     )
+
+
+# --------------------------------------------------------------- tool 59 ---
+#
+# THE PAID CANDIDATE SKUs, READ ONLY. Read `uplers_server/skus.py` before
+# touching either tool below; both wrappers here are deliberately thin and
+# every decision lives in that module.
+#
+# These two exist because a standing refusal was NARROWED by measurement.
+# `out_of_scope_by_design` refused `talent/resume-health-check/*` and
+# `talent/tailor/*` outright, partly on the concrete ground that wrapping them
+# "would produce tools that fail at runtime" for want of credits. MEASURED
+# 2026-08-25 on his live session: all three read routes answered HTTP 200 with
+# real data, zero 403s and zero 402s. The credit gate is on the WRITE side.
+# Every ordering, transforming and refunding route in both namespaces stays
+# refused and stays nameless in endpoints.py.
+
+
+@mcp.tool()
+async def uplers_resume_health() -> dict:
+    """Your Uplers resume health check: the score, the verdict, and the history.
+
+    Uplers splits this across two routes - one for the CURRENT state and one
+    for the HISTORY - and this reads both, because they answer the same
+    question from opposite sides and a caller should not have to know that.
+
+    IT IS ALSO WHAT MAKES ONE NUMBER READABLE. The current route sends two bare
+    counters, `user_attempts` and `total_attempts`, and nothing on it says
+    which is spent and which is the cap. The history route independently
+    reports its own count AND returns its own rows, and all three read 3 - so
+    `user_attempts` is identifiable as the spent one by corroboration rather
+    than by its name. That cross-check is computed and shipped in the result;
+    if the routes ever stop agreeing the report says so instead of picking one.
+
+    MEASURED 2026-08-25: he scored **89**, he has run 3 checks of 5, and
+    `is_eligible` reads FALSE anyway. Those last two are printed side by side
+    and NOT reconciled - 5 minus 3 leaves 2, the account says no more are
+    offered, and this server does not know which governs. `is_paid: false` is a
+    candidate explanation and is labelled a hypothesis, not a measurement.
+
+    THERE IS NO VERDICT TEXT. `final_verdict` is present on every row and is
+    the EMPTY STRING on all four of them, so the result distinguishes "Uplers
+    shipped no verdict" from "this server could not read one" rather than
+    collapsing both onto null.
+
+    NOT RETURNED, ON PURPOSE: the `report_details` body. It is Uplers' scoring
+    report on your resume - it carries your name, states your city, and quotes
+    whole resume bullets back verbatim - and it does not belong in a
+    transcript, the same rule `uplers_agent_settings` applies to your outreach
+    template bodies. Filenames and the `aws_file_name` go with it, and so does
+    every link to the document, which is treated as a bearer credential. The
+    cost is stated in the result under `unsurfaced`: the per-check breakdown,
+    including the one measured red flag, is dropped with its container.
+
+    Read-only, no arguments, two requests. Nothing here orders, buys,
+    transforms or refunds anything.
+    """
+    async with _talent_client() as client:
+        last_raw = await client.get_json(endpoints.EP_SKU_HEALTH_CHECK_LAST, None)
+        dashboard_raw = await client.get_json(
+            endpoints.EP_SKU_HEALTH_CHECK_DASHBOARD, None
+        )
+
+    return skus.resume_health(
+        last=skus.shape_last_health_check(last_raw),
+        dashboard=skus.shape_health_check_dashboard(dashboard_raw),
+    )
+
+
+@mcp.tool()
+async def uplers_tailored_resumes() -> dict:
+    """Tailored resumes that already exist, and the state of your tailor plan.
+
+    NOT `uplers_tailored_jobs`, which is a different surface with a
+    confusingly similar name: that one asks Uplers which REQUISITIONS suit you.
+    This one reads what the paid resume TAILOR has actually produced.
+
+    THE TRAP ON THIS ROUTE IS ITS ROW COUNT, and it is why this tool is worth
+    having rather than reading the raw payload. MEASURED 2026-08-25:
+    `total_records` reads 1 while `total_tailored_resumes` reads 0. The single
+    row is a SOURCE row - a base resume registered as tailoring INPUT, with
+    `tailored_resume: null` - so anything that treated the row count as the
+    tailored count would report a tailored resume that does not exist. The two
+    counts are kept apart by name here, and each row is classified from its own
+    fields rather than from being in the list. The answer today is that NO
+    tailored resume exists, from two independent readings of one payload.
+
+    THE PLAN IS INACTIVE, by three fields agreeing: `plan_active` 0,
+    `remaining_days` 0, and a `plan_end_date` of 2026-08-11. The date is passed
+    through and never compared to today - this server's shapers have no clock,
+    so that a fixture pins them.
+
+    `plan_type` reads 4 and `status` reads 2. Both are UNLABELLED integers and
+    no meaning is attached to either; in particular `plan_type` is NOT an index
+    into `talent/outreach/agent-plans`, which catalogues only ids 1 and 3.
+
+    Filenames are withheld, on the same rule as uplers_resume_health.
+
+    Read-only, no arguments, one request. talent/tailor/order/create,
+    order/capture and refund-request are refused and have no constant in this
+    server, so nothing here can buy, order or refund anything.
+    """
+    async with _talent_client() as client:
+        payload = await client.get_json(endpoints.EP_SKU_TAILOR_LIST, None)
+
+    return skus.shape_tailor_list(payload)
 
 
 # --------------------------------------------------------------- tool 51 ---
@@ -4647,6 +4876,123 @@ async def uplers_unblock_company(company_id: int, confirm: bool = False) -> dict
             confirm=confirm,
             send=outreach_write.delete_sender_for(
                 client, endpoints.EP_OUTREACH_DISABLED_COMPANY_DELETE
+            ),
+        )
+
+
+# --------------------------------------------------------------- tool 61 ---
+#
+# THE TWO WRITES THAT ARE NOT REVERSIBLE SETTINGS SWITCHES.
+#
+# Read `uplers_server/consent_write.py` before touching either. They are NOT
+# in AGENT_CONFIG_WRITE_TOOLS and must not be moved there: that group's stated
+# property is that everything in it can be put back, and it stops meaning
+# anything the moment one of these is filed in it.
+#
+#   * uplers_revoke_email_scan IS reversible (POST the same URL re-grants) but
+#     is a standing PERMISSION rather than a setting, and re-granting starts a
+#     fresh scan rather than resuming this one.
+#   * uplers_submit_interview_feedback is genuinely ONE-WAY. No edit route, no
+#     delete route, complete negative search. Its interview list is currently
+#     EMPTY, so it refuses every call today - which is the tool working.
+#
+# The wrappers stay thin on purpose: the guards that run in production are the
+# ones the tests exercise, not a copy of them living here.
+
+
+@mcp.tool()
+async def uplers_revoke_email_scan(confirm: bool = False) -> dict:
+    """Stop Uplers scanning your Gmail for job-board alerts. Reversible.
+
+    This is the switch behind `uplers_email_scan()`. It is currently ON and has
+    been finding jobs out of your mailbox; this withdraws that permission.
+
+    FOUR THINGS IT DOES AND DOES NOT DO, all measured from Uplers' own product
+    rather than assumed, because they are the whole decision:
+
+    IT STOPS FUTURE SCANS ONLY. Uplers' own success message is future tense:
+    "Happpy Agent will no longer scan your job board alert emails."
+
+    IT DOES NOT DELETE WHAT THE SCAN ALREADY FOUND, and no route anywhere in
+    Uplers does. Complete negative search: the only three DELETE routes in this
+    namespace are this consent, the company blocklist, and pending external
+    apply jobs. The jobs already pulled out of your mailbox stay where they
+    are. If removing them is the point, this is not the tool and there is no
+    tool - that is a support request.
+
+    IT DOES NOT DISCONNECT GMAIL. That is a separate grant on a separate route
+    (talent/account/gmail/disconnect) which this server does not build. Your
+    mailbox stays connected; Uplers stops reading it.
+
+    IT IS REVERSIBLE. A POST to the same URL with an empty body re-grants it.
+    That POST is deliberately not built here - re-granting restarts the scan
+    from zero rather than resuming, so it is a decision the same size as this
+    one and deserves its own preview rather than a flag on this tool.
+
+    With confirm=False it previews and sends nothing. Confirming snapshots the
+    current scan record first, sends a DELETE with no body at all, then RE-READS
+    the consent - which is more than Uplers' own client does, because its
+    revoke never refetches and the reply carries no consent field to check.
+
+    Refuses if the scan is already off: there would be nothing to revoke.
+
+    Args:
+        confirm: False previews. True snapshots, then sends, then re-reads.
+    """
+    async with _talent_client() as client:
+        return await consent_write.revoke_email_scan(
+            client,
+            confirm=confirm,
+            send=consent_write.bare_delete_sender_for(
+                client, endpoints.EP_CONSENT_EMAIL_JOB_SCAN
+            ),
+        )
+
+
+@mcp.tool()
+async def uplers_submit_interview_feedback(
+    company_id: int, feedback: str, confirm: bool = False
+) -> dict:
+    """Publish your review of a company you interviewed with. ONE WAY.
+
+    THERE IS NO EDIT ROUTE AND NO DELETE ROUTE FOR SUBMITTED FEEDBACK anywhere
+    in Uplers' product - a complete negative search found neither. Once this
+    lands you cannot take it back from here, and the snapshot this tool writes
+    is local only: it records the interview list as it stood and cannot retract
+    what Uplers received. The only thing that can follow it is a second POST
+    for the same company, and whether their server overwrites or appends is not
+    knowable from their own client. Treat it as final and public.
+
+    MEASURED: YOUR INTERVIEW LIST IS EMPTY. Uplers lists zero companies, so
+    there is nothing to give feedback about right now and every call refuses -
+    that is this tool working, not failing. The refusal says why the list is
+    empty rather than telling you the id was wrong: Uplers builds that list by
+    scanning a mailbox, and the consent governing THAT scan reads false. It is
+    a different consent from the Gmail job scan, wearing the same field name,
+    and there is nothing for you to switch on - its UI ships as styling with
+    nothing rendering it.
+
+    The company must be on the live list. A company_id that is not gets refused
+    rather than posted, because on a route with no undo a wrong id publishes a
+    review against a company you never met.
+
+    With confirm=False it returns the exact two-key body and sends nothing.
+    Your text is echoed back in full - this preview is the only chance to read
+    it before it is published.
+
+    Args:
+        company_id: Uplers' company id, as uplers_my_interviews reports it.
+        feedback: your review. Empty text is refused, not sent blank.
+        confirm: False previews. True snapshots, then sends, then re-reads.
+    """
+    async with _talent_client() as client:
+        return await consent_write.submit_interview_feedback(
+            client,
+            company_id,
+            feedback,
+            confirm=confirm,
+            send=outreach_write.json_sender_for(
+                client, endpoints.EP_INTERVIEW_FEEDBACK
             ),
         )
 

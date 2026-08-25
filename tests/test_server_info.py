@@ -354,6 +354,7 @@ class TestTheDeclaredSurfaceMatchesReality:
         from test_tools import (
             AGENT_CONFIG_WRITE_TOOL_NAMES,
             CONFIG_TOOL_NAMES,
+            CONSENT_AND_ONE_WAY_WRITE_TOOL_NAMES,
             LOCAL_WRITE_TOOL_NAMES,
             PROFILE_WRITE_TOOL_NAMES,
             WRITE_TOOL_NAMES,
@@ -362,6 +363,10 @@ class TestTheDeclaredSurfaceMatchesReality:
         assert set(server.REQUISITION_WRITE_TOOLS) == WRITE_TOOL_NAMES
         assert set(server.PROFILE_WRITE_TOOLS) == PROFILE_WRITE_TOOL_NAMES
         assert set(server.AGENT_CONFIG_WRITE_TOOLS) == AGENT_CONFIG_WRITE_TOOL_NAMES
+        assert (
+            set(server.CONSENT_AND_ONE_WAY_WRITE_TOOLS)
+            == CONSENT_AND_ONE_WAY_WRITE_TOOL_NAMES
+        )
         assert set(server.SHARED_CONFIG_WRITE_TOOLS) == CONFIG_TOOL_NAMES
         assert set(server.LOCAL_STATE_ONLY_TOOLS) == LOCAL_WRITE_TOOL_NAMES
 
@@ -375,6 +380,9 @@ class TestTheDeclaredSurfaceMatchesReality:
         )
         assert writes["reach_uplers"]["agent_config"]["count"] == len(
             AGENT_CONFIG_WRITE_TOOL_NAMES
+        )
+        assert writes["reach_uplers"]["consent_and_one_way"]["count"] == len(
+            CONSENT_AND_ONE_WAY_WRITE_TOOL_NAMES
         )
         assert writes["reach_the_shared_config"]["count"] == len(CONFIG_TOOL_NAMES)
         assert set(writes["local_state_only"]["tools"]) == LOCAL_WRITE_TOOL_NAMES
@@ -431,6 +439,13 @@ class TestTheDeclaredSurfaceMatchesReality:
             set(server.REQUISITION_WRITE_TOOLS)
             | set(server.PROFILE_WRITE_TOOLS)
             | set(server.AGENT_CONFIG_WRITE_TOOLS)
+            # Added 2026-08-25 with the two writes that are not reversible
+            # settings switches. It had to be added HERE and not only to a
+            # per-group equality: this union is what makes "a confirm-taking
+            # tool in no group at all" detectable, so a new group that the
+            # union does not know about turns its own members invisible to the
+            # one assertion that was built to find them.
+            | set(server.CONSENT_AND_ONE_WAY_WRITE_TOOLS)
             | set(server.SHARED_CONFIG_WRITE_TOOLS)
             | set(server.LOCAL_STATE_ONLY_TOOLS)
         )
@@ -451,6 +466,12 @@ class TestTheDeclaredSurfaceMatchesReality:
             "uplers_dismiss",
             "uplers_replace_resume",
             "uplers_set_followup",
+            # The two added 2026-08-25. Named here rather than left to the
+            # union above for the reason this whole block exists: an empty
+            # `confirmable` makes the assertion below pass for free, and the
+            # one-way write is exactly the tool that must never go undetected.
+            "uplers_revoke_email_scan",
+            "uplers_submit_interview_feedback",
         } <= confirmable, sorted(confirmable)
         uncensused = confirmable - censused
         assert uncensused == set(), (

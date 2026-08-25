@@ -767,9 +767,13 @@ def agent_settings(*, followup, templates, auto_reply, blocked) -> dict:
         "blocked_companies": blocked,
         "reads_only": True,
         "notes": [
-            "Four GETs, no writes. The write half of this namespace "
-            "(consent-email-job-scan, consent-auto-run, interview-feedback) is "
-            "not built and is not reachable from this tool.",
+            "Four GETs, no writes, and none of the write routes in this "
+            "namespace is reachable from this tool. Two of them ARE now built "
+            "elsewhere and are named rather than hidden: "
+            "uplers_revoke_email_scan reaches consent-email-job-scan (DELETE "
+            "only) and uplers_submit_interview_feedback reaches "
+            "interview-feedback, which is ONE-WAY. consent-auto-run and the "
+            "GRANT arm of the consent are still not built at all.",
             "Every line above is a state of the account, not a recommendation.",
         ],
     }

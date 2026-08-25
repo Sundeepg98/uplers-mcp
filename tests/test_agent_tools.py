@@ -24,6 +24,14 @@ worst a typo here could do was call a route nobody had wired; now a wrong
 import reaches a module built to write. The tools tested in this file must
 still emit nothing but GETs, and that is measured below rather than trusted.
 
+IT GOT STRONGER AGAIN ON 2026-08-25. `uplers_server/consent_write.py` wired
+the last two of those named routes: `consent-email-job-scan` (DELETE only) and
+`interview-feedback`, which is ONE-WAY and has no undo anywhere in Uplers'
+product. So the paragraph above no longer describes them as merely nearby - a
+typo in this file can now reach a route that publishes a review that cannot be
+retracted. The forbidden-route list below still names both, and still must:
+these four tools may not touch them, whoever else may.
+
 The same reasoning covers `uplers_apply`, which is why no test in this file
 goes near it: on Uplers, expressing interest IS applying and there is no
 withdraw anywhere in their product.
@@ -183,6 +191,58 @@ def by_route(bodies, fallback=None):
     return handler
 
 
+# --- static reachability, shared by the two route-constant pins -------------
+#
+# The two tests below ask the same question of two different constants: which
+# modules NAME this route in code. Factored out rather than copied, because a
+# copy that drifts would leave one of the two pins measuring something subtly
+# different from the other while both stayed green.
+
+
+def _package_root():
+    import pathlib
+
+    return pathlib.Path(server.__file__).resolve().parent
+
+
+def _names_in_code(path):
+    """Every identifier that appears in the SYNTAX TREE of one module.
+
+    Names in strings and comments are deliberately NOT collected - see the
+    docstring on the consent pin for why a substring match on this question is
+    actively harmful.
+    """
+    import ast
+
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    return {
+        node.attr if isinstance(node, ast.Attribute) else node.id
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.Attribute, ast.Name))
+    } | {
+        alias.name
+        for node in ast.walk(tree)
+        if isinstance(node, ast.ImportFrom)
+        for alias in node.names
+    }
+
+
+def _modules_naming(constant):
+    """Sorted names of the modules that reference `constant`, endpoints.py aside.
+
+    endpoints.py is excluded because it DEFINES these constants; including it
+    would make every pin read "endpoints.py plus whoever calls it" and bury the
+    one name the pin is actually about.
+    """
+    root = _package_root()
+    sources = [root / "server.py", *sorted((root / "uplers_server").glob("*.py"))]
+    return sorted(
+        path.name
+        for path in sources
+        if path.name != "endpoints.py" and constant in _names_in_code(path)
+    )
+
+
 def writes(calls):
     """Every request that was not a read. The whole risk surface."""
     return [call for call in calls if call.method != "GET"]
@@ -298,73 +358,124 @@ class TestNothingHereWrites:
         for route in forbidden:
             assert not any(route in path for path in touched), (route, touched)
 
-    def test_the_consent_write_constant_is_reachable_from_nothing(self):
-        """EP_CONSENT_EMAIL_JOB_SCAN exists, and NOTHING may reference it.
+    def test_the_consent_write_constant_is_reachable_only_from_its_wrapper(self):
+        """EP_CONSENT_EMAIL_JOB_SCAN is named by server.py, and by NOTHING else.
 
-        The constant predates the ruling that refuses the route - it is what
-        explains an empty diary elsewhere - so unlike the ten one-way routes
-        beside it, which are recorded in endpoints.py as prose precisely
-        because a constant is an invitation to call it, this one is a name
-        sitting in the codebase with no guard around it.
+        REWRITTEN 2026-08-25, and the rewrite is the point of the old version.
+        This test used to assert that NOTHING referenced the constant at all,
+        and its own docstring said that if wiring it was ever deliberate, the
+        refusal in OUT_OF_SCOPE_BY_DESIGN had to be edited in the same commit.
+        The route was wired that day, this test went red naming `server.py`,
+        and the refusal was edited. A tripwire that fires and is then NARROWED
+        rather than deleted is the whole reason it was worth having.
 
-        `uplers_server_info` states that nothing reaches it. That sentence is
-        either measured or it is decoration, and the runtime census above
-        cannot measure it: that census watches the requests four specific tools
-        emit, so it would stay green if a FIFTH tool wired the constant
-        tomorrow. This reads the source instead, so the property holds for
-        every module rather than for the four under test.
+        WHAT IT PINS NOW IS STRICTLY STRONGER THAN A BARE "SOMETHING USES IT",
+        and it is two claims rather than one:
 
-        Deliberately a static check and not a call: the route is a POST/DELETE
-        that changes what Uplers reads out of his mailbox, and the one thing a
+        1.  `server.py` names it - the thin wrapper that builds the DELETE
+            sender and hands it to the orchestrator. That is the doctrine
+            `outreach_write` states: an orchestrator is HANDED a `send`
+            callable and REFUSES without one, so "this route is reachable" is a
+            fact about ONE wrapper rather than about a module that could grow a
+            second caller quietly.
+        2.  **`consent_write.py` does NOT name it.** This is the property
+            `outreach_write` wishes it had and says so in its own docstring:
+            its four settings routes serve the GET and the POST on the SAME
+            path string, so the module that builds the bodies must also name
+            the string a POST would use, and only the sender seam stays
+            structural there. Here the read-back is a DIFFERENT route
+            (`recommended-jobs-meta-email`), so the write path string has no
+            business in the body-building module at all - and its absence is
+            ASSERTED rather than left to hold by luck.
+
+        Deliberately a static check and not a call: this is a DELETE that
+        withdraws Uplers' permission to read a mailbox, and the one thing a
         test of it must never do is exercise it.
 
         IT PARSES THE AST RATHER THAN GREPPING, and that is not fastidiousness.
         The first version matched the substring and went red on its own
-        documentation - the refusal in OUT_OF_SCOPE_BY_DESIGN names the
-        constant in prose in order to explain why it is refused. A test that
-        fires on a sentence pushes the next maintainer to stop WRITING about
-        the refusal so the suite stays green, which is exactly backwards. Names
-        in the syntax tree are references; names in strings and comments are
-        the documentation this repo is made of.
+        documentation - the refusals in OUT_OF_SCOPE_BY_DESIGN and the comments
+        in endpoints.py name the constant in prose in order to explain it. A
+        test that fires on a sentence pushes the next maintainer to stop
+        WRITING about the route so the suite stays green, which is exactly
+        backwards. Names in the syntax tree are references; names in strings
+        and comments are the documentation this repo is made of.
         """
-        import ast
-        import pathlib
-
-        root = pathlib.Path(server.__file__).resolve().parent
-        sources = [root / "server.py", *sorted((root / "uplers_server").glob("*.py"))]
-
-        def names_in_code(path):
-            tree = ast.parse(path.read_text(encoding="utf-8"))
-            return {
-                node.attr if isinstance(node, ast.Attribute) else node.id
-                for node in ast.walk(tree)
-                if isinstance(node, (ast.Attribute, ast.Name))
-            } | {
-                alias.name
-                for node in ast.walk(tree)
-                if isinstance(node, ast.ImportFrom)
-                for alias in node.names
-            }
-
-        referencing = [
-            path.name
-            for path in sources
-            if path.name != "endpoints.py"
-            and "EP_CONSENT_EMAIL_JOB_SCAN" in names_in_code(path)
-        ]
-        assert referencing == [], (
-            "these modules REFERENCE the consent-write constant in code: %s. "
-            "The route is refused - it changes what Uplers reads out of his "
-            "mailbox and that is his call. If wiring it was deliberate, the "
-            "refusal in OUT_OF_SCOPE_BY_DESIGN has to be edited in the same "
-            "commit." % referencing
+        referencing = _modules_naming("EP_CONSENT_EMAIL_JOB_SCAN")
+        assert referencing == ["server.py"], (
+            "the consent-write constant must be referenced by server.py and by "
+            "nothing else; these modules reference it in code: %s. server.py is "
+            "the wrapper that builds the DELETE sender and hands it in, so a "
+            "second referencing module means some other code path can reach a "
+            "route that withdraws Uplers' permission to read his mailbox. If "
+            "that was deliberate, the refusal in OUT_OF_SCOPE_BY_DESIGN and the "
+            "comment on EP_CONSENT_EMAIL_JOB_SCAN both have to be edited in the "
+            "same commit." % referencing
         )
 
-        # The constant really is there to be found. Without this the assertion
-        # above would pass just as happily against a name nobody ever defined.
-        assert "EP_CONSENT_EMAIL_JOB_SCAN" in names_in_code(
-            root / "uplers_server" / "endpoints.py"
+        # The orchestrator does not name the write path. Asserted separately
+        # from the list above so a failure says WHICH property broke: the list
+        # growing to two names and the BODY-BUILDER being one of those two are
+        # different mistakes with different fixes.
+        assert "EP_CONSENT_EMAIL_JOB_SCAN" not in _names_in_code(
+            _package_root() / "uplers_server" / "consent_write.py"
+        ), (
+            "consent_write.py names the consent route constant. It must not: "
+            "its read-back is recommended-jobs-meta-email, a DIFFERENT route, "
+            "so the write path string has no reason to exist in the module that "
+            "builds the request. Only the sender - built in server.py and handed "
+            "in - may carry it."
         )
+
+        # The constant really is there to be found. Without this, both
+        # assertions above would pass just as happily against a name nobody
+        # ever defined.
+        assert "EP_CONSENT_EMAIL_JOB_SCAN" in _names_in_code(
+            _package_root() / "uplers_server" / "endpoints.py"
+        )
+
+    def test_the_one_way_feedback_constant_is_reachable_only_from_its_wrapper(self):
+        """The same pin on EP_INTERVIEW_FEEDBACK, which is the ONE-WAY one.
+
+        It gets its own test rather than a second loop inside the one above,
+        because the two constants were refused - and then admitted - for
+        different reasons, and one shared failure message could only ever state
+        one of them.
+
+        This route has NO edit route and NO delete route anywhere in Uplers'
+        product. It is also the ONE deliberate exception to endpoints.py's rule
+        that one-way routes are recorded as prose and never given a constant.
+        "Exactly one module may name it, and that module is the thin wrapper"
+        is the guard that buys the exception, so it is measured here rather
+        than asserted in the comment that claims it.
+        """
+        referencing = _modules_naming("EP_INTERVIEW_FEEDBACK")
+        assert referencing == ["server.py"], (
+            "EP_INTERVIEW_FEEDBACK must be referenced by server.py and nothing "
+            "else; these modules reference it in code: %s. This route is "
+            "ONE-WAY - no edit route, no delete route, complete negative "
+            "search - and it is the single exception to the rule in "
+            "endpoints.py that one-way routes get no constant. A second caller "
+            "retires the argument that bought the exception." % referencing
+        )
+        assert "EP_INTERVIEW_FEEDBACK" in _names_in_code(
+            _package_root() / "uplers_server" / "endpoints.py"
+        )
+
+    def test_the_reachability_pin_can_actually_fail(self):
+        """__CONTROL for both tests above, and it is not decoration.
+
+        `_modules_naming` is an AST walk, and the failure mode that matters is
+        it returning nothing - a walk that silently stops collecting turns both
+        assertions above into `[] == ["server.py"]`, which at least goes red,
+        but the SECOND assertion in each (`not in`) would pass for free forever.
+        This proves the collector genuinely finds a name that is genuinely
+        there, and genuinely does not find one that is not.
+        """
+        # A name every module in the package really does reference.
+        assert "server.py" in _modules_naming("endpoints")
+        # And one nothing does.
+        assert _modules_naming("EP_NOT_A_REAL_CONSTANT_NAME") == []
 
     async def test_the_census_can_actually_fail(self, monkeypatch):
         """__CONTROL. `writes(calls) == []` is trivially true when no request

@@ -175,7 +175,64 @@ PROSE_DROP = (
     "prerequisites",
 )
 
-DROP = DROP + PROSE_DROP
+#: THE PAID-SKU CLASS, added 2026-08-25 for `scripts/capture_skus.py`.
+#:
+#: MEASURED LIVE on the three routes that script captures. Every name below was
+#: checked against the repo before being listed: **0 existing fixtures and 0
+#: readers in `uplers_server/` or `tests/` use any of them**, so this block
+#: deletes nothing that was previously captured or read. That is the whole
+#: reason it could be a plain name list rather than a trail-scoped rule.
+#:
+#: `report_details` IS DROPPED AS A CONTAINER, NOT LEAF BY LEAF, and that is
+#: the load-bearing decision. MEASURED on `get-last-health-check`: the subtree
+#: holds `candidate_name`, and under `sections` it holds Uplers' scoring
+#: commentary, which quotes HIS RESUME VERBATIM - whole bullets naming his
+#: employers, his metrics and his projects - plus `contact_information`
+#: messages that state his city outright. Enumerating those leaves would mean
+#: listing `message`, and `message` is the ENVELOPE key every route on this API
+#: carries, so listing it would silently empty 40-odd unrelated fixtures.
+#:
+#: More importantly, leaf enumeration is the method this file already rejects.
+#: `PROSE_DROP` above says prose is deleted rather than pattern-scrubbed
+#: because "deleting the key needs no enumeration of what a signature block can
+#: contain", and `capture_agent_surface.py` refuses `get-recommended-jobs`
+#: outright on the same ground. A scoring report is a container whose PURPOSE
+#: is prose about him; the set of checks inside it is Uplers' to grow, and a
+#: leaf list would be correct only until the next release. Dropping the
+#: container is correct on the day they add one.
+#:
+#: THE COST IS REAL AND IS STATED RATHER THAN GLOSSED: the per-section
+#: breakdown - `check`, `points_earned`, `red_flag` per check, and the one
+#: measured red flag (`format.long_bullet_points`) - is not prose and is lost
+#: with the container. No fixture pins it, so `uplers_server.skus` does not
+#: read it and reports it as withheld instead. A later slice that wants it
+#: needs a trail-scoped rule here first, not a shaper change.
+#:
+#: The file-identity names are dropped on the rule the brief for this slice
+#: states directly: an address that resolves to his document is a bearer
+#: credential.
+#:   * `aws_file_name` - the object-storage name of his resume.
+#:   * `google_doc_urls` - links to his transformed resume. MEASURED as the
+#:     EMPTY LIST on 2026-08-25, so nothing leaks today; the key is listed so
+#:     that the day it fills, the capture is already safe. A rule added after
+#:     the value arrives is a rule added too late.
+#:   * `file_name`, `base_resume`, `base_resume_text` - resume filenames, which
+#:     on this account carry his name.
+#:   * `file_id` - the 32-character handle joining the health check to its
+#:     transform. Nothing in this server reads it, so it is deleted rather than
+#:     handed to `OPAQUE_ID`; `enc_id` and `talent_id` on these same routes are
+#:     already covered there and keep their joinability.
+SKU_DROP = (
+    "report_details",
+    "aws_file_name",
+    "google_doc_urls",
+    "file_name",
+    "base_resume",
+    "base_resume_text",
+    "file_id",
+)
+
+DROP = DROP + PROSE_DROP + SKU_DROP
 
 #: MASKED rather than dropped, and the difference is deliberate.
 #:
