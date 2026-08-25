@@ -589,8 +589,21 @@ class TestRenewalIsRuledOutWithEvidence:
             "silent_renew_available", "uses_browser", "tool", "mechanism",
             "why", "session_lapses_at", "session_lapses_in_days",
             "session_lapses_source",
+            # Added 2026-08-25. `tool` is null because there is no REAUTH, and
+            # a null there left a machine reader with no next step - "there is
+            # no silent renew" and "there is nothing you can do" are different
+            # facts. Recovery is now a field, not only prose in `mechanism`,
+            # because a client that renders fields shows one and not the other.
+            "recover_with", "recovery_is_a_human_action",
         }
         assert result["renewal"]["session_lapses_at"] == result["credential"]["expires_at"]
+        # Recovery names a REAL tool and is not the reauth slot wearing a
+        # different name. Both halves matter: a caller must be able to act on
+        # it, and must not be able to loop on it as though it were silent.
+        assert result["renewal"]["tool"] is None
+        assert result["renewal"]["recover_with"] == "uplers_login"
+        assert hasattr(server, "uplers_login")
+        assert result["renewal"]["recovery_is_a_human_action"] is True
 
     async def test_the_server_ships_no_reauth_tool(self):
         """The rule, enforced where it can actually be broken.

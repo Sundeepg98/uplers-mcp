@@ -88,19 +88,58 @@ async def test_the_supplier_is_consulted_on_every_request_not_cached_at_build():
     assert calls[1].headers["authorization"] == "Bearer second-token-after-relogin"
 
 
-async def test_no_authorization_header_at_all_when_there_is_no_token():
-    """Absent, not empty.
+async def test_no_token_refuses_BEFORE_spending_a_request():
+    """First run is a different answer, and it is reached without a round trip.
 
-    An empty or malformed credential invites a 400 or a bespoke error; sending
-    nothing gets the same clean 401 as an expired token, so "never logged in"
-    and "token went stale" report identically instead of forking the caller.
+    THIS TEST USED TO ASSERT THE OPPOSITE and the reversal is the point. It
+    read: sending nothing gets the same clean 401 as an expired token, so
+    "never logged in" and "token went stale" report identically instead of
+    forking the caller.
+
+    Reporting them identically is the defect. This repository is public, so the
+    reader is not necessarily its owner. Somebody who had just cloned it and
+    never signed in was told "Uplers sessions are short-lived, so this is
+    usually an expired token" - false about their situation, silent about the
+    step they needed, and paid for with a pointless round trip to Uplers to
+    learn something already on disk.
+
+    So: no token means no request at all, and the message names the next step.
     """
     client, calls = make_client(serve(), supplier=lambda: None)
     async with client:
         assert client.has_token() is False
+        with pytest.raises(AuthRequired) as caught:
+            await client.get_json(PROBE)
+
+    assert calls == [], "a first run must not cost a request to diagnose"
+    message = str(caught.value)
+    assert "FIRST RUN" in message
+    assert "uplers_login()" in message
+    # THE SENTENCE, not the word. A first draft of this asserted that
+    # "expired" was absent entirely, and that is too blunt: the message says
+    # "a FIRST RUN rather than an expired session", which DISTINGUISHES the two
+    # and is exactly what a confused reader needs. What must never reach them is
+    # the diagnosis written for the operator - that their problem is probably a
+    # stale token. Pin that sentence.
+    assert "usually an expired token" not in message.lower(), (
+        "the operator's expired-session diagnosis reached a reader who has "
+        "never signed in - that is the sentence this test exists to keep away"
+    )
+
+
+async def test_a_token_that_exists_still_reaches_the_wire_unchanged():
+    """The reversal must not have broken the ordinary path.
+
+    A control for the test above: with a token present, the request goes out
+    exactly as before and carries the bearer header. Without this, deleting the
+    whole request path would satisfy the no-token assertion.
+    """
+    client, calls = make_client(serve(), supplier=lambda: "a-token")
+    async with client:
         await client.get_json(PROBE)
 
-    assert "authorization" not in calls[0].headers
+    assert len(calls) == 1
+    assert calls[0].headers["authorization"] == "Bearer a-token"
 
 
 async def test_every_request_asks_for_json():
@@ -111,7 +150,9 @@ async def test_every_request_asks_for_json():
     302 to an HTML login page - a shape change that reads downstream as a
     broken API rather than an expired session.
     """
-    client, calls = make_client(serve(), supplier=lambda: None)
+    # A token, because a tokenless client now refuses before the wire. This
+    # test is about the Accept header, not about auth.
+    client, calls = make_client(serve(), supplier=lambda: "a-token")
     async with client:
         await client.get_json(PROBE)
         await client.post_json(endpoints.EP_NOT_INTERESTED, {"hr_number": "HR1"})

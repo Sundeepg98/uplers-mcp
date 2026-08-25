@@ -120,9 +120,18 @@ class TalentClient:
     def _auth_header(self) -> dict[str, str]:
         """Bearer header, or nothing.
 
-        Sending no Authorization header when there is no token is deliberate:
-        it produces a clean 401 instead of a malformed-credential error, so
-        "never logged in" and "token went stale" report the same way.
+        Sending no Authorization header when there is no token still produces a
+        clean 401 rather than a malformed-credential error, and that half of
+        the original reasoning holds.
+
+        THE OTHER HALF WAS REVERSED ON 2026-08-25. It used to say the point was
+        that "never logged in" and "token went stale" report the same way. They
+        must NOT: `_request` now refuses before spending a request when there is
+        no token, because a first-run reader told "this is usually an expired
+        token" is being told something false about their own situation. This
+        header path is therefore only reached with a token that Uplers itself
+        rejected - which is what makes the 401 message's "expired" wording true
+        wherever it can now appear.
         """
         token = self._token_supplier()
         return {"Authorization": "Bearer %s" % token} if token else {}
@@ -215,6 +224,29 @@ class TalentClient:
         files: Mapping[str, Any] | None = None,
     ) -> Any:
         """Perform one call. Returns parsed JSON or raises. Never returns None."""
+        if not self.has_token():
+            # FIRST RUN, and it is a DIFFERENT ANSWER from an expired session.
+            # Added 2026-08-25 under the four-server auth contract, and it
+            # deliberately REVERSES the reasoning that used to sit on
+            # `_auth_header`: that sending no header produced a clean 401 so
+            # "never logged in" and "token went stale" reported the same way.
+            #
+            # Reporting them the same way is exactly the defect. These repos
+            # are public now, so the reader is not necessarily the operator.
+            # Somebody who has just cloned this and never signed in was being
+            # told "Uplers sessions are short-lived, so this is usually an
+            # expired token" - which is not true of them, does not name the
+            # step they need, and costs a pointless round trip to Uplers to
+            # discover something knowable from disk.
+            raise AuthRequired(
+                "Not signed in: no Uplers token is stored, so %s was not sent. "
+                "This is a FIRST RUN rather than an expired session - nothing "
+                "has gone wrong. Run uplers_login() and complete the Google "
+                "sign-in in the browser window it opens; this server never "
+                "handles a password. The public tier needs none of this: "
+                "uplers_sync_index() then uplers_daily_brief() work with no "
+                "account at all." % path
+            )
         last_error = ""
         attempt = 0
         for attempt in range(1, self._max_retries + 1):

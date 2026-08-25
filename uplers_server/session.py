@@ -521,7 +521,19 @@ def _renewal(credential: dict) -> dict:
         # there is no mechanism here to characterise, so a False would be a
         # claim about something that does not exist.
         "uses_browser": None,
+        # `tool` is the REAUTH tool and there is none, so it stays null. A
+        # caller comparing the four servers reads this field to answer "what do
+        # I call to renew silently", and the honest answer here is nothing.
         "tool": None,
+        # But a null `tool` leaves a machine reader with no next step, and
+        # "there is no reauth" and "there is nothing you can do" are different
+        # facts. RECOVERY IS NAMED AS A FIELD rather than only in the prose of
+        # `mechanism`, because a client that renders fields will show one and
+        # not the other. This is a full sign-in, not a renewal, and it is
+        # deliberately NOT called `tool` - putting it there would let a caller
+        # loop on it as though it were a silent retry.
+        "recover_with": "uplers_login",
+        "recovery_is_a_human_action": True,
         "mechanism": RENEWAL_MECHANISM,
         "why": RENEWAL_WHY,
         "session_lapses_at": lapses_at,
