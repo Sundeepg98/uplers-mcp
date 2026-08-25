@@ -21,6 +21,7 @@ Two conventions carry over from `models.py` and one is new:
 from __future__ import annotations
 
 from pydantic import Field
+from pydantic.json_schema import SkipJsonSchema
 
 from .models import Compact, ProfileSummary
 
@@ -28,10 +29,25 @@ from .models import Compact, ProfileSummary
 class TalentRow(Compact):
     """One requisition as HIS account sees it.
 
-    Carries both identifier spaces because the API is not consistent about
-    which it wants: `id` is what an apply takes, `enc_id` is what a save takes,
-    and `hr_number` is what everything else takes. Dropping either would make a
-    row un-actionable without a second fetch.
+    THE HANDLE IS `hr_number`, and it is the ONLY identifier returned. Ten tools
+    take it; no tool takes any other. An id a caller cannot pass to any tool is
+    noise to that caller, however useful it is inside this server, so the two
+    Uplers ids that used to ride along on every row no longer do:
+
+    * `enc_id` addresses `talent/hr/update-saved-hr`, a write this server does
+      not build. Nothing accepted it and nothing consumed it, so the field is
+      gone outright.
+    * `job_id` is the numeric id the apply route wants as `hr_id`. It is still
+      HERE, because `server.uplers_apply` reads it off this object
+      (`{"hr_id": row.job_id}`), and it is `exclude=True` so it never reaches a
+      caller. **That distinction is the whole design: the attribute is the
+      server's, the payload is the caller's.** Deleting the field outright would
+      have broken the apply path; leaving it in the payload spent 16 bytes a row
+      on an id no signature accepts.
+
+    Both are named in the envelope (`TalentFeed.row_fields_not_returned`,
+    `PipelineResult.row_fields_not_returned`) rather than left to read as an
+    oversight, and `enc_id` comes back the day its write is built.
     """
 
     hr_number: str | None = None
@@ -44,11 +60,20 @@ class TalentRow(Compact):
     notice: str | None = Field(None, description="Notice period the client accepts")
     min_years_experience: float | None = None
 
-    job_id: int | None = Field(
-        None, description="Numeric id. This is what uplers_apply sends as hr_id."
-    )
-    enc_id: str | None = Field(
-        None, description="Encrypted id. What the save/unsave route sends as hr_id."
+    #: NOT RETURNED, AND NOT ADVERTISED. Read by `server.uplers_apply` off this
+    #: object; accepted as an argument by none of the 67 tools. See the class
+    #: docstring: the attribute is the server's, the payload is the caller's.
+    #:
+    #: IT TAKES BOTH MARKERS AND ONE IS NOT OBVIOUS. `exclude=True` keeps it out
+    #: of the PAYLOAD; `SkipJsonSchema` keeps it out of the tool's declared
+    #: OUTPUT SCHEMA. FastMCP builds that schema in VALIDATION mode, where an
+    #: excluded field is still advertised - so without the second marker the
+    #: tool promised callers a `job_id` that no response could ever contain,
+    #: which is the missing-field defect wearing the costume of a fix.
+    job_id: SkipJsonSchema[int | None] = Field(
+        None,
+        exclude=True,
+        description="Numeric id uplers_apply sends as hr_id. Internal; never serialised.",
     )
 
     applied: bool | None = Field(None, description="You have expressed interest. NOT reversible.")
@@ -118,6 +143,24 @@ class TalentFeed(Compact):
     source: str | None = Field(None, description="Which authenticated route produced this")
     filters_applied: dict = Field(default_factory=dict)
     scored_against: ProfileSummary | None = None
+    score_basis_all_rows: str | None = Field(
+        None,
+        description=(
+            "A score caveat that is true of EVERY row above, said once here "
+            "instead of repeated on each of them. Set only when the whole page "
+            "shares one caveat - a mixed page keeps its caveats on the rows, "
+            "where `score_basis` then reappears per row. Read it as though it "
+            "were printed on every row, because it is."
+        ),
+    )
+    row_fields_not_returned: dict = Field(
+        default_factory=dict,
+        description=(
+            "Fields the source rows carried that this server does NOT return, "
+            "each with why. Named rather than silently dropped, so an absence "
+            "reads as a decision instead of an oversight."
+        ),
+    )
     notes: list[str] = Field(default_factory=list)
 
 
@@ -131,6 +174,14 @@ class PipelineResult(Compact):
     pages_fetched: int = 1
     by_status: dict = Field(default_factory=dict, description="Counts of Uplers' own statuses")
     by_badge: dict = Field(default_factory=dict)
+    row_fields_not_returned: dict = Field(
+        default_factory=dict,
+        description=(
+            "Fields the source rows carried that this server does NOT return, "
+            "each with why. Named rather than silently dropped, so an absence "
+            "reads as a decision instead of an oversight."
+        ),
+    )
     notes: list[str] = Field(default_factory=list)
 
 

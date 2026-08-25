@@ -125,13 +125,23 @@ CAPTURED_FOLLOWUP_DAYS = 15
 WITHHELD_KEYS = ("employee_name", "logo_url")
 
 WITHHELD_REASON = (
-    "employee_name is the actual person at the actual company who answered, "
-    "and logo_url is a CDN address. Neither is needed to act on a reply and "
-    "neither belongs in a transcript - the same rule uplers_agent_readthrough "
-    "applies to contact routes and verbatim reply bodies. The company, the "
-    "channel and what they asked for are here; the name is in the thread, "
-    "which is where to read it."
+    "Withheld from every row, without exception. employee_name is the actual "
+    "person at the actual company who answered, and logo_url is a CDN address. "
+    "Neither is needed to act on a reply and neither belongs in a transcript - "
+    "the same rule uplers_agent_readthrough applies to contact routes and "
+    "verbatim reply bodies. The company, the channel and what they asked for "
+    "are here; the name is in the thread, which is where to read it."
 )
+
+#: The one thing this route CANNOT tell you about a row, said once for the page.
+#:
+#: It used to be repeated verbatim on every row as `answered_note`. It is a
+#: statement about the ROUTE - nothing in `value-with-happy` records whether he
+#: answered, and the rows carry no timestamp, thread id or joining key that
+#: could - so it is true of all of them or none. The three-valued `answered`
+#: flag STAYS on each row: that is the value a caller reads to decide, and this
+#: is only the sentence explaining it.
+ANSWERED_NOTE = "not recorded on this route - check the thread"
 
 
 # --- Small guards -----------------------------------------------------------
@@ -314,6 +324,9 @@ def shape_reply_outcomes(payload: dict, pending: dict | None = None) -> dict:
         # positive/negative ledger and must not be read as one.
         "replies_on_this_route": len(rows),
         "response_was_a_list": isinstance(data.get("response"), list),
+        # Named for its SCOPE. It applies to every row below, which is exactly
+        # why it is not on any of them.
+        "answered_note_all_rows": ANSWERED_NOTE,
         "rows": rows,
         "asks": _tally(categories),
         "by_reply_type": _tally(types),
@@ -390,23 +403,39 @@ def _reply_row(raw: dict) -> dict:
     """One ``response`` row, minus the person and minus the addresses.
 
     `employee_name` and `logo_url` are NOT read, not even into a local, so
-    there is no path by which either reaches the returned dict. The row says
-    the name was withheld rather than saying nothing, because a silent
+    there is no path by which either reaches the returned dict. That the route
+    carried them and this server refused them is stated in the ENVELOPE, by
+    :data:`WITHHELD_KEYS` and :data:`WITHHELD_REASON`, because a silent
     omission is indistinguishable from an oversight.
+
+    WHAT IS ON THE ROW IS WHAT CAN DIFFER BETWEEN ROWS. `channel` and
+    `reply_type` read `gmail` and `positive` on all seven rows of the current
+    capture and are per-reply facts that will differ the moment a LinkedIn
+    reply or a negative one lands - uniform by coincidence, not by
+    construction, so they stay. `answered` stays for the stronger reason
+    below.
+
+    THREE MARKERS CAME OFF THIS ROW, all of them constant BY CONSTRUCTION.
+    `answered_note` said the same 47 bytes seven times; `employee_name_
+    withheld` and `logo_url_withheld` could not be anything but True, because
+    this function never reads either key. All three are route-level facts and
+    are now stated once, in the envelope. Nothing was dropped - `answered_note`
+    moved byte for byte, and the withholding is named in `withheld` with a
+    reason that says explicitly that it covers every row.
     """
     return {
         "company_name": _text(raw.get("company_name")),
         "channel": _text(raw.get("channel")),
         "reply_category": _text(raw.get("reply_category")),
         "reply_type": _text(raw.get("reply_type")),
-        # THREE-VALUED, AND IT IS ALWAYS "unknown" ON THIS ROUTE. Carried per
-        # row rather than only at the top, because the row is what gets read
-        # aloud - and an absent field is what a reader turns into "outstanding".
-        # `unknown` must never be rendered as an action.
+        # THREE-VALUED, AND IT IS ALWAYS "unknown" ON THIS ROUTE - but it stays
+        # HERE, not in the envelope, and the distinction is deliberate. The row
+        # is what gets read aloud, an absent field is what a reader turns into
+        # "outstanding", and a route that ever does record completion would make
+        # this vary per row. Its explanatory NOTE is route-level and moved up;
+        # the value a caller reads to decide did not. `unknown` must never be
+        # rendered as an action.
         "answered": "unknown",
-        "answered_note": "not recorded on this route - check the thread",
-        "employee_name_withheld": True,
-        "logo_url_withheld": True,
     }
 
 

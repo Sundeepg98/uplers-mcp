@@ -31,14 +31,25 @@ file: an Opportunity with no skills AND no experience band must REFUSE to score.
 
 CONTROLS - each of the five new guards, reverted, with the measured damage.
 Run as `pytest -p ctl_<name>` with a plugin containing only the line shown.
-Measured 2026-08-22 against the whole suite (886 passing):
+RE-MEASURED 2026-08-25 against the whole suite (1706 passing); the 2026-08-22
+column is the original reading against an 886-test suite, kept so the drift is
+visible rather than quietly overwritten:
 
-    ctl_descent   shaping.job_view = lambda raw: raw                   ->  5 failed
+                                                          08-22   08-25
+    ctl_descent   shaping.job_view = lambda raw: raw          5       6
     ctl_company   shaping.company_name = lambda raw: raw.get("CompanyName") or None
-                                                                       ->  6 failed
-    ctl_guard     fit.unscorable_reason = lambda opp: None             ->  2 failed
-    ctl_diag      talent_shape._empty_diary_diagnosis = lambda meta: [] ->  2 failed
-    ctl_basis     fit.score_basis = lambda opp: None                   ->  1 failed
+                                                              6       7
+    ctl_guard     fit.unscorable_reason = lambda opp: None     2       2
+    ctl_diag      talent_shape._empty_diary_diagnosis = lambda meta: []
+                                                              2       3
+    ctl_basis     fit.score_basis = lambda opp: None           1       4
+
+EVERY NUMBER THAT MOVED, MOVED UP, which is what a growing suite should do to a
+real control - a control whose damage count FALLS is the one to investigate.
+`ctl_basis` 1 -> 4 and `ctl_descent` 5 -> 6 are the row-relevance pass of
+2026-08-25 (tests/test_row_relevance.py) binding onto the same two guards;
+`ctl_company` 6 -> 7 is that pass asserting no row lost its end-client name to a
+byte budget. `ctl_diag` 2 -> 3 predates it and was simply stale.
 
 `ctl_guard` costing only 2 is not a weak control, it is the honest number: with
 the descent repaired, nothing in a real payload is unscorable any more. The

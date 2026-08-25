@@ -416,8 +416,13 @@ class TestTheCounterpartyIsNeverNamed:
         shaped = conversion.shape_reply_outcomes(payload)
 
         assert PLANTED_NAME not in strings_in(shaped)
-        assert shaped["rows"][0]["employee_name_withheld"] is True
+        # STATED IN THE ENVELOPE, not on the row. It used to be both: a
+        # per-row `employee_name_withheld: True` that could not have been
+        # anything else, because `_reply_row` never reads the key. The
+        # route-level statement is the whole fact, and it says so.
         assert "employee_name" in shaped["withheld"]
+        assert "every row" in shaped["withheld_reason"]
+        assert all("employee_name_withheld" not in row for row in shaped["rows"])
 
     def test_the_masked_name_is_not_returned_either(self):
         """Even the SUBSTITUTE stays out. The key is refused, not the value."""
@@ -438,8 +443,9 @@ class TestTheCounterpartyIsNeverNamed:
 
         assert "cloudfront.net" not in strings_in(shaped)
         assert "http" not in strings_in(shaped)
-        assert shaped["rows"][0]["logo_url_withheld"] is True
         assert "logo_url" in shaped["withheld"]
+        assert "every row" in shaped["withheld_reason"]
+        assert all("logo_url_withheld" not in row for row in shaped["rows"])
 
     async def test_the_tool_withholds_it_too_not_just_the_shaper(self, monkeypatch):
         """A test exercising a copy of the tool proves nothing about the tool."""

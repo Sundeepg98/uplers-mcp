@@ -179,13 +179,19 @@ def to_talent_row(
             )[:3]
             blockers = assessment.get("blockers") or []
 
-    # The IDENTIFIER SPACES, and they must come from the JOB, not the wrapper.
+    # The IDENTIFIER SPACE, and it must come from the JOB, not the wrapper.
     # On `my-opportunities` the wrapper is the APPLICATION: it carries no `id`
-    # at all, and its `enc_id` is HIS TALENT id - MEASURED identical across all
-    # nine of his pipeline rows while `hr.enc_id` differs per row. `enc_id` is
-    # what the save/unsave route sends as `hr_id`, so reading the wrapper aims a
-    # write at the wrong identifier space. `shaping.job_view` resolves this once
-    # for every surface; it is a no-op on the three that do not nest.
+    # at all, so a wrapper-first read leaves `uplers_apply` with no numeric id
+    # to send. `shaping.job_view` resolves this once for every surface; it is a
+    # no-op on the three that do not nest.
+    #
+    # THE DESCENT IS STILL LOAD-BEARING NOW THAT `enc_id` IS NO LONGER RETURNED
+    # (see TalentRow). The wrapper's `enc_id` is HIS TALENT id - MEASURED
+    # identical across all nine pipeline rows while `hr.enc_id` differs per row -
+    # and that pair is the sharpest available evidence that the overlay runs the
+    # right way round. It is asserted on `shaping.job_view` in
+    # tests/test_talent_shape.py rather than on the row, because a proof does
+    # not have to be a returned field.
     job = shaping.job_view(raw)
     job_id = _first(job, "id", "hr_id")
     return TalentRow(
@@ -201,7 +207,6 @@ def to_talent_row(
         notice=opp.joining_period,
         min_years_experience=opp.min_years_experience,
         job_id=int(job_id) if isinstance(job_id, (int, str)) and str(job_id).isdigit() else None,
-        enc_id=_stringify(_first(job, "enc_id", "encrypted_id")),
         applied=truthy(_first(raw, "is_intrested", "is_interested", "applied", "is_applied")),
         saved=truthy(_first(raw, "is_saved", "saved")),
         not_interested=truthy(raw.get("job_not_interested")),
@@ -262,6 +267,84 @@ def rows_from(
         meta,
         notes,
     )
+
+
+#: What the row no longer carries, and why - returned in the ENVELOPE of every
+#: tool that shapes `TalentRow`s, once per response rather than per row.
+#:
+#: A dropped field that is merely absent is indistinguishable from a field
+#: nobody thought of, and the next reader re-derives the whole question. This
+#: names it, names the route it addressed, and says what would bring it back.
+#:
+#: BOTH UPLERS IDS, AND THE RULE IS THE SAME FOR BOTH: an id a caller cannot
+#: pass to any tool is noise to that caller. Measured across all 67 signatures,
+#: `enc_id` is accepted by 0 and `job_id` by 0, while `hr_number` is accepted by
+#: 10 - so `hr_number` also already serves the other thing an id is good for,
+#: correlating a row across tools.
+#:
+#: THEY ARE DROPPED DIFFERENTLY BECAUSE THEY ARE CONSUMED DIFFERENTLY. `enc_id`
+#: is gone from the model; `job_id` is still an attribute on `TalentRow` and
+#: merely `exclude=True`, because `server.uplers_apply` reads it off the row
+#: OBJECT. Deleting it would have broken the apply path - see the TalentRow
+#: docstring.
+#:
+#: KEPT SHORT ON PURPOSE, because it is the one thing here that costs MORE than
+#: it saves on a small page: the two ids cost 60 bytes per row together (44 +
+#: 16) against this note's fixed 404, so it pays for itself at 7 rows and loses
+#: below that. Both tools that carry it default well above the line (`my_feed`
+#: page_size=12, `my_pipeline` 3x10), and on the short pages that remain the
+#: honesty rule outranks the bytes - a reader looking at three rows and
+#: wondering where the id went is the reader most likely to be helped, so the
+#: note is NOT made conditional on row count.
+ROW_FIELDS_NOT_RETURNED = {
+    "enc_id": (
+        "Uplers' encrypted requisition id, for their save route "
+        "(talent/hr/update-saved-hr). That write is not built here, so no tool "
+        "accepts it - omitted on purpose, and it returns with that write. Act "
+        "on hr_number."
+    ),
+    "job_id": (
+        "Uplers' numeric requisition id. uplers_apply sends it but reads it "
+        "itself; no tool accepts one, so it bought a caller nothing. Act on "
+        "hr_number."
+    ),
+}
+
+
+def hoist_shared_score_basis(rows: list[TalentRow]) -> str | None:
+    """Lift a `score_basis` that is identical on EVERY row up to the envelope.
+
+    `tailor-jobs` publishes no skill list on any row, so all five of its rows
+    came back carrying the same 130-byte sentence: *"partial evidence: this
+    surface publishes no skill list..."*. That is a statement about the SURFACE,
+    true of the route rather than of any particular job, and repeating it per
+    row is the reader paying five times for one fact.
+
+    **IT REFUSES A MIXED PAGE, and that is the whole safety of it.** `fit.
+    score_basis` is genuinely per-row - its own docstring says a page can be
+    mixed - so this hoists only when every row already agrees. On a page where
+    one row rests on a default and another does not there is no single envelope
+    sentence, so nothing moves and every row keeps its own. The hoist is
+    therefore LOSSLESS by construction: the envelope value means exactly "this
+    is on every row", and when that is not true the rows are left alone.
+
+    THIS IS NOT A LICENCE TO HOIST ANY UNIFORM COLUMN. `applied`, `saved` and
+    `not_interested` are uniform on today's feed and must never move - they are
+    per-row state, and the day one differs is the day it matters most. The
+    difference is whether the value is uniform BY CONSTRUCTION or by today's
+    data; see tests/test_row_relevance.py, which pins both halves.
+
+    Mutates *rows* in place and returns the shared value, or None when there is
+    nothing to hoist.
+    """
+    if not rows:
+        return None
+    shared = rows[0].score_basis
+    if not shared or any(row.score_basis != shared for row in rows):
+        return None
+    for row in rows:
+        row.score_basis = None
+    return shared
 
 
 def tally(rows: Iterable[TalentRow], attribute: str) -> dict:

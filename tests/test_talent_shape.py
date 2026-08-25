@@ -29,7 +29,9 @@ from conftest import (
     ALL_IDS,
     CONFIDO,
     PRECISELY,
+    TALENT_PIPELINE,
     load_fixture,
+    load_talent_fixture,
 )
 
 #: The keys a session adds to a record the public catalogue also serves. An
@@ -219,18 +221,48 @@ def test_the_row_is_the_public_projection_not_a_second_opinion(hr_number):
     assert row.pay == fit.render_pay(opp)
 
 
-def test_the_two_identifier_spaces_are_carried_side_by_side():
-    """`id` is what an apply sends; `enc_id` is what a save sends.
+def test_both_uplers_ids_are_read_and_neither_is_handed_to_a_caller():
+    """`id` is what an apply sends; `enc_id` is what a save sends - and this
+    server builds the apply and not the save.
 
-    Dropping either would make the row un-actionable without a second fetch,
-    which is why the model carries both rather than picking a winner.
+    The record carries both, and NEITHER is returned, because no tool signature
+    accepts either: an id a caller cannot pass anywhere is cost with no decision
+    behind it. They differ only in how far the drop goes. `job_id` is still READ
+    here - `uplers_apply` builds `{"hr_id": row.job_id}` off this object - so it
+    survives as an excluded attribute; `enc_id` is consumed by nothing and is
+    gone from the model outright.
+
+    tests/test_row_relevance.py owns that rule, the envelope note that says both
+    are absent on purpose, and the control proving apply breaks if `job_id` is
+    deleted rather than excluded.
     """
     raw = authenticated(CONFIDO)
     assert (raw["id"], raw["enc_id"]) == (99101, "ODhDV1BIOWhmNzRDcEJEVnJ4UTRSQT09")
 
     row = talent_shape.to_talent_row(raw)
-    assert row.job_id == 99101
-    assert row.enc_id == "ODhDV1BIOWhmNzRDcEJEVnJ4UTRSQT09"
+    assert row.job_id == 99101, "still read, off the object"
+    assert {"job_id", "enc_id"}.isdisjoint(row.model_dump()), "neither in the payload"
+
+
+def test_the_descent_still_reads_the_requisitions_enc_id_and_not_the_wrappers():
+    """The overlay direction, proven where it now lives: on `job_view`.
+
+    `enc_id` used to prove this from the row, and dropping it from the output
+    must not drop the PROOF. On `my-opportunities` the wrapper is his
+    application and its `enc_id` is HIS TALENT id - identical on every row -
+    while the requisition's sits under `hr` and differs per row. A wrapper-first
+    read would silently swap one for the other, so the descent is asserted here
+    against the live capture instead of being inferred from a returned field.
+    """
+    rows = load_talent_fixture(TALENT_PIPELINE)["hrs"]["data"]
+    assert len(rows) == 9
+
+    wrapper_ids = {row["enc_id"] for row in rows}
+    requisition_ids = {shaping.job_view(row)["enc_id"] for row in rows}
+
+    assert len(wrapper_ids) == 1, "the wrapper's enc_id is his talent id, one value"
+    assert len(requisition_ids) == 9, "the job's enc_id differs per requisition"
+    assert wrapper_ids.isdisjoint(requisition_ids)
 
 
 def test_a_missing_numeric_id_never_borrows_the_encrypted_one():
@@ -240,13 +272,17 @@ def test_a_missing_numeric_id_never_borrows_the_encrypted_one():
     is a write against somebody else's requisition. The fixture's enc_id
     happens to be non-numeric, which would hide a fall-through by accident -
     so this hands it a numeric-LOOKING enc_id and still demands job_id be None.
+
+    The plant stays even though `enc_id` is no longer returned: the risk this
+    guards is a numeric-looking encrypted id being READ as the apply id, and
+    that risk lives on the input side, not on the output side.
     """
     raw = without(authenticated(CONFIDO), "id", "hr_id")
     raw["enc_id"] = "987654"
 
     row = talent_shape.to_talent_row(raw)
     assert row.job_id is None
-    assert row.enc_id == "987654"
+    assert "987654" not in str(row.model_dump())
 
 
 @pytest.mark.parametrize("value", ["", "abc", "99101a", None, [], {"id": 1}])

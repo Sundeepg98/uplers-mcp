@@ -3353,8 +3353,8 @@ async def uplers_my_feed(
 
     This is not the public catalogue: it is the board as Uplers shows it to
     you, ordered by their own relevance model, and each row carries what you
-    have already done about it (applied / saved / dismissed) plus the ids the
-    write tools need.
+    have already done about it (applied / saved / dismissed) plus the
+    `hr_number` every tool here acts on.
 
     Rows are scored with the same jobcore scorer the rest of this server uses,
     so a score here is directly comparable with uplers_rank_opportunities()
@@ -3445,6 +3445,8 @@ async def uplers_my_feed(
             if value
         },
         scored_against=_profile_summary(profile, bound) if profile else None,
+        score_basis_all_rows=talent_shape.hoist_shared_score_basis(rows),
+        row_fields_not_returned=talent_shape.ROW_FIELDS_NOT_RETURNED,
         notes=notes,
     )
 
@@ -3493,6 +3495,7 @@ async def uplers_my_pipeline(
         pages_fetched=min(pages, max(1, (meta.get("last_page") or pages) - page + 1)),
         by_status=talent_shape.tally(rows, "uplers_status"),
         by_badge=talent_shape.tally(rows, "uplers_badge"),
+        row_fields_not_returned=talent_shape.ROW_FIELDS_NOT_RETURNED,
         notes=notes,
     )
 
@@ -3582,12 +3585,19 @@ async def uplers_tailored_jobs(
         for row in raw_rows
         if isinstance(row, dict) and not talent_shape.is_test_record(row)
     ]
+    # THE CAVEAT THIS SURFACE ALWAYS EARNS, said once. `tailor-jobs` publishes
+    # no skill list on any row, so 60% of every score here is jobcore's neutral
+    # default and every row carried the same 130-byte sentence saying so. It is
+    # a fact about the ROUTE, so it belongs in the envelope; a mixed page (if
+    # Uplers ever starts publishing skills here) keeps its caveats per row.
     return TalentFeed(
         rows=rows,
         returned=len(rows),
         source=endpoints.EP_TAILOR_JOBS,
         filters_applied={"anchor": hr_number} if hr_number else {},
         scored_against=_profile_summary(profile, bound) if profile else None,
+        score_basis_all_rows=talent_shape.hoist_shared_score_basis(rows),
+        row_fields_not_returned=talent_shape.ROW_FIELDS_NOT_RETURNED,
     )
 
 
