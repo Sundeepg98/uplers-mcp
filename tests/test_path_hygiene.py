@@ -1,9 +1,9 @@
 """No tool result may publish this machine's directory layout.
 
 REPRODUCED LIVE on 2026-08-22 against the running server: uplers_get_profile()
-came back with `"path": "D:\\Sundeep\\projects\\job-hunting\\mcp-servers\\
+came back with `"path": "D:\\workspace\\projects\\job-hunting\\mcp-servers\\
 uplers\\data\\profile.json"` and `"config_source":
-"D:\\Sundeep\\projects\\job-hunting\\config\\jobhunt.json"`, and uplers_config()
+"D:\\workspace\\projects\\job-hunting\\config\\jobhunt.json"`, and uplers_config()
 leaked the same string in `source`, `status` and every entry of `searched`.
 
 THE RULING IS RELATIVISE, NOT DELETE, and the distinction is the whole file.
@@ -507,8 +507,8 @@ class TestTheWriteResultAndTheInstrumentItself:
         assert not ABSOLUTE_LOCAL.search("https://platform.uplers.com/talent/x")
         assert not ABSOLUTE_LOCAL.search("http://localhost:8765/a")
         # and it must still catch what it is for
-        assert ABSOLUTE_LOCAL.search(r"D:\Sundeep\projects\job-hunting")
-        assert ABSOLUTE_LOCAL.search("C:/Users/Dell/AppData")
+        assert ABSOLUTE_LOCAL.search(r"D:\workspace\projects\job-hunting")
+        assert ABSOLUTE_LOCAL.search("C:/Users/user/AppData")
 
 
 class TestTheInstrumentCanActuallyFail:
@@ -573,7 +573,7 @@ class TestTheReprSpellingOfAPath:
     `uplers_config().status` of the form::
 
         error: cannot read ~/AppData/Local/Temp/.../config/jobhunt.json:
-        [Errno 13] Permission denied: 'C: Users Dell ... jobhunt.json'
+        [Errno 13] Permission denied: 'C: Users user ... jobhunt.json'
 
     where every gap in that second half is a DOUBLED separator - two literal
     characters in the string, not this docstring escaping one. They are shown
@@ -699,7 +699,7 @@ class TestTheReprSpellingOfAPath:
         assert something true here and FALSE there - the trap this file's
         instrument-control class already documents.
         """
-        single = B.join(("C:", "Users", "Dell", "cfg", "jobhunt.json"))
+        single = B.join(("C:", "Users", "user", "cfg", "jobhunt.json"))
         leak = {"status": "cannot read x: [Errno 13] Permission denied: %r" % single}
 
         # 1. The needle every scrubber in this family searched for is GENUINELY
@@ -862,7 +862,7 @@ class TestTheReprSpellingOfAPath:
 #
 #     "detail":   "JOBHUNT_CONFIG=~/AppData/.../does-not-exist/jobhunt.json
 #                  points at no file"                          <- rendered
-#     "searched": ["C:\\Users\\Dell\\AppData\\...\\jobhunt.json"]   <- raw
+#     "searched": ["C:\\Users\\user\\AppData\\...\\jobhunt.json"]   <- raw
 #     PRIMARY (exact) ['.searched[0]']   2nd OPIN (regex) ['.searched[0]']
 #
 # The identical measurement was taken on the naukri server, whose scrubber

@@ -1044,7 +1044,7 @@ connects nothing.
 ## Install and run
 
 ```bash
-cd D:\Sundeep\projects\job-hunting\mcp-servers\uplers
+cd D:\workspace\projects\job-hunting\mcp-servers\uplers
 python -m venv venv
 venv\Scripts\python.exe -m pip install -r requirements.txt
 venv\Scripts\python.exe -m pip install -e ../jobcore   # the shared scoring engine
@@ -1097,7 +1097,7 @@ not a copy of naukri's `<2`. `tests/test_requirements_pins.py` holds that reason
 place, reading `requirements.txt` as text - an assertion about the *installed* version would pass
 happily in the very venv that hides the bug.
 
-Registered in `D:\Sundeep\projects\job-hunting\.mcp.json` as a stdio server named `uplers`.
+Registered in `D:\workspace\projects\job-hunting\.mcp.json` as a stdio server named `uplers`.
 
 State lives in `uplers\data\` (gitignored): `uplers.sqlite3` (~11 MB with the full aggregated id
 set, plus your shortlist, pipeline and alerts) and `profile.json`. Delete the database to start

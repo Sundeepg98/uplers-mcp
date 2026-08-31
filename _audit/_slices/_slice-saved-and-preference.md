@@ -3,10 +3,10 @@
 Date: 2026-08-23
 Files created (four, nothing else touched):
 
-- `D:\Sundeep\projects\job-hunting\mcp-servers\uplers\uplers_server\saved_filter.py`
-- `D:\Sundeep\projects\job-hunting\mcp-servers\uplers\uplers_server\preference.py`
-- `D:\Sundeep\projects\job-hunting\mcp-servers\uplers\tests\test_saved_filter.py`
-- `D:\Sundeep\projects\job-hunting\mcp-servers\uplers\tests\test_preference.py`
+- `D:\workspace\projects\job-hunting\mcp-servers\uplers\uplers_server\saved_filter.py`
+- `D:\workspace\projects\job-hunting\mcp-servers\uplers\uplers_server\preference.py`
+- `D:\workspace\projects\job-hunting\mcp-servers\uplers\tests\test_saved_filter.py`
+- `D:\workspace\projects\job-hunting\mcp-servers\uplers\tests\test_preference.py`
 
 No existing file was edited. No commit. No network call.
 

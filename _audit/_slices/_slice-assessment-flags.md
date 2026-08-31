@@ -1,8 +1,8 @@
 SLICE: assessment flags (ai_needed / custom_screening_needed)
 Date: 2026-08-23
 Files created (the only two files written):
-  D:\Sundeep\projects\job-hunting\mcp-servers\uplers\uplers_server\assessment_flags.py
-  D:\Sundeep\projects\job-hunting\mcp-servers\uplers\tests\test_assessment_flags.py
+  D:\workspace\projects\job-hunting\mcp-servers\uplers\uplers_server\assessment_flags.py
+  D:\workspace\projects\job-hunting\mcp-servers\uplers\tests\test_assessment_flags.py
 No existing file was edited. No endpoint added. No network call. No commit.
 
 

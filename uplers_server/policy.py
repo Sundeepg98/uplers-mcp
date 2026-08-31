@@ -91,7 +91,7 @@ DISPLAY_ANCHOR = server_config.REPO_ROOT
 def display_path(raw):
     """A path a reader can act on, that is not this machine's absolute layout.
 
-    A live sweep on 2026-08-22 found ``D:\\Sundeep\\projects\\...`` in this
+    A live sweep on 2026-08-22 found ``D:\\workspace\\projects\\...`` in this
     server's ``uplers_get_profile`` and ``uplers_config`` results. That is
     wrong twice over: it publishes the box's directory layout into any shared
     transcript, and it is paid for in tokens on every response carrying it.

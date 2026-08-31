@@ -33,8 +33,8 @@ section 2.
 
 | path | lines | what |
 |---|---|---|
-| `D:\Sundeep\projects\job-hunting\mcp-servers\uplers\uplers_server\resume_write.py` | 990 | validation, snapshot, restore, multipart builder, and the two orchestrators |
-| `D:\Sundeep\projects\job-hunting\mcp-servers\uplers\tests\test_resume_write.py` | 1009 (40 tests) | mocks and synthetic fixtures only |
+| `D:\workspace\projects\job-hunting\mcp-servers\uplers\uplers_server\resume_write.py` | 990 | validation, snapshot, restore, multipart builder, and the two orchestrators |
+| `D:\workspace\projects\job-hunting\mcp-servers\uplers\tests\test_resume_write.py` | 1009 (40 tests) | mocks and synthetic fixtures only |
 
 Both files are strict ASCII (measured: 0 bytes > 127 in either). No existing
 file was edited. Nothing was staged; nothing was committed.

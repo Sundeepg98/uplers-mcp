@@ -1,7 +1,7 @@
 # Slice: make `uplers_server_info` honest, and fix four documentation defects
 
 Date: 2026-08-24
-Tree: `D:\Sundeep\projects\job-hunting\mcp-servers\uplers`, branch `master`, baseline commit `883c786`
+Tree: `D:\workspace\projects\job-hunting\mcp-servers\uplers`, branch `master`, baseline commit `883c786`
 Status: COMPLETE. Nothing committed - staged nothing, committed nothing.
 
 ---

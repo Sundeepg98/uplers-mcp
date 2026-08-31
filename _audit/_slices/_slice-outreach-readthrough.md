@@ -2,8 +2,8 @@
 
 Built 2026-08-23. Files written, and nothing else touched:
 
-    D:\Sundeep\projects\job-hunting\mcp-servers\uplers\uplers_server\outreach.py
-    D:\Sundeep\projects\job-hunting\mcp-servers\uplers\tests\test_outreach.py
+    D:\workspace\projects\job-hunting\mcp-servers\uplers\uplers_server\outreach.py
+    D:\workspace\projects\job-hunting\mcp-servers\uplers\tests\test_outreach.py
 
 No edit to server.py, endpoints.py, talent*.py or any existing test. No commit.
 No network call. No write path of any kind in the shipped module.

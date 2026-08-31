@@ -4,7 +4,7 @@
 server cannot do, and for each gap, is it reachable?
 
 **Measured 2026-08-23** against working tree `9b65985`
-(`D:\Sundeep\projects\job-hunting\mcp-servers\uplers`), `server.py` mtime
+(`D:\workspace\projects\job-hunting\mcp-servers\uplers`), `server.py` mtime
 2026-08-23 09:53, `uplers_server/endpoints.py` mtime 2026-08-23 09:54.
 
 ## THE TWO COUNTED ANSWERS
@@ -28,15 +28,15 @@ gap in 1-105.
 
 | input | file | what it settled |
 |---|---|---|
-| tool surface | `D:\Sundeep\projects\job-hunting\mcp-servers\uplers\server.py` | 47 tools, their tier, and every endpoint constant each one touches (AST walk over `@mcp.tool()`-decorated defs) |
-| route rulings | `D:\Sundeep\projects\job-hunting\mcp-servers\uplers\uplers_server\endpoints.py` | which routes are BUILT vs RECORDED-NOT-BUILT, and the reason attached to each refusal |
-| human surface | `D:\Sundeep\projects\job-hunting\mcp-servers\_audit\_slices\_slice-uplers-route-inventory.md` | 214 API paths, 91 distinct UI paths, 95 router elements, the sidebar item lists |
-| request shapes | `D:\Sundeep\projects\job-hunting\mcp-servers\_audit\_slices\_slice-uplers-shape-followup.md` | eight resolved shape questions, including the full `talent/hr/opportunities` query surface |
-| earlier call-site audit | `D:\Sundeep\projects\job-hunting\mcp-servers\_audit\2026-08-21-uplers-bundle-callsites.md` | shapes for `account/status`, `account/analytics`, `update-saved-hr` |
-| consent rulings | `D:\Sundeep\projects\job-hunting\mcp-servers\uplers\_audit\_slices\_slice-consent-semantics.md` | which route reads back the email-scan consent |
-| prior parity pass | `D:\Sundeep\projects\job-hunting\mcp-servers\_audit\2026-08-22-parity-uplers.md` | the 2026-08-22 state; four of its five UNBUILT items have since shipped |
-| scope refusals | `D:\Sundeep\projects\job-hunting\mcp-servers\uplers\README.md` | the paid-SKU exclusions and the outreach namespace exception |
-| live fixtures | `D:\Sundeep\projects\job-hunting\mcp-servers\uplers\tests\fixtures\*.json` | identifier spaces resolved against real captured payloads (section 6) |
+| tool surface | `D:\workspace\projects\job-hunting\mcp-servers\uplers\server.py` | 47 tools, their tier, and every endpoint constant each one touches (AST walk over `@mcp.tool()`-decorated defs) |
+| route rulings | `D:\workspace\projects\job-hunting\mcp-servers\uplers\uplers_server\endpoints.py` | which routes are BUILT vs RECORDED-NOT-BUILT, and the reason attached to each refusal |
+| human surface | `D:\workspace\projects\job-hunting\mcp-servers\_audit\_slices\_slice-uplers-route-inventory.md` | 214 API paths, 91 distinct UI paths, 95 router elements, the sidebar item lists |
+| request shapes | `D:\workspace\projects\job-hunting\mcp-servers\_audit\_slices\_slice-uplers-shape-followup.md` | eight resolved shape questions, including the full `talent/hr/opportunities` query surface |
+| earlier call-site audit | `D:\workspace\projects\job-hunting\mcp-servers\_audit\2026-08-21-uplers-bundle-callsites.md` | shapes for `account/status`, `account/analytics`, `update-saved-hr` |
+| consent rulings | `D:\workspace\projects\job-hunting\mcp-servers\uplers\_audit\_slices\_slice-consent-semantics.md` | which route reads back the email-scan consent |
+| prior parity pass | `D:\workspace\projects\job-hunting\mcp-servers\_audit\2026-08-22-parity-uplers.md` | the 2026-08-22 state; four of its five UNBUILT items have since shipped |
+| scope refusals | `D:\workspace\projects\job-hunting\mcp-servers\uplers\README.md` | the paid-SKU exclusions and the outreach namespace exception |
+| live fixtures | `D:\workspace\projects\job-hunting\mcp-servers\uplers\tests\fixtures\*.json` | identifier spaces resolved against real captured payloads (section 6) |
 
 **Read-only.** No `mcp__uplers__*` tool was called, no HTTP request was sent, no file in the
 server was modified.
